@@ -1,3 +1,11 @@
 # Godot 4+ specific ignores
 .godot/
 /android/
+
+# Segredos de export (senha da keystore, chaves de criptografia).
+# O Godot 4.1+ grava as credenciais aqui, separadas do export_presets.cfg.
+export_credentials.cfg
+
+# Arquivos de keystore Android — nunca versionar
+*.keystore
+*.jks
