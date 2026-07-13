@@ -1,0 +1,346 @@
+[gd_scene format=3 uid="uid://b31i0lywdv5qj"]
+
+[ext_resource type="Script" uid="uid://cv0k2uflsek6u" path="res://Main.gd" id="1_main"]
+[ext_resource type="Script" uid="uid://dd21kk2j5l8p2" path="res://Paper.gd" id="2_paper"]
+[ext_resource type="PackedScene" path="res://player.tscn" id="3_player"]
+[ext_resource type="FontFile" uid="uid://b4elcv2cv8uv3" path="res://assets/fonts/ArchitectsDaughter-Regular.ttf" id="4_font"]
+[ext_resource type="Script" uid="uid://c3ykssl4yn5xg" path="res://WaveManager.gd" id="5_wave"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_hp_bg"]
+bg_color = Color(0.98, 0.965, 0.93, 0)
+border_width_left = 3
+border_width_top = 3
+border_width_right = 3
+border_width_bottom = 3
+border_color = Color(0.1, 0.1, 0.15, 1)
+corner_radius_top_left = 6
+corner_radius_top_right = 6
+corner_radius_bottom_right = 6
+corner_radius_bottom_left = 6
+expand_margin_left = 2.0
+expand_margin_top = 2.0
+expand_margin_right = 2.0
+expand_margin_bottom = 2.0
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_hp_fill"]
+bg_color = Color(0, 0.28, 0.67, 1)
+corner_radius_top_left = 3
+corner_radius_top_right = 3
+corner_radius_bottom_right = 3
+corner_radius_bottom_left = 3
+
+[node name="Main" type="Node2D" unique_id=1202425883]
+script = ExtResource("1_main")
+
+[node name="Paper" type="ColorRect" parent="." unique_id=538527010]
+offset_right = 1080.0
+offset_bottom = 1920.0
+mouse_filter = 2
+color = Color(0.98039216, 0.9647059, 0.93333334, 1)
+script = ExtResource("2_paper")
+
+[node name="Player" parent="." unique_id=626068648 instance=ExtResource("3_player")]
+position = Vector2(540, 1600)
+
+[node name="WaveManager" type="Node" parent="." unique_id=1882949925]
+script = ExtResource("5_wave")
+
+[node name="HUD" type="CanvasLayer" parent="." unique_id=760080536]
+
+[node name="HPBar" type="ProgressBar" parent="HUD" unique_id=764419256]
+offset_left = 30.0
+offset_top = 35.0
+offset_right = 330.0
+offset_bottom = 75.0
+theme_override_styles/background = SubResource("StyleBoxFlat_hp_bg")
+theme_override_styles/fill = SubResource("StyleBoxFlat_hp_fill")
+max_value = 5.0
+value = 5.0
+show_percentage = false
+
+[node name="HPTextoLabel" type="Label" parent="HUD" unique_id=1270700383]
+offset_left = 345.0
+offset_top = 28.0
+offset_right = 480.0
+offset_bottom = 78.0
+theme_override_colors/font_color = Color(0.1, 0.1, 0.15, 1)
+theme_override_fonts/font = ExtResource("4_font")
+theme_override_font_sizes/font_size = 32
+text = "5 / 5"
+vertical_alignment = 1
+
+[node name="TintaLabel" type="Label" parent="HUD" unique_id=1143643281]
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -400.0
+offset_top = 30.0
+offset_right = -30.0
+offset_bottom = 90.0
+grow_horizontal = 0
+theme_override_colors/font_color = Color(0.1, 0.1, 0.15, 1)
+theme_override_fonts/font = ExtResource("4_font")
+theme_override_font_sizes/font_size = 48
+text = "0 🫧"
+horizontal_alignment = 2
+vertical_alignment = 1
+
+[node name="BossHPBar" type="ProgressBar" parent="HUD" unique_id=387292647]
+visible = false
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -350.0
+offset_top = 120.0
+offset_right = 350.0
+offset_bottom = 160.0
+grow_horizontal = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_fonts/font = ExtResource("4_font")
+theme_override_font_sizes/font_size = 24
+value = 100.0
+show_percentage = false
+
+[node name="MenuIniciar" type="Control" parent="HUD" unique_id=1508457022]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Fundo" type="ColorRect" parent="HUD/MenuIniciar" unique_id=1265821248]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.98039216, 0.9647059, 0.93333334, 0.78431374)
+
+[node name="Titulo" type="Label" parent="HUD/MenuIniciar" unique_id=1123801783]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -400.0
+offset_top = -250.0
+offset_right = 400.0
+offset_bottom = -100.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_colors/font_color = Color(0.1, 0.1, 0.15, 1)
+theme_override_fonts/font = ExtResource("4_font")
+theme_override_font_sizes/font_size = 96
+text = "Sketch Blade"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="BotaoJogar" type="Button" parent="HUD/MenuIniciar" unique_id=1945243438]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -200.0
+offset_top = 50.0
+offset_right = 200.0
+offset_bottom = 170.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_colors/font_color = Color(0.1, 0.4, 0.1, 1)
+theme_override_colors/font_focus_color = Color(0.1, 0.4, 0.1, 1)
+theme_override_colors/font_pressed_color = Color(0, 0, 0, 1)
+theme_override_colors/font_hover_color = Color(0, 0, 0, 1)
+theme_override_fonts/font = ExtResource("4_font")
+theme_override_font_sizes/font_size = 64
+text = "[ JOGAR ]"
+flat = true
+
+[node name="MenuGameOver" type="Control" parent="HUD" unique_id=621140096]
+process_mode = 3
+visible = false
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="FundoVegetal" type="ColorRect" parent="HUD/MenuGameOver" unique_id=443625896]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.98039216, 0.9647059, 0.93333334, 0.8235294)
+
+[node name="Titulo" type="Label" parent="HUD/MenuGameOver" unique_id=1367167229]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -500.0
+offset_top = -250.0
+offset_right = 500.0
+offset_bottom = -100.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_colors/font_color = Color(0.7019608, 0.11764706, 0.11764706, 1)
+theme_override_fonts/font = ExtResource("4_font")
+theme_override_font_sizes/font_size = 80
+text = "PÁGINA ARRUINADA!"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="DetalhesGameOver" type="Label" parent="HUD/MenuGameOver" unique_id=1103591841]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -450.0
+offset_top = -80.0
+offset_right = 450.0
+offset_bottom = 200.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_colors/font_color = Color(0.15, 0.15, 0.2, 1)
+theme_override_fonts/font = ExtResource("4_font")
+theme_override_font_sizes/font_size = 34
+text = "Tinta Coletada: +0 🫧
+XP Ganho na Run: +0 XP"
+horizontal_alignment = 1
+
+[node name="BotaoRecomecar" type="Button" parent="HUD/MenuGameOver" unique_id=999301455]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -250.0
+offset_top = 220.0
+offset_right = 250.0
+offset_bottom = 340.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_colors/font_color = Color(0.1, 0.1, 0.15, 1)
+theme_override_colors/font_focus_color = Color(0.1, 0.1, 0.15, 1)
+theme_override_colors/font_pressed_color = Color(0, 0, 0, 1)
+theme_override_colors/font_hover_color = Color(0, 0, 0, 1)
+theme_override_fonts/font = ExtResource("4_font")
+theme_override_font_sizes/font_size = 54
+text = "[ SAIR PARA O HUB ]"
+flat = true
+
+[node name="MenuVitoria" type="Control" parent="HUD" unique_id=1252118046]
+process_mode = 3
+visible = false
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="FundoDourado" type="ColorRect" parent="HUD/MenuVitoria" unique_id=126262245]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.99607843, 0.98039216, 0.90588236, 0.8627451)
+
+[node name="Titulo" type="Label" parent="HUD/MenuVitoria" unique_id=228545629]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -500.0
+offset_top = -300.0
+offset_right = 500.0
+offset_bottom = -150.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_colors/font_color = Color(0.11764706, 0.47058824, 0.11764706, 1)
+theme_override_fonts/font = ExtResource("4_font")
+theme_override_font_sizes/font_size = 80
+text = "PÁGINA CONCLUÍDA!"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="Subtitulo" type="Label" parent="HUD/MenuVitoria" unique_id=2101619301]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -400.0
+offset_top = -140.0
+offset_right = 400.0
+offset_bottom = -80.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_colors/font_color = Color(0.2, 0.2, 0.25, 1)
+theme_override_fonts/font = ExtResource("4_font")
+theme_override_font_sizes/font_size = 36
+text = "Você derrotou o Boss de Tinta!"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="DetalhesVitoria" type="Label" parent="HUD/MenuVitoria" unique_id=1924707338]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -400.0
+offset_top = -70.0
+offset_right = 400.0
+offset_bottom = 330.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_colors/font_color = Color(0.1, 0.1, 0.15, 1)
+theme_override_fonts/font = ExtResource("4_font")
+theme_override_font_sizes/font_size = 30
+text = "Tinta Coletada: +0
+Bônus por Vidas (+0%): +0
+Tinta Ganha na Run: +0 🫧
+
+Total no Estojo: 0 🫧"
+horizontal_alignment = 1
+
+[node name="BotaoContinuar" type="Button" parent="HUD/MenuVitoria" unique_id=2003097835]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -250.0
+offset_top = 360.0
+offset_right = 250.0
+offset_bottom = 480.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_colors/font_color = Color(0.1, 0.45, 0.1, 1)
+theme_override_colors/font_focus_color = Color(0.1, 0.45, 0.1, 1)
+theme_override_colors/font_pressed_color = Color(0, 0, 0, 1)
+theme_override_colors/font_hover_color = Color(0, 0, 0, 1)
+theme_override_fonts/font = ExtResource("4_font")
+theme_override_font_sizes/font_size = 54
+text = "[ CONTINUAR ]"
+flat = true

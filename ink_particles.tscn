@@ -1,0 +1,23 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://InkParticles.gd" id="1_ink_part"]
+
+[sub_resource type="Curve" id="Curve_ink"]
+_data = [Vector2(0, 1), 0.0, 0.0, 0, 0, Vector2(1, 0), -1.0, 0.0, 0, 0]
+point_count = 2
+
+[node name="InkParticles" type="CPUParticles2D"]
+emitting = false
+amount = 25
+lifetime = 0.7
+one_shot = true
+explosiveness = 0.9
+spread = 180.0
+gravity = Vector2(0, 1200)
+initial_velocity_min = 150.0
+initial_velocity_max = 400.0
+scale_amount_min = 6.0
+scale_amount_max = 14.0
+scale_amount_curve = SubResource("Curve_ink")
+color = Color(0.12, 0.12, 0.12, 1)
+script = ExtResource("1_ink_part")
