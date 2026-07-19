@@ -16,6 +16,10 @@ var textura_drop: String = "res://assets/ink-black.svg"
 var hp: int = 20
 var morre_no_contato: bool = true
 var dano_contato: int = 1
+# Invulnerável até o corpo entrar inteiro na tela (nasce em y=-80 e os
+# projéteis do jogador só morrem em y=-50 — sem isso dá pra matar monstro
+# que nem apareceu). Mesmo padrão da entrada do Boss.
+var entrada_concluida: bool = false
 # Y de fuga pelo rodapé (recalculado da altura real da tela no _ready)
 var y_fuga: float = 2100.0
 var eh_elite: bool = false
@@ -39,6 +43,9 @@ func _ready() -> void:
 		return
 	add_to_group("enemies")
 	y_fuga = get_viewport_rect().size.y + 180.0
+	# Entrada: sem colisão até aparecer na tela (projéteis atravessam)
+	set_deferred("monitoring", false)
+	set_deferred("monitorable", false)
 	configurar_tipo(tipo)
 
 func configurar_tipo(novo_tipo: TipoInimigo) -> void:
@@ -177,7 +184,13 @@ func _process(delta: float) -> void:
 
 	# Movimentação vertical
 	position.y += velocidade * delta
-	
+
+	# Fim da entrada: corpo inteiro visível → liga colisão e vulnerabilidade
+	if not entrada_concluida and position.y >= raio_visual * scale.y:
+		entrada_concluida = true
+		set_deferred("monitoring", true)
+		set_deferred("monitorable", true)
+
 	# Comportamento horizontal baseado no tipo
 	if tipo == TipoInimigo.COMUM:
 		# Desce em diagonal e bate nas bordas do papel
@@ -241,7 +254,7 @@ func receber_dano(quantidade: int) -> void:
 	receber_dano_detalhado(quantidade, false)
 
 func receber_dano_detalhado(quantidade: int, critico: bool) -> void:
-	if morrendo:
+	if morrendo or not entrada_concluida:
 		return
 	hp -= quantidade
 
