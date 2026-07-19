@@ -602,8 +602,15 @@ func _criar_botao_dobrar(menu_pai: Control) -> Button:
 	btn.add_theme_color_override("font_color", Color("2e7d32"))
 	btn.add_theme_color_override("font_hover_color", Color("43a047"))
 	btn.flat = true
-	btn.position = Vector2(290, 1560)
-	btn.size = Vector2(500, 80)
+	# Ancorado no CENTRO como os demais filhos destes menus (que usam
+	# anchors_preset=8): em telas mais altas que 16:9 tudo desce junto e a
+	# distância pro [CONTINUAR]/[RECOMEÇAR] se mantém. Em 1080×1920 esses
+	# offsets reproduzem a posição original (290, 1560).
+	btn.set_anchors_preset(Control.PRESET_CENTER)
+	btn.offset_left = -250.0
+	btn.offset_right = 250.0
+	btn.offset_top = 600.0
+	btn.offset_bottom = 680.0
 	btn.process_mode = Node.PROCESS_MODE_ALWAYS
 	menu_pai.add_child(btn)
 	btn.pressed.connect(func():

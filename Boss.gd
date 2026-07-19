@@ -21,6 +21,10 @@ var estado: EstadoBoss = EstadoBoss.PATRULHA
 var direcao_patrulha: float = 1.0  # 1 = direita, -1 = esquerda
 var posicao_alvo_mergulho: Vector2
 
+# Invulnerável durante a descida de entrada (até chegar em Y=300):
+# colisões desligadas (projéteis atravessam) + guarda no receber_dano.
+var entrada_concluida: bool = false
+
 # Padrão de ataque (varia por faixa de capítulo via configurar_padrao)
 var angulos_leque: Array = [90, 75, 105]
 var spawna_reforcos: bool = false
@@ -42,6 +46,9 @@ func _ready() -> void:
 	hp = hp_max
 	add_to_group("enemies")
 	y_limite_mergulho = get_viewport_rect().size.y - 120.0
+	# Entrada: sem colisão até terminar de descer
+	set_deferred("monitoring", false)
+	set_deferred("monitorable", false)
 
 ## Define o padrão de ataque do boss conforme a faixa de capítulos.
 func configurar_padrao(capitulo: int) -> void:
@@ -102,10 +109,15 @@ func _process(delta: float) -> void:
 func _processar_patrulha(delta: float) -> void:
 	# Move-se horizontalmente lado a lado no terço superior (Y=300)
 	# Entrada suave: se acabou de nascer, desce até Y=300 primeiro
-	if position.y < 300.0:
-		position.y += 150.0 * delta
-		return
-		
+	if not entrada_concluida:
+		if position.y < 300.0:
+			position.y += 150.0 * delta
+			return
+		entrada_concluida = true
+		set_deferred("monitoring", true)
+		set_deferred("monitorable", true)
+
+
 	position.x += velocidade_patrulha * direcao_patrulha * delta
 	
 	# Bate nas bordas da tela e inverte
@@ -186,6 +198,8 @@ func receber_dano(quantidade: int) -> void:
 	receber_dano_detalhado(quantidade, false)
 
 func receber_dano_detalhado(quantidade: int, critico: bool) -> void:
+	if not entrada_concluida:
+		return
 	hp -= quantidade
 	if hp < 0:
 		hp = 0
