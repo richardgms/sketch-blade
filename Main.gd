@@ -51,8 +51,10 @@ var monstros_derrotados_partida: int = 0
 var boss_derrotado_partida: bool = false
 var capitulo_atual: int = 1
 
-# Telemetria: instante (ms) em que a run começou, para medir duração
-var _run_inicio_ms: int = 0
+# Telemetria: tempo ATIVO de combate da run (segundos). Acumulado em
+# _process, que o SceneTree congela durante pausa/roleta/menus e em
+# background — então menus e idle não contam na duração.
+var _tempo_ativo_seg: float = 0.0
 
 # Referência ao dicionário central do SaveManager (autoload)
 var dados_save: Dictionary
@@ -246,7 +248,7 @@ func _on_botao_jogar_pressed() -> void:
 	tinta_partida = 0
 	monstros_derrotados_partida = 0
 	boss_derrotado_partida = false
-	_run_inicio_ms = Time.get_ticks_msec()
+	_tempo_ativo_seg = 0.0
 	AdsManager.nova_run()
 	fim_de_jogo_declarado = false
 	
@@ -400,6 +402,12 @@ func _tratar_voltar() -> void:
 
 ## True enquanto há uma partida realmente em andamento (inclui menus de pausa/
 ## roleta/descanso que fazem parte da run), e False em fim de jogo ou tela inicial.
+func _process(delta: float) -> void:
+	# Telemetria: o SceneTree pausado (menus) ou app em background congela
+	# este _process, então só o combate real acumula.
+	if jogo_iniciado and _run_em_andamento():
+		_tempo_ativo_seg += delta
+
 func _run_em_andamento() -> bool:
 	if fim_de_jogo_declarado:
 		return false
@@ -423,7 +431,7 @@ func _capturar_estado_run() -> Dictionary:
 		"boss_derrotado": boss_derrotado_partida,
 		"upgrades": player.upgrades.duplicate(),
 		"revive_usado": AdsManager.revive_usado_na_run,
-		"tempo_decorrido_ms": Time.get_ticks_msec() - _run_inicio_ms,
+		"tempo_ativo_seg": _tempo_ativo_seg,
 	}
 
 ## Restaura uma run a partir do snapshot salvo. A página atual recomeça do zero,
@@ -460,7 +468,7 @@ func _retomar_run_do_snapshot() -> void:
 	AdsManager.revive_usado_na_run = bool(snap.get("revive_usado", false))
 
 	# Preserva a duração já jogada para a telemetria de baseline.
-	_run_inicio_ms = Time.get_ticks_msec() - int(snap.get("tempo_decorrido_ms", 0))
+	_tempo_ativo_seg = float(snap.get("tempo_ativo_seg", 0.0))
 	fim_de_jogo_declarado = false
 
 	_atualizar_hud()
@@ -846,12 +854,9 @@ func get_xp_necessario_para_nivel(nivel: int) -> int:
 ## Só MEDE — não altera economia. Chamado em _processar_fim_de_jogo, depois
 ## de partidas_jogadas/tinta_coletada_total já terem sido incrementados, então
 ## as médias abaixo já incluem a run recém-terminada.
-## Nota: a duração é tempo de parede (inclui menus/pausa da run).
+## Nota: a duração é tempo ATIVO de combate (menus/pausa/background não contam).
 func _registrar_telemetria_run(tinta_final: int) -> void:
-	var dur_seg: int = 0
-	if _run_inicio_ms > 0:
-		dur_seg = int((Time.get_ticks_msec() - _run_inicio_ms) / 1000.0)
-	SaveManager.incrementar_stat("tempo_jogado_seg", dur_seg)
+	SaveManager.incrementar_stat("tempo_jogado_seg", int(_tempo_ativo_seg))
 
 	var s: Dictionary = SaveManager.dados["stats"]
 	var partidas: int = max(1, s["partidas_jogadas"])
