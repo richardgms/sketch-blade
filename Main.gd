@@ -866,7 +866,7 @@ func _registrar_telemetria_run(tinta_final: int) -> void:
 	var taxa_seca: float = (float(secas) / float(total_gotas) * 100.0) if total_gotas > 0 else 0.0
 
 	print("=== TELEMETRIA — esta run ===")
-	print("  Duração: %ds | Kills: %d | Tinta ganha: %d" % [dur_seg, monstros_derrotados_partida, tinta_final])
+	print("  Duração: %ds | Kills: %d | Tinta ganha: %d" % [int(_tempo_ativo_seg), monstros_derrotados_partida, tinta_final])
 	print("=== MÉDIAS acumuladas (%d runs) ===" % partidas)
 	print("  Tinta/run:     %.0f" % (float(s["tinta_coletada_total"]) / partidas))
 	print("  Kills/run:     %.1f" % (float(s["monstros_derrotados"]) / partidas))
