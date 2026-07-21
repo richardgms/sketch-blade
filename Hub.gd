@@ -470,12 +470,16 @@ func _atualizar_ui_capitulo() -> void:
 	if cap_sel >= 1 and cap_sel < nomes_capitulos.size():
 		nome_capitulo.text = nomes_capitulos[cap_sel]
 	
-	# Carrega dinamicamente a imagem do capítulo
+	# Carrega dinamicamente a imagem do capítulo.
+	# IMPORTANTE: usar ResourceLoader.exists (não FileAccess.file_exists): num
+	# build exportado os PNG viram .ctex empacotados e o .png cru não existe no
+	# res://, então file_exists dava sempre false → todo capítulo caía no
+	# fallback e mostrava a arte do capítulo 1 no celular.
 	var caminho_svg = "res://assets/images/stage" + str(cap_sel) + ".svg"
 	var caminho_imagem = "res://assets/images/stage" + str(cap_sel) + ".png"
-	if FileAccess.file_exists(caminho_svg):
+	if ResourceLoader.exists(caminho_svg):
 		boss_icon.texture = load(caminho_svg)
-	elif FileAccess.file_exists(caminho_imagem):
+	elif ResourceLoader.exists(caminho_imagem):
 		boss_icon.texture = load(caminho_imagem)
 	else:
 		boss_icon.texture = load("res://assets/images/stage1.png") # Fallback
