@@ -57,6 +57,8 @@ var _defaults: Dictionary = {
 		"gotas_secas": 0,
 		"tempo_jogado_seg": 0
 	},
+	# Tokens das compras no app já entregues (evita entregar duas vezes)
+	"compras_tokens": [],
 	# Configurações
 	"tutorial_visto": false,
 	"som_ativo": true,

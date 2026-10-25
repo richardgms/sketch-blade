@@ -233,7 +233,13 @@ func _ready() -> void:
 	botao_comprar_clipes.pressed.connect(func(): _abrir_popup_compra("clipes"))
 	botao_confirmar_compra.pressed.connect(_on_confirmar_compra_pressed)
 	botao_cancelar_compra.pressed.connect(_on_cancelar_compra_pressed)
-	
+	BillingManager.compra_concluida.connect(_on_compra_concluida)
+	BillingManager.compra_falhou.connect(_on_compra_falhou)
+	BillingManager.precos_atualizados.connect(func():
+		if popup_compra.visible:
+			_atualizar_texto_popup_compra()
+	)
+
 	# Sons procedurais
 	audio_click_sucesso = _gerar_som_procedural(880.0, 0.08, "sin")
 	audio_click_erro = _gerar_som_procedural(150.0, 0.25, "square")
@@ -580,33 +586,52 @@ func _estilizar_botao_aba(botao: Button, ativo: bool, texto_padrao: String) -> v
 		if risco_rect:
 			risco_rect.visible = false
 
-# Lógica IAP Sandbox
+# Compras no app (Google Play Billing, via BillingManager)
 func _abrir_popup_compra(tipo: String) -> void:
 	item_sendo_comprado = tipo
 	_tocar_som(audio_click_sucesso)
-	
+
 	if tipo == "clipes":
 		popup_titulo.text = "Comprar Clipes"
-		popup_descricao.text = "Deseja comprar 100 Clipes de Ouro por R$ 4,90 para apoiar o desenvolvimento do Sketch Blade?"
 	else:
 		popup_titulo.text = "Comprar Tintas"
-		popup_descricao.text = "Deseja comprar 5.000 Gotas de Tinta por R$ 4,90 para dar carga rápida no seu estojo?"
-		
+	_atualizar_texto_popup_compra()
 	popup_compra.visible = true
 	if desenho_hub:
 		desenho_hub.queue_redraw()
 
+## Texto do popup com o preço vindo da loja. Sem preço (loja ainda não
+## respondeu), o botão de confirmar fica desativado.
+func _atualizar_texto_popup_compra() -> void:
+	var nome_item: String = BillingManager.nome(item_sendo_comprado)
+	var preco: String = BillingManager.preco(item_sendo_comprado)
+	var pode_comprar: bool = BillingManager.disponivel(item_sendo_comprado)
+	if pode_comprar:
+		popup_descricao.text = "Deseja comprar %s por %s?" % [nome_item, preco]
+	else:
+		popup_descricao.text = "A loja não respondeu ainda. Tente de novo em instantes."
+	botao_confirmar_compra.disabled = not pode_comprar
+
 func _on_confirmar_compra_pressed() -> void:
 	_tocar_som(audio_click_sucesso)
-	
-	if item_sendo_comprado == "clipes":
-		dados_save["clipes_ouro"] += 100
-	else:
-		dados_save["tinta"] += 5000
+	botao_confirmar_compra.disabled = true
+	popup_descricao.text = "Abrindo a loja..."
+	BillingManager.comprar(item_sendo_comprado)
 
-	_salvar_dados()
+func _on_compra_concluida(_chave: String) -> void:
+	_tocar_som(audio_click_sucesso)
 	_atualizar_ui_upgrades() # Tinta nova pode liberar botões do Estojo
 	popup_compra.visible = false
+	if desenho_hub:
+		desenho_hub.queue_redraw()
+
+func _on_compra_falhou(_chave: String, motivo: String) -> void:
+	_tocar_som(audio_click_erro)
+	if motivo == "cancelada":
+		popup_compra.visible = false
+	else:
+		popup_descricao.text = motivo
+		botao_confirmar_compra.disabled = not BillingManager.disponivel(item_sendo_comprado)
 	if desenho_hub:
 		desenho_hub.queue_redraw()
 

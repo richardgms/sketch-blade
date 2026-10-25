@@ -46,6 +46,9 @@ A conferir depois: se o que foi declarado em Anúncios e Segurança dos dados (f
 - **Compra falsa no Hub** (`Hub.gd` `_on_confirmar_compra_pressed`): botões "R$ 4,90" dão 100 clipes / 5000 tinta sem cobrança. Não passa na política da Play Store; remover ou implementar Google Play Billing.
 - **Marca BIC**: nome da caneta trocado para "Caneta Azul" em `GameData.gd` (feito em 25/10/2026; o id interno `bic_azul` e os nomes de arquivo foram mantidos para não quebrar saves). Textos da loja sem "BIC". Comentários de código com "azul BIC" não aparecem ao jogador. Resta avaliar se o desenho da caneta (tipo Cristal) é problema.
 
+## Página "Detalhes do app" (25/10/2026)
+Preenchida no Play Console: nome "Sketch Blade: Roguelite", descrições, ícone, recurso gráfico, 7 prints (celular, tablet 7" e 10"). Na tela de Avaliação o Google pede a **declaração de recursos de IA**: a arte do jogo, o ícone e o gráfico foram gerados com IA (ChatGPT), então marcar "Rotular os recursos como criados ou editados com IA" e rotular ícone, gráfico e capturas.
+
 ## Decisões em aberto
 - Confirmar o nome na loja (Tinta & Papel ou Roguelite).
 - Quem serão os 12 testadores (precisam de Android e conta Google).
