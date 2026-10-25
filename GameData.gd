@@ -216,7 +216,7 @@ func get_missao(id: String) -> Dictionary:
 const CANETAS: Array = [
 	{
 		"id": "bic_azul",
-		"nome": "BIC Azul",
+		"nome": "Caneta Azul",
 		"passiva": "A clássica de todo estojo.\nSem bônus, puro coração.",
 		"custo_tinta": 0, "custo_clipes": 0,
 		"cor_corpo": "0038a8",
@@ -261,7 +261,7 @@ const CANETAS: Array = [
 	}
 ]
 
-## Retorna a definição de uma caneta pelo id (fallback: BIC Azul).
+## Retorna a definição de uma caneta pelo id (fallback: Caneta Azul).
 func get_caneta(id: String) -> Dictionary:
 	for caneta in CANETAS:
 		if caneta["id"] == id:
