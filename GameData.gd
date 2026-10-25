@@ -154,6 +154,21 @@ const DESCANSO_TINTA_POR_CAPITULO: int = 20
 const BONUS_PAGINA_PERFEITA_BASE: int = 10
 const BONUS_PAGINA_PERFEITA_POR_CAPITULO: int = 5
 
+func _ready() -> void:
+	_ajustar_tela_larga()
+	get_window().size_changed.connect(_ajustar_tela_larga)
+
+## O mundo do jogo tem 1080 px de largura e não se recentraliza em telas largas
+## (tablet, celular deitado). Nelas usa uma coluna de celular centralizada, com
+## faixas cor de papel dos lados. Celulares em pé (inclusive os mais altos que
+## 16:9) continuam em "expand", que preenche a altura extra.
+func _ajustar_tela_larga() -> void:
+	var tam: Vector2i = get_window().size
+	if tam.y <= 0:
+		return
+	var larga: bool = float(tam.x) / float(tam.y) > 0.6
+	get_window().content_scale_aspect = Window.CONTENT_SCALE_ASPECT_KEEP if larga else Window.CONTENT_SCALE_ASPECT_EXPAND
+
 func tinta_descanso(capitulo: int) -> int:
 	return DESCANSO_TINTA_BASE + DESCANSO_TINTA_POR_CAPITULO * capitulo
 
