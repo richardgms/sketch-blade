@@ -9,16 +9,20 @@ extends SceneTree
 ## (%APPDATA%\Godot\app_userdata\SketchBlade\save_data.json). Faça backup desse
 ## arquivo antes e restaure depois.
 
-const TAM := Vector2i(1080, 1920)
 const PASTA_PADRAO := "C:/Users/joalh/Documentos/Sketch Blade - loja/prints-gerados"
 
+var _tam := Vector2i(1080, 1920)
 var _saida: String = PASTA_PADRAO
 var _sv: SubViewport
 
+## Argumentos após "--": [pasta_de_saida] [LARGURAxALTURA]  (ex.: 1440x1920 simula tablet 3:4)
 func _initialize() -> void:
 	var args := OS.get_cmdline_user_args()
 	if args.size() > 0:
 		_saida = args[0]
+	if args.size() > 1:
+		var p := args[1].split("x")
+		_tam = Vector2i(int(p[0]), int(p[1]))
 	DirAccess.make_dir_recursive_absolute(_saida)
 	_rodar()
 
@@ -63,7 +67,7 @@ func _preparar_save(capitulo: int) -> void:
 # ------------------------------------------------------------------
 func _abrir_cena(caminho: String) -> Node:
 	_sv = SubViewport.new()
-	_sv.size = TAM
+	_sv.size = _tam
 	_sv.render_target_update_mode = SubViewport.UPDATE_ALWAYS
 	root.add_child(_sv)
 	var cena: Node = load(caminho).instantiate()
