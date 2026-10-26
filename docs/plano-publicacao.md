@@ -49,6 +49,12 @@ A conferir depois: se o que foi declarado em Anúncios e Segurança dos dados (f
 ## Página "Detalhes do app" (25/10/2026)
 Preenchida no Play Console: nome "Sketch Blade: Roguelite", descrições, ícone, recurso gráfico, 7 prints (celular, tablet 7" e 10"). Na tela de Avaliação o Google pede a **declaração de recursos de IA**: a arte do jogo, o ícone e o gráfico foram gerados com IA (ChatGPT), então marcar "Rotular os recursos como criados ou editados com IA" e rotular ícone, gráfico e capturas.
 
+## ID de publicidade (25/10/2026)
+O envio do Teste fechado exigiu a declaração de ID de publicidade (Android 13+). O AAB atual não tem AdMob (MODO_MOCK) e portanto não tem a permissão `com.google.android.gms.permission.AD_ID`. Decisão final (25/10/2026): declarar **Sim** (o jogo final usa AdMob), finalidade **Publicidade ou marketing**, e marcar "Desativar os erros de lançamento" apenas para esta versão sem anúncios; é o caminho que a própria tela do Google indica. Quando o AdMob real entrar, a permissão `AD_ID` vem com ele e a caixa não é mais necessária. Rever a Segurança dos dados nessa hora.
+
+## Incidente: fotos de cliente dentro do build (26/10/2026)
+Oito fotos de outro cliente (antes/depois de cirurgia, rosto) estavam soltas na raiz do projeto e o export (`all_resources`) as empacotou no AAB v1 (115 dos 191 MB) e no APK de debug. A v1 chegou ao Teste interno e foi aprovada no Teste fechado (25/10 20:06); só os 3 da lista `Interno` tinham acesso. Ações: faixa do Teste fechado pausada; fotos e cópias (`.godot/imported`, `android/build`) movidas para a Lixeira; `exclude_filter` no preset; AAB **1.0.1 (código 2)** gerado e conferido sem as fotos: **68,3 MB**. Falta: pausar/atualizar o Teste interno, subir a v2 nas duas faixas, apagar o APK de debug do Drive e do celular, apagar os pacotes antigos da pasta de builds. O pacote v1 continua na biblioteca do Google.
+
 ## Decisões em aberto
 - Confirmar o nome na loja (Tinta & Papel ou Roguelite).
 - Quem serão os 12 testadores (precisam de Android e conta Google).

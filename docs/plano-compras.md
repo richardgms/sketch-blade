@@ -21,7 +21,11 @@ Contexto: os botões "comprar tinta/clipes" do Hub (`Hub.gd`, `_on_confirmar_com
 - Perfil de comerciante criado. Conta bancária adicionada; falta confirmar o depósito de teste (até R$ 0,35, em até 3 dias).
 - Grupo de contas "RichardGms" criado (pré-requisito da taxa de 15%). O botão para aceitar os termos da taxa ainda não apareceu no Perfil para pagamentos; rever depois de recarregar a página.
 - Contatos: política de privacidade já usa richardgomes.dev@gmail.com. Falta trocar o e-mail da conta de desenvolvedor (Gerenciar conta → Detalhes da conta) e o do app.
-- Plugin de cobrança 3.3.0 copiado para `addons/GodotGooglePlayBilling`; falta ativar no `project.godot` e escrever o `BillingManager`.
+- Plugin de cobrança 3.3.0 instalado em `addons/GodotGooglePlayBilling` e ativo no `project.godot`. `BillingManager.gd` (autoload) pronto: simulado no PC, real no Android, entrega só após confirmação, uma vez por token (guardado em `compras_tokens` no save), consome a compra depois. Hub usa o preço vindo da loja. Testado no modo simulado (entrega, token duplicado, compra pendente).
+- Build Android conferido: permissão `com.android.vending.BILLING` e classes do plugin presentes.
+- AAB de release assinado (chave de upload) gerado: `Documentos\Sketch Blade - builds\sketchblade-1.0-vc1.aab` (191 MB), versão 1 / "1.0". Ainda com anúncios simulados (`MODO_MOCK`).
+- Descoberta no painel: a página Monetizar leva ao Painel enquanto não há versão enviada. Ordem real: enviar o AAB (Teste interno) → criar produtos → testar compra com testador de licença.
+- Commits locais feitos; push pendente (envolve pagamento, aguardando ok do Richard).
 
 ## Decisões em aberto
 - Ordem: fazer a cobrança antes do primeiro AAB do teste fechado, ou subir o AAB antes e entregar a cobrança como atualização durante os 14 dias.
