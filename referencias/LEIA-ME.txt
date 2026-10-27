@@ -1,0 +1,4 @@
+Pasta de rascunhos e referências do Sketch Blade.
+O arquivo .gdignore faz o Godot ignorar esta pasta inteira: nada aqui é
+importado nem vai para o APK/AAB. Arquivos de cliente continuam proibidos
+dentro do projeto (ver CLAUDE.md); aqui só referências do próprio jogo.
