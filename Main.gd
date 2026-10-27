@@ -114,6 +114,8 @@ func _ready() -> void:
 	if lbl_detalhes_gameover:
 		_montar_tela_resultado(menu_game_over, lbl_detalhes_gameover, Color("8e1b1b"), false)
 
+	_ajustar_hud_combate()
+
 	botao_jogar.pressed.connect(_on_botao_jogar_pressed)
 	botao_recomecar.pressed.connect(_on_botao_recomecar_pressed)
 	botao_continuar.pressed.connect(_on_botao_continuar_pressed)
@@ -840,6 +842,30 @@ func _processar_fim_de_jogo(venceu: bool) -> void:
 		if label_gameover:
 			label_gameover.text = "\n".join(linhas)
 
+## HUD mais legível no celular: coração ao lado da vida, números maiores e a
+## barra do chefe abaixo de "Página X/8" (antes os dois se sobrepunham).
+func _ajustar_hud_combate() -> void:
+	var coracao := TextureRect.new()
+	coracao.texture = load("res://assets/upgrade2.svg")
+	coracao.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	coracao.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	coracao.position = Vector2(22, 22)
+	coracao.size = Vector2(66, 66)
+	coracao.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	$HUD.add_child(coracao)
+	$HUD.move_child(coracao, hp_bar.get_index())
+	hp_bar.offset_left = 96.0
+	hp_bar.offset_right = 356.0
+	hp_texto_label.offset_left = 372.0
+	hp_texto_label.offset_right = 560.0
+	hp_texto_label.offset_top = 22.0
+	hp_texto_label.offset_bottom = 86.0
+	hp_texto_label.add_theme_font_size_override("font_size", 46)
+	hp_texto_label.add_theme_color_override("font_color", Color("1a1a2e"))
+	tinta_label.add_theme_font_size_override("font_size", 56)
+	boss_hp_bar.offset_top = 150.0
+	boss_hp_bar.offset_bottom = 190.0
+
 func _montar_tela_resultado(menu: Control, detalhes: Label, cor: Color, eh_vitoria: bool) -> void:
 	var total := Label.new()
 	total.add_theme_font_override("font", FONTE_NUMEROS)
@@ -1300,11 +1326,11 @@ func _criar_label_pagina() -> void:
 	label_pagina = Label.new()
 	label_pagina.text = ""
 	label_pagina.add_theme_font_override("font", FONTE_NUMEROS)
-	label_pagina.add_theme_font_size_override("font_size", 32)
-	label_pagina.add_theme_color_override("font_color", Color("002867", 0.75))
+	label_pagina.add_theme_font_size_override("font_size", 42)
+	label_pagina.add_theme_color_override("font_color", Color("002867"))
 	label_pagina.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	label_pagina.position = Vector2(0, 95)
-	label_pagina.size = Vector2(1080, 40)
+	label_pagina.position = Vector2(0, 92)
+	label_pagina.size = Vector2(1080, 54)
 	$HUD.add_child(label_pagina)
 
 ## Animação de virada de página: uma folha desliza cobrindo e revelando a tela
@@ -1839,7 +1865,7 @@ func _atualizar_habilidades_pausa() -> void:
 		var lbl_nenhuma = Label.new()
 		lbl_nenhuma.text = "(Nenhuma habilidade nesta run)"
 		lbl_nenhuma.add_theme_font_override("font", load("res://assets/fonts/ArchitectsDaughter-Regular.ttf"))
-		lbl_nenhuma.add_theme_font_size_override("font_size", 28)
+		lbl_nenhuma.add_theme_font_size_override("font_size", 38)
 		lbl_nenhuma.add_theme_color_override("font_color", Color(0.5, 0.5, 0.5))
 		lbl_nenhuma.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 		container_habilidades_pausa.add_child(lbl_nenhuma)
@@ -1873,7 +1899,7 @@ func _atualizar_habilidades_pausa() -> void:
 			var lbl_nivel = Label.new()
 			lbl_nivel.text = "Lv.%d" % habilidade["nivel"]
 			lbl_nivel.add_theme_font_override("font", FONTE_NUMEROS)
-			lbl_nivel.add_theme_font_size_override("font_size", 26)
+			lbl_nivel.add_theme_font_size_override("font_size", 36)
 			lbl_nivel.add_theme_color_override("font_color", Color("002867"))
 			lbl_nivel.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 			lbl_nivel.position = Vector2(0, 140)

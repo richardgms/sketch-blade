@@ -3,7 +3,7 @@ extends SceneTree
 ##
 ## Uso (precisa de janela, não roda com --headless):
 ##   Godot --path . -s tools/capturar_telas.gd -- <pasta_de_saida> [tela1,tela2,...]
-## Sem lista, captura todas. Telas: hub, missoes, config, recompensa, compra,
+## Sem lista, captura todas. Telas: hub, estojo, loja, missoes, config, recompensa, compra,
 ## hud, roleta, pausa, descanso, derrota, vitoria, revive.
 ##
 ## Usa um save fictício, mas alguns eventos gravam o save do PC
@@ -30,7 +30,7 @@ func _save(cap: int) -> void:
 	d["tinta"] = 640; d["clipes_ouro"] = 40; d["nivel_conta"] = 6; d["xp_conta"] = 340
 	d["capitulo_desbloqueado"] = 5; d["capitulo_selecionado"] = cap
 	d["nivel_dano"] = 4; d["nivel_hp"] = 4; d["nivel_cadencia"] = 4
-	d["canetas_possuidas"] = ["bic_azul", "lapis_hb"]; d["tutorial_visto"] = true
+	d["canetas_possuidas"] = ["bic_azul", "lapis_hb"]; d["caneta_equipada"] = "bic_azul"; d["tutorial_visto"] = true
 	var hoje := Time.get_date_string_from_system()
 	d["ultimo_login"] = hoje; d["dia_streak"] = 3; d["recompensa_coletada_hoje"] = true
 	d["run_snapshot"] = {"ativa": false}
@@ -79,6 +79,8 @@ func _combate() -> Node:
 func _rodar() -> void:
 	await process_frame
 	await _hub("hub", func(_h): pass)
+	await _hub("estojo", func(h): h._alterar_aba("estojo"))
+	await _hub("loja", func(h): h._alterar_aba("loja"))
 	await _hub("missoes", func(h): h._abrir_painel_missoes())
 	await _hub("config", func(h): h._abrir_painel_config())
 	await _hub("recompensa", func(h): h._mostrar_popup_recompensa_diaria(3))

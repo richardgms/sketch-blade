@@ -195,7 +195,7 @@ func _ready() -> void:
 	lbl_xp_texto = Label.new()
 	lbl_xp_texto.name = "XPTextoLabel"
 	lbl_xp_texto.add_theme_font_override("font", FONTE_NUMEROS)
-	lbl_xp_texto.add_theme_font_size_override("font_size", 28)
+	lbl_xp_texto.add_theme_font_size_override("font_size", 32)
 	lbl_xp_texto.add_theme_color_override("font_color", Color("1a1a2e", 0.7))
 	lbl_xp_texto.horizontal_alignment = HORIZONTAL_ALIGNMENT_LEFT
 	lbl_xp_texto.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -835,7 +835,7 @@ func _configurar_container(container: Control, upgrade_key: String, nome_upgrade
 
 	lbl_falta.position = Vector2(580, 202)
 	lbl_falta.size = Vector2(230, 38)
-	lbl_falta.add_theme_font_size_override("font_size", 26)
+	lbl_falta.add_theme_font_size_override("font_size", 32)
 
 	var tex_upar: Texture2D = load("res://assets/upar.svg")
 	botao_upar.icon = tex_upar
@@ -1134,7 +1134,7 @@ func _atualizar_loja() -> void:
 		rich.size = Vector2(378, 160)
 		rich.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		rich.add_theme_font_override("normal_font", fonte)
-		rich.add_theme_font_size_override("normal_font_size", 27)
+		rich.add_theme_font_size_override("normal_font_size", 28)
 		rich.text = _bbcode_passiva(caneta["passiva"])
 		card.add_child(rich)
 
@@ -1759,7 +1759,7 @@ func _abrir_painel_missoes() -> void:
 		var lbl_prog = Label.new()
 		lbl_prog.text = "%d / %d" % [progresso, def["alvo"]]
 		lbl_prog.add_theme_font_override("font", FONTE_NUMEROS)
-		lbl_prog.add_theme_font_size_override("font_size", 28)
+		lbl_prog.add_theme_font_size_override("font_size", 34)
 		lbl_prog.add_theme_color_override("font_color", Color(0.4, 0.4, 0.45))
 		lbl_prog.position = Vector2(770, y_base + 55)
 		lbl_prog.size = Vector2(150, 40)
