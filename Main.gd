@@ -866,6 +866,13 @@ func _ajustar_hud_combate() -> void:
 	boss_hp_bar.offset_top = 150.0
 	boss_hp_bar.offset_bottom = 190.0
 
+## Topo do bloco da roleta para que título + dica + 3 cartas fiquem no
+## centro vertical da tela (altura real, que passa de 1920 em celulares altos).
+func _topo_bloco_roleta() -> float:
+	var altura_bloco: float = 230.0 + 3.0 * TAM_CARTA_ROLETA.y + 2.0 * 22.0
+	var altura_tela: float = get_viewport().get_visible_rect().size.y
+	return max(160.0, (altura_tela - altura_bloco) / 2.0)
+
 func _montar_tela_resultado(menu: Control, detalhes: Label, cor: Color, eh_vitoria: bool) -> void:
 	var total := Label.new()
 	total.add_theme_font_override("font", FONTE_NUMEROS)
@@ -1129,7 +1136,10 @@ func _criar_menu_upgrades() -> void:
 	titulo.add_theme_color_override("font_color", Color("002867")) # Azul BIC
 	titulo.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	titulo.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	titulo.position = Vector2(0, 160)
+	# Bloco (título, dica e 3 cartas) centrado na altura real da tela; o
+	# "Página X/8" continua no topo, fora do bloco.
+	var y_bloco: float = _topo_bloco_roleta()
+	titulo.position = Vector2(0, y_bloco)
 	titulo.size = Vector2(1080, 120)
 	menu_upgrades.add_child(titulo)
 	
@@ -1141,7 +1151,7 @@ func _criar_menu_upgrades() -> void:
 	label_dica_upgrades.add_theme_color_override("font_color", Color(0.4, 0.4, 0.45))
 	label_dica_upgrades.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	label_dica_upgrades.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	label_dica_upgrades.position = Vector2(0, 260)
+	label_dica_upgrades.position = Vector2(0, y_bloco + 100)
 	label_dica_upgrades.size = Vector2(1080, 80)
 	menu_upgrades.add_child(label_dica_upgrades)
 	
@@ -1151,7 +1161,7 @@ func _criar_menu_upgrades() -> void:
 	for i in range(3):
 		var btn = Button.new()
 		btn.size = TAM_CARTA_ROLETA
-		btn.position = Vector2(60, 390 + i * (TAM_CARTA_ROLETA.y + 22))
+		btn.position = Vector2(60, y_bloco + 230 + i * (TAM_CARTA_ROLETA.y + 22))
 		btn.flat = true
 		btn.pivot_offset = TAM_CARTA_ROLETA / 2.0 # Para animação de escala centralizada
 		menu_upgrades.add_child(btn)
