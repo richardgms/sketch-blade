@@ -1823,10 +1823,10 @@ func _montar_card_missao(i: int, missao: Dictionary, def: Dictionary, y_base: fl
 	else:
 		btn.text = "Recompensa: " + recompensa_txt
 		btn.disabled = true
-		btn.add_theme_font_size_override("font_size", 32)
-		btn.add_theme_color_override("font_disabled_color", Color(0.55, 0.5, 0.35))
-		btn.position = Vector2(250, y_base + 104)
-		btn.size = Vector2(580, 50)
+		btn.add_theme_font_size_override("font_size", 40)
+		btn.add_theme_color_override("font_disabled_color", Color(0.48, 0.42, 0.26))
+		btn.position = Vector2(250, y_base + 100)
+		btn.size = Vector2(580, 58)
 	for estado in ["normal", "hover", "pressed", "disabled", "focus"]:
 		var estilo := StyleBoxFlat.new()
 		estilo.bg_color = cor_fundo.darkened(0.15) if estado == "pressed" else cor_fundo
