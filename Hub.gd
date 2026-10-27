@@ -233,6 +233,7 @@ func _ready() -> void:
 	botao_comprar_clipes.pressed.connect(func(): _abrir_popup_compra("clipes"))
 	botao_confirmar_compra.pressed.connect(_on_confirmar_compra_pressed)
 	botao_cancelar_compra.pressed.connect(_on_cancelar_compra_pressed)
+	_criar_fundo_popup_compra()
 	BillingManager.compra_concluida.connect(_on_compra_concluida)
 	BillingManager.compra_falhou.connect(_on_compra_falhou)
 	BillingManager.precos_atualizados.connect(func():
@@ -585,6 +586,25 @@ func _estilizar_botao_aba(botao: Button, ativo: bool, texto_padrao: String) -> v
 			label_interno.add_theme_font_size_override("font_size", 40)
 		if risco_rect:
 			risco_rect.visible = false
+
+## Fundo de papel opaco da janela de compra. Fica dentro do HUD, por cima da
+## tela de capítulo (antes era desenhado no DesenhoHub, por baixo do HUD, e a
+## ilustração do capítulo e as setas apareciam por cima do texto).
+func _criar_fundo_popup_compra() -> void:
+	var fundo_popup: Control = $HUD/PopupCompra/FundoPopup
+	var painel := Panel.new()
+	var estilo := StyleBoxFlat.new()
+	estilo.bg_color = Color(0.98, 0.965, 0.93, 1.0)
+	estilo.border_color = Color("1a1a2e", 0.7)
+	estilo.set_border_width_all(4)
+	estilo.set_corner_radius_all(6)
+	estilo.shadow_color = Color(0, 0, 0, 0.25)
+	estilo.shadow_size = 10
+	painel.add_theme_stylebox_override("panel", estilo)
+	painel.set_anchors_preset(Control.PRESET_FULL_RECT)
+	painel.mouse_filter = Control.MOUSE_FILTER_STOP
+	fundo_popup.add_child(painel)
+	fundo_popup.move_child(painel, 0)
 
 # Compras no app (Google Play Billing, via BillingManager)
 func _abrir_popup_compra(tipo: String) -> void:
@@ -1733,6 +1753,7 @@ func _abrir_painel_missoes() -> void:
 		barra.value = progresso
 		barra.position = Vector2(250, y_base + 60)
 		barra.size = Vector2(500, 30)
+		barra.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		painel_missoes.add_child(barra)
 
 		var lbl_prog = Label.new()
@@ -1776,11 +1797,33 @@ func _abrir_painel_missoes() -> void:
 			btn_missao.disabled = true
 			btn_missao.add_theme_color_override("font_disabled_color", Color(0.5, 0.5, 0.5))
 		elif completa:
-			btn_missao.text = "[ COLETAR %s ]" % recompensa_txt
-			btn_missao.add_theme_color_override("font_color", Color("2e7d32"))
-			btn_missao.add_theme_color_override("font_hover_color", Color("43a047"))
+			# Botão de destaque (fundo verde) e o card inteiro clicável: antes
+			# era só texto entre colchetes e o toque no card não fazia nada.
+			btn_missao.text = "COLETAR %s" % recompensa_txt
+			btn_missao.flat = false
+			btn_missao.add_theme_font_size_override("font_size", 36)
+			for estado in ["normal", "hover", "pressed", "focus"]:
+				var estilo := StyleBoxFlat.new()
+				estilo.bg_color = Color("1b5e20") if estado == "pressed" else Color("2e7d32")
+				estilo.set_corner_radius_all(14)
+				estilo.border_color = Color("1a1a2e", 0.6)
+				estilo.set_border_width_all(3)
+				btn_missao.add_theme_stylebox_override(estado, estilo)
+			btn_missao.add_theme_color_override("font_color", Color.WHITE)
+			btn_missao.add_theme_color_override("font_hover_color", Color.WHITE)
+			btn_missao.add_theme_color_override("font_pressed_color", Color.WHITE)
+			btn_missao.position = Vector2(270, y_base + 105)
+			btn_missao.size = Vector2(540, 64)
 			var indice = i
 			btn_missao.pressed.connect(func(): _coletar_missao(indice))
+			var card_toque = Button.new()
+			card_toque.flat = true
+			card_toque.focus_mode = Control.FOCUS_NONE
+			card_toque.position = Vector2(130, y_base - 25)
+			card_toque.size = Vector2(820, 210)
+			card_toque.pressed.connect(func(): _coletar_missao(indice))
+			painel_missoes.add_child(card_toque)
+			painel_missoes.move_child(card_toque, card_fundo.get_index() + 1)
 		else:
 			btn_missao.text = "Recompensa: %s" % recompensa_txt
 			btn_missao.disabled = true
@@ -1952,6 +1995,7 @@ func _abrir_painel_config() -> void:
 	btn_stats.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
 	vbox.add_child(btn_stats)
 	btn_stats.pressed.connect(_abrir_painel_stats)
+	btn_stats.visible = GameData.MODO_TESTE
 
 	# Botão Fechar
 	var btn_fechar = Button.new()

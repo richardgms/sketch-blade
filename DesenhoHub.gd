@@ -18,14 +18,6 @@ func _draw() -> void:
 	draw_line(Vector2(0, y_nav), Vector2(1080, y_nav), cor_tinta, 3.0)
 	draw_dashed_line(Vector2(0, y_nav + 10.0), Vector2(1080, y_nav + 10.0), Color("1a1a2e", 0.35), 2.0, 12.0)
 	
-	# 3. Desenho rústico da caixinha do Popup de Compra IAP Sandbox
-	var hub = get_parent()
-	if hub and hub.has_node("HUD/PopupCompra") and hub.get_node("HUD/PopupCompra").visible:
-		var r_popup = Rect2(140, 660, 800, 600)
-		draw_rect(r_popup, Color(0.98, 0.965, 0.93, 1), true) # Fundo marfim sólido
-		draw_rect(r_popup, cor_tinta, false, 4.0) # Borda preta grossa
-		draw_rect(Rect2(132, 652, 816, 616), Color("1a1a2e", 0.35), false, 2.0) # Costura externa
-	
 	if aba_ativa == "estojo":
 		# Fundo marfim semiopaco para suprimir as pautas atrás do card
 		draw_rect(Rect2(80, 530, 920, 960), Color(0.98, 0.965, 0.93, 0.90), true)

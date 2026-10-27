@@ -122,6 +122,10 @@ const UPGRADES: Array = [
 	}
 ]
 
+## true durante o teste fechado: mostra o botão "Stats de teste" nas
+## Configurações (testadores tiram print). Desligar antes da produção.
+const MODO_TESTE: bool = true
+
 const RAIO_EXPLOSAO: float = 160.0
 const DURACAO_DOT: float = 2.0
 const ANGULO_LEQUE_GRAUS: float = 18.0
