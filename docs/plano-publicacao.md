@@ -60,6 +60,9 @@ Oito fotos de outro cliente (antes/depois de cirurgia, rosto) estavam soltas na 
 - Relato do primo: o jogo fechou sozinho uma vez na página 7 (horda) e voltou do zero. Causa do fechamento ainda desconhecida (suspeita: memória do celular dele). Android vitals só libera após produção; aguardar o Relatório de pré-lançamento e o modelo do celular.
 - Corrigido no código (não publicado ainda): checkpoint da run no início de cada página (`Main._on_pagina_iniciada`); antes só salvava ao ir para segundo plano. Testado: restaura página, tinta e upgrades. Vai na versão 4 junto com a correção do fechamento.
 
+## Versão 1.1.0 (código 4) — 27/10/2026
+AAB: `Documentos\Sketch Blade - builds\sketchblade-1.1.0-vc4.aab` (43,8 MB; antes 68,3). Inclui checkpoint por página, roleta redesenhada, missões no layout limpo, janela de compra corrigida, telas de resultado enxutas, HUD maior, imagens no tamanho de tela (~52 MB de memória de vídeo, antes ~209). Conferido: sem fotos de cliente, com BILLING, assinado. Detalhes em `docs/revisao-visual.md`. Antes da produção: `GameData.MODO_TESTE = false`.
+
 ## Decisões em aberto
 - Confirmar o nome na loja (Tinta & Papel ou Roguelite).
 - Quem serão os 12 testadores (precisam de Android e conta Google).
