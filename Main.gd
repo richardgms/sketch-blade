@@ -92,6 +92,8 @@ var container_habilidades_pausa: HBoxContainer
 var label_contagem: Label
 # Opções sorteadas na roleta atual (definições vindas de GameData.UPGRADES)
 var opcoes_roleta: Array = []
+const TAM_CARTA_ROLETA := Vector2(960, 365)
+const LADO_ICONE_ROLETA: float = 230.0
 
 func _ready() -> void:
 	player.recebeu_dano.connect(_on_player_dano)
@@ -1090,102 +1092,101 @@ func _criar_menu_upgrades() -> void:
 	label_dica_upgrades.size = Vector2(1080, 80)
 	menu_upgrades.add_child(label_dica_upgrades)
 	
+	# Cartas em linhas, largura da tela (antes: 3 colunas de 280 px com texto
+	# de 18-28 px, difícil de ler no celular). Ícone à esquerda; nome,
+	# descrição e efeito dentro da carta, à direita.
 	for i in range(3):
 		var btn = Button.new()
-		btn.size = Vector2(280, 700)
-		
-		# Calcula a posição X absoluta lado a lado (margem 80, largura 280, espaço 40)
-		var pos_x = 80 + i * (280 + 40)
-		btn.position = Vector2(pos_x, 400)
+		btn.size = TAM_CARTA_ROLETA
+		btn.position = Vector2(60, 390 + i * (TAM_CARTA_ROLETA.y + 22))
 		btn.flat = true
-		btn.pivot_offset = Vector2(140, 350) # Para animação de escala centralizada
+		btn.pivot_offset = TAM_CARTA_ROLETA / 2.0 # Para animação de escala centralizada
 		menu_upgrades.add_child(btn)
 		botoes_upgrades.append(btn)
-		
-		# Imagem de fundo da carta (backgroundpowerup.png)
-		var bg_card = TextureRect.new()
-		bg_card.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-		bg_card.stretch_mode = TextureRect.STRETCH_SCALE
-		bg_card.texture = load("res://assets/backgroundpowerup.png")
+
+		# Moldura desenhada à mão em nine-patch (cantos preservados na carta larga)
+		var bg_card = NinePatchRect.new()
+		bg_card.texture = load("res://assets/card-roleta.png")
+		bg_card.patch_margin_left = 62
+		bg_card.patch_margin_right = 62
+		bg_card.patch_margin_top = 62
+		bg_card.patch_margin_bottom = 62
 		bg_card.set_anchors_preset(Control.PRESET_FULL_RECT)
+		bg_card.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		btn.add_child(bg_card)
-		
-		# Área de recorte dos ícones na metade superior (centralizada: 280 - 200 = 80 / 2 = 40)
+
+		# Área de recorte do ícone, à esquerda
 		var recorte = Control.new()
-		recorte.size = Vector2(200, 200)
-		recorte.position = Vector2(40, 120)
+		recorte.size = Vector2(LADO_ICONE_ROLETA, LADO_ICONE_ROLETA)
+		recorte.position = Vector2(50, (TAM_CARTA_ROLETA.y - LADO_ICONE_ROLETA) / 2.0)
 		recorte.clip_contents = true
+		recorte.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		btn.add_child(recorte)
-		
-		# Carrossel de ícones rolável
+
+		# Carrossel de ícones rolável (10 slots verticais)
 		var carrossel = Control.new()
-		carrossel.size = Vector2(200, 2000)
-		carrossel.position = Vector2(0, -1800)
+		carrossel.size = Vector2(LADO_ICONE_ROLETA, LADO_ICONE_ROLETA * 10)
+		carrossel.position = Vector2(0, -LADO_ICONE_ROLETA * 9)
+		carrossel.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		recorte.add_child(carrossel)
-		
-		# Preenche o carrossel com 10 slots de imagens verticais
+
 		var texturas_carrossel: Array = []
 		for j in range(10):
 			var tex = TextureRect.new()
 			tex.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 			tex.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-			tex.size = Vector2(200, 200)
-			tex.position = Vector2(0, j * 200)
+			tex.size = Vector2(LADO_ICONE_ROLETA, LADO_ICONE_ROLETA)
+			tex.position = Vector2(0, j * LADO_ICONE_ROLETA)
+			tex.mouse_filter = Control.MOUSE_FILTER_IGNORE
 			carrossel.add_child(tex)
 			texturas_carrossel.append(tex)
-			
-		# Status "GIRANDO..." (centralizado horizontalmente e logo abaixo do ícone)
+
+		var x_texto: float = 50 + LADO_ICONE_ROLETA + 30
+		var largura_texto: float = TAM_CARTA_ROLETA.x - x_texto - 50
+
+		# Status "GIRANDO..." no lugar do texto até a roleta parar
 		var lbl_status = Label.new()
 		lbl_status.text = "GIRANDO..."
 		lbl_status.add_theme_font_override("font", load("res://assets/fonts/ArchitectsDaughter-Regular.ttf"))
-		lbl_status.add_theme_font_size_override("font_size", 34)
+		lbl_status.add_theme_font_size_override("font_size", 44)
 		lbl_status.add_theme_color_override("font_color", Color("002867"))
-		lbl_status.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 		lbl_status.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-		lbl_status.position = Vector2(0, 420)
-		lbl_status.size = Vector2(280, 80)
+		lbl_status.position = Vector2(x_texto, 0)
+		lbl_status.size = Vector2(largura_texto, TAM_CARTA_ROLETA.y)
 		btn.add_child(lbl_status)
-		
-		# VBox de informações reais da habilidade
-		# Ocupa da base do ícone até perto da borda inferior da carta,
-		# com margens laterais simétricas (30px de cada lado)
+
+		# Nome, descrição e efeito, alinhados à esquerda
 		var vbox_info = VBoxContainer.new()
 		vbox_info.name = "Info"
-		vbox_info.position = Vector2(30, 340)
-		vbox_info.size = Vector2(220, 280)
-		vbox_info.add_theme_constant_override("separation", 12)
+		vbox_info.position = Vector2(x_texto, 32)
+		vbox_info.size = Vector2(largura_texto, TAM_CARTA_ROLETA.y - 64)
+		vbox_info.add_theme_constant_override("separation", 2)
 		vbox_info.alignment = BoxContainer.ALIGNMENT_CENTER
+		vbox_info.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		vbox_info.visible = false
 		btn.add_child(vbox_info)
-		
-		# Nome do Upgrade
+
 		var lbl_nome = Label.new()
 		lbl_nome.add_theme_font_override("font", load("res://assets/fonts/ArchitectsDaughter-Regular.ttf"))
-		lbl_nome.add_theme_font_size_override("font_size", 28)
+		lbl_nome.add_theme_font_size_override("font_size", 46)
 		lbl_nome.add_theme_color_override("font_color", Color("002867")) # Azul BIC
-		lbl_nome.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 		lbl_nome.autowrap_mode = TextServer.AUTOWRAP_WORD
 		vbox_info.add_child(lbl_nome)
-		
-		# Descrição detalhada
+
 		var lbl_desc = Label.new()
 		lbl_desc.add_theme_font_override("font", load("res://assets/fonts/ArchitectsDaughter-Regular.ttf"))
-		lbl_desc.add_theme_font_size_override("font_size", 18)
-		lbl_desc.add_theme_color_override("font_color", Color(0.3, 0.3, 0.35))
-		lbl_desc.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		lbl_desc.add_theme_font_size_override("font_size", 36)
+		lbl_desc.add_theme_color_override("font_color", Color(0.22, 0.22, 0.27))
 		lbl_desc.autowrap_mode = TextServer.AUTOWRAP_WORD
 		vbox_info.add_child(lbl_desc)
-		
-		# Stats fora do card, abaixo da moldura
+
+		# Efeito do próximo nível, agora dentro da carta
 		var lbl_stats = Label.new()
 		lbl_stats.add_theme_font_override("font", FONTE_NUMEROS)
-		lbl_stats.add_theme_font_size_override("font_size", 28)
-		lbl_stats.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		lbl_stats.add_theme_font_size_override("font_size", 42)
 		lbl_stats.autowrap_mode = TextServer.AUTOWRAP_WORD
-		lbl_stats.position = Vector2(pos_x, 1115)
-		lbl_stats.size = Vector2(280, 80)
 		lbl_stats.visible = false
-		menu_upgrades.add_child(lbl_stats)
+		vbox_info.add_child(lbl_stats)
 
 		# Salva a referência da carta para manipulação simples
 		dados_cartas.append({
@@ -1486,7 +1487,7 @@ func _abrir_roleta_upgrades() -> void:
 		carta["vbox_info"].visible = false
 		carta["lbl_stats"].visible = false
 		carta["lbl_status"].visible = true
-		carta["carrossel"].position.y = -1800.0
+		carta["carrossel"].position.y = -LADO_ICONE_ROLETA * 9
 		if carta.has("bg_card") and carta["bg_card"]:
 			carta["bg_card"].modulate = cor_fundo_carta
 	
@@ -1527,15 +1528,15 @@ func _abrir_roleta_upgrades() -> void:
 		var nivel_atual = player.nivel_upgrade(info_final["id"])
 		var nivel_alvo = nivel_atual + 1
 		var idx_stats = clamp(nivel_alvo - 1, 0, info_final["stats"].size() - 1)
-		var texto_stats: String = info_final["stats"][idx_stats]
+		var texto_stats: String = info_final["stats"][idx_stats].replace("\n", " ")
 		if not info_final.get("consumivel", false):
 			if nivel_atual > 0:
-				texto_stats += "\nLv.%d → Lv.%d" % [nivel_atual, nivel_alvo]
+				texto_stats += "  ·  Lv.%d → Lv.%d" % [nivel_atual, nivel_alvo]
 			else:
-				texto_stats += "\nNOVO!"
+				texto_stats += "  ·  NOVO!"
 
-		carta["lbl_nome"].text = info_final["nome"]
-		carta["lbl_desc"].text = info_final["descricao"]
+		carta["lbl_nome"].text = info_final["nome"].replace("\n", " ")
+		carta["lbl_desc"].text = info_final["descricao"].replace("\n", " ")
 		carta["lbl_stats"].text = texto_stats
 		carta["lbl_stats"].add_theme_color_override("font_color", Color(info_final["cor_stats"]))
 		
