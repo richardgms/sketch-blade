@@ -1711,125 +1711,7 @@ func _abrir_painel_missoes() -> void:
 		lbl_num.size = circulo_num.size
 		painel_missoes.add_child(lbl_num)
 
-		# Título centralizado no card (rect 150..930 tem o mesmo centro do
-		# card de fundo, x = 540). RichTextLabel para os números da frase
-		# saírem em Caveat (ver _bbcode_numeros).
-		var lbl_desc = RichTextLabel.new()
-		lbl_desc.bbcode_enabled = true
-		lbl_desc.scroll_active = false
-		lbl_desc.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		lbl_desc.add_theme_font_override("normal_font", load("res://assets/fonts/ArchitectsDaughter-Regular.ttf"))
-		lbl_desc.add_theme_font_size_override("normal_font_size", 36)
-		lbl_desc.add_theme_color_override("default_color", Color(0.2, 0.2, 0.25))
-		lbl_desc.text = "[center]" + _bbcode_numeros(def["desc"]) + "[/center]"
-		lbl_desc.position = Vector2(150, y_base)
-		lbl_desc.size = Vector2(780, 50)
-		painel_missoes.add_child(lbl_desc)
-
-		var progresso = _progresso_missao(missao)
-		var completa = progresso >= def["alvo"]
-
-		# Moldura manuscrita em volta da barra (geometria simples: código;
-		# só a textura orgânica do rabisco vem de asset)
-		# Grupo barra (500) + gap + contador "x/x" (~60) centrado no card:
-		# largura total ~580 → barra começa em x = 540 - 290 = 250
-		var moldura = Control.new()
-		moldura.position = Vector2(242, y_base + 52)
-		moldura.size = Vector2(516, 46)
-		moldura.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		moldura.draw.connect(func(): _desenhar_moldura_manuscrita(moldura))
-		painel_missoes.add_child(moldura)
-
-		# Mesmo rabisco da barra de XP do header (texture_progress.svg é uma
-		# máscara branca tintável): trilha cinza por baixo, preenchimento azul
-		# enquanto anda e verde quando a missão está completa.
-		var barra = TextureProgressBar.new()
-		barra.texture_under = load("res://assets/texture_progress.svg")
-		barra.texture_progress = load("res://assets/texture_progress.svg")
-		barra.tint_under = Color(0.63, 0.63, 0.66, 0.5)
-		barra.tint_progress = Color("2e7d32") if completa else Color("0549b4")
-		barra.nine_patch_stretch = true
-		barra.max_value = def["alvo"]
-		barra.value = progresso
-		barra.position = Vector2(250, y_base + 60)
-		barra.size = Vector2(500, 30)
-		barra.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		painel_missoes.add_child(barra)
-
-		var lbl_prog = Label.new()
-		lbl_prog.text = "%d / %d" % [progresso, def["alvo"]]
-		lbl_prog.add_theme_font_override("font", FONTE_NUMEROS)
-		lbl_prog.add_theme_font_size_override("font_size", 34)
-		lbl_prog.add_theme_color_override("font_color", Color(0.4, 0.4, 0.45))
-		lbl_prog.position = Vector2(770, y_base + 55)
-		lbl_prog.size = Vector2(150, 40)
-		painel_missoes.add_child(lbl_prog)
-
-		# Carimbo de check no canto inferior direito quando a missão foi
-		# concluída (SVG quadrado 144×144, escala sem distorção).
-		if completa:
-			var check = TextureRect.new()
-			check.texture = load("res://assets/check.svg")
-			check.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-			check.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-			check.position = Vector2(840, y_base + 68)
-			check.size = Vector2(90, 90)
-			check.mouse_filter = Control.MOUSE_FILTER_IGNORE
-			painel_missoes.add_child(check)
-
-		var recompensa_txt = ""
-		if def["tinta"] > 0:
-			recompensa_txt = "+%d tinta" % def["tinta"]
-		if def["clipes"] > 0:
-			recompensa_txt += " +%d clipes" % def["clipes"]
-
-		var btn_missao = Button.new()
-		btn_missao.add_theme_font_override("font", FONTE_NUMEROS)
-		btn_missao.add_theme_font_size_override("font_size", 30)
-		btn_missao.flat = true
-		# Centrado no card como o resto da coluna (texto de Button flat já
-		# centraliza dentro do próprio rect)
-		btn_missao.position = Vector2(290, y_base + 105)
-		btn_missao.size = Vector2(500, 55)
-
-		if missao["coletada"]:
-			btn_missao.text = "[ RECEBIDO ✓ ]"
-			btn_missao.disabled = true
-			btn_missao.add_theme_color_override("font_disabled_color", Color(0.5, 0.5, 0.5))
-		elif completa:
-			# Botão de destaque (fundo verde) e o card inteiro clicável: antes
-			# era só texto entre colchetes e o toque no card não fazia nada.
-			btn_missao.text = "COLETAR %s" % recompensa_txt
-			btn_missao.flat = false
-			btn_missao.add_theme_font_size_override("font_size", 36)
-			for estado in ["normal", "hover", "pressed", "focus"]:
-				var estilo := StyleBoxFlat.new()
-				estilo.bg_color = Color("1b5e20") if estado == "pressed" else Color("2e7d32")
-				estilo.set_corner_radius_all(14)
-				estilo.border_color = Color("1a1a2e", 0.6)
-				estilo.set_border_width_all(3)
-				btn_missao.add_theme_stylebox_override(estado, estilo)
-			btn_missao.add_theme_color_override("font_color", Color.WHITE)
-			btn_missao.add_theme_color_override("font_hover_color", Color.WHITE)
-			btn_missao.add_theme_color_override("font_pressed_color", Color.WHITE)
-			btn_missao.position = Vector2(270, y_base + 105)
-			btn_missao.size = Vector2(540, 64)
-			var indice = i
-			btn_missao.pressed.connect(func(): _coletar_missao(indice))
-			var card_toque = Button.new()
-			card_toque.flat = true
-			card_toque.focus_mode = Control.FOCUS_NONE
-			card_toque.position = Vector2(130, y_base - 25)
-			card_toque.size = Vector2(820, 210)
-			card_toque.pressed.connect(func(): _coletar_missao(indice))
-			painel_missoes.add_child(card_toque)
-			painel_missoes.move_child(card_toque, card_fundo.get_index() + 1)
-		else:
-			btn_missao.text = "Recompensa: %s" % recompensa_txt
-			btn_missao.disabled = true
-			btn_missao.add_theme_color_override("font_disabled_color", Color(0.55, 0.5, 0.35))
-
-		painel_missoes.add_child(btn_missao)
+		_montar_card_missao(i, missao, def, y_base, card_fundo)
 
 	# Botão fechar
 	var btn_fechar = Button.new()
@@ -1846,6 +1728,113 @@ func _abrir_painel_missoes() -> void:
 		painel_missoes.queue_free()
 		painel_missoes = null
 	)
+
+## Monta o conteúdo de um card de missão (layout "limpo", escolhido em 27/10):
+## em andamento mostra título, barra e recompensa; completa vira título +
+## botão verde (o card inteiro também resgata); recebida mostra só o título e
+## um selo vazado. O card de fundo e o número já foram criados.
+func _montar_card_missao(i: int, missao: Dictionary, def: Dictionary, y_base: float, card_fundo: Control) -> void:
+	var progresso: int = _progresso_missao(missao)
+	var completa: bool = progresso >= def["alvo"]
+	var coletada: bool = missao["coletada"]
+	var recompensa_txt := ""
+	if def["tinta"] > 0:
+		recompensa_txt = "+%d tinta" % def["tinta"]
+	if def["clipes"] > 0:
+		recompensa_txt += (" " if recompensa_txt != "" else "") + "+%d clipes" % def["clipes"]
+
+	var lbl_desc = RichTextLabel.new()
+	lbl_desc.bbcode_enabled = true
+	lbl_desc.scroll_active = false
+	lbl_desc.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	lbl_desc.add_theme_font_override("normal_font", load("res://assets/fonts/ArchitectsDaughter-Regular.ttf"))
+	lbl_desc.add_theme_font_size_override("normal_font_size", 36)
+	lbl_desc.add_theme_color_override("default_color", Color(0.2, 0.2, 0.25))
+	lbl_desc.text = "[center]" + _bbcode_numeros(def["desc"]) + "[/center]"
+	lbl_desc.position = Vector2(150, y_base)
+	lbl_desc.size = Vector2(780, 50)
+	painel_missoes.add_child(lbl_desc)
+
+	# Barra + contador só enquanto a missão está em andamento. Grupo de 580 px
+	# (barra 500 + contador) centrado no card.
+	if not completa:
+		var moldura = Control.new()
+		moldura.position = Vector2(242, y_base + 52)
+		moldura.size = Vector2(516, 46)
+		moldura.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		moldura.draw.connect(func(): _desenhar_moldura_manuscrita(moldura))
+		painel_missoes.add_child(moldura)
+		var barra = TextureProgressBar.new()
+		barra.texture_under = load("res://assets/texture_progress.svg")
+		barra.texture_progress = load("res://assets/texture_progress.svg")
+		barra.tint_under = Color(0.63, 0.63, 0.66, 0.5)
+		barra.tint_progress = Color("0549b4")
+		barra.nine_patch_stretch = true
+		barra.max_value = def["alvo"]
+		barra.value = progresso
+		barra.position = Vector2(250, y_base + 60)
+		barra.size = Vector2(500, 30)
+		barra.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		painel_missoes.add_child(barra)
+		var lbl_prog = Label.new()
+		lbl_prog.text = "%d / %d" % [progresso, def["alvo"]]
+		lbl_prog.add_theme_font_override("font", FONTE_NUMEROS)
+		lbl_prog.add_theme_font_size_override("font_size", 34)
+		lbl_prog.add_theme_color_override("font_color", Color(0.4, 0.4, 0.45))
+		lbl_prog.position = Vector2(766, y_base + 52)
+		lbl_prog.size = Vector2(110, 44)
+		painel_missoes.add_child(lbl_prog)
+
+	var btn = Button.new()
+	btn.focus_mode = Control.FOCUS_NONE
+	btn.add_theme_font_override("font", FONTE_NUMEROS)
+	var cor_fundo := Color(0, 0, 0, 0)
+	var cor_borda := Color(0, 0, 0, 0)
+	var borda: int = 3
+	if coletada:
+		# Selo vazado: só o traço, fundo transparente, mais estreito que o botão
+		btn.text = "✓ RECEBIDO"
+		btn.disabled = true
+		btn.add_theme_font_size_override("font_size", 34)
+		btn.add_theme_color_override("font_disabled_color", Color(0.42, 0.42, 0.46))
+		btn.position = Vector2(390, y_base + 66)
+		btn.size = Vector2(300, 60)
+		cor_borda = Color(0.42, 0.42, 0.46, 0.8)
+		borda = 2
+	elif completa:
+		btn.text = "✓  COLETAR " + recompensa_txt
+		btn.add_theme_font_size_override("font_size", 38)
+		for c in ["font_color", "font_hover_color", "font_pressed_color"]:
+			btn.add_theme_color_override(c, Color.WHITE)
+		btn.position = Vector2(250, y_base + 62)
+		btn.size = Vector2(580, 72)
+		cor_fundo = Color("2e7d32")
+		cor_borda = Color("1a1a2e", 0.6)
+		var indice = i
+		btn.pressed.connect(func(): _coletar_missao(indice))
+		var card_toque = Button.new()
+		card_toque.flat = true
+		card_toque.focus_mode = Control.FOCUS_NONE
+		card_toque.position = card_fundo.position
+		card_toque.size = card_fundo.size
+		card_toque.pressed.connect(func(): _coletar_missao(indice))
+		painel_missoes.add_child(card_toque)
+		painel_missoes.move_child(card_toque, card_fundo.get_index() + 1)
+	else:
+		btn.text = "Recompensa: " + recompensa_txt
+		btn.disabled = true
+		btn.add_theme_font_size_override("font_size", 32)
+		btn.add_theme_color_override("font_disabled_color", Color(0.55, 0.5, 0.35))
+		btn.position = Vector2(250, y_base + 104)
+		btn.size = Vector2(580, 50)
+	for estado in ["normal", "hover", "pressed", "disabled", "focus"]:
+		var estilo := StyleBoxFlat.new()
+		estilo.bg_color = cor_fundo.darkened(0.15) if estado == "pressed" else cor_fundo
+		estilo.border_color = cor_borda
+		estilo.set_border_width_all(borda)
+		estilo.set_corner_radius_all(16)
+		btn.add_theme_stylebox_override(estado, estilo)
+	painel_missoes.add_child(btn)
 
 func _coletar_missao(indice: int) -> void:
 	var missao: Dictionary = dados_save["missoes_dia"][indice]

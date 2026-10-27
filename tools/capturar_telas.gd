@@ -37,12 +37,12 @@ func _save(cap: int) -> void:
 	# Missões: uma completa (para coletar), uma recebida, uma em andamento.
 	d["stats"]["monstros_derrotados"] = 100
 	d["stats"]["paginas_perfeitas"] = 1
-	d["stats"]["tinta_coletada_total"] = 120
+	d["stats"]["tinta_coletada_total"] = 300
 	d["data_missoes"] = hoje
 	d["missoes_dia"] = [
 		{"id": "matador", "base": 50, "coletada": false},
 		{"id": "perfeccionista", "base": 0, "coletada": false},
-		{"id": "colecionador", "base": 0, "coletada": false},
+		{"id": "colecionador", "base": 0, "coletada": true},
 	]
 
 func _abrir(c: String) -> Node:
