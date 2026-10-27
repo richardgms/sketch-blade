@@ -477,10 +477,9 @@ func _retomar_run_do_snapshot() -> void:
 	player.attack_timer.start()
 
 	var pagina: int = clamp(int(snap.get("pagina", 1)), 1, GameData.PAGINAS.size())
-	wave_manager.iniciar_fase_na_pagina(capitulo_atual, pagina)
-
-	# Consumido: o snapshot será regravado se o app for ao background de novo.
+	# Limpa ANTES de iniciar: o início da página regrava o checkpoint.
 	SaveManager.limpar_run_snapshot()
+	wave_manager.iniciar_fase_na_pagina(capitulo_atual, pagina)
 	_spawn_feedback("RUN RESTAURADA!", "perfect", Vector2(540, 900))
 
 ## Tremor de tela rápido (juice de impacto)
@@ -1207,6 +1206,10 @@ func _criar_menu_upgrades() -> void:
 # ============================================================
 func _on_pagina_iniciada(numero: int, total: int) -> void:
 	dano_sofrido_na_pagina = false
+	# Checkpoint a cada página: se o Android matar o app (falta de memória,
+	# travamento) sem avisar, a run volta nesta página em vez de do zero.
+	if _run_em_andamento():
+		SaveManager.salvar_run_snapshot(_capturar_estado_run())
 	# Página nova, papel limpo: as manchas de batalha ficam na página anterior
 	if has_node("Paper"):
 		$Paper.limpar_manchas()

@@ -55,6 +55,11 @@ O envio do Teste fechado exigiu a declaração de ID de publicidade (Android 13+
 ## Incidente: fotos de cliente dentro do build (26/10/2026)
 Oito fotos de outro cliente (antes/depois de cirurgia, rosto) estavam soltas na raiz do projeto e o export (`all_resources`) as empacotou no AAB v1 (115 dos 191 MB) e no APK de debug. A v1 chegou ao Teste interno e foi aprovada no Teste fechado (25/10 20:06); só os 3 da lista `Interno` tinham acesso. Ações: faixa do Teste fechado pausada; fotos e cópias (`.godot/imported`, `android/build`) movidas para a Lixeira; `exclude_filter` no preset; AAB **1.0.1 (código 2)** gerado e conferido sem as fotos: **68,3 MB**. Falta: pausar/atualizar o Teste interno, subir a v2 nas duas faixas, apagar o APK de debug do Drive e do celular, apagar os pacotes antigos da pasta de builds. O pacote v1 continua na biblioteca do Google.
 
+## Teste fechado em andamento (26/10/2026)
+- Versão 1.0.2 (código 3) no Teste fechado (a 1.0.1 ficou "Substituída por outra versão" e não liberava o link; resolvido com código novo só para o fechado). Teste interno com 1.0.1 (2). Esposa e primo instalaram.
+- Relato do primo: o jogo fechou sozinho uma vez na página 7 (horda) e voltou do zero. Causa do fechamento ainda desconhecida (suspeita: memória do celular dele). Android vitals só libera após produção; aguardar o Relatório de pré-lançamento e o modelo do celular.
+- Corrigido no código (não publicado ainda): checkpoint da run no início de cada página (`Main._on_pagina_iniciada`); antes só salvava ao ir para segundo plano. Testado: restaura página, tinta e upgrades. Vai na versão 4 junto com a correção do fechamento.
+
 ## Decisões em aberto
 - Confirmar o nome na loja (Tinta & Papel ou Roguelite).
 - Quem serão os 12 testadores (precisam de Android e conta Google).
