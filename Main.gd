@@ -42,6 +42,8 @@ var bg_cards_descanso: Array = []
 # Rewarded ads (revive e dobrar tinta)
 var menu_revive: Control
 var tinta_final_ultima_run: int = 0
+var label_total_vitoria: Label
+var label_total_gameover: Label
 var botao_dobrar_vitoria: Button
 var botao_dobrar_gameover: Button
 
@@ -107,6 +109,10 @@ func _ready() -> void:
 	var lbl_detalhes_gameover = menu_game_over.get_node_or_null("DetalhesGameOver")
 	if lbl_detalhes_gameover:
 		lbl_detalhes_gameover.add_theme_font_override("font", FONTE_NUMEROS)
+
+	_montar_tela_resultado(menu_vitoria, label_detalhes_vitoria, Color("1b5e20"), true)
+	if lbl_detalhes_gameover:
+		_montar_tela_resultado(menu_game_over, lbl_detalhes_gameover, Color("8e1b1b"), false)
 
 	botao_jogar.pressed.connect(_on_botao_jogar_pressed)
 	botao_recomecar.pressed.connect(_on_botao_recomecar_pressed)
@@ -811,40 +817,61 @@ func _processar_fim_de_jogo(venceu: bool) -> void:
 	_registrar_telemetria_run(tinta_final)
 	SaveManager.salvar()
 	
-	# 7. Atualiza UI dos menus
+	# 7. Atualiza UI dos menus: total grande + poucas linhas de detalhe
+	var linhas: Array = []
 	if venceu:
-		var texto_lvlup = "[ NOVO NÍVEL ALCANÇADO: Lv. %d! ] (+5 Clipes)\n" % dados_save["nivel_conta"] if subiu_nivel else ""
-		label_detalhes_vitoria.text = (
-			"Tinta Coletada: +%d\n" +
-			"Bônus por Vidas (+%d%%): +%d\n" +
-			"Bônus Capítulo %d (+%d%%): +%d\n" +
-			"Tinta Ganha na Run: +%d\n" +
-			"XP Ganho na Run: +%d XP\n" +
-			texto_desbloqueio +
-			texto_lvlup + "\n" +
-			"Tinta: %d  |  Clipes: %d"
-		) % [
-			tinta_partida, 
-			bonus_vida_pct, 
-			tinta_bonus_vida, 
-			capitulo_atual, 
-			bonus_cap_pct, 
-			tinta_bonus_cap, 
-			tinta_final, 
-			xp_ganho, 
-			dados_save["tinta"], 
-			dados_save["clipes_ouro"]
-		]
+		linhas.append("Coletada na partida: +%d" % tinta_partida)
+		if tinta_bonus_vida > 0:
+			linhas.append("Bônus de vidas: +%d" % tinta_bonus_vida)
+		if tinta_bonus_cap > 0:
+			linhas.append("Bônus do capítulo: +%d" % tinta_bonus_cap)
+	linhas.append("+%d XP" % xp_ganho)
+	if subiu_nivel:
+		linhas.append("Novo nível %d!  +%d clipes" % [dados_save["nivel_conta"], niveis_ganhos * 5])
+	if texto_desbloqueio != "":
+		linhas.append("Capítulo %d desbloqueado!" % dados_save["capitulo_desbloqueado"])
+	var texto_total := "+%d tinta" % tinta_final
+	if venceu:
+		label_total_vitoria.text = texto_total
+		label_detalhes_vitoria.text = "\n".join(linhas)
 	else:
-		var texto_lvlup = "[ NOVO NÍVEL ALCANÇADO: Lv. %d! ] (+5 Clipes)\n" % dados_save["nivel_conta"] if subiu_nivel else ""
+		label_total_gameover.text = texto_total
 		var label_gameover = menu_game_over.get_node_or_null("DetalhesGameOver")
 		if label_gameover:
-			label_gameover.text = (
-				"Tinta Coletada: +%d\n" +
-				"XP Ganho na Run: +%d XP\n" +
-				texto_lvlup + "\n" +
-				"Tinta: %d  |  Clipes: %d"
-			) % [tinta_final, xp_ganho, dados_save["tinta"], dados_save["clipes_ouro"]]
+			label_gameover.text = "\n".join(linhas)
+
+func _montar_tela_resultado(menu: Control, detalhes: Label, cor: Color, eh_vitoria: bool) -> void:
+	var total := Label.new()
+	total.add_theme_font_override("font", FONTE_NUMEROS)
+	total.add_theme_font_size_override("font_size", 130)
+	total.add_theme_color_override("font_color", cor)
+	total.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	total.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	total.set_anchors_preset(Control.PRESET_CENTER)
+	total.offset_left = -450.0
+	total.offset_right = 450.0
+	total.offset_top = -80.0 if eh_vitoria else -90.0
+	total.offset_bottom = total.offset_top + 150.0
+	menu.add_child(total)
+	if eh_vitoria:
+		label_total_vitoria = total
+	else:
+		label_total_gameover = total
+	# Detalhes logo abaixo do total
+	detalhes.add_theme_font_size_override("font_size", 40)
+	detalhes.add_theme_color_override("font_color", Color(0.18, 0.18, 0.24))
+	detalhes.offset_top = total.offset_bottom + 5.0
+	detalhes.offset_bottom = detalhes.offset_top + 260.0
+	detalhes.vertical_alignment = VERTICAL_ALIGNMENT_TOP
+	var titulo := menu.get_node_or_null("Titulo") as Label
+	if titulo:
+		titulo.offset_top = -330.0
+		titulo.offset_bottom = -200.0
+	var sub := menu.get_node_or_null("Subtitulo") as Label
+	if sub:
+		sub.add_theme_font_size_override("font_size", 40)
+		sub.offset_top = -200.0
+		sub.offset_bottom = -130.0
 
 func get_xp_necessario_para_nivel(nivel: int) -> int:
 	if nivel == 1:

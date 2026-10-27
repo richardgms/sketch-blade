@@ -276,7 +276,7 @@ grow_vertical = 2
 theme_override_colors/font_color = Color(0.11764706, 0.47058824, 0.11764706, 1)
 theme_override_fonts/font = ExtResource("4_font")
 theme_override_font_sizes/font_size = 80
-text = "PÁGINA CONCLUÍDA!"
+text = "CAPÍTULO CONCLUÍDO!"
 horizontal_alignment = 1
 vertical_alignment = 1
 
