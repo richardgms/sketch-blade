@@ -25,7 +25,7 @@ O jogador é uma caneta que **só anda na horizontal** e **atira sozinha** para 
 | 9 | Pena de escrever | no alto, balança e atira leque mirado; sorteia **parede** (vai a um canto e atravessa escrevendo uma linha de tinta = aviso; fresta de 230 px a 130–220 px da caneta; a linha desce e fere fora da fresta; com raiva 2ª parede na volta, fresta do outro lado), **chuva** (pingos "tinta" caem do alto por 2 s, 1 em 3 na caneta) ou **mergulho** (linha tracejada travada, crava a ponta no papel 0,55 s e volta; com raiva 2 vezes). `chefes/ParedeTinta.gd` | Feito, testado |
 | 7 | Tsuru | ritmo fixo: **aberto** 2,4 s (2,0 com raiva; coração brilha, só aqui toma dano; leque mirado; asas tremem 0,4 s antes de fechar) e **fechado** 3,0 s (tiros mostram "BLOQUEADO"; sorteia **mergulho** mirado, **dobras** = 3/5 perseguidoras ou **rajada** = 4/6 tiros mirados). Som ao abrir e fechar. Desenho recortado em 4 partes (`_montar_partes`) | Feito, testado |
 | 8 | Fantasma de página | meio transparente, com **sombra** no papel; balança e atira leque mirado; sorteia **cópias** (3 fantasmas, só o verdadeiro tem sombra, todos incham e atiram igual; cópia some com 1 tiro; 6 s ou até sumirem as cópias; com raiva todos piscam e **trocam de lugar** no meio), **folhas** (páginas caem balançando, a 1ª na caneta; 4/6) ou **uivo** (3/5 perseguidoras). `CopiaFantasma.gd`, `FolhaFantasma.gd` | Feito, testado |
-| 10 | Estojo | "desfile" em 3 fases pela vida (nome no topo, treme 1,2 s na troca): **1** (100–67%) esmagar, tesouro, espiral 2 braços; **2** (67–34%) parede, chuva de X, folhas; **3** (<34%) xadrez duplo, parede dupla, espiral 3 braços, 3 X + perseguidoras. Reaproveita `ZonaGrade`, `ZonaBomba`, `ParedeTinta`, `FolhaFantasma`; cada ataque é uma agenda de eventos `[tempo, função]` | Feito, **falta o teste do Richard** |
+| 10 | Estojo | "desfile" em 3 fases pela vida (nome no topo, treme 1,2 s na troca): **1** (100–67%) esmagar, tesouro, espiral 2 braços; **2** (67–34%) parede, chuva de X, folhas; **3** (<34%) xadrez duplo, parede dupla, espiral 3 braços, 3 X + perseguidoras. Reaproveita `ZonaGrade`, `ZonaBomba`, `ParedeTinta`, `FolhaFantasma`; cada ataque é uma agenda de eventos `[tempo, função]` | Feito, testado |
 
 Arte de todos já existe: `assets/inimigos/chefe_1..10.png` (512 px) e `chefe_3_pedaco.png` (256 px). Originais em `Documentos\Sketch Blade - arte original\inimigos` (fora do projeto).
 
@@ -55,7 +55,7 @@ Tiro do jogador em cometa de tinta; respingo no impacto (`ImpactoTinta.gd`); fla
 - Cuidados nos testes: o tiro automático da caneta pode matar cópias/peças antes do roteiro (`attack_timer.stop()`); o chefe só toma dano depois da entrada (`entrada_concluida`); a invencibilidade forçada na caneta é desligada pelo tween de dano do `Player` após o primeiro golpe (não é bug do jogo).
 
 ## Pendências e ideias
-- Os 10 chefes estão feitos; o 10 aguarda teste. Próximo: build e teste no celular (dificuldade só se julga no toque).
+- Os 10 chefes estão feitos e testados. **Equilíbrio:** bateria e resultados em `docs/equilibrio-chefes.md` (a dificuldade ainda não sobe de chefe em chefe; proposta de ajuste lá). Depois: build e teste no celular.
 - Opção 3 (área de dano maior da caneta): prévia em `Documentos\Sketch Blade - arte original\previa-area-de-dano-caneta.png`; decidir depois de testar a opção 1.
 - Olhos dos monstros animados por código (pupila seguindo a caneta, piscar): ideia aprovada pelo conselho, não feita.
 - Se o "inchar" for fraco como aviso: piscar em vermelho enquanto incha.

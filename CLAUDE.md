@@ -7,6 +7,7 @@ Jogo mobile (Android, retrato) em **Godot 4.7** (GL Compatibility), GDScript. Ro
 - AAB de release: `--headless --path . --export-release "Android" "<saida>.aab"` (chave de upload em `Documentos\keys`, senha em `.godot/export_credentials.cfg`, fora do git).
 - Prints da loja (1080x1920): `-s tools/capturar_prints.gd -- <pasta> [LxA]` — faça backup do save do PC antes.
 - Economia: `python tools/sim_economia.py`.
+- Equilíbrio dos chefes (robô joga sem tela): ver `docs/equilibrio-chefes.md`.
 - Testar chefe no jogo: Configurações → Stats de teste → "Testar chefe" / "Zerar Estojo" (só com `GameData.MODO_TESTE`). Teste por script: ver `docs/chefes.md`.
 
 ## Regras que importam
