@@ -79,33 +79,5 @@ AAB: `Documentos\Sketch Blade - builds\sketchblade-1.1.0-vc4.aab` (43,8 MB; ante
 ## Histórico
 - 2026-10-24: investigação feita, plano criado.
 
-## Chefes por capítulo e tiros inimigos — plano (28/10/2026, conselho de LLMs)
-Regras de design (controle só horizontal + tiro automático): todo ataque com aviso ≥ 0,5 s acima da mão; sempre uma rota segura no eixo X (fresta ≥ 2× a caneta); mecânica de posição, não de mira; luta de 30–60 s; upgrade da roleta pode ser bônus contra um chefe, nunca requisito.
-Arquitetura: `Boss.gd` base (estados, fases por % de HP, telegraph) + ficha por chefe (Resource: arte, HP, ataques por fase) + ataques reaproveitáveis (leque, espiral, parede com fresta, zona marcada, mergulho, invocação). Projétil inimigo parametrizado e reciclado; teto de tiros; limpar tiros na morte do chefe; modo debug para pular ao chefe X.
-Tiros: cor quente (azul só do jogador), contorno escuro grosso, 16–20 px, forma por tipo, aviso (pulso + linha tracejada). **Feito (28/10):** `AvisoTiro.gd` (tracejado 0,5 s + atirador incha) e `EnemyProjectile` com estilos `respingo` (gota verde), `elite` (losango laranja/dourado) e `chefe` (bola vermelha com espinhos); desenho maior que a colisão.
-
-| Cap. | Chefe | Mecânica | Versão |
-|---|---|---|---|
-| 1 | Borrão | leque + mergulho (já existe) | — |
-| 2 | Avião de papel | rasantes laterais com trilha (entra pela borda com aviso) | 1.4 |
-| 3 | Mancha de 4 lobos | divide em 2 e depois 4 (limite de cópias) | 1.4 |
-| 5 | Compasso | espiral com brechas largas | 1.4 |
-| 4 | Monstro da grade | quadrados marcados que enchem e explodem (1–2 colunas por vez) | 1.5 |
-| 6 | Pirata do mapa | X marcados onde caem bombas (sem fase invulnerável) | 1.5 |
-| 9 | Pena de escrever | paredes de tinta com fresta | 1.5 |
-| 7 | Tsuru | asas abrem/fecham em ritmo fixo com som; vulnerável aberto | 1.6 |
-| 8 | Fantasma de página | cópias translúcidas que somem com 1 tiro; só a verdadeira tem sombra | 1.6 |
-| 10 | Estojo | fases por HP com ataques dos outros chefes | 1.6 |
-
-Arte: `assets/inimigos/chefe_2..10.png` (512 px, 3,5 MB no total), originais em `Documentos\Sketch Blade - arte original\inimigos`.
-
-**Versão 1.4.0 (código 7), 28/10/2026:** chefe-base com `Boss.FICHAS` (arte, tamanho, comportamento por capítulo; capítulos sem ficha usam o Borrão). Comportamentos em `chefes/`: `Aviao.gd` (cap. 2), `Mancha.gd` + `PedacoMancha.gd` (cap. 3; vida compartilhada via `Boss.dano_compartilhado`), `Compasso.gd` (cap. 5; gira o desenho com `controla_rotacao`). Atalho de teste: painel Stats de teste → "Testar chefe [1][2][3][5]" (`SaveManager.teste_chefe`), só com `MODO_TESTE`.
-
-## Feedback do teste dos chefes (28/10/2026) — feito
-- Aviso de tiro fino (2,5 px), claro, começando na borda do desenho e por trás dele (`AvisoTiro.atras_do_atirador`).
-- Números de dano brancos/laranja com contorno escuro (legíveis no chefe escuro).
-- Área de acerto por chefe (`Boss.FICHAS[...]["raio"]`): resolve tiros que "atravessavam" o Compasso e o Avião.
-- Anti "ficar parado" (opção 1 aprovada): leque do chefe mira a caneta; **gota perseguidora** (roxa com olho, curva 75°/s por 2 s); Avião sorteia rasante / mergulho mirado / esquadrilha; Compasso solta perseguidoras no descanso e, com raiva, invoca 2 lacaios.
-- Mancha: cada pedaço com vida própria (barra = soma), grandes viram 2 pequenos, último fica bravo; alterna gota mirada e perseguidora.
-- Opção 3 (área de dano maior da caneta): só prévia em `Documentos\Sketch Blade - arte original\previa-area-de-dano-caneta.png`; a área atual (42 px) já é mais larga que o desenho da caneta. Decidir depois do teste.
-- Teste: a invencibilidade do script de teste é desligada pelo tween de i-frames do Player após o primeiro dano (não é bug do jogo).
+## Chefes e combate
+Fonte única: `docs/chefes.md` (regras de design, situação de cada chefe, arquitetura, como testar). Versão 1.4.0 (código 7) gerada em 28/10 com chefes 2, 3 e 5; depois dela vieram os ajustes do teste do Richard (ainda sem build). Próximo: chefes 4, 6 e 9 (versão 1.5).

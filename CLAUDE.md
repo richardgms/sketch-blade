@@ -7,6 +7,7 @@ Jogo mobile (Android, retrato) em **Godot 4.7** (GL Compatibility), GDScript. Ro
 - AAB de release: `--headless --path . --export-release "Android" "<saida>.aab"` (chave de upload em `Documentos\keys`, senha em `.godot/export_credentials.cfg`, fora do git).
 - Prints da loja (1080x1920): `-s tools/capturar_prints.gd -- <pasta> [LxA]` — faça backup do save do PC antes.
 - Economia: `python tools/sim_economia.py`.
+- Testar chefe no jogo: Configurações → Stats de teste → "Testar chefe" / "Zerar Estojo" (só com `GameData.MODO_TESTE`). Teste por script: ver `docs/chefes.md`.
 
 ## Regras que importam
 - **Nenhum arquivo que não seja do jogo dentro desta pasta** (fotos, PSD, prints de cliente): o export leva tudo para o APK/AAB. Antes de enviar um build, listar os maiores arquivos do AAB.
@@ -16,5 +17,5 @@ Jogo mobile (Android, retrato) em **Godot 4.7** (GL Compatibility), GDScript. Ro
 - Push que envolva pagamento ou anúncios: perguntar antes.
 
 ## Documentação
-- Publicação e histórico: `docs/plano-publicacao.md` · Compras: `docs/plano-compras.md` · Loja: `docs/ficha-da-loja.md`
+- Publicação e histórico: `docs/plano-publicacao.md` · Compras: `docs/plano-compras.md` · Loja: `docs/ficha-da-loja.md` · Chefes e combate: `docs/chefes.md`
 - Página de acompanhamento: https://claude.ai/artifact/XvFoxxh9Kpb1AynTtDaumW
