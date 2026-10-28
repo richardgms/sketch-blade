@@ -100,3 +100,12 @@ Tiros: cor quente (azul só do jogador), contorno escuro grosso, 16–20 px, for
 Arte: `assets/inimigos/chefe_2..10.png` (512 px, 3,5 MB no total), originais em `Documentos\Sketch Blade - arte original\inimigos`.
 
 **Versão 1.4.0 (código 7), 28/10/2026:** chefe-base com `Boss.FICHAS` (arte, tamanho, comportamento por capítulo; capítulos sem ficha usam o Borrão). Comportamentos em `chefes/`: `Aviao.gd` (cap. 2), `Mancha.gd` + `PedacoMancha.gd` (cap. 3; vida compartilhada via `Boss.dano_compartilhado`), `Compasso.gd` (cap. 5; gira o desenho com `controla_rotacao`). Atalho de teste: painel Stats de teste → "Testar chefe [1][2][3][5]" (`SaveManager.teste_chefe`), só com `MODO_TESTE`.
+
+## Feedback do teste dos chefes (28/10/2026) — feito
+- Aviso de tiro fino (2,5 px), claro, começando na borda do desenho e por trás dele (`AvisoTiro.atras_do_atirador`).
+- Números de dano brancos/laranja com contorno escuro (legíveis no chefe escuro).
+- Área de acerto por chefe (`Boss.FICHAS[...]["raio"]`): resolve tiros que "atravessavam" o Compasso e o Avião.
+- Anti "ficar parado" (opção 1 aprovada): leque do chefe mira a caneta; **gota perseguidora** (roxa com olho, curva 75°/s por 2 s); Avião sorteia rasante / mergulho mirado / esquadrilha; Compasso solta perseguidoras no descanso e, com raiva, invoca 2 lacaios.
+- Mancha: cada pedaço com vida própria (barra = soma), grandes viram 2 pequenos, último fica bravo; alterna gota mirada e perseguidora.
+- Opção 3 (área de dano maior da caneta): só prévia em `Documentos\Sketch Blade - arte original\previa-area-de-dano-caneta.png`; a área atual (42 px) já é mais larga que o desenho da caneta. Decidir depois do teste.
+- Teste: a invencibilidade do script de teste é desligada pelo tween de i-frames do Player após o primeiro dano (não é bug do jogo).
