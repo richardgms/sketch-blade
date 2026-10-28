@@ -2177,7 +2177,7 @@ func _abrir_painel_stats() -> void:
 
 	var papel = ColorRect.new()
 	papel.color = Color(0.98, 0.965, 0.93)
-	papel.size = Vector2(820, 900)
+	papel.size = Vector2(820, 1000)
 	papel.set_anchors_preset(Control.PRESET_CENTER)
 	papel.position = -papel.size / 2.0
 	overlay.add_child(papel)
@@ -2227,22 +2227,23 @@ func _abrir_painel_stats() -> void:
 	vbox.add_child(grid)
 
 	# Atalho de teste: abre a partida direto no chefe do capítulo
+	# Uma linha só, botões compactos (7 chefes; a caixa tem altura fixa)
 	var linha_chefes = HBoxContainer.new()
 	linha_chefes.alignment = BoxContainer.ALIGNMENT_CENTER
-	linha_chefes.add_theme_constant_override("separation", 16)
+	linha_chefes.add_theme_constant_override("separation", 6)
 	vbox.add_child(linha_chefes)
 	var lbl_chefe = Label.new()
-	lbl_chefe.text = "Testar chefe:"
+	lbl_chefe.text = "Chefe:"
 	lbl_chefe.add_theme_font_override("font", fonte)
 	lbl_chefe.add_theme_font_size_override("font_size", 34)
 	lbl_chefe.add_theme_color_override("font_color", Color("002867"))
 	linha_chefes.add_child(lbl_chefe)
-	for cap in [1, 2, 3, 4, 5, 6]:
+	for cap in [1, 2, 3, 4, 5, 6, 9]:
 		var b = Button.new()
-		b.text = "[ %d ]" % cap
+		b.text = "[%d]" % cap
 		b.flat = true
 		b.add_theme_font_override("font", fonte)
-		b.add_theme_font_size_override("font_size", 40)
+		b.add_theme_font_size_override("font_size", 36)
 		b.add_theme_color_override("font_color", Color("c0392b"))
 		linha_chefes.add_child(b)
 		b.pressed.connect(func():

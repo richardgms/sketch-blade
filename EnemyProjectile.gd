@@ -24,6 +24,7 @@ const ESTILOS: Dictionary = {
 	"elite": {"miolo": Color("f39c12"), "brilho": Color("ffe08a"), "borda": Color("f1c40f")},
 	"chefe": {"miolo": Color("e0352b"), "brilho": Color("ffb3a8")},
 	"perseguidora": {"miolo": Color("8e44ad"), "brilho": Color("e2c2f5")},
+	"tinta": {"miolo": Color("1f7f93"), "brilho": Color("a8e6f0")}, # pingo da Pena (forma de gota)
 }
 
 ## Gota perseguidora: curva devagar na direção da caneta por pouco tempo e
