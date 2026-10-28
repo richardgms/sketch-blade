@@ -2177,7 +2177,7 @@ func _abrir_painel_stats() -> void:
 
 	var papel = ColorRect.new()
 	papel.color = Color(0.98, 0.965, 0.93)
-	papel.size = Vector2(820, 1000)
+	papel.size = Vector2(820, 1060)
 	papel.set_anchors_preset(Control.PRESET_CENTER)
 	papel.position = -papel.size / 2.0
 	overlay.add_child(papel)
@@ -2227,29 +2227,35 @@ func _abrir_painel_stats() -> void:
 	vbox.add_child(grid)
 
 	# Atalho de teste: abre a partida direto no chefe do capítulo
-	# Uma linha só, botões compactos (7 chefes; a caixa tem altura fixa)
-	var linha_chefes = HBoxContainer.new()
-	linha_chefes.alignment = BoxContainer.ALIGNMENT_CENTER
-	linha_chefes.add_theme_constant_override("separation", 6)
-	vbox.add_child(linha_chefes)
-	var lbl_chefe = Label.new()
-	lbl_chefe.text = "Chefe:"
-	lbl_chefe.add_theme_font_override("font", fonte)
-	lbl_chefe.add_theme_font_size_override("font_size", 34)
-	lbl_chefe.add_theme_color_override("font_color", Color("002867"))
-	linha_chefes.add_child(lbl_chefe)
-	for cap in [1, 2, 3, 4, 5, 6, 7, 9]:
-		var b = Button.new()
-		b.text = "[%d]" % cap
-		b.flat = true
-		b.add_theme_font_override("font", fonte)
-		b.add_theme_font_size_override("font_size", 36)
-		b.add_theme_color_override("font_color", Color("c0392b"))
-		linha_chefes.add_child(b)
-		b.pressed.connect(func():
-			SaveManager.teste_chefe = cap
-			_on_botao_jogar_pressed()
-		)
+	# Botões compactos em 2 linhas de 5 (a caixa tem altura fixa)
+	var caixa_chefes = VBoxContainer.new()
+	caixa_chefes.add_theme_constant_override("separation", 0)
+	vbox.add_child(caixa_chefes)
+	var caps: Array = [1, 2, 3, 4, 5, 6, 7, 8, 9]
+	for linha_i in 2:
+		var linha_chefes = HBoxContainer.new()
+		linha_chefes.alignment = BoxContainer.ALIGNMENT_CENTER
+		linha_chefes.add_theme_constant_override("separation", 6)
+		caixa_chefes.add_child(linha_chefes)
+		if linha_i == 0:
+			var lbl_chefe = Label.new()
+			lbl_chefe.text = "Chefe:"
+			lbl_chefe.add_theme_font_override("font", fonte)
+			lbl_chefe.add_theme_font_size_override("font_size", 34)
+			lbl_chefe.add_theme_color_override("font_color", Color("002867"))
+			linha_chefes.add_child(lbl_chefe)
+		for cap in caps.slice(linha_i * 5, linha_i * 5 + 5):
+			var b = Button.new()
+			b.text = "[%d]" % cap
+			b.flat = true
+			b.add_theme_font_override("font", fonte)
+			b.add_theme_font_size_override("font_size", 36)
+			b.add_theme_color_override("font_color", Color("c0392b"))
+			linha_chefes.add_child(b)
+			b.pressed.connect(func():
+				SaveManager.teste_chefe = cap
+				_on_botao_jogar_pressed()
+			)
 
 	var linhas = [
 		["Partidas jogadas", str(partidas)],
