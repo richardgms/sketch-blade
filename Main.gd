@@ -704,6 +704,7 @@ func _executar_dobro_tinta() -> void:
 	_tocar_som(audio_vitoria)
 
 func _on_boss_surgiu(boss_node: Node2D) -> void:
+	_estilizar_barra_chefe()
 	boss_hp_bar.max_value = boss_node.hp_max
 	boss_hp_bar.value = boss_node.hp
 	boss_hp_bar.visible = true
@@ -713,6 +714,7 @@ func _on_boss_surgiu(boss_node: Node2D) -> void:
 	)
 	boss_node.morreu.connect(func():
 		boss_hp_bar.visible = false
+		_limpar_tela_vitoria()
 		for i in range(4):
 			var offset = Vector2(randf_range(-40, 40), randf_range(-40, 40))
 			_spawn_particles(Color.BLACK, boss_node.global_position + offset)
@@ -985,6 +987,61 @@ func _atualizar_hud() -> void:
 		hp_texto_label.text = str(player.vidas) + " / " + str(player.vidas_max)
 	
 	tinta_label.text = str(tinta_partida)
+
+## Barra de vida do chefe no estilo do caderno: vermelho sobre papel, com
+## contorno de caneta (o padrão do Godot era cinza sobre cinza, ilegível).
+func _estilizar_barra_chefe() -> void:
+	var fundo := StyleBoxFlat.new()
+	fundo.bg_color = Color(0.98, 0.96, 0.92, 0.9)
+	fundo.border_color = Color("1a1a2e")
+	fundo.set_border_width_all(3)
+	fundo.set_corner_radius_all(8)
+	var cheio := StyleBoxFlat.new()
+	cheio.bg_color = Color("c0392b")
+	cheio.set_corner_radius_all(6)
+	cheio.set_border_width_all(3)
+	cheio.border_color = Color(0, 0, 0, 0) # mantém o recuo da borda do fundo
+	boss_hp_bar.add_theme_stylebox_override("background", fundo)
+	boss_hp_bar.add_theme_stylebox_override("fill", cheio)
+	boss_hp_bar.show_percentage = false
+
+## Chefe derrotado: caneta protegida, tiros inimigos somem com um respingo e
+## os monstros que sobraram (reforços) morrem junto.
+func _limpar_tela_vitoria() -> void:
+	if player:
+		player.protegido_fim_de_fase = true
+	for proj in get_tree().get_nodes_in_group("enemy_projectiles"):
+		if proj.visible:
+			spawn_impacto(proj.global_position, Color("e0352b"), false)
+			devolver_projetil_inimigo(proj)
+	for inimigo in get_tree().get_nodes_in_group("enemies"):
+		if inimigo.has_method("dano_compartilhado"):
+			continue # o próprio chefe
+		if inimigo.has_method("morrer") and not inimigo.get("morrendo"):
+			inimigo.morrer.call_deferred()
+		elif not inimigo.has_method("morrer"):
+			inimigo.queue_free()
+
+## Aviso curto no alto da tela (abaixo da barra de vida), longe da área de
+## desvio: aparece, segura um instante e some, sem se mexer.
+func aviso_topo(texto: String, cor: Color = Color("c0392b")) -> void:
+	var lbl := Label.new()
+	lbl.text = texto
+	lbl.add_theme_font_override("font", load("res://assets/fonts/ArchitectsDaughter-Regular.ttf"))
+	lbl.add_theme_font_size_override("font_size", 40)
+	lbl.add_theme_color_override("font_color", cor)
+	lbl.add_theme_color_override("font_outline_color", Color(1, 1, 1, 0.9))
+	lbl.add_theme_constant_override("outline_size", 8)
+	lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	lbl.size = Vector2(1080, 60)
+	lbl.position = Vector2(0, 198) # logo abaixo da barra de vida do chefe
+	lbl.modulate.a = 0.0
+	$HUD.add_child(lbl) # camada da interface: fica por cima do jogo
+	var tw := create_tween()
+	tw.tween_property(lbl, "modulate:a", 1.0, 0.15)
+	tw.tween_interval(1.1)
+	tw.tween_property(lbl, "modulate:a", 0.0, 0.35)
+	tw.tween_callback(lbl.queue_free)
 
 func _spawn_feedback(texto: String, timing: String, pos: Vector2) -> void:
 	var feedback = feedback_label_scene.instantiate()

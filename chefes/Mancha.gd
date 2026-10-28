@@ -153,8 +153,8 @@ func _efeito_divisao(pos: Vector2, tremor: float) -> void:
 			main._spawn_particles(COR, pos + Vector2(randf_range(-50, 50), randf_range(-40, 40)))
 	if main.has_method("_shake_tela"):
 		main._shake_tela(tremor)
-	if main.has_method("_spawn_feedback"):
-		main._spawn_feedback("SE DIVIDIU!", "miss", pos + Vector2(0, 110))
+	if main.has_method("aviso_topo"):
+		main.aviso_topo("SE DIVIDIU!", Color("6c3483"))
 
 func _limpar_pedacos() -> void:
 	for p in _pedacos:

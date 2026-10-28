@@ -17,6 +17,9 @@ var vidas: int = 5
 var posicao_alvo: Vector2
 var raio_corpo: float = 25.0
 var invencivel: bool = false
+## Fim de fase (vitória): nada mais tira vida, mesmo que a invencibilidade
+## temporária de outro golpe termine.
+var protegido_fim_de_fase: bool = false
 
 # Limite inferior de movimento, calculado da altura real da tela (telas mais
 # altas que 1920 ganham zona de jogo até perto do rodapé)
@@ -301,7 +304,7 @@ func _disparar_projetil(offset: Vector2, direcao: Vector2, mult_dano: float) -> 
 		proj.queue_redraw()
 
 func _on_area_entered(area: Area2D) -> void:
-	if invencivel:
+	if invencivel or protegido_fim_de_fase:
 		return
 	if area.is_in_group("enemies"):
 		print("[DEBUG] Caneta sofreu dano de contato com: ", area.name)
@@ -315,6 +318,9 @@ func _on_area_entered(area: Area2D) -> void:
 			area.morrer()
 
 func receber_dano(quantidade: int = 1) -> void:
+	# Tiros também respeitam a invencibilidade (antes só o contato respeitava)
+	if invencivel or protegido_fim_de_fase:
+		return
 	if nivel_upgrade("escudo_borracha") > 0 and tem_escudo_ativo:
 		tem_escudo_ativo = false
 		timer_escudo = 0.0

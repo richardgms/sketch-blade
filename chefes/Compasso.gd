@@ -123,8 +123,8 @@ func _no_descanso() -> void:
 			e.configurar_tipo(2) # RESPINGO
 			e.estilo_tiro = "perseguidora"
 			_lacaios.append(e)
-		if main.has_method("_spawn_feedback"):
-			main._spawn_feedback("REFORÇOS!", "miss", boss.position + Vector2(0, 150))
+		if main.has_method("aviso_topo"):
+			main.aviso_topo("REFORÇOS!")
 
 ## Gira só o desenho (a área de acerto é um círculo, não muda).
 func _girar(vel: float, delta: float) -> void:
