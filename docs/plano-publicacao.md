@@ -8,8 +8,8 @@ Atualizado em 2026-10-24. Fonte única do plano; marque cada item ao concluir.
 | Pacote | `com.richardgms.sketchblade`, versão 1 / "1.0", só arm64 |
 | Build de teste (APK debug) | Gerado e instalado no celular em 24/10/2026 |
 | Preset de release (AAB) | Pronto, mas **sem keystore de release** (só a de debug do Godot) |
-| Plugin AdMob | **Não instalado**. `AdsManager.gd` está em `MODO_MOCK = true` com IDs de teste |
-| Código do AdMob real | Escrito de memória (`Engine.get_singleton("AdMob")`); precisa ser conferido contra a API real do plugin |
+| Plugin AdMob | Instalado em 28/10/2026 (ver Versão 1.2.0) |
+| Código do AdMob real | `AdsManager.gd` reescrito com a API do plugin (28/10/2026) |
 | Política de privacidade | Pronta em `docs/privacy.html` (GitHub Pages) |
 | Ícone 512 e recurso gráfico 1024x500 | Prontos em `store/` |
 | Screenshots da loja, textos, classificação, Data Safety | Não feitos |
@@ -67,8 +67,8 @@ AAB: `Documentos\Sketch Blade - builds\sketchblade-1.1.0-vc4.aab` (43,8 MB; ante
 1. [x] **[+] de compra sem resposta**: as telas do Hub (`TelaLutar/Estojo/Loja` e o container da loja) cobriam o topo com `mouse_filter` STOP. Corrigido e testado por script (toque simulado nas 3 abas).
 2. [x] **Aba "Pacotes" na Loja**: título vira abas Canetas | Pacotes; cartões com preço da Play Store; os [+] do topo abrem Pacotes (`Hub._montar_pacotes`).
 3. [x] **Oferta quando faltar saldo**: upgrade do Estojo ou caneta sem saldo abre a confirmação do pacote, 1x por moeda a cada visita ao Hub (`Hub._oferecer_pacote`).
-4. [ ] **AdMob real**: plugin poing-studios v5.1.0 (`android-template-v4.7.0.zip`, Godot 4.4+, testado até 4.7.2); ajustar `AdsManager.gd` à API real; testar com IDs de teste num APK; depois IDs reais (`admob_ids` na memória). Rever Segurança dos dados.
-5. [ ] Build 1.2.0 (código 5), teste de compra e anúncio no celular, Teste fechado.
+4. [x] **AdMob real**: plugin poing-studios v5.1.0 em `addons/admob` (só Android; binários em `android/bin/ads`, `package.gd` criado à mão para o plugin não baixar nada no export headless; C#, iOS, docs e skills com `.gdignore`). App ID real em `project.godot` (`admob/general/android/app_id`). `AdsManager` pré-carrega um anúncio por placement e só concede no `on_user_earned_reward`; `USAR_BLOCOS_TESTE = true` usa o bloco de teste do Google — trocar para false só antes da produção. Recompensa diária: botão não trava mais se o anúncio falhar.
+5. [ ] Build 1.2.0 (código 5) **gerado**: `Documentos\Sketch Blade - builds\sketchblade-1.2.0-vc5.aab` (54,7 MB; +8,8 MB do SDK de anúncios). Conferido: SDK de anúncios, App ID, AD_ID, BILLING, sem fotos. Falta: enviar ao Teste fechado/interno, testar compra e anúncio no celular, rever Segurança dos dados.
 6. [ ] Combate mais visível (tiro, impacto, inimigos) — versão seguinte.
 
 ## Decisões em aberto
