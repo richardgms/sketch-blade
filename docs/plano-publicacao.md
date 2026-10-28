@@ -78,3 +78,23 @@ AAB: `Documentos\Sketch Blade - builds\sketchblade-1.1.0-vc4.aab` (43,8 MB; ante
 
 ## Histórico
 - 2026-10-24: investigação feita, plano criado.
+
+## Chefes por capítulo e tiros inimigos — plano (28/10/2026, conselho de LLMs)
+Regras de design (controle só horizontal + tiro automático): todo ataque com aviso ≥ 0,5 s acima da mão; sempre uma rota segura no eixo X (fresta ≥ 2× a caneta); mecânica de posição, não de mira; luta de 30–60 s; upgrade da roleta pode ser bônus contra um chefe, nunca requisito.
+Arquitetura: `Boss.gd` base (estados, fases por % de HP, telegraph) + ficha por chefe (Resource: arte, HP, ataques por fase) + ataques reaproveitáveis (leque, espiral, parede com fresta, zona marcada, mergulho, invocação). Projétil inimigo parametrizado e reciclado; teto de tiros; limpar tiros na morte do chefe; modo debug para pular ao chefe X.
+Tiros: cor quente (azul só do jogador), contorno escuro grosso, 16–20 px, forma por tipo, aviso (pulso + linha tracejada).
+
+| Cap. | Chefe | Mecânica | Versão |
+|---|---|---|---|
+| 1 | Borrão | leque + mergulho (já existe) | — |
+| 2 | Avião de papel | rasantes laterais com trilha (entra pela borda com aviso) | 1.4 |
+| 3 | Mancha de 4 lobos | divide em 2 e depois 4 (limite de cópias) | 1.4 |
+| 5 | Compasso | espiral com brechas largas | 1.4 |
+| 4 | Monstro da grade | quadrados marcados que enchem e explodem (1–2 colunas por vez) | 1.5 |
+| 6 | Pirata do mapa | X marcados onde caem bombas (sem fase invulnerável) | 1.5 |
+| 9 | Pena de escrever | paredes de tinta com fresta | 1.5 |
+| 7 | Tsuru | asas abrem/fecham em ritmo fixo com som; vulnerável aberto | 1.6 |
+| 8 | Fantasma de página | cópias translúcidas que somem com 1 tiro; só a verdadeira tem sombra | 1.6 |
+| 10 | Estojo | fases por HP com ataques dos outros chefes | 1.6 |
+
+Arte: `assets/inimigos/chefe_2..10.png` (512 px, 3,5 MB no total), originais em `Documentos\Sketch Blade - arte original\inimigos`. Ainda não ligados ao jogo.
