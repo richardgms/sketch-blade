@@ -1,7 +1,7 @@
 # Chefes e combate — Sketch Blade
 
 Fonte única sobre chefes, tiros inimigos e "sensação de acerto". O `plano-publicacao.md` só aponta para cá.
-Atualizado em 28/10/2026.
+Atualizado em 28/10/2026 (chefe 4).
 
 ## Regras de design (decididas com o conselho de LLMs e o teste do Richard)
 O jogador é uma caneta que **só anda na horizontal** e **atira sozinha** para cima. Por isso:
@@ -20,7 +20,7 @@ O jogador é uma caneta que **só anda na horizontal** e **atira sozinha** para 
 | 2 | Avião de papel | topo com leque (tempo variável) → sorteia **rasante** (linha de aviso, bombas com brecha de 300 px), **mergulho mirado** (linha travada na caneta) ou **esquadrilha** (3 gotas perseguidoras, 5 com raiva) | Feito, testado pelo Richard |
 | 3 | Mancha de 4 lobos | leque mirado + perseguidora; com 50% vira 2 pedaços **com vida própria**, cada grande vira 2 pequenos ao perder metade; último fica bravo; barra = soma | Feito, testado |
 | 5 | Compasso | anda, dá corda (círculo de aviso), espiral só para baixo; descanso com 2 perseguidoras; com raiva 3 braços, inverte a espiral e invoca 2 lacaios | Feito, testado |
-| 4 | Monstro da grade | quadrados marcados no chão que enchem e explodem (1–2 colunas por vez, aviso > 1 s) | **A fazer (versão 1.5)** |
+| 4 | Monstro da grade | no alto, balança e atira leque mirado; sorteia **esmagar** (a coluna da caneta enche 1,2 s e explode; com raiva + 1 coluna longe), **xadrez** (3 colunas alternadas com a da caneta; com raiva as outras 3 logo depois) ou **pedras** (2 leques; com raiva + 2 perseguidoras). Chão em 6 colunas de 180 px (`chefes/ZonaGrade.gd`) | Feito, **falta o teste do Richard** |
 | 6 | Pirata do mapa | X marcados onde caem bombas; **sem** fase invulnerável | **A fazer (1.5)** |
 | 9 | Pena de escrever | paredes de tinta que descem com fresta (fresta nasce perto da caneta, não do outro lado) | **A fazer (1.5)** |
 | 7 | Tsuru | asas abrem/fecham em ritmo fixo e visível, com som; só toma dano aberto | A fazer (1.6) |
@@ -38,6 +38,7 @@ Arte de todos já existe: `assets/inimigos/chefe_1..10.png` (512 px) e `chefe_3_
 - Tiros: `EnemyProjectile.setup(dir, vel, raio, estilo)`; estilos `respingo` (gota verde), `elite` (losango laranja), `chefe` (bola vermelha com espinhos), `perseguidora` (roxa com olho; curva 75°/s por 2 s). Sempre pelo pool do `Main` (`obter_projetil_inimigo`).
 - Lacaios: `enemy.tscn` com `configurar_tipo(2)` (Respingo) e `estilo_tiro = "perseguidora"`.
 - Avisos no alto da tela (sem cobrir a área de desvio): `Main.aviso_topo(texto, cor)`.
+- Zonas no chão (Grade): `Node2D` no `Main`, posto logo antes da caneta na árvore (por cima do papel, por baixo da caneta); fere checando o X da caneta na hora da explosão e some sozinho se o chefe morrer.
 - `AvisoTiro.gd`: linha tracejada; `atras_do_atirador = false` quando o aviso fica solto no cenário (senão vai para trás do papel).
 
 **Como adicionar um chefe:** criar `chefes/<Nome>.gd` com `processar` (copiar a fase ENTRADA do `Aviao.gd`/`Compasso.gd`), pôr a ficha em `Boss.FICHAS` (medir o `raio` no desenho), incluir o capítulo na lista do atalho "Testar chefe" (`Hub._abrir_painel_stats`), testar por script (abaixo) e com o Richard no Godot do PC.
@@ -46,12 +47,12 @@ Arte de todos já existe: `assets/inimigos/chefe_1..10.png` (512 px) e `chefe_3_
 Tiro do jogador em cometa de tinta; respingo no impacto (`ImpactoTinta.gd`); flash branco por shader (`flash.gdshader`, também faz o "tremido" de desenho à mão); empurrão; números de dano brancos/laranja com contorno; tremor curto no crítico; barra do chefe vermelha com contorno.
 
 ## Como testar
-- **No jogo (modo de teste):** Configurações → Stats de teste → "Testar chefe [1][2][3][5]" abre a partida direto no chefe; "Zerar Estojo" volta Dano/Corações/Cadência ao nível 1. Só aparecem com `GameData.MODO_TESTE = true` (desligar antes da produção).
-- **Por script (Claude):** copiar `tools/capturar_telas.gd` para um `tools/_tmp_*.gd`, trocar o bloco `if _quer("hud")` por um roteiro (criar `boss.tscn`, `configurar_padrao(cap)`, esperar, `_foto(...)`), rodar `Godot --path . -s tools/_tmp_x.gd -- <pasta> hud` e apagar o arquivo. Para lógica sem imagem, `--headless` com um `SceneTree` em `SubViewport`. Sempre copiar o save do PC antes e restaurar depois.
+- **No jogo (modo de teste):** Configurações → Stats de teste → "Testar chefe [1][2][3][4][5]" abre a partida direto no chefe; "Zerar Estojo" volta Dano/Corações/Cadência ao nível 1. Só aparecem com `GameData.MODO_TESTE = true` (desligar antes da produção).
+- **Por script (Claude):** copiar `tools/capturar_telas.gd` para um `tools/_tmp_*.gd`, trocar o bloco `if _quer("hud")` por um roteiro (abrir `main.tscn`, `wave_manager.iniciar_fase_na_pagina(cap, GameData.PAGINAS.size())`, achar o chefe, `player.dano = 1` para ele não morrer, `angulos_leque = []` para isolar o dano de zona, forçar ataques com `_comportamento._iniciar_ataque(nome)`, `_foto(...)`), rodar `Godot --path . -s tools/_tmp_x.gd -- <pasta> hud` e apagar o arquivo. Para lógica sem imagem, `--headless` com um `SceneTree` em `SubViewport`. Sempre copiar o save do PC antes e restaurar depois.
 - Cuidados nos testes: o chefe só toma dano depois da entrada (`entrada_concluida`); a invencibilidade forçada na caneta é desligada pelo tween de dano do `Player` após o primeiro golpe (não é bug do jogo).
 
 ## Pendências e ideias
-- Chefes 4, 6, 9 (versão 1.5) e depois 7, 8, 10 (1.6).
+- Chefes 6, 9 (versão 1.5; o 4 aguarda teste) e depois 7, 8, 10 (1.6).
 - Opção 3 (área de dano maior da caneta): prévia em `Documentos\Sketch Blade - arte original\previa-area-de-dano-caneta.png`; decidir depois de testar a opção 1.
 - Olhos dos monstros animados por código (pupila seguindo a caneta, piscar): ideia aprovada pelo conselho, não feita.
 - Se o "inchar" for fraco como aviso: piscar em vermelho enquanto incha.
