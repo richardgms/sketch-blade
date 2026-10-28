@@ -26,6 +26,8 @@ var _sentido: float = 1.0
 var _destino: Vector2 = Vector2(540, Y_ALVO)
 var _inverteu: bool = false
 var _aviso_circulo: Node2D = null
+var _descansos: int = 0
+var _lacaios: Array = []
 
 func _init(b: Node2D) -> void:
 	boss = b
@@ -80,6 +82,29 @@ func _ir(nova: Fase) -> void:
 	_tiro_t = 0.0
 	if nova == Fase.AVISO:
 		_mostrar_aviso()
+	elif nova == Fase.DESCANSO:
+		_no_descanso()
+
+## No descanso: 2 gotas perseguidoras; com raiva, a cada 2 descansos invoca
+## 2 lacaios (Respingos que atiram gota perseguidora), no máximo 2 vivos.
+func _no_descanso() -> void:
+	_descansos += 1
+	var d: Vector2 = boss.mira(boss.position)
+	for ang in [-25.0, 25.0]:
+		var dir := d.rotated(deg_to_rad(ang))
+		boss.atirar(boss.position + dir * 90.0, dir, 250.0, 12.0, "perseguidora")
+	_lacaios = _lacaios.filter(func(l): return is_instance_valid(l) and not l.morrendo)
+	if _furioso() and _descansos % 2 == 0 and _lacaios.size() < 2:
+		var main = boss.get_parent()
+		for lado in [-1.0, 1.0]:
+			var e = preload("res://enemy.tscn").instantiate()
+			e.position = Vector2(540.0 + lado * 300.0, -60.0)
+			main.add_child(e)
+			e.configurar_tipo(2) # RESPINGO
+			e.estilo_tiro = "perseguidora"
+			_lacaios.append(e)
+		if main.has_method("_spawn_feedback"):
+			main._spawn_feedback("REFORÇOS!", "miss", boss.position + Vector2(0, 150))
 
 ## Gira só o desenho (a área de acerto é um círculo, não muda).
 func _girar(vel: float, delta: float) -> void:

@@ -6,7 +6,14 @@ extends RefCounted
 ## bombas, sempre com uma brecha larga sem bombas → VOLTA pelo topo.
 ## Com menos da metade da vida: rasantes mais rápidos e dois seguidos.
 
-enum Fase { ENTRADA, TOPO, SAINDO, AVISO, RASANTE, VOLTANDO }
+enum Fase { ENTRADA, TOPO, SAINDO, AVISO, RASANTE, VOLTANDO, MIRA_MERGULHO, MERGULHO, ESQUADRILHA }
+
+## Ataques sorteados depois do topo (nunca o mesmo duas vezes seguidas)
+const ATAQUES: Array = ["rasante", "mergulho", "esquadrilha"]
+var _ultimo_ataque: String = ""
+var _tempo_topo: float = 3.0
+var _dir_mergulho: Vector2 = Vector2.DOWN
+var _esquadrilha_tiros: int = 0
 
 const Y_TOPO: float = 260.0
 const TEMPO_TOPO: float = 3.6
@@ -60,7 +67,34 @@ func processar(delta: float) -> void:
 			_processar_rasante(delta)
 		Fase.VOLTANDO:
 			boss.position.y = move_toward(boss.position.y, Y_TOPO, 500.0 * delta)
+			_virar(0.0, delta)
 			if boss.position.y >= Y_TOPO:
+				_ir(Fase.TOPO)
+		Fase.MIRA_MERGULHO:
+			# Treme no lugar mirando; a linha de aviso mostra a direção travada
+			_virar(_dir_mergulho.angle() - PI / 2.0, delta)
+			boss.position.x += sin(_t * 60.0) * 1.5
+			if _t >= 0.75:
+				_ir(Fase.MERGULHO)
+		Fase.MERGULHO:
+			boss.position += _dir_mergulho * (1250.0 if _furioso() else 1050.0) * delta
+			var p: Vector2 = boss.position
+			if p.y > 1750.0 or p.x < -200.0 or p.x > 1280.0:
+				boss.position = Vector2(randf_range(250.0, 830.0), -180.0)
+				boss.rotation = 0.0
+				_ir(Fase.VOLTANDO)
+		Fase.ESQUADRILHA:
+			_virar(0.0, delta)
+			_tiro_t += delta
+			# 3 (ou 5 com raiva) gotas perseguidoras, uma a cada 0,35 s
+			var total: int = 5 if _furioso() else 3
+			if _tiro_t >= 0.35 and _esquadrilha_tiros < total:
+				_tiro_t = 0.0
+				var lado: float = float(_esquadrilha_tiros) - (total - 1) / 2.0
+				var dir := Vector2.DOWN.rotated(deg_to_rad(-lado * 22.0))
+				boss.atirar(boss.position + dir * 80.0, dir, 250.0, 12.0, "perseguidora")
+				_esquadrilha_tiros += 1
+			if _esquadrilha_tiros >= total and _tiro_t >= 0.6:
 				_ir(Fase.TOPO)
 
 func _ir(nova: Fase) -> void:
@@ -81,9 +115,34 @@ func _processar_topo(delta: float) -> void:
 		_tiro_t = 0.0
 		_avisou = false
 		boss._disparar_leque()
-	if _t >= TEMPO_TOPO:
-		_dir = 1.0 if boss.position.x >= 540.0 else -1.0
-		_ir(Fase.SAINDO)
+	if _t >= _tempo_topo:
+		_escolher_ataque()
+
+## Sorteia o próximo ataque, sem repetir o último.
+func _escolher_ataque() -> void:
+	var opcoes: Array = ATAQUES.filter(func(a): return a != _ultimo_ataque)
+	var ataque: String = opcoes[randi() % opcoes.size()]
+	_ultimo_ataque = ataque
+	_tempo_topo = randf_range(1.8, 3.4) # tempo no topo também varia
+	match ataque:
+		"rasante":
+			_dir = 1.0 if boss.position.x >= 540.0 else -1.0
+			_ir(Fase.SAINDO)
+		"mergulho":
+			_dir_mergulho = boss.mira(boss.position)
+			var aviso = preload("res://AvisoTiro.gd").new()
+			aviso.direcoes = [_dir_mergulho]
+			aviso.cor = Color("d63a2f")
+			aviso.duracao = 0.75
+			aviso.comprimento = 1500.0
+			aviso.atras_do_atirador = false
+			aviso.position = boss.position
+			boss.get_parent().add_child(aviso)
+			_ir(Fase.MIRA_MERGULHO)
+		"esquadrilha":
+			_esquadrilha_tiros = 0
+			boss._avisar_leque()
+			_ir(Fase.ESQUADRILHA)
 
 ## Escolhe a altura e a brecha do próximo rasante e mostra o aviso na borda.
 func _preparar_rasante() -> void:

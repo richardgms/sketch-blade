@@ -61,6 +61,8 @@ var _escala_arte: Vector2 = Vector2.ONE
 var _t_anim: float = 0.0
 var _pulso: float = 0.0 # inchaço do aviso de tiro
 var _avisou_tiro: bool = false
+## Estilo do tiro do Respingo. Lacaios de chefe usam "perseguidora".
+var estilo_tiro: String = "respingo"
 var _avisou_leque: bool = false
 
 const AVISO_TIRO = preload("res://AvisoTiro.gd")
@@ -430,7 +432,10 @@ func _disparar_projetil_respingo() -> void:
 		
 	if proj:
 		proj.position = global_position + Vector2(0, 30)
-		proj.setup(Vector2.DOWN, 400.0, 9.0, "respingo")
+		if estilo_tiro == "perseguidora":
+			proj.setup(Vector2.DOWN, 250.0, 11.0, "perseguidora")
+		else:
+			proj.setup(Vector2.DOWN, 400.0, 9.0, "respingo")
 		
 		if not proj.is_inside_tree():
 			main.add_child(proj)
