@@ -59,6 +59,7 @@ const FICHAS: Dictionary = {
 	1: {"arte": "res://assets/inimigos/chefe_1.png", "fator": 2.1, "comportamento": ""},
 	2: {"arte": "res://assets/inimigos/chefe_2.png", "fator": 2.6, "comportamento": "res://chefes/Aviao.gd"},
 	3: {"arte": "res://assets/inimigos/chefe_3.png", "fator": 2.3, "comportamento": "res://chefes/Mancha.gd"},
+	5: {"arte": "res://assets/inimigos/chefe_5.png", "fator": 2.4, "comportamento": "res://chefes/Compasso.gd"},
 }
 
 var capitulo: int = 1
@@ -155,7 +156,9 @@ func _process(delta: float) -> void:
 		_t_anim += delta
 		var r: float = sin(_t_anim * 3.2)
 		_arte.scale = _escala_arte * Vector2(1.0 + 0.05 * r, 1.0 - 0.05 * r) * (1.0 + _pulso)
-		_arte.rotation = 0.05 * sin(_t_anim * 1.7)
+		# O balanço não vale quando o comportamento gira o desenho (Compasso)
+		if not (_comportamento and _comportamento.get("controla_rotacao")):
+			_arte.rotation = 0.05 * sin(_t_anim * 1.7)
 
 	# Tick da Tinta Corrosiva (DoT)
 	if dot_restante > 0.0:
