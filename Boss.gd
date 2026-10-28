@@ -44,6 +44,7 @@ var dot_acumulado: float = 0.0
 
 func _ready() -> void:
 	hp = hp_max
+	_preparar_arte()
 	add_to_group("enemies")
 	y_limite_mergulho = get_viewport_rect().size.y - 120.0
 	# Entrada: sem colisão até terminar de descer
@@ -66,7 +67,32 @@ func configurar_padrao(capitulo: int) -> void:
 		intervalo_mergulho = 3.5
 		spawna_reforcos = true
 
+## Desenho (IA) do chefe; sem ele, cai no círculo desenhado por código.
+const ARTE_CHEFE: String = "res://assets/inimigos/chefe_1.png"
+const FATOR_ARTE_CHEFE: float = 2.1
+var _arte: Sprite2D = null
+var _escala_arte: Vector2 = Vector2.ONE
+var _t_anim: float = 0.0
+
+func _preparar_arte() -> void:
+	material = ShaderMaterial.new()
+	material.shader = preload("res://flash.gdshader")
+	material.set_shader_parameter("semente", randf() * 100.0)
+	if not ResourceLoader.exists(ARTE_CHEFE):
+		return
+	var tex: Texture2D = load(ARTE_CHEFE)
+	_arte = Sprite2D.new()
+	_arte.texture = tex
+	_arte.use_parent_material = true
+	_arte.show_behind_parent = true
+	_escala_arte = Vector2.ONE * (raio_visual * 2.0 * FATOR_ARTE_CHEFE / tex.get_width())
+	_arte.scale = _escala_arte
+	add_child(_arte)
+	material.set_shader_parameter("tremido", 0.0025)
+
 func _draw() -> void:
+	if _arte:
+		return
 	# Desenha o Boss de Tinta (círculo preto grande)
 	draw_circle(Vector2.ZERO, raio_visual, cor_tinta)
 	
@@ -82,6 +108,12 @@ func _draw() -> void:
 func _process(delta: float) -> void:
 	if is_queued_for_deletion():
 		return
+	# Respira devagar e balança, com peso de chefe
+	if _arte:
+		_t_anim += delta
+		var r: float = sin(_t_anim * 3.2)
+		_arte.scale = _escala_arte * Vector2(1.0 + 0.05 * r, 1.0 - 0.05 * r)
+		_arte.rotation = 0.05 * sin(_t_anim * 1.7)
 
 	# Tick da Tinta Corrosiva (DoT)
 	if dot_restante > 0.0:
@@ -215,8 +247,7 @@ func receber_dano_detalhado(quantidade: int, critico: bool) -> void:
 	
 	# Flash branco ao receber dano (shader: modulate não clareia tinta preta)
 	if not material:
-		material = ShaderMaterial.new()
-		material.shader = preload("res://flash.gdshader")
+		_preparar_arte()
 	if _tween_flash:
 		_tween_flash.kill()
 	material.set_shader_parameter("flash", 0.7)

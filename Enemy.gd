@@ -42,9 +42,18 @@ const SHADER_FLASH = preload("res://flash.gdshader")
 ## Desenho (IA) por tipo. Tipos sem arte continuam desenhados por código.
 const ARTE_INIMIGO: Dictionary = {
 	TipoInimigo.COMUM: "res://assets/inimigos/comum.png",
+	TipoInimigo.NANQUIM: "res://assets/inimigos/nanquim.png",
+	TipoInimigo.RESPINGO: "res://assets/inimigos/respingo.png",
+	TipoInimigo.GUACHE: "res://assets/inimigos/guache.png",
 }
-## Tamanho do desenho em relação ao corpo (o desenho tem respingos em volta).
-const FATOR_ARTE: float = 1.7
+## Tamanho do desenho em relação ao corpo (diâmetro × fator). Os desenhos têm
+## respingos em volta; o Nanquim é fino e alto, então precisa de fator maior.
+const FATOR_ARTE: Dictionary = {
+	TipoInimigo.COMUM: 1.7,
+	TipoInimigo.NANQUIM: 3.6,
+	TipoInimigo.RESPINGO: 2.6,
+	TipoInimigo.GUACHE: 1.45,
+}
 const TREMIDO_ARTE: float = 0.0035
 
 var _arte: Sprite2D = null
@@ -96,7 +105,7 @@ func configurar_tipo(novo_tipo: TipoInimigo) -> void:
 		raio_visual = 65.0
 		velocidade = 80.0
 		hp_max = 50
-		cor_tinta = Color("4b2c15", 0.95)
+		cor_tinta = Color("a8401c", 0.95) # ferrugem do desenho
 		textura_drop = "res://assets/ink-brown.svg"
 		dano_contato = 2
 		
@@ -104,6 +113,9 @@ func configurar_tipo(novo_tipo: TipoInimigo) -> void:
 	pos_inicial_x = position.x
 	_aplicar_arte()
 	queue_redraw()
+
+func _fator_arte() -> float:
+	return FATOR_ARTE.get(tipo, 1.7)
 
 ## Troca o círculo desenhado por código pelo desenho do tipo (se houver).
 func _aplicar_arte() -> void:
@@ -122,7 +134,7 @@ func _aplicar_arte() -> void:
 		add_child(_arte)
 	var tex: Texture2D = load(caminho)
 	_arte.texture = tex
-	_escala_arte = Vector2.ONE * (raio_visual * 2.0 * FATOR_ARTE / tex.get_width())
+	_escala_arte = Vector2.ONE * (raio_visual * 2.0 * _fator_arte() / tex.get_width())
 	_arte.scale = _escala_arte
 	if material:
 		material.set_shader_parameter("tremido", TREMIDO_ARTE)
@@ -137,7 +149,22 @@ func tornar_elite() -> void:
 	scale = Vector2.ONE * GameData.ELITE_MULT_ESCALA
 	dano_contato = max(dano_contato, 2)
 	morre_no_contato = false
+	if _arte:
+		_criar_aura_elite()
 	queue_redraw()
+
+## Auréola dourada atrás do desenho da Elite (não corta o desenho).
+func _criar_aura_elite() -> void:
+	var aura := Node2D.new()
+	aura.show_behind_parent = true # atrás do inimigo, mas na frente do papel
+	var raio: float = raio_visual * _fator_arte() * 0.66
+	aura.draw.connect(func():
+		aura.draw_circle(Vector2.ZERO, raio, Color(1.0, 0.78, 0.2, 0.38))
+		aura.draw_arc(Vector2.ZERO, raio, 0.0, TAU, 48, Color("f39c12", 0.9), 7.0, true)
+		aura.draw_arc(Vector2.ZERO, raio + 8.0, 0.0, TAU, 32, Color("f1c40f", 0.45), 3.0, true)
+	)
+	add_child(aura)
+	move_child(aura, 0) # antes do desenho: fica por trás dele
 
 func _draw() -> void:
 	# 1. Desenho do corpo baseado no tipo (tipos com arte usam o Sprite2D)
@@ -172,8 +199,9 @@ func _draw() -> void:
 		draw_circle(Vector2(-10, -20), raio_visual * 0.8, cor_tinta)
 		draw_circle(Vector2(15, 25), raio_visual * 0.8, cor_tinta)
 	
-	# 1.5. Aura dourada de Elite (contorno duplo rabiscado)
-	if eh_elite:
+	# 1.5. Aura dourada de Elite (contorno duplo rabiscado). Com desenho, a
+	# auréola fica atrás dele (_criar_aura_elite).
+	if eh_elite and not _arte:
 		draw_arc(Vector2.ZERO, raio_visual + 10.0, 0, TAU, 40, Color("f39c12", 0.9), 5.0)
 		draw_arc(Vector2.ZERO, raio_visual + 16.0, 0, TAU, 24, Color("f1c40f", 0.5), 3.0)
 
@@ -206,7 +234,7 @@ func _desenhar_barra_hp() -> void:
 		var barra_altura: float = 6.0
 		var barra_y: float = -(raio_visual + 15.0) if tipo != TipoInimigo.NANQUIM else -(raio_visual * 2.5)
 		if _arte:
-			barra_y = -(raio_visual * FATOR_ARTE * 0.85 + 10.0)
+			barra_y = -(raio_visual * _fator_arte() * 0.85 + 10.0)
 		var barra_x: float = -barra_largura / 2.0
 		
 		# Fundo da barra
