@@ -39,6 +39,18 @@ var dot_acumulado: float = 0.0
 const ENEMY_PROJECTILE_SCENE = preload("res://enemy_projectile.tscn")
 const SHADER_FLASH = preload("res://flash.gdshader")
 
+## Desenho (IA) por tipo. Tipos sem arte continuam desenhados por código.
+const ARTE_INIMIGO: Dictionary = {
+	TipoInimigo.COMUM: "res://assets/inimigos/comum.png",
+}
+## Tamanho do desenho em relação ao corpo (o desenho tem respingos em volta).
+const FATOR_ARTE: float = 1.7
+const TREMIDO_ARTE: float = 0.0035
+
+var _arte: Sprite2D = null
+var _escala_arte: Vector2 = Vector2.ONE
+var _t_anim: float = 0.0
+
 func _ready() -> void:
 	if Engine.is_editor_hint():
 		return
@@ -50,6 +62,9 @@ func _ready() -> void:
 	configurar_tipo(tipo)
 	material = ShaderMaterial.new()
 	material.shader = SHADER_FLASH
+	material.set_shader_parameter("semente", randf() * 100.0)
+	material.set_shader_parameter("tremido", TREMIDO_ARTE if _arte else 0.0)
+	_t_anim = randf() * 10.0
 
 func configurar_tipo(novo_tipo: TipoInimigo) -> void:
 	tipo = novo_tipo
@@ -59,7 +74,7 @@ func configurar_tipo(novo_tipo: TipoInimigo) -> void:
 		raio_visual = 35.0
 		velocidade = 200.0
 		hp_max = 20
-		cor_tinta = Color("1a1a2e", 0.95)
+		cor_tinta = Color("26238c", 0.95) # azul do desenho (respingo e mancha)
 		textura_drop = "res://assets/ink-black.svg"
 		dano_contato = 1
 		_desvio_x = randf_range(80.0, 160.0) * (1.0 if randf() < 0.5 else -1.0)
@@ -87,7 +102,30 @@ func configurar_tipo(novo_tipo: TipoInimigo) -> void:
 		
 	hp = hp_max
 	pos_inicial_x = position.x
+	_aplicar_arte()
 	queue_redraw()
+
+## Troca o círculo desenhado por código pelo desenho do tipo (se houver).
+func _aplicar_arte() -> void:
+	var caminho: String = ARTE_INIMIGO.get(tipo, "")
+	if caminho == "":
+		if _arte:
+			_arte.queue_free()
+			_arte = null
+		if material:
+			material.set_shader_parameter("tremido", 0.0)
+		return
+	if not _arte:
+		_arte = Sprite2D.new()
+		_arte.use_parent_material = true # flash e tremido do inimigo
+		_arte.show_behind_parent = true  # barra de vida e aura por cima
+		add_child(_arte)
+	var tex: Texture2D = load(caminho)
+	_arte.texture = tex
+	_escala_arte = Vector2.ONE * (raio_visual * 2.0 * FATOR_ARTE / tex.get_width())
+	_arte.scale = _escala_arte
+	if material:
+		material.set_shader_parameter("tremido", TREMIDO_ARTE)
 
 ## Transforma este inimigo em Elite: gigante, resistente, atira em leque
 ## e não morre no contato. Chamar DEPOIS de configurar_tipo().
@@ -102,8 +140,10 @@ func tornar_elite() -> void:
 	queue_redraw()
 
 func _draw() -> void:
-	# 1. Desenho do corpo baseado no tipo
-	if tipo == TipoInimigo.COMUM:
+	# 1. Desenho do corpo baseado no tipo (tipos com arte usam o Sprite2D)
+	if _arte:
+		pass
+	elif tipo == TipoInimigo.COMUM:
 		# Rabisco circular básico
 		draw_circle(Vector2.ZERO, raio_visual, cor_tinta)
 	
@@ -137,7 +177,14 @@ func _draw() -> void:
 		draw_arc(Vector2.ZERO, raio_visual + 10.0, 0, TAU, 40, Color("f39c12", 0.9), 5.0)
 		draw_arc(Vector2.ZERO, raio_visual + 16.0, 0, TAU, 24, Color("f1c40f", 0.5), 3.0)
 
-	# 2. Olhos brancos expressivos
+	# 2. Olhos brancos expressivos (o desenho já tem olhos)
+	if not _arte:
+		_desenhar_olhos()
+
+	# 3. Barra de HP
+	_desenhar_barra_hp()
+
+func _desenhar_olhos() -> void:
 	var offset_olho_y = -5 if tipo != TipoInimigo.GUACHE else -15
 	var dist_olhos = 10 if tipo != TipoInimigo.GUACHE else 20
 	var tam_olho = 5.0 if tipo != TipoInimigo.GUACHE else 8.0
@@ -152,11 +199,14 @@ func _draw() -> void:
 	draw_circle(Vector2(-dist_olhos, offset_olho_y), tam_pupila, cor_pupila)
 	draw_circle(Vector2(dist_olhos, offset_olho_y), tam_pupila, cor_pupila)
 	
-	# 3. Barra de HP (só para inimigos com mais de 1 HP em modo de jogo)
+func _desenhar_barra_hp() -> void:
+	# Só para inimigos com mais de 1 HP em modo de jogo
 	if not Engine.is_editor_hint() and hp_max > 1:
 		var barra_largura: float = raio_visual * 1.7
 		var barra_altura: float = 6.0
 		var barra_y: float = -(raio_visual + 15.0) if tipo != TipoInimigo.NANQUIM else -(raio_visual * 2.5)
+		if _arte:
+			barra_y = -(raio_visual * FATOR_ARTE * 0.85 + 10.0)
 		var barra_x: float = -barra_largura / 2.0
 		
 		# Fundo da barra
@@ -168,6 +218,13 @@ func _draw() -> void:
 			draw_rect(Rect2(barra_x, barra_y, preenchimento, barra_altura), Color(0.8, 0.15, 0.15))
 
 func _process(delta: float) -> void:
+	# Desenho "vivo": respira (estica/achata) e balança de leve
+	if _arte and not morrendo:
+		_t_anim += delta
+		var r: float = sin(_t_anim * 6.0)
+		_arte.scale = _escala_arte * Vector2(1.0 + 0.07 * r, 1.0 - 0.07 * r)
+		_arte.rotation = 0.08 * sin(_t_anim * 2.6)
+
 	if Engine.is_editor_hint() or is_queued_for_deletion() or morrendo:
 		return
 
