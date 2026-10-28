@@ -2226,6 +2226,30 @@ func _abrir_painel_stats() -> void:
 	grid.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
 	vbox.add_child(grid)
 
+	# Atalho de teste: abre a partida direto no chefe do capítulo
+	var linha_chefes = HBoxContainer.new()
+	linha_chefes.alignment = BoxContainer.ALIGNMENT_CENTER
+	linha_chefes.add_theme_constant_override("separation", 16)
+	vbox.add_child(linha_chefes)
+	var lbl_chefe = Label.new()
+	lbl_chefe.text = "Testar chefe:"
+	lbl_chefe.add_theme_font_override("font", fonte)
+	lbl_chefe.add_theme_font_size_override("font_size", 34)
+	lbl_chefe.add_theme_color_override("font_color", Color("002867"))
+	linha_chefes.add_child(lbl_chefe)
+	for cap in [1, 2, 3, 5]:
+		var b = Button.new()
+		b.text = "[ %d ]" % cap
+		b.flat = true
+		b.add_theme_font_override("font", fonte)
+		b.add_theme_font_size_override("font_size", 40)
+		b.add_theme_color_override("font_color", Color("c0392b"))
+		linha_chefes.add_child(b)
+		b.pressed.connect(func():
+			SaveManager.teste_chefe = cap
+			_on_botao_jogar_pressed()
+		)
+
 	var linhas = [
 		["Partidas jogadas", str(partidas)],
 		["Tinta / run", "%.0f" % (float(s.get("tinta_coletada_total", 0)) / div)],

@@ -18,6 +18,8 @@ var xp_snapshot_pendente: Dictionary = {}
 ## main.tscn quando o jogador escolhe CONTINUAR uma run interrompida. O Main lê
 ## no _ready para decidir entre restaurar o snapshot ou começar uma run nova.
 var retomar_run_pendente: bool = false
+## Modo de teste: capítulo cujo chefe a próxima partida abre direto (0 = normal).
+var teste_chefe: int = 0
 
 # Valores padrão — todo campo novo entra aqui e é migrado automaticamente
 # para saves antigos via _mesclar_com_defaults().

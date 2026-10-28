@@ -266,7 +266,13 @@ func _on_botao_jogar_pressed() -> void:
 	jogo_iniciado = true
 	menu_iniciar.visible = false
 	player.attack_timer.start()
-	wave_manager.iniciar_fase(capitulo_atual)
+	if SaveManager.teste_chefe > 0:
+		# Modo de teste: vai direto para a página do chefe do capítulo escolhido
+		capitulo_atual = SaveManager.teste_chefe
+		SaveManager.teste_chefe = 0
+		wave_manager.iniciar_fase_na_pagina(capitulo_atual, GameData.PAGINAS.size())
+	else:
+		wave_manager.iniciar_fase(capitulo_atual)
 
 	# Tutorial na primeira partida da conta
 	if not SaveManager.dados.get("tutorial_visto", false):
