@@ -52,7 +52,23 @@ func _ready() -> void:
 	set_deferred("monitorable", false)
 
 ## Define o padrão de ataque do boss conforme a faixa de capítulos.
-func configurar_padrao(capitulo: int) -> void:
+## Ficha de cada chefe: desenho, tamanho do desenho e comportamento.
+## Sem "comportamento", usa o padrão do Borrão (patrulha, leque e mergulho).
+## Capítulos sem ficha própria usam a do capítulo 1.
+const FICHAS: Dictionary = {
+	1: {"arte": "res://assets/inimigos/chefe_1.png", "fator": 2.1, "comportamento": ""},
+	2: {"arte": "res://assets/inimigos/chefe_2.png", "fator": 2.6, "comportamento": "res://chefes/Aviao.gd"},
+}
+
+var capitulo: int = 1
+var _comportamento = null # script do chefe (chefes/*.gd) ou null
+
+func configurar_padrao(cap: int) -> void:
+	capitulo = cap
+	var ficha: Dictionary = FICHAS.get(cap, FICHAS[1])
+	_aplicar_arte(ficha["arte"], ficha["fator"])
+	if ficha["comportamento"] != "":
+		_comportamento = load(ficha["comportamento"]).new(self)
 	if capitulo <= 3:
 		# Padrão clássico: leque de 3, mergulho a cada 4s
 		angulos_leque = [90, 75, 105]
@@ -97,17 +113,23 @@ func _preparar_arte() -> void:
 	material = ShaderMaterial.new()
 	material.shader = preload("res://flash.gdshader")
 	material.set_shader_parameter("semente", randf() * 100.0)
-	if not ResourceLoader.exists(ARTE_CHEFE):
+	_aplicar_arte(ARTE_CHEFE, FATOR_ARTE_CHEFE)
+
+func _aplicar_arte(caminho: String, fator: float) -> void:
+	if not ResourceLoader.exists(caminho):
 		return
-	var tex: Texture2D = load(ARTE_CHEFE)
-	_arte = Sprite2D.new()
+	var tex: Texture2D = load(caminho)
+	if not _arte:
+		_arte = Sprite2D.new()
+		_arte.use_parent_material = true
+		_arte.show_behind_parent = true
+		add_child(_arte)
 	_arte.texture = tex
-	_arte.use_parent_material = true
-	_arte.show_behind_parent = true
-	_escala_arte = Vector2.ONE * (raio_visual * 2.0 * FATOR_ARTE_CHEFE / tex.get_width())
+	_escala_arte = Vector2.ONE * (raio_visual * 2.0 * fator / tex.get_width())
 	_arte.scale = _escala_arte
-	add_child(_arte)
-	material.set_shader_parameter("tremido", 0.0025)
+	if material:
+		material.set_shader_parameter("tremido", 0.0025)
+	queue_redraw()
 
 func _draw() -> void:
 	if _arte:
@@ -146,6 +168,10 @@ func _process(delta: float) -> void:
 				return
 		if dot_restante <= 0.0:
 			dot_dps = 0
+
+	if _comportamento:
+		_comportamento.processar(delta)
+		return
 
 	match estado:
 		EstadoBoss.PATRULHA:
