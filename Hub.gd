@@ -1179,7 +1179,9 @@ func _montar_pacotes(fonte: Font) -> void:
 			Vector2(610, 110), fonte, 34, Color("59595f")))
 		var texto_preco: String = "[ %s ]" % BillingManager.preco(chave) if disponivel \
 			else "carregando preço..."
-		card.add_child(_label_card(texto_preco, Vector2(310, 240), Vector2(610, 80),
+		# Preço logo abaixo da descrição (1 ou 2 linhas)
+		var y_preco: float = 136.0 + 52.0 * (p["desc"] as String).count("\n") + 52.0
+		card.add_child(_label_card(texto_preco, Vector2(310, y_preco), Vector2(610, 80),
 			FONTE_NUMEROS if disponivel else fonte, 56 if disponivel else 34,
 			Color("2e7d32") if disponivel else Color("59595f")))
 
