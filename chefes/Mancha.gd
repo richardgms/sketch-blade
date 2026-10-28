@@ -1,24 +1,25 @@
 extends RefCounted
 ## Chefe do capítulo 3: Mancha de 4 lobos.
 ##
-## Inteira: patrulha no alto e atira o leque (com aviso).
-## Com 50% da vida se divide em 2 pedaços; com 25%, em 4. A vida é uma só
-## (acertar qualquer pedaço tira da mesma barra). Os pedaços andam desencontrados
-## e cada um atira uma gota mirada na caneta, sempre com aviso; quanto mais
-## pedaços, mais devagar cada um atira (a pressão total fica parecida).
+## Inteira: patrulha no alto e atira o leque mirado (com aviso); a cada 2
+## leques solta também uma gota perseguidora.
+## Com 50% da vida se divide em 2 pedaços grandes; cada um, ao perder metade da
+## vida dele, vira 2 pequenos (máx. 4). Cada pedaço tem vida própria e morre
+## sozinho; a barra mostra a soma. O último pedaço fica bravo e atira rápido.
+## Depois da divisão o nó do chefe vira só o "controle" (invisível, sem colisão).
 
 const PEDACO = preload("res://chefes/PedacoMancha.gd")
 const Y_TOPO: float = 280.0
-const MAX_PEDACOS: int = 4
+const COR := Color("3b1d6e")
 
 var boss: Node2D
 var _entrou: bool = false
 var _t: float = 0.0
 var _tiro_t: float = 0.0
 var _avisou: bool = false
-var divisoes: int = 1 # 1 inteira, 2 ou 4 pedaços
-var _pedacos: Array = [] # pedaços extras (o próprio chefe é um deles)
-var _fase_boss: float = 0.0
+var _leques: int = 0
+var dividida: bool = false
+var _pedacos: Array = []
 
 func _init(b: Node2D) -> void:
 	boss = b
@@ -35,116 +36,126 @@ func processar(delta: float) -> void:
 			boss.set_deferred("monitoring", true)
 			boss.set_deferred("monitorable", true)
 		return
+	if dividida:
+		return # os pedaços se movem e atiram sozinhos
 
-	# Divide ao cruzar 50% e 25% da vida
-	if divisoes == 1 and boss.hp <= boss.hp_max * 0.5:
-		_dividir(2)
-	elif divisoes == 2 and boss.hp <= boss.hp_max * 0.25:
-		_dividir(4)
+	if boss.hp <= boss.hp_max * 0.5:
+		_dividir_inicial()
+		return
 
-	if divisoes == 1:
-		boss.position.x = 540.0 + sin(_t * 0.9) * 330.0
-		_tiro_t += delta
-		if not _avisou and _tiro_t >= 1.5 - boss.TEMPO_AVISO:
-			_avisou = true
-			boss._avisar_leque()
-		if _tiro_t >= 1.5:
-			_tiro_t = 0.0
-			_avisou = false
-			boss._disparar_leque()
-	else:
-		# O próprio chefe vira um dos pedaços
-		mover_pedaco(boss, _t, _fase_boss, delta)
-		_tiro_t += delta
-		if not _avisou and _tiro_t >= intervalo_tiro() - 0.5:
-			_avisou = true
-			avisar_tiro_mirado(boss)
-		if _tiro_t >= intervalo_tiro():
-			_tiro_t = 0.0
-			_avisou = false
-			atirar_mirado(boss)
+	boss.position.x = 540.0 + sin(_t * 0.9) * 330.0
+	_tiro_t += delta
+	if not _avisou and _tiro_t >= 1.4 - boss.TEMPO_AVISO:
+		_avisou = true
+		boss._avisar_leque()
+	if _tiro_t >= 1.4:
+		_tiro_t = 0.0
+		_avisou = false
+		boss._disparar_leque()
+		_leques += 1
+		if _leques % 2 == 0:
+			var d: Vector2 = boss.mira(boss.position)
+			boss.atirar(boss.position + d * 90.0, d, 260.0, 11.0, "perseguidora")
 
-## Cada pedaço passeia por uma faixa própria no alto da tela.
-func mover_pedaco(no: Node2D, _t_pedaco: float, fase: float, delta: float) -> void:
-	# Relógio único (o do chefe): os pedaços ficam sempre desencontrados
-	var t: float = _t
-	var vel: float = 0.8 + 0.25 * (divisoes / 2.0)
-	var alvo := Vector2(540.0 + sin(t * vel + fase) * 400.0, 300.0 + sin(t * vel * 1.7 + fase * 2.0) * 110.0)
-	no.position = no.position.lerp(alvo, minf(1.0, 3.0 * delta))
+## --- divisão -------------------------------------------------------------
 
+func _dividir_inicial() -> void:
+	dividida = true
+	boss.dot_restante = 0.0 # a vida agora é dos pedaços
+	boss._arte.visible = false
+	boss.remove_from_group("enemies") # explosões e ricochetes miram só os pedaços
+	boss.set_deferred("monitoring", false)
+	boss.set_deferred("monitorable", false)
+	var metade: int = boss.hp / 2
+	_criar_pedaco(1, metade, boss.position + Vector2(-90, 0))
+	_criar_pedaco(1, boss.hp - metade, boss.position + Vector2(90, 0))
+	_efeito_divisao(boss.position, 12.0)
+
+func dividir_pedaco(p) -> void:
+	_pedacos.erase(p)
+	var metade: int = p.hp / 2
+	_criar_pedaco(2, metade, p.position + Vector2(-50, 0))
+	_criar_pedaco(2, p.hp - metade, p.position + Vector2(50, 0))
+	_efeito_divisao(p.position, 9.0)
+	p.queue_free()
+
+func _criar_pedaco(geracao: int, hp: int, pos: Vector2) -> void:
+	var p = PEDACO.new()
+	p.mancha = self
+	p.geracao = geracao
+	p.hp = maxi(1, hp)
+	p.hp_inicial = p.hp
+	p.raio = 60.0 if geracao == 1 else 44.0
+	p.position = pos
+	boss.get_parent().add_child(p)
+	_pedacos.append(p)
+	_reindexar()
+
+func pedaco_morreu(p) -> void:
+	_pedacos.erase(p)
+	var main = boss.get_parent()
+	if main.has_method("_spawn_particles"):
+		main._spawn_particles(COR, p.global_position)
+	if main.has_node("Paper"):
+		main.get_node("Paper").adicionar_mancha(p.global_position, COR, 26.0)
+	_reindexar()
+	if _pedacos.is_empty():
+		boss.position = p.global_position # efeitos de vitória onde o último caiu
+		boss.hp = 0
+		boss.hp_alterado.emit(0)
+		boss.morrer()
+
+func tirar_da_barra(q: int) -> void:
+	boss.hp = maxi(0, boss.hp - q)
+	boss.hp_alterado.emit(boss.hp)
+
+func pedacos_vivos() -> int:
+	return _pedacos.size()
+
+## --- movimento e tiros dos pedaços ---------------------------------------
+
+func _reindexar() -> void:
+	for i in _pedacos.size():
+		_pedacos[i].indice = i
+
+## Carrossel: cada pedaço passeia numa faixa própria, sempre desencontrado.
+func mover_pedaco(p, delta: float) -> void:
+	var n: int = maxi(1, _pedacos.size())
+	var fase: float = TAU * p.indice / n
+	var vel: float = 0.9 if n > 1 else 1.4
+	var alvo := Vector2(540.0 + sin(_t * vel + fase) * 400.0, 310.0 + sin(_t * vel * 1.7 + fase * 2.0) * 120.0)
+	p.position = p.position.lerp(alvo, minf(1.0, 2.5 * delta))
+
+## Intervalo entre tiros de cada pedaço: mais pedaços, um pouco mais lento;
+## o último fica bravo.
 func intervalo_tiro() -> float:
-	return 1.4 * divisoes # 2 pedaços: 2,8 s cada; 4 pedaços: 5,6 s cada
+	match _pedacos.size():
+		1: return 0.9
+		2: return 1.4
+		3: return 1.7
+		_: return 1.9
 
-func _direcao_mirada(no: Node2D) -> Vector2:
-	var player = boss.get_tree().get_first_node_in_group("player")
-	if player:
-		return (player.global_position - no.global_position).normalized()
-	return Vector2.DOWN
-
-func avisar_tiro_mirado(no: Node2D) -> void:
+func avisar(p, dir: Vector2) -> void:
 	var aviso = preload("res://AvisoTiro.gd").new()
-	aviso.direcoes = [_direcao_mirada(no)]
+	aviso.direcoes = [dir]
 	aviso.cor = Color("d63a2f")
 	aviso.duracao = 0.5
-	aviso.comprimento = 240.0
-	aviso.inicio = aviso.direcoes[0] * 50.0
-	no.add_child(aviso)
-	no.set_meta("dir_mirada", aviso.direcoes[0])
+	aviso.comprimento = 220.0
+	aviso.inicio = dir * p.raio
+	p.add_child(aviso)
 
-func atirar_mirado(no: Node2D) -> void:
+func _efeito_divisao(pos: Vector2, tremor: float) -> void:
 	var main = boss.get_parent()
-	var proj = main.obter_projetil_inimigo() if main.has_method("obter_projetil_inimigo") \
-		else preload("res://enemy_projectile.tscn").instantiate()
-	var dir: Vector2 = no.get_meta("dir_mirada", Vector2.DOWN)
-	proj.position = no.global_position + dir * 40.0
-	proj.setup(dir, 430.0, 11.0, "chefe")
-	if not proj.is_inside_tree():
-		main.add_child(proj)
-
-func _dividir(n: int) -> void:
-	var main = boss.get_parent()
-	var antes: int = divisoes
-	divisoes = n
-	# O chefe passa a ser um pedaço (desenho de um lobo só, menor)
-	var raio_pedaco: float = 55.0 if n == 2 else 42.0
-	boss._aplicar_arte("res://assets/inimigos/chefe_3_pedaco.png", raio_pedaco * 1.6 / boss.raio_visual)
-	var forma: CollisionShape2D = boss.get_node_or_null("CollisionShape2D")
-	if forma and forma.shape is CircleShape2D:
-		forma.shape = forma.shape.duplicate()
-		forma.shape.radius = raio_pedaco
-	for p in _pedacos:
-		if is_instance_valid(p):
-			p.queue_free()
-	_pedacos.clear()
-	for i in range(1, n):
-		var p = PEDACO.new()
-		p.boss = boss
-		p.raio = raio_pedaco
-		p.fase_mov = TAU * i / n
-		p.atraso_tiro = 1.4 * i
-		p.position = boss.position + Vector2(randf_range(-60, 60), randf_range(-30, 30))
-		main.add_child(p)
-		_pedacos.append(p)
-	_fase_boss = 0.0
-	_tiro_t = 0.0
-	_avisou = false
-	# Efeito do "estouro" em pedaços
 	if main.has_method("_spawn_particles"):
 		for i in 3:
-			main._spawn_particles(Color("3b1d6e"), boss.position + Vector2(randf_range(-50, 50), randf_range(-40, 40)))
+			main._spawn_particles(COR, pos + Vector2(randf_range(-50, 50), randf_range(-40, 40)))
 	if main.has_method("_shake_tela"):
-		main._shake_tela(12.0 if antes == 1 else 16.0)
+		main._shake_tela(tremor)
 	if main.has_method("_spawn_feedback"):
-		main._spawn_feedback("SE DIVIDIU!", "miss", boss.position + Vector2(0, 120))
+		main._spawn_feedback("SE DIVIDIU!", "miss", pos + Vector2(0, 110))
 
-## Quando o chefe morre, os pedaços estouram junto.
 func _limpar_pedacos() -> void:
-	var main = boss.get_parent()
 	for p in _pedacos:
 		if is_instance_valid(p):
-			if main and main.has_method("_spawn_particles"):
-				main._spawn_particles(Color("3b1d6e"), p.global_position)
-			if main and main.has_node("Paper"):
-				main.get_node("Paper").adicionar_mancha(p.global_position, Color("3b1d6e"), 26.0)
 			p.queue_free()
 	_pedacos.clear()

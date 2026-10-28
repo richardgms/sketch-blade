@@ -98,11 +98,26 @@ var _avisou_tiro: bool = false
 const TEMPO_AVISO: float = 0.5
 
 ## Aviso do leque: chefe incha e linhas tracejadas mostram as direções.
-func _avisar_leque() -> void:
-	var aviso = preload("res://AvisoTiro.gd").new()
+## Desvio do leque para mirar na caneta (decidido no aviso e usado no tiro,
+## para o tiro sair exatamente onde as linhas mostraram).
+var _desvio_leque: float = 0.0
+
+func _direcoes_leque() -> Array:
 	var dirs: Array = []
 	for g in angulos_leque:
-		dirs.append(Vector2.from_angle(deg_to_rad(g)))
+		dirs.append(Vector2.from_angle(deg_to_rad(g) + _desvio_leque))
+	return dirs
+
+func _avisar_leque() -> void:
+	# O centro do leque (90° = para baixo) gira para apontar para a caneta,
+	# limitado a 40° para cada lado
+	_desvio_leque = 0.0
+	var player = get_tree().get_first_node_in_group("player")
+	if player:
+		var ang: float = (player.global_position - global_position).angle()
+		_desvio_leque = clampf(ang - PI / 2.0, deg_to_rad(-40.0), deg_to_rad(40.0))
+	var aviso = preload("res://AvisoTiro.gd").new()
+	var dirs: Array = _direcoes_leque()
 	aviso.direcoes = dirs
 	aviso.cor = Color("d63a2f")
 	aviso.duracao = TEMPO_AVISO
@@ -334,24 +349,36 @@ func _aplicar_dano(quantidade: int, critico: bool, pos_numero: Vector2, piscar: 
 		morrer()
 
 func morrer() -> void:
+	if is_queued_for_deletion():
+		return
 	morreu.emit()
 	queue_free()
 
 func _disparar_leque() -> void:
-	var eproj_scene = preload("res://enemy_projectile.tscn")
-
-	for angulo_graus in angulos_leque:
-		var proj = eproj_scene.instantiate()
-		proj.position = global_position + Vector2(0, 50) # Spawna logo abaixo do corpo do boss
-		var dir = Vector2.from_angle(deg_to_rad(angulo_graus))
-		proj.setup(dir, 500.0, 12.0, "chefe")
-		get_parent().add_child(proj)
+	for dir in _direcoes_leque():
+		atirar(global_position + dir * 50.0, dir, 500.0, 12.0, "chefe")
 
 	# Som de tiro rápido senoidal
 	var main_node = get_parent()
 	if main_node and main_node.has_method("_tocar_som"):
 		var som = main_node._gerar_som_procedural(650.0, 0.06, "sin")
 		main_node._tocar_som(som)
+
+## Dispara um tiro inimigo reaproveitando o "pool" do Main.
+func atirar(pos: Vector2, dir: Vector2, vel: float, raio: float, estilo: String) -> void:
+	var main = get_parent()
+	var proj = main.obter_projetil_inimigo() if main.has_method("obter_projetil_inimigo") 		else preload("res://enemy_projectile.tscn").instantiate()
+	proj.position = pos
+	proj.setup(dir, vel, raio, estilo)
+	if not proj.is_inside_tree():
+		main.add_child(proj)
+
+## Direção da caneta a partir de um ponto (para baixo se não houver caneta).
+func mira(de: Vector2) -> Vector2:
+	var player = get_tree().get_first_node_in_group("player")
+	if player:
+		return (player.global_position - de).normalized()
+	return Vector2.DOWN
 
 ## Invoca 2 inimigos comuns como reforço (padrão Invocador, cap. 7+)
 func _invocar_reforcos() -> void:

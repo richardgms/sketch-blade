@@ -23,12 +23,20 @@ const ESTILOS: Dictionary = {
 	"respingo": {"miolo": Color("3fbf4f"), "brilho": Color("b7f5a8")},
 	"elite": {"miolo": Color("f39c12"), "brilho": Color("ffe08a"), "borda": Color("f1c40f")},
 	"chefe": {"miolo": Color("e0352b"), "brilho": Color("ffb3a8")},
+	"perseguidora": {"miolo": Color("8e44ad"), "brilho": Color("e2c2f5")},
 }
+
+## Gota perseguidora: curva devagar na direção da caneta por pouco tempo e
+## depois segue reto. Pune ficar parado sem ser impossível de desviar.
+const GIRO_PERSEGUIDORA: float = deg_to_rad(75.0) # por segundo
+const TEMPO_PERSEGUINDO: float = 2.0
+var _perseguindo_t: float = 0.0
 
 func setup(dir: Vector2, speed: float = 500.0, novo_raio: float = 7.0, novo_estilo: String = "respingo") -> void:
 	direcao = dir.normalized()
 	velocidade = speed
 	estilo = novo_estilo if ESTILOS.has(novo_estilo) else "respingo"
+	_perseguindo_t = 0.0
 	rotation = direcao.angle() - PI/2 # Corrige orientação para a cauda ficar atrás
 
 	# Escala proporcional ao raio: vale para a colisão (8 px na base) e o desenho
@@ -37,6 +45,14 @@ func setup(dir: Vector2, speed: float = 500.0, novo_raio: float = 7.0, novo_esti
 	queue_redraw()
 
 func _process(delta: float) -> void:
+	if estilo == "perseguidora" and _perseguindo_t < TEMPO_PERSEGUINDO:
+		_perseguindo_t += delta
+		var player = get_tree().get_first_node_in_group("player")
+		if player:
+			var alvo: Vector2 = (player.global_position - global_position).normalized()
+			var ang: float = direcao.angle_to(alvo)
+			direcao = direcao.rotated(clampf(ang, -GIRO_PERSEGUIDORA * delta, GIRO_PERSEGUIDORA * delta))
+			rotation = direcao.angle() - PI / 2
 	# Voa na direção configurada
 	position += direcao * velocidade * delta
 	
@@ -62,6 +78,13 @@ func _draw() -> void:
 			draw_colored_polygon(borda, CONTORNO)
 			draw_colored_polygon(pts, e["borda"])
 			draw_colored_polygon(PackedVector2Array([Vector2(0, 10), Vector2(7, 0), Vector2(0, -10), Vector2(-7, 0)]), miolo)
+		"perseguidora":
+			# Gota roxa com um olho (avisa que ela "olha" para você)
+			draw_circle(Vector2(0, 2), 14.0, CONTORNO)
+			draw_colored_polygon(PackedVector2Array([Vector2(-9, -2), Vector2(9, -2), Vector2(0, -20)]), CONTORNO)
+			draw_circle(Vector2(0, 2), 11.0, miolo)
+			draw_circle(Vector2(0, 4), 5.5, Color.WHITE)
+			draw_circle(Vector2(0, 6), 2.6, CONTORNO)
 		"chefe":
 			# Bola vermelha com espinhos
 			var espinhos := PackedVector2Array()
