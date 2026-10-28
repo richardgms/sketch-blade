@@ -2238,7 +2238,7 @@ func _abrir_painel_stats() -> void:
 	lbl_chefe.add_theme_font_size_override("font_size", 34)
 	lbl_chefe.add_theme_color_override("font_color", Color("002867"))
 	linha_chefes.add_child(lbl_chefe)
-	for cap in [1, 2, 3, 4, 5, 6, 9]:
+	for cap in [1, 2, 3, 4, 5, 6, 7, 9]:
 		var b = Button.new()
 		b.text = "[%d]" % cap
 		b.flat = true
