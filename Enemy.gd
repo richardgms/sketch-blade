@@ -65,18 +65,13 @@ var _avisou_tiro: bool = false
 var estilo_tiro: String = "respingo"
 var _avisou_leque: bool = false
 
-const AVISO_TIRO = preload("res://AvisoTiro.gd")
 const TEMPO_AVISO: float = 0.5
 
 ## Aviso de tiro: o monstro incha e aparecem linhas tracejadas na direção dos
 ## tiros. Os tiros saem TEMPO_AVISO depois.
-func _avisar_tiro(direcoes: Array, cor: Color) -> void:
-	var aviso = AVISO_TIRO.new()
-	aviso.direcoes = direcoes
-	aviso.cor = cor
-	aviso.duracao = TEMPO_AVISO
-	aviso.inicio = Vector2(0, raio_visual * _fator_arte() * 0.5 if _arte else raio_visual)
-	add_child(aviso)
+## Aviso de tiro comum: só o monstro "incha" (sem linha tracejada, decisão do
+## teste: o tiro é lento e visível, a linha poluía a tela).
+func _avisar_tiro(_direcoes: Array, _cor: Color) -> void:
 	var tw := create_tween()
 	tw.tween_property(self, "_pulso", 0.18, TEMPO_AVISO * 0.8).set_trans(Tween.TRANS_SINE)
 	tw.tween_property(self, "_pulso", 0.0, TEMPO_AVISO * 0.2)

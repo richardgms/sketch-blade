@@ -21,6 +21,7 @@ var _avisou: bool = false
 var _dir_tiro: Vector2 = Vector2.DOWN
 var _tween_flash: Tween
 var _morto: bool = false
+var _pulso: float = 0.0
 
 # Tinta Corrosiva no próprio pedaço
 var _dot_dps: int = 0
@@ -54,7 +55,7 @@ func _process(delta: float) -> void:
 	_t += delta
 	var r: float = sin(_t * 6.0)
 	var bravo: float = 1.0 + (0.15 if mancha.pedacos_vivos() == 1 else 0.0)
-	_arte.scale = _escala * Vector2(1.0 + 0.08 * r, 1.0 - 0.08 * r) * bravo
+	_arte.scale = _escala * Vector2(1.0 + 0.08 * r, 1.0 - 0.08 * r) * bravo * (1.0 + _pulso)
 	mancha.mover_pedaco(self, delta)
 
 	if _dot_restante > 0.0:
@@ -82,6 +83,12 @@ func _process(delta: float) -> void:
 			mancha.boss.atirar(global_position + _dir_tiro * raio, _dir_tiro, 260.0, 11.0, "perseguidora")
 		else:
 			mancha.boss.atirar(global_position + _dir_tiro * raio, _dir_tiro, 470.0, 11.0, "chefe")
+
+## Incha durante 'duracao' segundos antes de atirar (o aviso do tiro).
+func inchar(duracao: float) -> void:
+	var tw := create_tween()
+	tw.tween_property(self, "_pulso", 0.2, duracao * 0.8).set_trans(Tween.TRANS_SINE)
+	tw.tween_property(self, "_pulso", 0.0, duracao * 0.2)
 
 func receber_dano(quantidade: int) -> void:
 	receber_dano_detalhado(quantidade, false)

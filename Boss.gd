@@ -116,14 +116,8 @@ func _avisar_leque() -> void:
 	if player:
 		var ang: float = (player.global_position - global_position).angle()
 		_desvio_leque = clampf(ang - PI / 2.0, deg_to_rad(-40.0), deg_to_rad(40.0))
-	var aviso = preload("res://AvisoTiro.gd").new()
-	var dirs: Array = _direcoes_leque()
-	aviso.direcoes = dirs
-	aviso.cor = Color("d63a2f")
-	aviso.duracao = TEMPO_AVISO
-	aviso.comprimento = 260.0
-	aviso.inicio = Vector2(0, raio_visual * _fator_atual * 0.42)
-	add_child(aviso)
+	# Aviso: só o chefe "incha" (sem linha; ela fica só no rasante/mergulho
+	# do Avião e no círculo do Compasso)
 	var tw := create_tween()
 	tw.tween_property(self, "_pulso", 0.12, TEMPO_AVISO * 0.8).set_trans(Tween.TRANS_SINE)
 	tw.tween_property(self, "_pulso", 0.0, TEMPO_AVISO * 0.2)

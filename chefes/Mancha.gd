@@ -137,14 +137,9 @@ func intervalo_tiro() -> float:
 		3: return 1.7
 		_: return 1.9
 
-func avisar(p, dir: Vector2) -> void:
-	var aviso = preload("res://AvisoTiro.gd").new()
-	aviso.direcoes = [dir]
-	aviso.cor = Color("d63a2f")
-	aviso.duracao = 0.5
-	aviso.comprimento = 220.0
-	aviso.inicio = dir * p.raio
-	p.add_child(aviso)
+## Aviso do pedaço: incha antes de atirar (sem linha tracejada).
+func avisar(p, _dir: Vector2) -> void:
+	p.inchar(0.5)
 
 func _efeito_divisao(pos: Vector2, tremor: float) -> void:
 	var main = boss.get_parent()
