@@ -56,10 +56,10 @@ func _ready() -> void:
 ## Sem "comportamento", usa o padrão do Borrão (patrulha, leque e mergulho).
 ## Capítulos sem ficha própria usam a do capítulo 1.
 const FICHAS: Dictionary = {
-	1: {"arte": "res://assets/inimigos/chefe_1.png", "fator": 2.1, "comportamento": ""},
-	2: {"arte": "res://assets/inimigos/chefe_2.png", "fator": 2.6, "comportamento": "res://chefes/Aviao.gd"},
-	3: {"arte": "res://assets/inimigos/chefe_3.png", "fator": 2.3, "comportamento": "res://chefes/Mancha.gd"},
-	5: {"arte": "res://assets/inimigos/chefe_5.png", "fator": 2.4, "comportamento": "res://chefes/Compasso.gd"},
+	1: {"arte": "res://assets/inimigos/chefe_1.png", "fator": 2.1, "raio": 80.0, "comportamento": ""},
+	2: {"arte": "res://assets/inimigos/chefe_2.png", "fator": 2.6, "raio": 115.0, "comportamento": "res://chefes/Aviao.gd"},
+	3: {"arte": "res://assets/inimigos/chefe_3.png", "fator": 2.3, "raio": 100.0, "comportamento": "res://chefes/Mancha.gd"},
+	5: {"arte": "res://assets/inimigos/chefe_5.png", "fator": 2.4, "raio": 115.0, "comportamento": "res://chefes/Compasso.gd"},
 }
 
 var capitulo: int = 1
@@ -69,6 +69,7 @@ func configurar_padrao(cap: int) -> void:
 	capitulo = cap
 	var ficha: Dictionary = FICHAS.get(cap, FICHAS[1])
 	_aplicar_arte(ficha["arte"], ficha["fator"])
+	definir_raio_acerto(ficha.get("raio", 70.0))
 	if ficha["comportamento"] != "":
 		_comportamento = load(ficha["comportamento"]).new(self)
 	if capitulo <= 3:
@@ -90,6 +91,7 @@ const ARTE_CHEFE: String = "res://assets/inimigos/chefe_1.png"
 const FATOR_ARTE_CHEFE: float = 2.1
 var _arte: Sprite2D = null
 var _escala_arte: Vector2 = Vector2.ONE
+var _fator_atual: float = FATOR_ARTE_CHEFE
 var _t_anim: float = 0.0
 var _pulso: float = 0.0
 var _avisou_tiro: bool = false
@@ -105,7 +107,7 @@ func _avisar_leque() -> void:
 	aviso.cor = Color("d63a2f")
 	aviso.duracao = TEMPO_AVISO
 	aviso.comprimento = 260.0
-	aviso.inicio = Vector2(0, 50)
+	aviso.inicio = Vector2(0, raio_visual * _fator_atual * 0.42)
 	add_child(aviso)
 	var tw := create_tween()
 	tw.tween_property(self, "_pulso", 0.12, TEMPO_AVISO * 0.8).set_trans(Tween.TRANS_SINE)
@@ -117,6 +119,13 @@ func _preparar_arte() -> void:
 	material.set_shader_parameter("semente", randf() * 100.0)
 	_aplicar_arte(ARTE_CHEFE, FATOR_ARTE_CHEFE)
 
+## Área de acerto (círculo) do tamanho do desenho de cada chefe.
+func definir_raio_acerto(raio: float) -> void:
+	var forma: CollisionShape2D = get_node_or_null("CollisionShape2D")
+	if forma and forma.shape is CircleShape2D:
+		forma.shape = forma.shape.duplicate()
+		forma.shape.radius = raio
+
 func _aplicar_arte(caminho: String, fator: float) -> void:
 	if not ResourceLoader.exists(caminho):
 		return
@@ -127,6 +136,7 @@ func _aplicar_arte(caminho: String, fator: float) -> void:
 		_arte.show_behind_parent = true
 		add_child(_arte)
 	_arte.texture = tex
+	_fator_atual = fator
 	_escala_arte = Vector2.ONE * (raio_visual * 2.0 * fator / tex.get_width())
 	_arte.scale = _escala_arte
 	if material:

@@ -98,6 +98,7 @@ func _preparar_rasante() -> void:
 	aviso.cor = Color("d63a2f")
 	aviso.duracao = TEMPO_AVISO_RASANTE
 	aviso.comprimento = 1080.0
+	aviso.atras_do_atirador = false
 	aviso.position = Vector2(0.0 if _dir > 0.0 else 1080.0, _y_rasante)
 	boss.get_parent().add_child(aviso)
 	_ir(Fase.AVISO)

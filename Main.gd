@@ -1087,8 +1087,12 @@ func spawn_damage_number(quantidade: int, pos: Vector2, eh_jogador: bool, critic
 		lbl.text = str(quantidade) + "!"
 	lbl.add_theme_font_override("font", FONTE_NUMEROS)
 	lbl.add_theme_font_size_override("font_size", 64 if critico else 46)
-	var cor = Color("d9534f") if eh_jogador else (Color("f39c12") if critico else Color("30303e"))
+	# Branco/laranja com contorno escuro: legível sobre papel claro e sobre
+	# monstro escuro (antes era tinta escura, sumia no chefe preto)
+	var cor = Color("ff6b5e") if eh_jogador else (Color("ffb020") if critico else Color.WHITE)
 	lbl.add_theme_color_override("font_color", cor)
+	lbl.add_theme_color_override("font_outline_color", Color("1a1a2e"))
+	lbl.add_theme_constant_override("outline_size", 12 if critico else 10)
 	lbl.z_index = 50
 	add_child(lbl)
 	lbl.global_position = pos + Vector2(randf_range(-20, 20), -40)

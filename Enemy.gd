@@ -73,7 +73,7 @@ func _avisar_tiro(direcoes: Array, cor: Color) -> void:
 	aviso.direcoes = direcoes
 	aviso.cor = cor
 	aviso.duracao = TEMPO_AVISO
-	aviso.inicio = Vector2(0, raio_visual * 0.8)
+	aviso.inicio = Vector2(0, raio_visual * _fator_arte() * 0.5 if _arte else raio_visual)
 	add_child(aviso)
 	var tw := create_tween()
 	tw.tween_property(self, "_pulso", 0.18, TEMPO_AVISO * 0.8).set_trans(Tween.TRANS_SINE)

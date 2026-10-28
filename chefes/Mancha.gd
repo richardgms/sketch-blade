@@ -87,7 +87,7 @@ func avisar_tiro_mirado(no: Node2D) -> void:
 	aviso.cor = Color("d63a2f")
 	aviso.duracao = 0.5
 	aviso.comprimento = 240.0
-	aviso.inicio = Vector2(0, 0)
+	aviso.inicio = aviso.direcoes[0] * 50.0
 	no.add_child(aviso)
 	no.set_meta("dir_mirada", aviso.direcoes[0])
 
