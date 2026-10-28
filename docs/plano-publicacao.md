@@ -97,4 +97,6 @@ Tiros: cor quente (azul só do jogador), contorno escuro grosso, 16–20 px, for
 | 8 | Fantasma de página | cópias translúcidas que somem com 1 tiro; só a verdadeira tem sombra | 1.6 |
 | 10 | Estojo | fases por HP com ataques dos outros chefes | 1.6 |
 
-Arte: `assets/inimigos/chefe_2..10.png` (512 px, 3,5 MB no total), originais em `Documentos\Sketch Blade - arte original\inimigos`. Ainda não ligados ao jogo.
+Arte: `assets/inimigos/chefe_2..10.png` (512 px, 3,5 MB no total), originais em `Documentos\Sketch Blade - arte original\inimigos`.
+
+**Versão 1.4.0 (código 7), 28/10/2026:** chefe-base com `Boss.FICHAS` (arte, tamanho, comportamento por capítulo; capítulos sem ficha usam o Borrão). Comportamentos em `chefes/`: `Aviao.gd` (cap. 2), `Mancha.gd` + `PedacoMancha.gd` (cap. 3; vida compartilhada via `Boss.dano_compartilhado`), `Compasso.gd` (cap. 5; gira o desenho com `controla_rotacao`). Atalho de teste: painel Stats de teste → "Testar chefe [1][2][3][5]" (`SaveManager.teste_chefe`), só com `MODO_TESTE`.
