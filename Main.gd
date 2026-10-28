@@ -1060,13 +1060,27 @@ func _tocar_som(stream: AudioStream, pitch: float = 1.0) -> void:
 	p.finished.connect(p.queue_free)
 
 # Popup flutuante de número de dano (crítico = dourado e maior)
+const IMPACTO_TINTA = preload("res://ImpactoTinta.gd")
+var _ultimo_tremor_critico: int = 0
+
+## Respingo de tinta no acerto. No crítico, um tremor curto (no máximo a cada 0,25 s).
+func spawn_impacto(pos: Vector2, cor: Color, critico: bool) -> void:
+	var fx = IMPACTO_TINTA.new()
+	fx.cor = cor
+	fx.critico = critico
+	fx.position = pos
+	add_child(fx)
+	if critico and Time.get_ticks_msec() - _ultimo_tremor_critico > 250:
+		_ultimo_tremor_critico = Time.get_ticks_msec()
+		_shake_tela(5.0)
+
 func spawn_damage_number(quantidade: int, pos: Vector2, eh_jogador: bool, critico: bool = false) -> void:
 	var lbl = Label.new()
 	lbl.text = ("-" + str(quantidade)) if quantidade > 0 else "BLOQUEADO"
 	if critico:
 		lbl.text = str(quantidade) + "!"
 	lbl.add_theme_font_override("font", FONTE_NUMEROS)
-	lbl.add_theme_font_size_override("font_size", 52 if critico else 36)
+	lbl.add_theme_font_size_override("font_size", 64 if critico else 46)
 	var cor = Color("d9534f") if eh_jogador else (Color("f39c12") if critico else Color("30303e"))
 	lbl.add_theme_color_override("font_color", cor)
 	lbl.z_index = 50

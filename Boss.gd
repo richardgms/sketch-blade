@@ -194,6 +194,8 @@ func aplicar_dot(dps: int, duracao: float) -> void:
 	dot_dps = max(dot_dps, dps)
 	dot_restante = duracao
 
+var _tween_flash: Tween
+
 func receber_dano(quantidade: int) -> void:
 	receber_dano_detalhado(quantidade, false)
 
@@ -211,10 +213,15 @@ func receber_dano_detalhado(quantidade: int, critico: bool) -> void:
 		if main_node and main_node.has_method("spawn_damage_number"):
 			main_node.spawn_damage_number(quantidade, global_position, false, critico)
 	
-	# Flash branco ao receber dano
-	modulate = Color(2.0, 2.0, 2.0)
-	var tween = create_tween()
-	tween.tween_property(self, "modulate", Color.WHITE, 0.1)
+	# Flash branco ao receber dano (shader: modulate não clareia tinta preta)
+	if not material:
+		material = ShaderMaterial.new()
+		material.shader = preload("res://flash.gdshader")
+	if _tween_flash:
+		_tween_flash.kill()
+	material.set_shader_parameter("flash", 0.7)
+	_tween_flash = create_tween()
+	_tween_flash.tween_method(func(v: float): material.set_shader_parameter("flash", v), 0.7, 0.0, 0.1)
 	
 	if hp <= 0:
 		morrer()

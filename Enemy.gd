@@ -37,6 +37,7 @@ var dot_restante: float = 0.0
 var dot_acumulado: float = 0.0
 
 const ENEMY_PROJECTILE_SCENE = preload("res://enemy_projectile.tscn")
+const SHADER_FLASH = preload("res://flash.gdshader")
 
 func _ready() -> void:
 	if Engine.is_editor_hint():
@@ -47,6 +48,8 @@ func _ready() -> void:
 	set_deferred("monitoring", false)
 	set_deferred("monitorable", false)
 	configurar_tipo(tipo)
+	material = ShaderMaterial.new()
+	material.shader = SHADER_FLASH
 
 func configurar_tipo(novo_tipo: TipoInimigo) -> void:
 	tipo = novo_tipo
@@ -264,10 +267,10 @@ func receber_dano_detalhado(quantidade: int, critico: bool) -> void:
 		if main_node and main_node.has_method("spawn_damage_number"):
 			main_node.spawn_damage_number(quantidade, global_position, false, critico)
 
-	# Flash de dano
-	modulate = Color(2.0, 2.0, 2.0)
-	var tween = create_tween()
-	tween.tween_property(self, "modulate", Color.WHITE, 0.1)
+	# Flash branco (shader) + empurrão para trás; tanque e elite quase não se movem
+	_piscar()
+	var empurrao: float = 5.0 if (tipo == TipoInimigo.GUACHE or eh_elite) else (18.0 if critico else 12.0)
+	position.y -= empurrao
 
 	if hp_max > 1:
 		queue_redraw()
@@ -276,6 +279,16 @@ func receber_dano_detalhado(quantidade: int, critico: bool) -> void:
 		morrer()
 
 var morrendo: bool = false
+var _tween_flash: Tween
+
+func _piscar() -> void:
+	if not material:
+		return
+	if _tween_flash:
+		_tween_flash.kill()
+	material.set_shader_parameter("flash", 0.85)
+	_tween_flash = create_tween()
+	_tween_flash.tween_method(func(v: float): material.set_shader_parameter("flash", v), 0.85, 0.0, 0.12)
 
 func morrer() -> void:
 	if morrendo:

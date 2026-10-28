@@ -30,11 +30,18 @@ func _process(delta: float) -> void:
 		_destruir()
 
 func _draw() -> void:
-	# Desenha um pequeno traço de tinta voando (cor definida pela caneta equipada)
-	draw_line(Vector2(0, 10), Vector2(0, -10), cor_tinta, 5.0, true)
-	var cor_brilho = cor_tinta.lightened(0.35)
-	cor_brilho.a = 0.7
-	draw_line(Vector2(0, 8), Vector2(0, -8), cor_brilho, 3.0, true)
+	# Gota de tinta em forma de cometa: cabeça redonda na frente (direção do voo)
+	# e cauda lisa que desbota. Cor definida pela caneta equipada.
+	var c := cor_tinta
+	c.a = 1.0
+	var fim := c
+	fim.a = 0.0
+	draw_polygon(PackedVector2Array([Vector2(-10, -9), Vector2(10, -9), Vector2(0, 46)]),
+		PackedColorArray([c, c, fim]))
+	draw_circle(Vector2(0, -9), 10.0, c)
+	var brilho := c.lightened(0.6)
+	brilho.a = 0.9
+	draw_circle(Vector2(-3.0, -12.5), 3.2, brilho)
 
 func _on_area_entered(area: Area2D) -> void:
 	if not area.is_in_group("enemies") or area == ultimo_alvo:
@@ -56,6 +63,11 @@ func _on_area_entered(area: Area2D) -> void:
 		area.receber_dano_detalhado(dano_final, eh_critico)
 	else:
 		area.receber_dano(dano_final)
+
+	# Respingo de tinta no ponto do acerto
+	var main = get_parent()
+	if main and main.has_method("spawn_impacto"):
+		main.spawn_impacto(global_position, cor_tinta, eh_critico)
 
 	# Ordem de sobrevivência do projétil: perfura primeiro, depois ricocheteia
 	if perfuracoes_restantes > 0:
