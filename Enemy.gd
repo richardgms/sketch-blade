@@ -59,6 +59,25 @@ const TREMIDO_ARTE: float = 0.0035
 var _arte: Sprite2D = null
 var _escala_arte: Vector2 = Vector2.ONE
 var _t_anim: float = 0.0
+var _pulso: float = 0.0 # inchaço do aviso de tiro
+var _avisou_tiro: bool = false
+var _avisou_leque: bool = false
+
+const AVISO_TIRO = preload("res://AvisoTiro.gd")
+const TEMPO_AVISO: float = 0.5
+
+## Aviso de tiro: o monstro incha e aparecem linhas tracejadas na direção dos
+## tiros. Os tiros saem TEMPO_AVISO depois.
+func _avisar_tiro(direcoes: Array, cor: Color) -> void:
+	var aviso = AVISO_TIRO.new()
+	aviso.direcoes = direcoes
+	aviso.cor = cor
+	aviso.duracao = TEMPO_AVISO
+	aviso.inicio = Vector2(0, raio_visual * 0.8)
+	add_child(aviso)
+	var tw := create_tween()
+	tw.tween_property(self, "_pulso", 0.18, TEMPO_AVISO * 0.8).set_trans(Tween.TRANS_SINE)
+	tw.tween_property(self, "_pulso", 0.0, TEMPO_AVISO * 0.2)
 
 func _ready() -> void:
 	if Engine.is_editor_hint():
@@ -250,7 +269,7 @@ func _process(delta: float) -> void:
 	if _arte and not morrendo:
 		_t_anim += delta
 		var r: float = sin(_t_anim * 6.0)
-		_arte.scale = _escala_arte * Vector2(1.0 + 0.07 * r, 1.0 - 0.07 * r)
+		_arte.scale = _escala_arte * Vector2(1.0 + 0.07 * r, 1.0 - 0.07 * r) * (1.0 + _pulso)
 		_arte.rotation = 0.08 * sin(_t_anim * 2.6)
 
 	if Engine.is_editor_hint() or is_queued_for_deletion() or morrendo:
@@ -307,8 +326,12 @@ func _process(delta: float) -> void:
 		
 		# Mecânica de tiro do Respingo
 		timer_tiro_enemy += delta
+		if not _avisou_tiro and timer_tiro_enemy >= 2.5 - TEMPO_AVISO:
+			_avisou_tiro = true
+			_avisar_tiro([Vector2.DOWN], Color("2e9e3e"))
 		if timer_tiro_enemy >= 2.5:
 			timer_tiro_enemy = 0.0
+			_avisou_tiro = false
 			_disparar_projetil_respingo()
 		
 	# Caso o NANQUIM (Rápido), desce direto sem ajuste de direção, como um dardo!
@@ -316,8 +339,12 @@ func _process(delta: float) -> void:
 	# Elite: atira leque de 3 projéteis a cada 3 segundos (qualquer tipo)
 	if eh_elite:
 		timer_tiro_elite += delta
+		if not _avisou_leque and timer_tiro_elite >= 3.0 - TEMPO_AVISO:
+			_avisou_leque = true
+			_avisar_tiro([Vector2.from_angle(deg_to_rad(75)), Vector2.DOWN, Vector2.from_angle(deg_to_rad(105))], Color("e67e22"))
 		if timer_tiro_elite >= 3.0:
 			timer_tiro_elite = 0.0
+			_avisou_leque = false
 			_disparar_leque_elite()
 
 		# Elite estaciona no meio da tela em vez de sair por baixo
@@ -403,7 +430,7 @@ func _disparar_projetil_respingo() -> void:
 		
 	if proj:
 		proj.position = global_position + Vector2(0, 30)
-		proj.setup(Vector2.DOWN, 400.0, 7.0) # Velocidade menor e tamanho original do boss
+		proj.setup(Vector2.DOWN, 400.0, 9.0, "respingo")
 		
 		if not proj.is_inside_tree():
 			main.add_child(proj)
@@ -422,7 +449,7 @@ func _disparar_leque_elite() -> void:
 			
 		if proj:
 			proj.position = global_position + Vector2(0, 40)
-			proj.setup(Vector2.from_angle(deg_to_rad(angulo_graus)), 420.0, 9.0)
+			proj.setup(Vector2.from_angle(deg_to_rad(angulo_graus)), 420.0, 9.0, "elite")
 			
 			if not proj.is_inside_tree():
 				main.add_child(proj)

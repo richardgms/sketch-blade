@@ -73,6 +73,25 @@ const FATOR_ARTE_CHEFE: float = 2.1
 var _arte: Sprite2D = null
 var _escala_arte: Vector2 = Vector2.ONE
 var _t_anim: float = 0.0
+var _pulso: float = 0.0
+var _avisou_tiro: bool = false
+const TEMPO_AVISO: float = 0.5
+
+## Aviso do leque: chefe incha e linhas tracejadas mostram as direções.
+func _avisar_leque() -> void:
+	var aviso = preload("res://AvisoTiro.gd").new()
+	var dirs: Array = []
+	for g in angulos_leque:
+		dirs.append(Vector2.from_angle(deg_to_rad(g)))
+	aviso.direcoes = dirs
+	aviso.cor = Color("d63a2f")
+	aviso.duracao = TEMPO_AVISO
+	aviso.comprimento = 260.0
+	aviso.inicio = Vector2(0, 50)
+	add_child(aviso)
+	var tw := create_tween()
+	tw.tween_property(self, "_pulso", 0.12, TEMPO_AVISO * 0.8).set_trans(Tween.TRANS_SINE)
+	tw.tween_property(self, "_pulso", 0.0, TEMPO_AVISO * 0.2)
 
 func _preparar_arte() -> void:
 	material = ShaderMaterial.new()
@@ -112,7 +131,7 @@ func _process(delta: float) -> void:
 	if _arte:
 		_t_anim += delta
 		var r: float = sin(_t_anim * 3.2)
-		_arte.scale = _escala_arte * Vector2(1.0 + 0.05 * r, 1.0 - 0.05 * r)
+		_arte.scale = _escala_arte * Vector2(1.0 + 0.05 * r, 1.0 - 0.05 * r) * (1.0 + _pulso)
 		_arte.rotation = 0.05 * sin(_t_anim * 1.7)
 
 	# Tick da Tinta Corrosiva (DoT)
@@ -162,8 +181,12 @@ func _processar_patrulha(delta: float) -> void:
 		
 	# Atira periodicamente durante a patrulha
 	timer_tiro += delta
+	if not _avisou_tiro and timer_tiro >= 1.5 - TEMPO_AVISO:
+		_avisou_tiro = true
+		_avisar_leque()
 	if timer_tiro >= 1.5:
 		timer_tiro = 0.0
+		_avisou_tiro = false
 		_disparar_leque()
 		
 	# Conta tempo para o mergulho
@@ -171,6 +194,7 @@ func _processar_patrulha(delta: float) -> void:
 	if timer_acao >= intervalo_mergulho:
 		timer_acao = 0.0
 		timer_tiro = 0.0 # Reseta o timer de tiro ao telegrafar
+		_avisou_tiro = false
 		estado = EstadoBoss.TELEGRAFANDO
 		timer_telegrafo = 0.5
 
@@ -268,7 +292,7 @@ func _disparar_leque() -> void:
 		var proj = eproj_scene.instantiate()
 		proj.position = global_position + Vector2(0, 50) # Spawna logo abaixo do corpo do boss
 		var dir = Vector2.from_angle(deg_to_rad(angulo_graus))
-		proj.setup(dir, 500.0, 14.0)
+		proj.setup(dir, 500.0, 12.0, "chefe")
 		get_parent().add_child(proj)
 
 	# Som de tiro rápido senoidal
