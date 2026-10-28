@@ -68,13 +68,17 @@ var decoracao_nivel: TextureRect
 var xp_bar_tex: TextureProgressBar
 var _tween_pop_nivel: Tween
 var container_loja: Control
+var sub_aba_loja: String = "canetas" # "canetas" ou "pacotes"
+var sublinhado_loja: TextureRect
+var botoes_sub_aba_loja: Dictionary = {} # "canetas"/"pacotes" -> Button
+var oferta_mostrada: Dictionary = {} # moeda -> true (oferta de pacote 1x por visita ao Hub)
 var item_sendo_comprado: String = "clipes" # "clipes" ou "tinta"
 
 # Áudio procedural
 var audio_click_sucesso: AudioStreamWAV
 var audio_click_erro: AudioStreamWAV
 
-func _adicionar_sublinhado(parent: Control, y_top: float, meio_largura: float) -> void:
+func _adicionar_sublinhado(parent: Control, y_top: float, meio_largura: float) -> TextureRect:
 	var tr = TextureRect.new()
 	tr.texture = load("res://assets/sublinhado.svg")
 	tr.layout_mode = 1
@@ -91,6 +95,7 @@ func _adicionar_sublinhado(parent: Control, y_top: float, meio_largura: float) -
 	tr.modulate = Color("002867")
 	tr.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	parent.add_child(tr)
+	return tr
 
 func _ready() -> void:
 	$HUD.visibility_changed.connect(func(): $DesenhoHub.visible = $HUD.visible)
@@ -106,7 +111,7 @@ func _ready() -> void:
 	# Sublinhados decorativos abaixo de cada título de página
 	_adicionar_sublinhado(tela_lutar,  448.0, 220.0)
 	_adicionar_sublinhado(tela_estojo, 448.0, 300.0)
-	_adicionar_sublinhado(tela_loja,   448.0, 300.0)
+	sublinhado_loja = _adicionar_sublinhado(tela_loja, 448.0, 200.0)
 
 	# Conteúdo do Estojo desce para abrir espaço após o sublinhado
 	var shift := 80.0
@@ -229,8 +234,9 @@ func _ready() -> void:
 	botao_cap_direita.pressed.connect(func(): _mudar_capitulo(1))
 	
 	# Conecta botões de IAP/Lojinha
-	botao_comprar_tinta.pressed.connect(func(): _abrir_popup_compra("tinta"))
-	botao_comprar_clipes.pressed.connect(func(): _abrir_popup_compra("clipes"))
+	# [+] do topo levam para a aba Pacotes da Loja
+	botao_comprar_tinta.pressed.connect(_abrir_pacotes)
+	botao_comprar_clipes.pressed.connect(_abrir_pacotes)
 	botao_confirmar_compra.pressed.connect(_on_confirmar_compra_pressed)
 	botao_cancelar_compra.pressed.connect(_on_cancelar_compra_pressed)
 	_criar_fundo_popup_compra()
@@ -239,6 +245,8 @@ func _ready() -> void:
 	BillingManager.precos_atualizados.connect(func():
 		if popup_compra.visible:
 			_atualizar_texto_popup_compra()
+		if tela_loja.visible and sub_aba_loja == "pacotes":
+			_atualizar_loja()
 	)
 
 	# Sons procedurais
@@ -688,6 +696,18 @@ func _on_upar_pressed(upgrade_key: String, container: Control) -> void:
 		tween.tween_property(container, "position:x", pos_original.x - 15, 0.05)
 		tween.tween_property(container, "position:x", pos_original.x + 15, 0.05)
 		tween.tween_property(container, "position:x", pos_original.x, 0.05)
+		tween.tween_callback(func(): _oferecer_pacote("tinta", custo - dados_save["tinta"]))
+
+## Oferece o pacote quando o jogador tenta comprar algo sem saldo.
+## No máximo uma vez por moeda a cada visita ao Hub, para não insistir.
+func _oferecer_pacote(chave: String, falta: int) -> void:
+	if oferta_mostrada.has(chave) or not BillingManager.disponivel(chave) or popup_compra.visible:
+		return
+	oferta_mostrada[chave] = true
+	_abrir_popup_compra(chave)
+	var moeda: String = "gotas de tinta" if chave == "tinta" else "clipes"
+	popup_titulo.text = "Faltam %d %s" % [falta, moeda]
+	popup_descricao.text = "Quer o pacote de %s por %s?" % [BillingManager.nome(chave), BillingManager.preco(chave)]
 
 func _atualizar_ui_upgrades() -> void:
 	_configurar_container(container_dano, "nivel_dano", "Dano da Caneta", "res://assets/upgrade1.svg")
@@ -1056,7 +1076,120 @@ func _criar_loja_canetas() -> void:
 	container_loja.set_anchors_preset(Control.PRESET_FULL_RECT)
 	container_loja.mouse_filter = Control.MOUSE_FILTER_IGNORE # não bloquear os [+] do topo
 	tela_loja.add_child(container_loja)
+	_criar_sub_abas_loja()
 	_atualizar_loja()
+
+## O título "Loja de Canetas" vira duas abas: Canetas | Pacotes.
+func _criar_sub_abas_loja() -> void:
+	if tela_loja.has_node("TituloLoja"):
+		tela_loja.get_node("TituloLoja").visible = false
+	var fonte: Font = load("res://assets/fonts/ArchitectsDaughter-Regular.ttf")
+	for item in [["canetas", "Canetas", 80.0], ["pacotes", "Pacotes", 560.0]]:
+		var btn := Button.new()
+		btn.text = item[1]
+		btn.flat = true
+		btn.focus_mode = Control.FOCUS_NONE
+		btn.position = Vector2(item[2], 340)
+		btn.size = Vector2(440, 100)
+		btn.add_theme_font_override("font", fonte)
+		btn.add_theme_font_size_override("font_size", 72)
+		tela_loja.add_child(btn)
+		var chave: String = item[0]
+		btn.pressed.connect(func(): _mudar_sub_aba_loja(chave))
+		botoes_sub_aba_loja[chave] = btn
+	_estilizar_sub_abas_loja()
+
+func _mudar_sub_aba_loja(chave: String) -> void:
+	if sub_aba_loja == chave:
+		return
+	sub_aba_loja = chave
+	_tocar_som(audio_click_sucesso)
+	_estilizar_sub_abas_loja()
+	_atualizar_loja()
+
+## Aba ativa escura e sublinhada; a outra em cinza.
+func _estilizar_sub_abas_loja() -> void:
+	for chave in botoes_sub_aba_loja:
+		var btn: Button = botoes_sub_aba_loja[chave]
+		var ativo: bool = chave == sub_aba_loja
+		var cor: Color = Color(0.1, 0.1, 0.15, 1) if ativo else Color("1a1a2e", 0.4)
+		for estado in ["font_color", "font_hover_color", "font_pressed_color", "font_focus_color"]:
+			btn.add_theme_color_override(estado, cor)
+	if sublinhado_loja:
+		var centro: float = 300.0 if sub_aba_loja == "canetas" else 780.0
+		sublinhado_loja.offset_left = centro - 540.0 - 200.0
+		sublinhado_loja.offset_right = centro - 540.0 + 200.0
+
+## Usado pelos [+] do topo e pela oferta de pacote.
+func _abrir_pacotes() -> void:
+	if aba_ativa != "loja":
+		_alterar_aba("loja")
+	else:
+		_tocar_som(audio_click_sucesso)
+	if sub_aba_loja != "pacotes":
+		sub_aba_loja = "pacotes"
+		_estilizar_sub_abas_loja()
+		_atualizar_loja()
+
+const PACOTES_LOJA: Array = [
+	{"chave": "tinta", "icone": "res://assets/pote_tinta.png",
+		"desc": "Para subir o Estojo e\ncomprar canetas", "cor": "0047ab"},
+	{"chave": "clipes", "icone": "res://assets/clip.svg",
+		"desc": "Para as canetas especiais", "cor": "b8860b"},
+]
+
+## Aba Pacotes: um cartão por produto da Play Store. Tocar abre a confirmação.
+func _montar_pacotes(fonte: Font) -> void:
+	for i in range(PACOTES_LOJA.size()):
+		var p: Dictionary = PACOTES_LOJA[i]
+		var chave: String = p["chave"]
+		var disponivel: bool = BillingManager.disponivel(chave)
+
+		var card := Button.new()
+		card.flat = true
+		card.focus_mode = Control.FOCUS_NONE
+		card.position = Vector2(60, 540 + i * 420)
+		card.size = Vector2(960, 365)
+		card.pivot_offset = card.size / 2.0
+		card.rotation_degrees = -0.6 if i == 0 else 0.5
+		container_loja.add_child(card)
+
+		var fundo := NinePatchRect.new()
+		fundo.texture = load("res://assets/card-roleta.png")
+		fundo.patch_margin_left = 62
+		fundo.patch_margin_right = 62
+		fundo.patch_margin_top = 62
+		fundo.patch_margin_bottom = 62
+		fundo.set_anchors_preset(Control.PRESET_FULL_RECT)
+		fundo.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		card.add_child(fundo)
+
+		var icone := TextureRect.new()
+		icone.texture = load(p["icone"])
+		icone.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+		icone.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+		icone.position = Vector2(60, 72)
+		icone.size = Vector2(220, 220)
+		icone.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		card.add_child(icone)
+
+		card.add_child(_label_card(BillingManager.nome(chave), Vector2(310, 66),
+			Vector2(610, 70), fonte, 50, Color(p["cor"])))
+		card.add_child(_label_card(p["desc"], Vector2(310, 136),
+			Vector2(610, 110), fonte, 34, Color("59595f")))
+		var texto_preco: String = "[ %s ]" % BillingManager.preco(chave) if disponivel \
+			else "carregando preço..."
+		card.add_child(_label_card(texto_preco, Vector2(310, 240), Vector2(610, 80),
+			FONTE_NUMEROS if disponivel else fonte, 56 if disponivel else 34,
+			Color("2e7d32") if disponivel else Color("59595f")))
+
+		card.pressed.connect(func(): _abrir_popup_compra(chave))
+		card.button_down.connect(func(): _animar_toque_card(card, true))
+		card.button_up.connect(func(): _animar_toque_card(card, false))
+
+	var nota := _label_card("Pagamento pela Google Play. Os itens entram na hora.",
+		Vector2(60, 1400), Vector2(960, 50), fonte, 30, Color("59595f"), true)
+	container_loja.add_child(nota)
 
 # Inclinação fixa por card (papel colado meio torto no caderno)
 const ROTACOES_CARD: Array = [-0.9, 1.0, -1.1, 0.8, -0.6]
@@ -1074,6 +1207,10 @@ func _atualizar_loja() -> void:
 		child.queue_free()
 
 	var fonte: Font = load("res://assets/fonts/ArchitectsDaughter-Regular.ttf")
+
+	if sub_aba_loja == "pacotes":
+		_montar_pacotes(fonte)
+		return
 
 	for i in range(GameData.CANETAS.size()):
 		var caneta: Dictionary = GameData.CANETAS[i]
@@ -1290,6 +1427,10 @@ func _on_caneta_pressed(caneta: Dictionary) -> void:
 		_atualizar_loja()
 	else:
 		_tocar_som(audio_click_erro)
+		if caneta["custo_tinta"] > 0:
+			_oferecer_pacote("tinta", caneta["custo_tinta"] - dados_save["tinta"])
+		elif caneta["custo_clipes"] > 0:
+			_oferecer_pacote("clipes", caneta["custo_clipes"] - dados_save["clipes_ouro"])
 
 # ============================================================
 # RETENÇÃO DIÁRIA — recompensa de login e missões
