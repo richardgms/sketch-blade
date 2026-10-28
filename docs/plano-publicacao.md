@@ -63,6 +63,14 @@ Oito fotos de outro cliente (antes/depois de cirurgia, rosto) estavam soltas na 
 ## Versão 1.1.0 (código 4) — 27/10/2026
 AAB: `Documentos\Sketch Blade - builds\sketchblade-1.1.0-vc4.aab` (43,8 MB; antes 68,3). Inclui checkpoint por página, roleta redesenhada, missões no layout limpo, janela de compra corrigida, telas de resultado enxutas, HUD maior, imagens no tamanho de tela (~52 MB de memória de vídeo, antes ~209). Conferido: sem fotos de cliente, com BILLING, assinado. Detalhes em `docs/revisao-visual.md`. Antes da produção: `GameData.MODO_TESTE = false`.
 
+## Versão 1.2.0 (código 5) — plano (28/10/2026)
+1. [x] **[+] de compra sem resposta**: as telas do Hub (`TelaLutar/Estojo/Loja` e o container da loja) cobriam o topo com `mouse_filter` STOP. Corrigido e testado por script (toque simulado nas 3 abas).
+2. [x] **Aba "Pacotes" na Loja**: título vira abas Canetas | Pacotes; cartões com preço da Play Store; os [+] do topo abrem Pacotes (`Hub._montar_pacotes`).
+3. [x] **Oferta quando faltar saldo**: upgrade do Estojo ou caneta sem saldo abre a confirmação do pacote, 1x por moeda a cada visita ao Hub (`Hub._oferecer_pacote`).
+4. [ ] **AdMob real**: plugin poing-studios v5.1.0 (`android-template-v4.7.0.zip`, Godot 4.4+, testado até 4.7.2); ajustar `AdsManager.gd` à API real; testar com IDs de teste num APK; depois IDs reais (`admob_ids` na memória). Rever Segurança dos dados.
+5. [ ] Build 1.2.0 (código 5), teste de compra e anúncio no celular, Teste fechado.
+6. [ ] Combate mais visível (tiro, impacto, inimigos) — versão seguinte.
+
 ## Decisões em aberto
 - Confirmar o nome na loja (Tinta & Papel ou Roguelite).
 - Quem serão os 12 testadores (precisam de Android e conta Google).
