@@ -82,7 +82,7 @@ AAB: `Documentos\Sketch Blade - builds\sketchblade-1.1.0-vc4.aab` (43,8 MB; ante
 ## Chefes por capítulo e tiros inimigos — plano (28/10/2026, conselho de LLMs)
 Regras de design (controle só horizontal + tiro automático): todo ataque com aviso ≥ 0,5 s acima da mão; sempre uma rota segura no eixo X (fresta ≥ 2× a caneta); mecânica de posição, não de mira; luta de 30–60 s; upgrade da roleta pode ser bônus contra um chefe, nunca requisito.
 Arquitetura: `Boss.gd` base (estados, fases por % de HP, telegraph) + ficha por chefe (Resource: arte, HP, ataques por fase) + ataques reaproveitáveis (leque, espiral, parede com fresta, zona marcada, mergulho, invocação). Projétil inimigo parametrizado e reciclado; teto de tiros; limpar tiros na morte do chefe; modo debug para pular ao chefe X.
-Tiros: cor quente (azul só do jogador), contorno escuro grosso, 16–20 px, forma por tipo, aviso (pulso + linha tracejada).
+Tiros: cor quente (azul só do jogador), contorno escuro grosso, 16–20 px, forma por tipo, aviso (pulso + linha tracejada). **Feito (28/10):** `AvisoTiro.gd` (tracejado 0,5 s + atirador incha) e `EnemyProjectile` com estilos `respingo` (gota verde), `elite` (losango laranja/dourado) e `chefe` (bola vermelha com espinhos); desenho maior que a colisão.
 
 | Cap. | Chefe | Mecânica | Versão |
 |---|---|---|---|
