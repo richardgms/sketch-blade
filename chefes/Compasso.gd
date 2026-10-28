@@ -25,18 +25,38 @@ var _angulo: float = 0.0
 var _sentido: float = 1.0
 var _destino: Vector2 = Vector2(540, Y_ALVO)
 var _inverteu: bool = false
-var _aviso_circulo: Node2D = null
 var _descansos: int = 0
 var _lacaios: Array = []
 
+## Áreas de acerto extras nas pernas (o desenho gira; o círculo central não
+## cobre as pontas). Posições medidas no desenho, em pixels do jogo.
+const PERNAS: Array = [Vector2(-105, 108), Vector2(108, 108)]
+var _formas_pernas: Array = []
+
 func _init(b: Node2D) -> void:
 	boss = b
+	for pos in PERNAS:
+		var forma := CollisionShape2D.new()
+		var c := CircleShape2D.new()
+		c.radius = 52.0
+		forma.shape = c
+		forma.position = pos
+		boss.add_child.call_deferred(forma)
+		_formas_pernas.append(forma)
+
+## As áreas das pernas acompanham o giro do desenho.
+func _acompanhar_giro() -> void:
+	if not boss._arte:
+		return
+	for i in _formas_pernas.size():
+		_formas_pernas[i].position = (PERNAS[i] as Vector2).rotated(boss._arte.rotation)
 
 func _furioso() -> bool:
 	return boss.hp <= boss.hp_max / 2
 
 func processar(delta: float) -> void:
 	_t += delta
+	_acompanhar_giro()
 	match fase:
 		Fase.ENTRADA:
 			boss.position.y += 220.0 * delta

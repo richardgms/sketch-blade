@@ -671,8 +671,10 @@ func _executar_revive() -> void:
 	for inimigo in get_tree().get_nodes_in_group("enemies"):
 		if inimigo.get("morre_no_contato") == true:
 			inimigo.queue_free()
+	# Devolve ao pool (apagar deixava tiros mortos guardados para reuso)
 	for proj in get_tree().get_nodes_in_group("enemy_projectiles"):
-		proj.queue_free()
+		if proj.visible:
+			devolver_projetil_inimigo(proj)
 
 	# Restaura o jogador com 3 corações e invencibilidade curta
 	player.vidas = min(3, player.vidas_max)
@@ -1013,6 +1015,9 @@ func devolver_projetil_player(proj: Area2D) -> void:
 
 func obter_projetil_inimigo() -> Area2D:
 	var proj: Area2D = null
+	# Pula tiros que já foram apagados (segurança contra o pool ficar com lixo)
+	while _pool_projeteis_inimigos.size() > 0 and not is_instance_valid(_pool_projeteis_inimigos.back()):
+		_pool_projeteis_inimigos.pop_back()
 	if _pool_projeteis_inimigos.size() > 0:
 		proj = _pool_projeteis_inimigos.pop_back()
 		proj.visible = true

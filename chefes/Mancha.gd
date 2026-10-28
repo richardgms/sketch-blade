@@ -87,7 +87,9 @@ func _criar_pedaco(geracao: int, hp: int, pos: Vector2) -> void:
 	p.hp_inicial = p.hp
 	p.raio = 60.0 if geracao == 1 else 44.0
 	p.position = pos
-	boss.get_parent().add_child(p)
+	# Diferido: a divisão acontece dentro da colisão do tiro, quando o Godot
+	# não deixa criar áreas de colisão
+	boss.get_parent().add_child.call_deferred(p)
 	_pedacos.append(p)
 	_reindexar()
 
