@@ -58,6 +58,7 @@ func _ready() -> void:
 const FICHAS: Dictionary = {
 	1: {"arte": "res://assets/inimigos/chefe_1.png", "fator": 2.1, "comportamento": ""},
 	2: {"arte": "res://assets/inimigos/chefe_2.png", "fator": 2.6, "comportamento": "res://chefes/Aviao.gd"},
+	3: {"arte": "res://assets/inimigos/chefe_3.png", "fator": 2.3, "comportamento": "res://chefes/Mancha.gd"},
 }
 
 var capitulo: int = 1
@@ -282,7 +283,15 @@ func receber_dano(quantidade: int) -> void:
 	receber_dano_detalhado(quantidade, false)
 
 func receber_dano_detalhado(quantidade: int, critico: bool) -> void:
-	if not entrada_concluida:
+	_aplicar_dano(quantidade, critico, global_position, true)
+
+## Dano recebido por um pedaço do chefe (Mancha): mesma barra de vida,
+## número de dano onde o pedaço foi atingido; o pedaço pisca, não o chefe.
+func dano_compartilhado(quantidade: int, critico: bool, pos: Vector2) -> void:
+	_aplicar_dano(quantidade, critico, pos, false)
+
+func _aplicar_dano(quantidade: int, critico: bool, pos_numero: Vector2, piscar: bool) -> void:
+	if not entrada_concluida or is_queued_for_deletion():
 		return
 	hp -= quantidade
 	if hp < 0:
@@ -293,7 +302,11 @@ func receber_dano_detalhado(quantidade: int, critico: bool) -> void:
 	if hp > 0:
 		var main_node = get_parent()
 		if main_node and main_node.has_method("spawn_damage_number"):
-			main_node.spawn_damage_number(quantidade, global_position, false, critico)
+			main_node.spawn_damage_number(quantidade, pos_numero, false, critico)
+	if not piscar:
+		if hp <= 0:
+			morrer()
+		return
 	
 	# Flash branco ao receber dano (shader: modulate não clareia tinta preta)
 	if not material:
