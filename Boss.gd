@@ -65,6 +65,7 @@ const FICHAS: Dictionary = {
 	7: {"arte": "res://assets/inimigos/chefe_7.png", "fator": 2.6, "raio": 100.0, "comportamento": "res://chefes/Tsuru.gd"},
 	8: {"arte": "res://assets/inimigos/chefe_8.png", "fator": 2.15, "raio": 85.0, "comportamento": "res://chefes/Fantasma.gd"},
 	9: {"arte": "res://assets/inimigos/chefe_9.png", "fator": 2.6, "raio": 95.0, "comportamento": "res://chefes/Pena.gd"},
+	10: {"arte": "res://assets/inimigos/chefe_10.png", "fator": 2.4, "raio": 115.0, "comportamento": "res://chefes/Estojo.gd"},
 }
 
 var capitulo: int = 1

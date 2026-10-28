@@ -2231,7 +2231,7 @@ func _abrir_painel_stats() -> void:
 	var caixa_chefes = VBoxContainer.new()
 	caixa_chefes.add_theme_constant_override("separation", 0)
 	vbox.add_child(caixa_chefes)
-	var caps: Array = [1, 2, 3, 4, 5, 6, 7, 8, 9]
+	var caps: Array = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
 	for linha_i in 2:
 		var linha_chefes = HBoxContainer.new()
 		linha_chefes.alignment = BoxContainer.ALIGNMENT_CENTER

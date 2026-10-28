@@ -1,7 +1,7 @@
 # Chefes e combate — Sketch Blade
 
 Fonte única sobre chefes, tiros inimigos e "sensação de acerto". O `plano-publicacao.md` só aponta para cá.
-Atualizado em 28/10/2026 (chefes 4, 6, 9, 7 e 8).
+Atualizado em 28/10/2026 (todos os 10 chefes feitos).
 
 ## Regras de design (decididas com o conselho de LLMs e o teste do Richard)
 O jogador é uma caneta que **só anda na horizontal** e **atira sozinha** para cima. Por isso:
@@ -24,8 +24,8 @@ O jogador é uma caneta que **só anda na horizontal** e **atira sozinha** para 
 | 6 | Pirata do mapa | sem fase invulnerável; no alto, balança e atira leque mirado; sorteia **tesouro** (X na caneta, bomba em arco explode com raio 105; com raiva 3 X seguidos), **chuva** (X a cada 360 px a partir da caneta, caem em ordem aleatória; com raiva 2ª chuva nas brechas) ou **canhão** (3 balas miradas; com raiva + 2 perseguidoras). `chefes/ZonaBomba.gd` | Feito, testado |
 | 9 | Pena de escrever | no alto, balança e atira leque mirado; sorteia **parede** (vai a um canto e atravessa escrevendo uma linha de tinta = aviso; fresta de 230 px a 130–220 px da caneta; a linha desce e fere fora da fresta; com raiva 2ª parede na volta, fresta do outro lado), **chuva** (pingos "tinta" caem do alto por 2 s, 1 em 3 na caneta) ou **mergulho** (linha tracejada travada, crava a ponta no papel 0,55 s e volta; com raiva 2 vezes). `chefes/ParedeTinta.gd` | Feito, testado |
 | 7 | Tsuru | ritmo fixo: **aberto** 2,4 s (2,0 com raiva; coração brilha, só aqui toma dano; leque mirado; asas tremem 0,4 s antes de fechar) e **fechado** 3,0 s (tiros mostram "BLOQUEADO"; sorteia **mergulho** mirado, **dobras** = 3/5 perseguidoras ou **rajada** = 4/6 tiros mirados). Som ao abrir e fechar. Desenho recortado em 4 partes (`_montar_partes`) | Feito, testado |
-| 8 | Fantasma de página | meio transparente, com **sombra** no papel; balança e atira leque mirado; sorteia **cópias** (3 fantasmas, só o verdadeiro tem sombra, todos incham e atiram igual; cópia some com 1 tiro; 6 s ou até sumirem as cópias; com raiva todos piscam e **trocam de lugar** no meio), **folhas** (páginas caem balançando, a 1ª na caneta; 4/6) ou **uivo** (3/5 perseguidoras). `CopiaFantasma.gd`, `FolhaFantasma.gd` | Feito, **falta o teste do Richard** |
-| 10 | Estojo | fases por vida usando ataques dos outros chefes ("desfile") | A fazer (1.6, depois dos outros) |
+| 8 | Fantasma de página | meio transparente, com **sombra** no papel; balança e atira leque mirado; sorteia **cópias** (3 fantasmas, só o verdadeiro tem sombra, todos incham e atiram igual; cópia some com 1 tiro; 6 s ou até sumirem as cópias; com raiva todos piscam e **trocam de lugar** no meio), **folhas** (páginas caem balançando, a 1ª na caneta; 4/6) ou **uivo** (3/5 perseguidoras). `CopiaFantasma.gd`, `FolhaFantasma.gd` | Feito, testado |
+| 10 | Estojo | "desfile" em 3 fases pela vida (nome no topo, treme 1,2 s na troca): **1** (100–67%) esmagar, tesouro, espiral 2 braços; **2** (67–34%) parede, chuva de X, folhas; **3** (<34%) xadrez duplo, parede dupla, espiral 3 braços, 3 X + perseguidoras. Reaproveita `ZonaGrade`, `ZonaBomba`, `ParedeTinta`, `FolhaFantasma`; cada ataque é uma agenda de eventos `[tempo, função]` | Feito, **falta o teste do Richard** |
 
 Arte de todos já existe: `assets/inimigos/chefe_1..10.png` (512 px) e `chefe_3_pedaco.png` (256 px). Originais em `Documentos\Sketch Blade - arte original\inimigos` (fora do projeto).
 
@@ -50,12 +50,12 @@ Arte de todos já existe: `assets/inimigos/chefe_1..10.png` (512 px) e `chefe_3_
 Tiro do jogador em cometa de tinta; respingo no impacto (`ImpactoTinta.gd`); flash branco por shader (`flash.gdshader`, também faz o "tremido" de desenho à mão); empurrão; números de dano brancos/laranja com contorno; tremor curto no crítico; barra do chefe vermelha com contorno.
 
 ## Como testar
-- **No jogo (modo de teste):** Configurações → Stats de teste → "Chefe: [1]…[9]" (2 linhas de 5 botões; a caixa tem altura fixa de 1060 px) abre a partida direto no chefe; "Zerar Estojo" volta Dano/Corações/Cadência ao nível 1. Só aparecem com `GameData.MODO_TESTE = true` (desligar antes da produção).
+- **No jogo (modo de teste):** Configurações → Stats de teste → "Chefe: [1]…[10]" (2 linhas de 5 botões; a caixa tem altura fixa de 1060 px) abre a partida direto no chefe; "Zerar Estojo" volta Dano/Corações/Cadência ao nível 1. Só aparecem com `GameData.MODO_TESTE = true` (desligar antes da produção).
 - **Por script (Claude):** copiar `tools/capturar_telas.gd` para um `tools/_tmp_*.gd`, trocar o bloco `if _quer("hud")` por um roteiro (abrir `main.tscn`, `wave_manager.iniciar_fase_na_pagina(cap, GameData.PAGINAS.size())`, achar o chefe, `player.dano = 1` para ele não morrer, `angulos_leque = []` para isolar o dano de zona, forçar ataques com `_comportamento._iniciar_ataque(nome)`, `_foto(...)`), rodar `Godot --path . -s tools/_tmp_x.gd -- <pasta> hud` e apagar o arquivo. Para lógica sem imagem, `--headless` com um `SceneTree` em `SubViewport`. Sempre copiar o save do PC antes e restaurar depois.
 - Cuidados nos testes: o tiro automático da caneta pode matar cópias/peças antes do roteiro (`attack_timer.stop()`); o chefe só toma dano depois da entrada (`entrada_concluida`); a invencibilidade forçada na caneta é desligada pelo tween de dano do `Player` após o primeiro golpe (não é bug do jogo).
 
 ## Pendências e ideias
-- Chefe 10 (1.6); o 8 aguarda teste.
+- Os 10 chefes estão feitos; o 10 aguarda teste. Próximo: build e teste no celular (dificuldade só se julga no toque).
 - Opção 3 (área de dano maior da caneta): prévia em `Documentos\Sketch Blade - arte original\previa-area-de-dano-caneta.png`; decidir depois de testar a opção 1.
 - Olhos dos monstros animados por código (pupila seguindo a caneta, piscar): ideia aprovada pelo conselho, não feita.
 - Se o "inchar" for fraco como aviso: piscar em vermelho enquanto incha.
