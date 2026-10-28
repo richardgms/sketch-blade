@@ -1604,14 +1604,30 @@ func _mostrar_popup_recompensa_diaria(dia: int) -> void:
 		btn_coletar.disabled = true
 		btn_dobro.disabled = true
 		btn_dobro.text = "[ Carregando... ]"
-		var callback = func(placement: String):
-			if placement == "diaria_dobro":
-				dados_save["tinta"] += recompensa["tinta"] * 2
-				dados_save["clipes_ouro"] += recompensa["clipes"] * 2
-				_salvar_dados()
-				_tocar_som(audio_click_sucesso)
-				overlay.queue_free()
-		AdsManager.recompensa_concedida.connect(callback, CONNECT_ONE_SHOT)
+		# Dicionário: lambdas copiam variáveis locais, mas compartilham o dicionário
+		var cb := {}
+		cb["ganhar"] = func(placement: String):
+			if placement != "diaria_dobro":
+				return
+			AdsManager.recompensa_concedida.disconnect(cb["ganhar"])
+			AdsManager.anuncio_falhou.disconnect(cb["falhar"])
+			dados_save["tinta"] += recompensa["tinta"] * 2
+			dados_save["clipes_ouro"] += recompensa["clipes"] * 2
+			_salvar_dados()
+			_tocar_som(audio_click_sucesso)
+			overlay.queue_free()
+		cb["falhar"] = func(placement: String):
+			if placement != "diaria_dobro":
+				return
+			AdsManager.recompensa_concedida.disconnect(cb["ganhar"])
+			AdsManager.anuncio_falhou.disconnect(cb["falhar"])
+			# Sem anúncio (rede/sem estoque): libera os botões de novo
+			_tocar_som(audio_click_erro)
+			btn_coletar.disabled = false
+			btn_dobro.disabled = false
+			btn_dobro.text = "[ SEM ANÚNCIO, TENTE DEPOIS ]"
+		AdsManager.recompensa_concedida.connect(cb["ganhar"])
+		AdsManager.anuncio_falhou.connect(cb["falhar"])
 		AdsManager.mostrar_rewarded("diaria_dobro")
 	)
 
