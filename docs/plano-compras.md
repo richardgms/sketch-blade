@@ -27,6 +27,11 @@ Contexto: os botões "comprar tinta/clipes" do Hub (`Hub.gd`, `_on_confirmar_com
 - Descoberta no painel: a página Monetizar leva ao Painel enquanto não há versão enviada. Ordem real: enviar o AAB (Teste interno) → criar produtos → testar compra com testador de licença.
 - Commits locais feitos; push pendente (envolve pagamento, aguardando ok do Richard).
 
+## Produtos criados (28/10/2026)
+- Depósito de teste confirmado pelo Richard.
+- `clipes_100` e `tinta_5000` criados e **ativos** em Produtos únicos: opção de compra `compra` (tipo Comprar, "Compatível com versões anteriores", que é a usada pelo plugin), 174 países, Brasil R$ 4,90. O preço em massa vira R$ 4,89 no Brasil por arredondamento; foi corrigido à mão.
+- Teste de licença (Gerenciar conta → Teste de licença): marcar a lista `Interno` e salvar. Isso afeta todos os apps da conta. Depois: instalar pela faixa de teste e fazer uma compra de teste.
+
 ## Decisões em aberto
 - Ordem: fazer a cobrança antes do primeiro AAB do teste fechado, ou subir o AAB antes e entregar a cobrança como atualização durante os 14 dias.
 - Preços finais dos dois produtos.
