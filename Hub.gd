@@ -1054,6 +1054,7 @@ func _criar_loja_canetas() -> void:
 
 	container_loja = Control.new()
 	container_loja.set_anchors_preset(Control.PRESET_FULL_RECT)
+	container_loja.mouse_filter = Control.MOUSE_FILTER_IGNORE # não bloquear os [+] do topo
 	tela_loja.add_child(container_loja)
 	_atualizar_loja()
 
