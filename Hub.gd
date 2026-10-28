@@ -2300,6 +2300,33 @@ func _abrir_painel_stats() -> void:
 		_abrir_painel_stats()
 	)
 
+	# Teste: volta Dano, Corações e Cadência do Estojo ao nível 1 (a tinta
+	# gasta não volta). Também pede confirmação com um segundo toque.
+	var btn_estojo = Button.new()
+	btn_estojo.text = "[ ZERAR ESTOJO ]"
+	btn_estojo.add_theme_font_override("font", fonte)
+	btn_estojo.add_theme_font_size_override("font_size", 32)
+	btn_estojo.add_theme_color_override("font_color", Color(0.55, 0.35, 0.1))
+	btn_estojo.add_theme_color_override("font_hover_color", Color(0.8, 0.45, 0.1))
+	btn_estojo.flat = true
+	btn_estojo.custom_minimum_size = Vector2(400, 70)
+	btn_estojo.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+	vbox.add_child(btn_estojo)
+	var estojo_armado := {"v": false}
+	btn_estojo.pressed.connect(func():
+		if not estojo_armado["v"]:
+			estojo_armado["v"] = true
+			btn_estojo.text = "[ TOQUE DE NOVO P/ ZERAR ESTOJO ]"
+			return
+		for chave in ["nivel_dano", "nivel_hp", "nivel_cadencia"]:
+			dados_save[chave] = 1
+		_salvar_dados()
+		_atualizar_ui_upgrades()
+		_tocar_som(audio_click_sucesso)
+		btn_estojo.text = "[ ESTOJO ZERADO ✓ ]"
+		btn_estojo.disabled = true
+	)
+
 	var btn_fechar = Button.new()
 	btn_fechar.text = "[ FECHAR ]"
 	btn_fechar.add_theme_font_override("font", fonte)
