@@ -8,6 +8,11 @@
 
 config_version=5
 
+[admob]
+
+general/android/app_id="ca-app-pub-8087529550411431~1494515229"
+general/ios/enabled=false
+
 [application]
 
 config/name="SketchBlade"
@@ -37,6 +42,10 @@ window/stretch/mode="canvas_items"
 window/stretch/aspect="expand"
 window/handheld/orientation=1
 
+[editor_plugins]
+
+enabled=PackedStringArray("res://addons/GodotGooglePlayBilling/plugin.cfg", "res://addons/admob/plugin.cfg")
+
 [physics]
 
 3d/physics_engine="Jolt Physics"
@@ -48,7 +57,3 @@ renderer/rendering_method="gl_compatibility"
 renderer/rendering_method.mobile="gl_compatibility"
 textures/vram_compression/import_etc2_astc=true
 environment/defaults/default_clear_color=Color(0.98039216, 0.9647059, 0.93333334, 1)
-
-[editor_plugins]
-
-enabled=PackedStringArray("res://addons/GodotGooglePlayBilling/plugin.cfg")
