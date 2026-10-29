@@ -32,3 +32,23 @@ Fonte única da lista de melhorias depois da 1.5.0. Antes/depois para aprovar: h
 - **Hub com o chefe (29/10, protótipos):** 3 opções na página de antes/depois: A chefe no lugar da ilustração, B ilustração + ficha em post-it, C cartaz de PROCURADO; todas com sombra de tinta + "???" antes, colorido + selo depois, e trilha das 8 páginas. Aguardando escolha. Pendência junto: o subtítulo do capítulo (ex.: "Compasso") entrega o nome do chefe.
 - **Hub "A evoluída" (conselho 29/10):** estrutura da A aprovada (capítulo compacto → arte grande → nome/estado → trilha → botão forte), selo pequeno no canto. Sem campo novo no save na primeira leva: capítulo não vencido mostra a ilustração do objeto (o subtítulo já é o nome do objeto, então nada é entregue), vencido mostra o monstro colorido com selo no canto (vencido = abaixo de `capitulo_desbloqueado`). A revelação objeto → monstro acontece no combate, quando o chefe surge na página 8 (sem estado novo). Botão com moldura e texto conforme a ação (Lutar / Continuar · página X / Jogar de novo), sem tirar o popup de retomada. Trilha maior, com o mini desenho do chefe na última casa (não depende só de cor). "Melhor página" entra depois, como campo com valor padrão. Cortado: transição no hub com flag "chefe visto", post-it e cartaz permanentes.
 - **Hub "A evoluída", protótipo (29/10):** 3 estados na página de antes/depois (não vencido, partida salva, vencido). Gerado por script fora do repositório; aguardando aprovação para entrar no jogo.
+
+## Hub novo: rascunho do amigo designer (29/10) — PLANO ATUAL
+Rascunho (fora do repositório): `Documentos\Sketch Blade - design\hub-rascunho-amigo-2026-10-29.png`. Substitui o protótipo "A evoluída" acima como referência visual; a regra continua: nada novo no save além do recorde. Pegar as ideias e ajustar ao gosto do Richard, uma tela por vez, com print na página de antes/depois antes de seguir.
+
+**Elementos comuns**
+- Setas de capítulo ao lado do título "Capítulo N" (sobem do meio da tela) → centro livre para a arte.
+- Título "Capítulo N" + nome do capítulo maior + "MODO NORMAL" com sublinhado verde.
+- Trilha de 8 casas maior; a última casa é o chefe: círculo com "?" antes de vencer, mini desenho do chefe com ✓ verde depois.
+- Botão principal cheio (azul com texto branco), moldura desenhada.
+- Frase que ensina a regra: "Nova tentativa começa na página 1."
+
+**Telas (ordem de implementação)**
+1. **Hub · Nova tentativa** (capítulo não vencido): ilustração do objeto, "Algo se mexe nesta página…", "Melhor tentativa: página 6 de 8", trilha com recorde, "Nova tentativa começa na página 1.", botão LUTAR.
+   - Variante **primeira vez** (nunca jogou o capítulo): igual, sem a linha "Melhor tentativa", trilha toda vazia; frase sugerida: "8 páginas · o chefe espera na última."
+2. **Hub · Concluído** (capítulo vencido): arte do monstro (`assets/inimigos/chefe_N.png`) com selo DERROTADO pequeno no canto (decidir: selo redondo da vitória × retangular do rascunho), "O Compasso foi derrotado!", "Capítulo concluído", trilha cheia com mini chefe + ✓, "Nova tentativa começa na página 1.", botão JOGAR NOVAMENTE.
+3. **Retomar partida** (popup ao abrir com `run_snapshot` ativo; hoje "RUN EM ANDAMENTO"): título "PARTIDA EM ANDAMENTO", "Capítulo 5 · Compasso", ilustração, "Página 4 de 8", trilha numerada com a página atual destacada, "Você voltará ao início da página 4.", bloco "Preservado nesta partida" (corações, tinta, nº de melhorias, reviver disponível/usado), botão CONTINUAR PARTIDA, botão ABANDONAR PARTIDA (contorno vermelho) + "Ao abandonar, você perde os ganhos desta partida." Também: LUTAR no hub não pode apagar a partida salva sem avisar.
+
+**Dados**: vencido = capítulo < `capitulo_desbloqueado`; partida salva = `SaveManager.get_run_snapshot()` (capitulo, pagina, hp, tinta_partida, upgrades, revive_usado); recorde = campo novo com valor padrão (ex.: `stats["melhor_pagina"][str(cap)]`), gravado em `_processar_fim_de_jogo`.
+**Ícones**: coração `assets/upgrade2.svg`, tinta `assets/ink.svg`; seta de melhoria e asa de reviver podem precisar de ícone novo (skill `gerar-imagem`).
+**Como prototipar/printar**: script `extends SceneTree` que abre `hub.tscn` num `SubViewport` 1080x1920, ajusta o save em memória (`SaveManager.dados`) e salva PNG; ver `tools/capturar_telas.gd`. Sempre backup do save do PC antes e restaurar depois.
