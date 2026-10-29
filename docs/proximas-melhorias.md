@@ -33,7 +33,13 @@ Fonte única da lista de melhorias depois da 1.5.0. Antes/depois para aprovar: h
 - **Hub "A evoluída" (conselho 29/10):** estrutura da A aprovada (capítulo compacto → arte grande → nome/estado → trilha → botão forte), selo pequeno no canto. Sem campo novo no save na primeira leva: capítulo não vencido mostra a ilustração do objeto (o subtítulo já é o nome do objeto, então nada é entregue), vencido mostra o monstro colorido com selo no canto (vencido = abaixo de `capitulo_desbloqueado`). A revelação objeto → monstro acontece no combate, quando o chefe surge na página 8 (sem estado novo). Botão com moldura e texto conforme a ação (Lutar / Continuar · página X / Jogar de novo), sem tirar o popup de retomada. Trilha maior, com o mini desenho do chefe na última casa (não depende só de cor). "Melhor página" entra depois, como campo com valor padrão. Cortado: transição no hub com flag "chefe visto", post-it e cartaz permanentes.
 - **Hub "A evoluída", protótipo (29/10):** 3 estados na página de antes/depois (não vencido, partida salva, vencido). Gerado por script fora do repositório; aguardando aprovação para entrar no jogo.
 
-## Hub novo: rascunho do amigo designer (29/10) — PLANO ATUAL
+## Vitória nova (29/10) — EM ESCOLHA
+Rascunho do amigo: `Documentos\Sketch Blade - designitoria-rascunho-amigo-2026-10-29.png`. Conselho de LLMs (5 conselheiros + revisão por pares) rodado em 29/10. Três versões em prints na página "Melhorias visuais" (seção 4): atual, conselho, amigo enxuta. Protótipo sem mexer no jogo: `tools/prototipo_vitoria.gd` (prints em `Documentos\Sketch Blade - designitoria-nova\`).
+- **Amigo enxuta** (pedido do Richard): sem "Capítulo 5 · Compasso" no topo, sem "Assistir anúncio", marca-texto sem tracinhos; chefe colorido que vira P&B quando o selo bate; selo maior, mais à esquerda e para cima, cobrindo um pouco da perna.
+- **Vale para qualquer versão** (conselho): botões só aparecem/funcionam quando a contagem termina (sem toque acidental no anúncio — regra do AdMob); toque na tela pula a contagem; espaço do DOBRAR reservado se o anúncio não carregar; tinta do dobro só no aviso de recompensa do AdMob, sem toque duplo; voltar do Android = continuar. Fora por agora: baú, pacote pago, coleção de chefes.
+- Depois: versão curta para capítulo repetido; tela de derrota irmã; meta da tinta ("faltam X para a caneta Y").
+
+## Hub novo: rascunho do amigo designer (29/10) — FEITO (3 telas aprovadas)
 Rascunho (fora do repositório): `Documentos\Sketch Blade - design\hub-rascunho-amigo-2026-10-29.png`. Substitui o protótipo "A evoluída" acima como referência visual; a regra continua: nada novo no save além do recorde. Pegar as ideias e ajustar ao gosto do Richard, uma tela por vez, com print na página de antes/depois antes de seguir.
 
 **Elementos comuns**
