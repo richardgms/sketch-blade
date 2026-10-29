@@ -521,6 +521,9 @@ var lbl_recorde_cap: RichTextLabel
 var lbl_regra_cap: RichTextLabel
 var trilha_cap: Control
 var recorde_trilha: int = 0 # páginas pintadas na trilha (0..8)
+var chefe_trilha: Texture2D # mini desenho do chefe na última casa (capítulo vencido)
+var selo_hub: Control
+const FICHAS_CHEFE: Dictionary = preload("res://Boss.gd").FICHAS
 
 ## Reposiciona os nós do .tscn e cria os textos/trilha novos. Layout pensado
 ## em 1080x1920; o botão LUTAR segue ancorado ao rodapé real.
@@ -559,19 +562,19 @@ func _montar_tela_capitulo() -> void:
 	lbl_frase_cap.add_theme_font_size_override("font_size", 40)
 	lbl_frase_cap.add_theme_color_override("font_color", COR_TEXTO)
 	lbl_frase_cap.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	_posicionar_centro(lbl_frase_cap, 1200.0, 1258.0, 480.0)
+	_posicionar_centro(lbl_frase_cap, 1178.0, 1236.0, 480.0)
 	tela_lutar.add_child(lbl_frase_cap)
 	_ancorar_rodape(lbl_frase_cap)
 
-	lbl_recorde_cap = _rich_centro(fonte_texto, 34, COR_AZUL_CANETA, 1266.0, 1312.0)
+	lbl_recorde_cap = _rich_centro(fonte_texto, 34, COR_AZUL_CANETA, 1246.0, 1292.0)
 	_ancorar_rodape(lbl_recorde_cap)
 	trilha_cap = Control.new()
 	trilha_cap.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	_posicionar_centro(trilha_cap, 1318.0, 1418.0, 440.0)
+	_posicionar_centro(trilha_cap, 1308.0, 1408.0, 440.0)
 	trilha_cap.draw.connect(_desenhar_trilha.bind(trilha_cap))
 	tela_lutar.add_child(trilha_cap)
 	_ancorar_rodape(trilha_cap)
-	lbl_regra_cap = _rich_centro(fonte_texto, 32, COR_AZUL_CANETA, 1428.0, 1474.0)
+	lbl_regra_cap = _rich_centro(fonte_texto, 32, COR_AZUL_CANETA, 1424.0, 1470.0)
 	_ancorar_rodape(lbl_regra_cap)
 
 	# Ilustração maior: ocupa do "MODO NORMAL" até a frase (cresce em tela alta)
@@ -579,7 +582,27 @@ func _montar_tela_capitulo() -> void:
 	boss_icon.offset_right = 290.0
 	boss_icon.offset_top = 672.0
 	boss_icon.anchor_bottom = 1.0
-	boss_icon.offset_bottom = 1196.0 - 1920.0
+	boss_icon.offset_bottom = 1172.0 - 1920.0
+
+	# Selo redondo da vitória, pequeno no canto inferior direito do desenho
+	# (só no capítulo vencido). Desenhado em 360 px e reduzido por escala.
+	selo_hub = Control.new()
+	selo_hub.set_script(preload("res://SeloDerrotado.gd"))
+	selo_hub.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	selo_hub.size = Vector2(360, 360)
+	selo_hub.pivot_offset = Vector2(360, 360)
+	selo_hub.scale = Vector2(0.52, 0.52)
+	selo_hub.rotation_degrees = -12.0
+	selo_hub.anchor_left = 1.0
+	selo_hub.anchor_right = 1.0
+	selo_hub.anchor_top = 1.0
+	selo_hub.anchor_bottom = 1.0
+	selo_hub.offset_left = -360.0 + 60.0
+	selo_hub.offset_right = 60.0
+	selo_hub.offset_top = -360.0 - 34.0
+	selo_hub.offset_bottom = -34.0
+	selo_hub.visible = false
+	boss_icon.add_child(selo_hub)
 
 	# Botão principal cheio: azul com letra branca e moldura de caneta
 	botao_jogar.flat = false
@@ -644,9 +667,34 @@ func _texto_rich_centro(r: RichTextLabel, texto: String) -> void:
 	r.text = "[center]" + _bbcode_numeros(texto) + "[/center]"
 
 ## Textos e trilha conforme o estado do capítulo selecionado.
+## Vencido = capítulo < capitulo_desbloqueado (o mesmo critério do jogo).
 func _atualizar_estado_capitulo(cap: int) -> void:
 	var total: int = GameData.PAGINAS.size()
+	var vencido: bool = cap < int(dados_save["capitulo_desbloqueado"])
 	var recorde: int = SaveManager.get_melhor_pagina(cap)
+	selo_hub.visible = vencido
+	chefe_trilha = null
+	lbl_recorde_cap.add_theme_color_override("default_color", COR_AZUL_CANETA)
+	lbl_regra_cap.add_theme_color_override("default_color", COR_AZUL_CANETA)
+	botao_jogar.text = "LUTAR"
+	botao_jogar.add_theme_font_size_override("font_size", 76)
+	if vencido:
+		# Concluído: o chefe no lugar do objeto, selo no canto, trilha cheia
+		var ficha: Dictionary = FICHAS_CHEFE.get(cap, FICHAS_CHEFE[1])
+		boss_icon.texture = load(ficha["arte"])
+		chefe_trilha = boss_icon.texture
+		selo_hub.configurar(cap, ficha["nome"].substr(2))
+		recorde_trilha = total
+		# "o Compasso" → "O Compasso foi derrotado!"; "a Mancha" → "...derrotada!"
+		var nome: String = ficha["nome"]
+		lbl_frase_cap.text = "%s foi derrotad%s!" % [nome.left(1).to_upper() + nome.substr(1), nome.left(1)]
+		lbl_recorde_cap.add_theme_color_override("default_color", COR_TEXTO)
+		_texto_rich_centro(lbl_recorde_cap, "Capítulo concluído")
+		_texto_rich_centro(lbl_regra_cap, "Nova tentativa começa na página 1.")
+		botao_jogar.text = "JOGAR NOVAMENTE"
+		botao_jogar.add_theme_font_size_override("font_size", 60)
+		trilha_cap.queue_redraw()
+		return
 	recorde_trilha = recorde
 	lbl_frase_cap.text = "Algo se mexe nesta página..."
 	if recorde <= 0:
@@ -684,11 +732,20 @@ func _desenhar_trilha(c: Control) -> void:
 		var centro := Vector2(xs[i], y)
 		_disco(c, centro, r_pag, COR_AZUL_CANETA if i + 1 <= recorde_trilha else Color(1, 1, 1, 0.9))
 		_circulo_caneta(c, centro, r_pag, COR_AZUL_ESCURO, 3.0, i)
-	# Chefe: "?" até ser vencido
+	# Chefe: "?" até ser vencido; depois, o mini desenho dele com ✓ verde
 	var cc := Vector2(x_chefe, y)
 	var chegou: bool = recorde_trilha >= total
-	_disco(c, cc, r_chefe, Color("dbe6f7") if chegou else Color(1, 1, 1, 0.9))
+	_disco(c, cc, r_chefe, Color("dbe6f7") if chegou and chefe_trilha == null else Color(1, 1, 1, 0.95))
+	if chefe_trilha:
+		var lado: float = r_chefe * 1.9
+		c.draw_texture_rect(chefe_trilha, Rect2(cc - Vector2(lado, lado) / 2.0, Vector2(lado, lado)), false)
 	_circulo_caneta(c, cc, r_chefe, COR_AZUL_ESCURO, 4.0, 99)
+	if chefe_trilha:
+		var cv := cc + Vector2(r_chefe * 0.72, r_chefe * 0.72)
+		_disco(c, cv, 17.0, Color("2e9e44"))
+		c.draw_polyline(PackedVector2Array([cv + Vector2(-8, 0), cv + Vector2(-2, 7), cv + Vector2(9, -7)]),
+			Color.WHITE, 4.0, true)
+		return
 	var fonte: Font = load("res://assets/fonts/ArchitectsDaughter-Regular.ttf")
 	var tam: int = 56
 	var w: float = fonte.get_string_size("?", HORIZONTAL_ALIGNMENT_LEFT, -1, tam).x
