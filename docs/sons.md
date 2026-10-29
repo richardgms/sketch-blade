@@ -13,10 +13,10 @@ Fonte única dos sons gravados (`assets/sons/`). Escolhidos pelo Richard em 29/1
 | `chefe_ataque.ogg` | chefe desce para atacar (rasante do Avião, mergulhos de Pena, Tsuru e do chefe-base) | Darsycho, Monster Snarls, `monster-snarl-attack` (1º rosnado) | 1,3 s, -21; no máx. 1 a cada 1,5 s (`Main.tocar_rosnado_ataque`) |
 | `vitoria.ogg` | capítulo concluído | Kenney, Music Jingles, `jingles_PIZZA02` | -18 |
 | `derrota.ogg` | página arruinada | Kenney, Music Jingles, `jingles_PIZZA01` | -18 |
+| `acerto.ogg` | tiro da caneta acerta um monstro | criado por código ("tup" grave: seno de 460→140 Hz em 70 ms) | -26; no máx. 1 a cada 80 ms, tom varia 0,93–1,08 (crítico 0,80–0,88) (`Main.tocar_acerto`, chamado em `Projectile.gd`) |
 
 ## Regras
 - **Disparo da caneta: sem som** (atira sozinha várias vezes por segundo; viraria barulho constante).
-- **Monstro atingido**: precisa ser muito curto (até 0,12 s), baixo (-26) e com limite de repetições. Em escolha.
 - Ainda com bipe gerado por código (`_gerar_som_procedural`): clique de erro, descanso, roleta, bônus do anúncio, raiva do chefe, tiros e ataques próprios de cada chefe.
-- Volume nivelado com `loudnorm` do ffmpeg; OGG Vorbis q4, mono, 44,1 kHz. Os 9 arquivos somam ~112 KB.
+- Volume nivelado com `loudnorm` do ffmpeg; OGG Vorbis q4, mono, 44,1 kHz. Os 10 arquivos somam ~116 KB.
 - Vitória e derrota foram pré-escolhidas por análise da melodia (sobe = vitória, desce = derrota) entre os 85 jingles do Kenney.

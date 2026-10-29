@@ -68,6 +68,8 @@ func _on_area_entered(area: Area2D) -> void:
 	var main = get_parent()
 	if main and main.has_method("spawn_impacto"):
 		main.spawn_impacto(global_position, cor_tinta, eh_critico)
+	if main and main.has_method("tocar_acerto"):
+		main.tocar_acerto(eh_critico)
 
 	# Ordem de sobrevivência do projétil: perfura primeiro, depois ricocheteia
 	if perfuracoes_restantes > 0:

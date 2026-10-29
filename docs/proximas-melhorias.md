@@ -14,7 +14,7 @@ Fonte única da lista de melhorias depois da 1.5.0. Antes/depois para aprovar: h
   - Stats de teste: `stats["mortes_pagina"]` = {"<cap>": {"<página>": derrotas}} (`SaveManager.registrar_morte_pagina`, chamado em `Main._processar_fim_de_jogo` na derrota, fora do "Testar chefe"); painel mostra "pág. 4×5" por capítulo, letra 32, cartão cresce com os capítulos; ZERAR limpa. Print: `capturar_telas.sh <pasta> stats`.
   - Dica da primeira gota (`Main._mostrar_dica_gotas`, flag `dica_gotas_vista`): círculo de caneta azul pulsando na gota e, no alto da página, "Gotas de tinta!" (marca-texto) + "Passe perto para pegar." + "Use no Estojo para ficar mais forte."; 5 s, sem pausar. Print: `capturar_telas.sh <pasta> dica-gotas`.
   - Pedido de avaliação: adiado para perto da produção (precisa de plugin novo; no Teste fechado a janela do Google quase não aparece).
-- **Som pequeno (29/10): FEITO, no jogo** (push feito, sem build). 9 sons gravados CC0 no lugar dos bipes; detalhes, fontes e licenças em `docs/sons.md`. Falta escolher o som do monstro atingido. Página de escolha: https://claude.ai/artifact/YUAvgQ6UbbRQ3YMqvN3db4
+- **Som pequeno (29/10): FEITO, no jogo** (push feito, sem build). 10 sons (9 gravados CC0 + o "tup" do acerto criado por código) no lugar dos bipes; detalhes, fontes e licenças em `docs/sons.md`. Página de escolha: https://claude.ai/artifact/YUAvgQ6UbbRQ3YMqvN3db4
 
 ## Veredito
 - **Consenso (5 de 5):** a arte do combate já está no nível da loja (monstros, elite, chefes, roleta). Mais arte de monstro rende pouco.

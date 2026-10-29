@@ -1169,7 +1169,18 @@ const SONS: Dictionary = {
 	"chefe_ataque": preload("res://assets/sons/chefe_ataque.ogg"),
 	"vitoria": preload("res://assets/sons/vitoria.ogg"),
 	"derrota": preload("res://assets/sons/derrota.ogg"),
+	"acerto": preload("res://assets/sons/acerto.ogg"),
 }
+
+## "Tup" do tiro que acerta um monstro: toca muito, então é baixinho, varia
+## o tom e não passa de ~12 por segundo (o crítico sai um pouco mais grave).
+var _ultimo_acerto_ms: int = -1000
+func tocar_acerto(critico: bool = false) -> void:
+	var agora := Time.get_ticks_msec()
+	if agora - _ultimo_acerto_ms < 80:
+		return
+	_ultimo_acerto_ms = agora
+	_tocar_som(SONS["acerto"], randf_range(0.8, 0.88) if critico else randf_range(0.93, 1.08))
 
 ## Rosnado do chefe ao descer para atacar (rasante e mergulho). Espaçado
 ## para não repetir em ataques seguidos.
