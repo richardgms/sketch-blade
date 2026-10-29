@@ -36,3 +36,9 @@ No cenário zerado só o Borrão, a Grade e o Compasso morrem em 150 s (os demai
 - **Vida por chefe** (multiplicador na ficha), para a duração subir de 30 s (cap. 1) a 55 s (cap. 10): Borrão ×1,1, Avião ×1,1, Mancha ×0,7, Grade ×1,1, Compasso ×2,9, Pirata ×1,8, Tsuru ×0,6, Fantasma ×1,5, Pena ×1,8, Estojo ×2,3.
 - **Pressão em ordem crescente:** Mancha mais lenta (pedaços a ~60% da velocidade), Grade com leque de 3 tiros e aviso de 1,4 s, Compasso com descanso menor e mais perseguidoras, Tsuru com ataques de asa fechada mais fortes, Estojo com passeio menor e leque de 5 tiros.
 - Rodar a bateria de novo e só seguir para o build quando a curva subir de chefe em chefe.
+
+## Conselho de LLMs (28/10/2026): "só mais vida" ou "mecânicas novas"?
+- **Consenso (5 de 5):** não só vida (luta mais longa = tédio e mais variância) e não mecânica nova em massa antes da produção. O problema é de **ordem e economia**, não de falta de conteúdo: caneta 14x × chefe 8x; Mancha (3) é parede onde a retenção se decide; Compasso (5) é presente.
+- **Choque:** reordenar os chefes (barato, mas o Estojo reaproveita ataques e a história dos capítulos muda) × corrigir os pontos fora da curva no lugar. E criar modos de fim de jogo agora (Ascensão, rush de chefes) × só depois de haver dados humanos.
+- **Pontos cegos da revisão:** o robô joga sem roleta e só com o Estojo esperado (falta medir com roleta e Estojo ±2); poucas lutas por chefe; falta dado humano (o painel "Stats de teste" pode contar vitórias e derrotas por capítulo, e os testadores mandam print); clareza (Tsuru fechado, sombra do Fantasma e "com raiva" precisam ser óbvios no celular).
+- **Recomendação:** meta de duração (vida por chefe) + pressão crescente com os botões que já existem + corrigir só Mancha, Compasso, Tsuru e Estojo + clareza; mecânica de fim de jogo (Ascensão) fica para a 1ª atualização depois da produção.
