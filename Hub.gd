@@ -562,19 +562,19 @@ func _montar_tela_capitulo() -> void:
 	lbl_frase_cap.add_theme_font_size_override("font_size", 40)
 	lbl_frase_cap.add_theme_color_override("font_color", COR_TEXTO)
 	lbl_frase_cap.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	_posicionar_centro(lbl_frase_cap, 1178.0, 1236.0, 480.0)
+	_posicionar_centro(lbl_frase_cap, 1166.0, 1224.0, 480.0)
 	tela_lutar.add_child(lbl_frase_cap)
 	_ancorar_rodape(lbl_frase_cap)
 
-	lbl_recorde_cap = _rich_centro(fonte_texto, 34, COR_AZUL_CANETA, 1246.0, 1292.0)
+	lbl_recorde_cap = _rich_centro(fonte_texto, 42, COR_AZUL_CANETA, 1234.0, 1290.0)
 	_ancorar_rodape(lbl_recorde_cap)
 	trilha_cap = Control.new()
 	trilha_cap.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	_posicionar_centro(trilha_cap, 1308.0, 1408.0, 440.0)
+	_posicionar_centro(trilha_cap, 1300.0, 1400.0, 440.0)
 	trilha_cap.draw.connect(_desenhar_trilha.bind(trilha_cap))
 	tela_lutar.add_child(trilha_cap)
 	_ancorar_rodape(trilha_cap)
-	lbl_regra_cap = _rich_centro(fonte_texto, 32, COR_AZUL_CANETA, 1424.0, 1470.0)
+	lbl_regra_cap = _rich_centro(fonte_texto, 40, COR_AZUL_CANETA, 1412.0, 1466.0)
 	_ancorar_rodape(lbl_regra_cap)
 
 	# Ilustração maior: ocupa do "MODO NORMAL" até a frase (cresce em tela alta)
@@ -582,7 +582,7 @@ func _montar_tela_capitulo() -> void:
 	boss_icon.offset_right = 290.0
 	boss_icon.offset_top = 672.0
 	boss_icon.anchor_bottom = 1.0
-	boss_icon.offset_bottom = 1172.0 - 1920.0
+	boss_icon.offset_bottom = 1160.0 - 1920.0
 
 	# Selo redondo da vitória, pequeno no canto inferior direito do desenho
 	# (só no capítulo vencido). Desenhado em 360 px e reduzido por escala.
