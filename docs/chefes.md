@@ -70,3 +70,12 @@ Tiro do jogador em cometa de tinta; respingo no impacto (`ImpactoTinta.gd`); fla
 - Círculo de acerto único não cobre chefe largo ou que gira: `raio` por ficha + áreas extras.
 - Pedaços com relógios próprios se sobrepõem: usar um relógio só (o do comportamento).
 - Escrever texto com `\n` via script Python pode gerar quebra de linha real dentro de string do GDScript: conferir a linha depois.
+
+## Fluxo da partida (capítulo)
+Confirmado no código em 29/10/2026 (`Main.gd`, `Hub.gd`).
+- **Partida = capítulo inteiro**: páginas 1 → 8 (8 = chefe). Vence só quem passa todas as páginas e mata o chefe na mesma partida.
+- **Morreu**: 1 vez por partida dá para **reviver com anúncio** (volta com 3 corações). Na 2ª morte, ou recusando, é derrota: a partida acaba e a próxima começa da **página 1**, sem os upgrades da roleta.
+- **O que fica na derrota**: tinta coletada (+ bônus do capítulo, sem bônus de vidas; dá para dobrar com anúncio), XP e níveis do Estojo. Perde: upgrades da roleta e a página alcançada.
+- **Vitória**: tinta + bônus de vidas (10% por coração) + bônus do capítulo; XP; desbloqueia o próximo capítulo (só na 1ª vez).
+- **Sair pelo menu de pausa**: abandona a partida (sem tinta, sem retomar).
+- **App fechado ou em segundo plano** (home, ligação, Android mata o app): a partida fica salva no início de cada página (`run_snapshot`). Ao abrir o hub aparece "Continuar?": volta no **começo da mesma página**, com capítulo, corações, tinta, upgrades da roleta e o revive usado ou não. "Descartar" ou tocar em **LUTAR** apaga a partida salva.
