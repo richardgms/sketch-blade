@@ -674,6 +674,12 @@ func _executar_dobro_tinta() -> void:
 
 func _on_boss_surgiu(boss_node: Node2D) -> void:
 	_estilizar_barra_chefe()
+	# A barra do chefe sobe para o lugar do "Página 8 / 8" (que some) e fica
+	# mais fina: libera a faixa de cima para a cabeça do chefe.
+	if label_pagina:
+		label_pagina.visible = false
+	boss_hp_bar.offset_top = 100.0
+	boss_hp_bar.offset_bottom = 128.0
 	boss_hp_bar.max_value = boss_node.hp_max
 	boss_hp_bar.value = boss_node.hp
 	boss_hp_bar.visible = true
@@ -1219,6 +1225,44 @@ func spawn_impacto(pos: Vector2, cor: Color, critico: bool) -> void:
 	if critico and Time.get_ticks_msec() - _ultimo_tremor_critico > 250:
 		_ultimo_tremor_critico = Time.get_ticks_msec()
 		_shake_tela(5.0)
+
+## Dano no chefe: um número só, logo abaixo da barra de vida (à direita),
+## somando os acertos seguidos; some 0,8 s depois do último. O crítico pisca
+## em dourado. Assim nada cobre o desenho do chefe.
+var _lbl_dano_chefe: Label
+var _soma_dano_chefe: int = 0
+var _ultimo_dano_chefe_ms: int = -10000
+var _tween_dano_chefe: Tween
+func spawn_dano_chefe(quantidade: int, critico: bool) -> void:
+	if _lbl_dano_chefe == null:
+		_lbl_dano_chefe = Label.new()
+		_lbl_dano_chefe.add_theme_font_override("font", FONTE_NUMEROS)
+		_lbl_dano_chefe.add_theme_font_size_override("font_size", 46)
+		_lbl_dano_chefe.add_theme_color_override("font_outline_color", Color("1a1a2e"))
+		_lbl_dano_chefe.add_theme_constant_override("outline_size", 10)
+		_lbl_dano_chefe.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+		_lbl_dano_chefe.position = Vector2(boss_hp_bar.offset_right - 300.0, boss_hp_bar.offset_bottom + 2.0)
+		_lbl_dano_chefe.size = Vector2(300, 56)
+		_lbl_dano_chefe.pivot_offset = Vector2(300, 28)
+		_lbl_dano_chefe.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		$HUD.add_child(_lbl_dano_chefe)
+	var agora := Time.get_ticks_msec()
+	if agora - _ultimo_dano_chefe_ms > 800:
+		_soma_dano_chefe = 0
+	_ultimo_dano_chefe_ms = agora
+	_soma_dano_chefe += quantidade
+	_lbl_dano_chefe.text = "-%s" % str(_soma_dano_chefe)
+	_lbl_dano_chefe.add_theme_color_override("font_color", Color("ffb020") if critico else Color.WHITE)
+	_lbl_dano_chefe.modulate.a = 1.0
+	if _tween_dano_chefe and _tween_dano_chefe.is_valid():
+		_tween_dano_chefe.kill()
+	_lbl_dano_chefe.scale = Vector2(1.3, 1.3) if critico else Vector2(1.12, 1.12)
+	_tween_dano_chefe = create_tween()
+	_tween_dano_chefe.tween_property(_lbl_dano_chefe, "scale", Vector2.ONE, 0.12)
+	_tween_dano_chefe.tween_interval(0.15)
+	_tween_dano_chefe.tween_callback(func(): _lbl_dano_chefe.add_theme_color_override("font_color", Color.WHITE))
+	_tween_dano_chefe.tween_interval(0.55)
+	_tween_dano_chefe.tween_property(_lbl_dano_chefe, "modulate:a", 0.0, 0.3)
 
 func spawn_damage_number(quantidade: int, pos: Vector2, eh_jogador: bool, critico: bool = false) -> void:
 	var lbl = Label.new()

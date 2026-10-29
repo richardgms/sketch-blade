@@ -44,6 +44,7 @@ var dot_acumulado: float = 0.0
 
 func _ready() -> void:
 	hp = hp_max
+	z_index = 1 # na frente dos próprios tiros (eles saem de trás do desenho)
 	_preparar_arte()
 	add_to_group("enemies")
 	y_limite_mergulho = get_viewport_rect().size.y - 120.0
@@ -348,8 +349,8 @@ func _aplicar_dano(quantidade: int, critico: bool, pos_numero: Vector2, piscar: 
 	# Aciona popup de dano no Main apenas se o Boss sobreviver ao golpe
 	if hp > 0:
 		var main_node = get_parent()
-		if main_node and main_node.has_method("spawn_damage_number"):
-			main_node.spawn_damage_number(quantidade, pos_numero, false, critico)
+		if main_node and main_node.has_method("spawn_dano_chefe"):
+			main_node.spawn_dano_chefe(quantidade, critico)
 	if not piscar:
 		if hp <= 0:
 			morrer()

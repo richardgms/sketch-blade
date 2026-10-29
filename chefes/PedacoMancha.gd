@@ -100,8 +100,8 @@ func receber_dano_detalhado(quantidade: int, critico: bool) -> void:
 	hp -= q
 	mancha.tirar_da_barra(q)
 	var main = get_parent()
-	if hp > 0 and main and main.has_method("spawn_damage_number"):
-		main.spawn_damage_number(quantidade, global_position, false, critico)
+	if hp > 0 and main and main.has_method("spawn_dano_chefe"):
+		main.spawn_dano_chefe(quantidade, critico)
 	_piscar()
 	if hp <= 0:
 		_morrer()
