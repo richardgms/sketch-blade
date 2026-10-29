@@ -142,7 +142,20 @@ func _rodar() -> void:
 			m.tinta_partida = 420; m.monstros_derrotados_partida = 40; m.boss_derrotado_partida = true
 			m._processar_fim_de_jogo(true); m.menu_vitoria.visible = true
 			await create_timer(0.35).timeout; await _foto("vitoria-cap%d-animando" % cap)
-			await create_timer(2.0).timeout; await _foto("vitoria-cap%d" % cap); await _fechar()
+			await create_timer(2.0).timeout; await _foto("vitoria-cap%d" % cap)
+			if cap == 5:
+				# Anúncio assistido (recompensa confirmada): "Bônus recebido ✓" e total 2x
+				m._executar_dobro_tinta(); await create_timer(0.3).timeout
+				await _foto("vitoria-cap5-bonus")
+			await _fechar()
+		# Toque durante a animação: pula direto para o fim
+		var mp = await _combate()
+		mp.capitulo_atual = 3
+		mp.tinta_partida = 420; mp.monstros_derrotados_partida = 40; mp.boss_derrotado_partida = true
+		mp._processar_fim_de_jogo(true); mp.menu_vitoria.visible = true
+		await create_timer(0.2).timeout
+		mp.tela_vitoria._finalizar_animacao(); await create_timer(0.1).timeout
+		await _foto("vitoria-cap3-pulada"); await _fechar()
 	if _quer("revive"):
 		var m = await _combate()
 		m.menu_revive.visible = true; await create_timer(0.5).timeout
