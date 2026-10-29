@@ -1384,10 +1384,10 @@ func _mostrar_prompt_retomar_run() -> void:
 	# Bloco "Preservado nesta partida" (entre linhas tracejadas)
 	_rich_cartao(cartao, "Preservado nesta partida", fonte, TAM_TEXTO_AZUL, COR_AZUL_ESCURO, 1030.0)
 	var itens := [
-		["res://assets/ui/icone_coracao.png", "%d  %s" % [coracoes, "coração" if coracoes == 1 else "corações"], Vector2(70, 1110)],
-		["res://assets/ink.svg", "%d  de tinta" % tinta, Vector2(520, 1110)],
-		["res://assets/ui/icone_melhoria.png", "%d  %s" % [melhorias, "melhoria ativa" if melhorias == 1 else "melhorias ativas"], Vector2(70, 1190)],
-		["res://assets/ui/icone_reviver.png", "Reviver já usado" if revive_usado else "Reviver disponível", Vector2(70, 1270)],
+		["res://assets/ui/icone_coracao.png", "%d  %s" % [coracoes, "coração" if coracoes == 1 else "corações"], Vector2(50, 1110)],
+		["res://assets/ink.svg", "%d  de tinta" % tinta, Vector2(505, 1110)],
+		["res://assets/ui/icone_melhoria.png", "%d  %s" % [melhorias, "melhoria ativa" if melhorias == 1 else "melhorias ativas"], Vector2(50, 1200)],
+		["res://assets/ui/icone_reviver.png", "Reviver já usado" if revive_usado else "Reviver disponível", Vector2(505, 1200)],
 	]
 	for it in itens:
 		var ic := TextureRect.new()
@@ -1408,7 +1408,7 @@ func _mostrar_prompt_retomar_run() -> void:
 		r.add_theme_font_override("normal_font", fonte)
 		r.add_theme_font_size_override("normal_font_size", TAM_TEXTO_AZUL)
 		r.add_theme_color_override("default_color", COR_TEXTO)
-		r.position = it[2] + Vector2(84, 4)
+		r.position = it[2] + Vector2(76, 4)
 		r.size = Vector2(400, 64)
 		r.text = _bbcode_numeros(it[1])
 		cartao.add_child(r)
@@ -1417,7 +1417,7 @@ func _mostrar_prompt_retomar_run() -> void:
 	btn_continuar.text = "CONTINUAR PARTIDA"
 	btn_continuar.add_theme_font_override("font", fonte)
 	btn_continuar.add_theme_font_size_override("font_size", 58)
-	btn_continuar.position = Vector2(150, 1390)
+	btn_continuar.position = Vector2(150, 1365)
 	btn_continuar.size = Vector2(680, 125)
 	_estilizar_botao_cheio(btn_continuar)
 	cartao.add_child(btn_continuar)
@@ -1429,14 +1429,14 @@ func _mostrar_prompt_retomar_run() -> void:
 
 	var btn_abandonar := Button.new()
 	btn_abandonar.text = "ABANDONAR PARTIDA"
-	btn_abandonar.flat = true
+	_fundo_branco_botao(btn_abandonar)
 	btn_abandonar.add_theme_font_override("font", fonte)
 	btn_abandonar.add_theme_font_size_override("font_size", TAM_TEXTO_AZUL_REGRA)
 	for estado in ["font_color", "font_hover_color", "font_focus_color"]:
 		btn_abandonar.add_theme_color_override(estado, COR_VERMELHO_CANETA)
 	btn_abandonar.add_theme_color_override("font_pressed_color", COR_VERMELHO_CANETA.darkened(0.3))
 	btn_abandonar.add_theme_stylebox_override("focus", StyleBoxEmpty.new())
-	btn_abandonar.position = Vector2(156, 1600)
+	btn_abandonar.position = Vector2(156, 1561)
 	btn_abandonar.size = Vector2(662, 100)
 	btn_abandonar.draw.connect(_desenhar_moldura_botao.bind(btn_abandonar, COR_VERMELHO_CANETA))
 	cartao.add_child(btn_abandonar)
@@ -1444,6 +1444,15 @@ func _mostrar_prompt_retomar_run() -> void:
 		_tocar_som(audio_click_erro)
 		_confirmar_abandono(overlay, fonte)
 	)
+
+## Botão de contorno (vermelho) com miolo branco: o papel não aparece por trás.
+func _fundo_branco_botao(b: Button) -> void:
+	b.flat = false
+	for estado in ["normal", "hover", "pressed"]:
+		var sb := StyleBoxFlat.new()
+		sb.bg_color = Color(0.94, 0.94, 0.94) if estado == "pressed" else Color.WHITE
+		sb.set_corner_radius_all(14)
+		b.add_theme_stylebox_override(estado, sb)
 
 ## Segunda pergunta antes de apagar a partida salva.
 func _confirmar_abandono(overlay: Control, fonte: Font) -> void:
@@ -1512,7 +1521,7 @@ func _confirmar_abandono(overlay: Control, fonte: Font) -> void:
 
 	var btn_sim := Button.new()
 	btn_sim.text = "SIM, ABANDONAR"
-	btn_sim.flat = true
+	_fundo_branco_botao(btn_sim)
 	btn_sim.add_theme_font_override("font", fonte)
 	btn_sim.add_theme_font_size_override("font_size", TAM_TEXTO_AZUL_REGRA)
 	for estado in ["font_color", "font_hover_color", "font_focus_color"]:
@@ -1569,7 +1578,7 @@ func _desenhar_cartao_retomar(c: Control) -> void:
 	sb.set_border_width_all(5)
 	c.draw_style_box(sb, Rect2(Vector2.ZERO, c.size))
 	_desenhar_moldura_botao(c)
-	for y in [1005.0, 1360.0]:
+	for y in [1005.0, 1300.0]:
 		# linhas tracejadas entre os blocos
 		c.draw_dashed_line(Vector2(40, y), Vector2(c.size.x - 40, y), Color(COR_AZUL_ESCURO, 0.45), 2.5, 12.0)
 
@@ -1595,7 +1604,7 @@ func _desenhar_trilha_retomar(c: Control, pagina: int) -> void:
 		var centro := Vector2(xs[i], y)
 		var raio: float = r_chefe if n == total else r_pag
 		if n == pagina:
-			_disco(c, centro, raio + 10.0, Color("f2c230"))
+			_disco(c, centro, raio + 10.0, Color("2e9e44"))
 			_disco(c, centro, raio + 3.0, Color.WHITE)
 			_circulo_caneta(c, centro, raio + 3.0, COR_AZUL_CANETA, 6.0, i)
 		elif n < pagina:
