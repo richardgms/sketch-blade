@@ -57,7 +57,11 @@ var _defaults: Dictionary = {
 		# Telemetria de baseline P0 (medir antes de decidir o combo P1)
 		"gotas_coletadas": 0,
 		"gotas_secas": 0,
-		"tempo_jogado_seg": 0
+		"tempo_jogado_seg": 0,
+		# Chaves dinâmicas (uma por capítulo): ver _mesclar_com_defaults
+		"por_capitulo": {},
+		# Melhor página alcançada por capítulo: {"<cap>": página 1..8}
+		"melhor_pagina": {}
 	},
 	# Tokens das compras no app já entregues (evita entregar duas vezes)
 	"compras_tokens": [],
@@ -138,6 +142,10 @@ func _mesclar_com_defaults(origem: Dictionary, destino: Dictionary) -> void:
 
 		if padrao is int and (valor is float or valor is int):
 			destino[chave] = int(valor)
+		elif padrao is Dictionary and padrao.is_empty() and valor is Dictionary:
+			# Default vazio = dicionário de chaves dinâmicas: copia inteiro
+			# (o filtro abaixo descartaria tudo, como já fazia com por_capitulo).
+			destino[chave] = valor.duplicate(true)
 		elif padrao is Dictionary and valor is Dictionary:
 			_mesclar_com_defaults(valor, destino[chave])
 		elif typeof(padrao) == typeof(valor) or padrao is Array:
@@ -162,6 +170,15 @@ func registrar_capitulo(cap: int, venceu: bool, no_chefe: bool) -> void:
 			c[2] = int(c[2]) + 1
 	tabela[str(cap)] = c
 	dados["stats"]["por_capitulo"] = tabela
+
+## Recorde de página do capítulo (0 = nunca jogou). Página 8 = chegou ao chefe.
+func get_melhor_pagina(cap: int) -> int:
+	return int(dados["stats"].get("melhor_pagina", {}).get(str(cap), 0))
+
+func registrar_melhor_pagina(cap: int, pagina: int) -> void:
+	var tabela: Dictionary = dados["stats"].get("melhor_pagina", {})
+	tabela[str(cap)] = max(int(tabela.get(str(cap), 0)), pagina)
+	dados["stats"]["melhor_pagina"] = tabela
 
 # ============================================================
 # SNAPSHOT DE RUN (retomar partida interrompida)

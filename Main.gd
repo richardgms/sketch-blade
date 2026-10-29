@@ -809,7 +809,9 @@ func _processar_fim_de_jogo(venceu: bool) -> void:
 	if not run_de_teste: # atalho "Testar chefe" não entra na conta
 		SaveManager.registrar_capitulo(capitulo_atual, venceu,
 			wave_manager.pagina_atual >= GameData.PAGINAS.size())
-	
+		SaveManager.registrar_melhor_pagina(capitulo_atual,
+			clamp(wave_manager.pagina_atual, 1, GameData.PAGINAS.size()))
+
 	# Se venceu, desbloqueia o próximo capítulo
 	var texto_desbloqueio = ""
 	if venceu:
