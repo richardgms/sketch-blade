@@ -180,7 +180,7 @@ func _ready() -> void:
 	# A textura do rabisco é branca com alpha de densidade de tinta (máscara
 	# tintável — as missões usam o mesmo arquivo em azul/verde/cinza), então
 	# a cor final vem toda do tint. Este azul é o tom original do rabisco.
-	xp_bar_tex.tint_progress = Color("0549b4")
+	xp_bar_tex.tint_progress = Color("0047ab")
 	xp_bar_tex.fill_mode = 0 # Esquerda para direita
 	# Sem nine_patch_stretch a textura desenha no tamanho nativo (400×48)
 	# e vaza da moldura; com ele, o rabisco estica para caber no rect da barra.
@@ -638,6 +638,9 @@ func _estilizar_botao_cheio(b: Button) -> void:
 			st.texture_margin_right = 48.0
 			st.texture_margin_top = 36.0
 			st.texture_margin_bottom = 36.0
+			# Margem do texto pequena: senão o botão cresce para caber a borda
+			for lado in [SIDE_LEFT, SIDE_RIGHT, SIDE_TOP, SIDE_BOTTOM]:
+				st.set_content_margin(lado, 6.0)
 			if estado == "pressed":
 				st.modulate_color = Color(0.8, 0.8, 0.85)
 			sb = st
@@ -1325,10 +1328,25 @@ func _mostrar_prompt_retomar_run() -> void:
 	cartao.anchor_bottom = 0.5
 	cartao.offset_left = -490.0
 	cartao.offset_right = 490.0
-	cartao.offset_top = -850.0
-	cartao.offset_bottom = 850.0
-	cartao.draw.connect(_desenhar_cartao_retomar.bind(cartao))
+	cartao.offset_top = -870.0
+	cartao.offset_bottom = 870.0
 	overlay.add_child(cartao)
+	var recorte := Control.new()
+	recorte.clip_contents = true
+	recorte.set_anchors_preset(Control.PRESET_FULL_RECT)
+	recorte.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	cartao.add_child(recorte)
+	var papel := ColorRect.new()
+	papel.set_script(preload("res://Paper.gd"))
+	papel.desenhar_margem = false
+	papel.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	recorte.add_child(papel)
+	papel.configurar_para_capitulo(cap)
+	var borda := Control.new()
+	borda.set_anchors_preset(Control.PRESET_FULL_RECT)
+	borda.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	borda.draw.connect(_desenhar_cartao_retomar.bind(borda))
+	cartao.add_child(borda)
 
 	_label_cartao(cartao, "PARTIDA EM\nANDAMENTO", fonte, 76, COR_AZUL_ESCURO, 40.0, 210.0)
 	var sub := TextureRect.new()
@@ -1366,7 +1384,7 @@ func _mostrar_prompt_retomar_run() -> void:
 	# Bloco "Preservado nesta partida" (entre linhas tracejadas)
 	_rich_cartao(cartao, "Preservado nesta partida", fonte, TAM_TEXTO_AZUL, COR_AZUL_ESCURO, 1030.0)
 	var itens := [
-		["res://assets/upgrade2.svg", "%d  %s" % [coracoes, "coração" if coracoes == 1 else "corações"], Vector2(70, 1110)],
+		["res://assets/ui/icone_coracao.png", "%d  %s" % [coracoes, "coração" if coracoes == 1 else "corações"], Vector2(70, 1110)],
 		["res://assets/ink.svg", "%d  de tinta" % tinta, Vector2(520, 1110)],
 		["res://assets/ui/icone_melhoria.png", "%d  %s" % [melhorias, "melhoria ativa" if melhorias == 1 else "melhorias ativas"], Vector2(70, 1190)],
 		["res://assets/ui/icone_reviver.png", "Reviver já usado" if revive_usado else "Reviver disponível", Vector2(70, 1270)],
@@ -1418,16 +1436,98 @@ func _mostrar_prompt_retomar_run() -> void:
 		btn_abandonar.add_theme_color_override(estado, COR_VERMELHO_CANETA)
 	btn_abandonar.add_theme_color_override("font_pressed_color", COR_VERMELHO_CANETA.darkened(0.3))
 	btn_abandonar.add_theme_stylebox_override("focus", StyleBoxEmpty.new())
-	btn_abandonar.position = Vector2(230, 1555)
-	btn_abandonar.size = Vector2(520, 88)
+	btn_abandonar.position = Vector2(156, 1600)
+	btn_abandonar.size = Vector2(662, 100)
 	btn_abandonar.draw.connect(_desenhar_moldura_botao.bind(btn_abandonar, COR_VERMELHO_CANETA))
 	cartao.add_child(btn_abandonar)
 	btn_abandonar.pressed.connect(func():
 		_tocar_som(audio_click_erro)
+		_confirmar_abandono(overlay, fonte)
+	)
+
+## Segunda pergunta antes de apagar a partida salva.
+func _confirmar_abandono(overlay: Control, fonte: Font) -> void:
+	if overlay.has_node("ConfirmarAbandono"):
+		return
+	var camada := Control.new()
+	camada.name = "ConfirmarAbandono"
+	camada.set_anchors_preset(Control.PRESET_FULL_RECT)
+	overlay.add_child(camada)
+	var escuro := ColorRect.new()
+	escuro.color = Color(0.1, 0.1, 0.15, 0.45)
+	escuro.set_anchors_preset(Control.PRESET_FULL_RECT)
+	camada.add_child(escuro)
+
+	var caixa := Control.new()
+	caixa.anchor_left = 0.5
+	caixa.anchor_right = 0.5
+	caixa.anchor_top = 0.5
+	caixa.anchor_bottom = 0.5
+	caixa.offset_left = -430.0
+	caixa.offset_right = 430.0
+	caixa.offset_top = -330.0
+	caixa.offset_bottom = 330.0
+	caixa.draw.connect(func():
+		var sb := StyleBoxFlat.new()
+		sb.bg_color = Color(0.99, 0.985, 0.97)
+		sb.set_corner_radius_all(10)
+		sb.border_color = COR_VERMELHO_CANETA
+		sb.set_border_width_all(5)
+		caixa.draw_style_box(sb, Rect2(Vector2.ZERO, caixa.size))
+		_desenhar_moldura_botao(caixa, COR_VERMELHO_CANETA)
+	)
+	camada.add_child(caixa)
+
+	var titulo := Label.new()
+	titulo.text = "Abandonar a partida?"
+	titulo.add_theme_font_override("font", fonte)
+	titulo.add_theme_font_size_override("font_size", 58)
+	titulo.add_theme_color_override("font_color", COR_VERMELHO_CANETA)
+	titulo.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	titulo.position = Vector2(0, 50)
+	titulo.size = Vector2(860, 80)
+	caixa.add_child(titulo)
+	var aviso := Label.new()
+	aviso.text = "Ao abandonar, você perde os\nganhos desta partida."
+	aviso.add_theme_font_override("font", fonte)
+	aviso.add_theme_font_size_override("font_size", TAM_TEXTO_AZUL)
+	aviso.add_theme_color_override("font_color", COR_TEXTO)
+	aviso.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	aviso.position = Vector2(0, 150)
+	aviso.size = Vector2(860, 130)
+	caixa.add_child(aviso)
+
+	var btn_voltar := Button.new()
+	btn_voltar.text = "VOLTAR"
+	btn_voltar.add_theme_font_override("font", fonte)
+	btn_voltar.add_theme_font_size_override("font_size", 58)
+	btn_voltar.position = Vector2(110, 300)
+	btn_voltar.size = Vector2(640, 120)
+	_estilizar_botao_cheio(btn_voltar)
+	caixa.add_child(btn_voltar)
+	btn_voltar.pressed.connect(func():
+		_tocar_som(audio_click_sucesso)
+		camada.queue_free()
+	)
+
+	var btn_sim := Button.new()
+	btn_sim.text = "SIM, ABANDONAR"
+	btn_sim.flat = true
+	btn_sim.add_theme_font_override("font", fonte)
+	btn_sim.add_theme_font_size_override("font_size", TAM_TEXTO_AZUL_REGRA)
+	for estado in ["font_color", "font_hover_color", "font_focus_color"]:
+		btn_sim.add_theme_color_override(estado, COR_VERMELHO_CANETA)
+	btn_sim.add_theme_color_override("font_pressed_color", COR_VERMELHO_CANETA.darkened(0.3))
+	btn_sim.add_theme_stylebox_override("focus", StyleBoxEmpty.new())
+	btn_sim.position = Vector2(118, 485)
+	btn_sim.size = Vector2(624, 100)
+	btn_sim.draw.connect(_desenhar_moldura_botao.bind(btn_sim, COR_VERMELHO_CANETA))
+	caixa.add_child(btn_sim)
+	btn_sim.pressed.connect(func():
+		_tocar_som(audio_click_erro)
 		SaveManager.limpar_run_snapshot()
 		overlay.queue_free()
 	)
-	_rich_cartao(cartao, "Ao abandonar, você perde os ganhos desta partida.", fonte, 30, Color(0.4, 0.4, 0.45), 1656.0)
 
 const COR_VERMELHO_CANETA := Color("c62828")
 
@@ -1463,13 +1563,14 @@ func _rich_cartao(cartao: Control, texto: String, fonte: Font, tam: int, cor: Co
 ## separando o bloco "Preservado nesta partida".
 func _desenhar_cartao_retomar(c: Control) -> void:
 	var sb := StyleBoxFlat.new()
-	sb.bg_color = Color(0.99, 0.985, 0.97)
-	sb.set_corner_radius_all(22)
+	sb.draw_center = false
+	sb.set_corner_radius_all(6)
 	sb.border_color = COR_AZUL_CANETA
 	sb.set_border_width_all(5)
 	c.draw_style_box(sb, Rect2(Vector2.ZERO, c.size))
 	_desenhar_moldura_botao(c)
 	for y in [1005.0, 1360.0]:
+		# linhas tracejadas entre os blocos
 		c.draw_dashed_line(Vector2(40, y), Vector2(c.size.x - 40, y), Color(COR_AZUL_ESCURO, 0.45), 2.5, 12.0)
 
 ## Trilha numerada da partida salva: páginas passadas cheias, a atual com
@@ -1522,6 +1623,9 @@ func _notification(what: int) -> void:
 		return
 	# O prompt de retomar run é uma decisão obrigatória: voltar não o fecha.
 	if $HUD.has_node("PromptRetomarRun"):
+		var conf := $HUD.get_node("PromptRetomarRun").get_node_or_null("ConfirmarAbandono")
+		if conf:
+			conf.queue_free()
 		return
 	if popup_compra and popup_compra.visible:
 		popup_compra.visible = false
@@ -2038,7 +2142,7 @@ func _mostrar_popup_recompensa_diaria(dia: int) -> void:
 	btn_coletar.add_theme_font_override("font", load("res://assets/fonts/ArchitectsDaughter-Regular.ttf"))
 	btn_coletar.add_theme_font_size_override("font_size", 44)
 	btn_coletar.add_theme_color_override("font_color", Color("002867"))
-	btn_coletar.add_theme_color_override("font_hover_color", Color("0044cc"))
+	btn_coletar.add_theme_color_override("font_hover_color", Color("0047ab"))
 	btn_coletar.flat = true
 	btn_coletar.position = Vector2(340, 1030)
 	btn_coletar.size = Vector2(400, 80)
@@ -2242,7 +2346,7 @@ func _desenhar_moldura_manuscrita(ctrl: Control) -> void:
 ## pouco mais (1.12 × TAU) com raio levemente variável, imitando o gesto de
 ## circular um número à mão — jitter determinístico como nas outras molduras.
 func _desenhar_circulo_numero(ctrl: Control) -> void:
-	var cor := Color("0549b4", 0.9)
+	var cor := Color("0047ab", 0.9)
 	var centro: Vector2 = ctrl.size / 2.0
 	var raio_base: float = centro.x - 4.0
 	var pontos: PackedVector2Array = []
@@ -2326,7 +2430,7 @@ func _abrir_painel_missoes() -> void:
 		lbl_num.text = str(i + 1)
 		lbl_num.add_theme_font_override("font", FONTE_NUMEROS)
 		lbl_num.add_theme_font_size_override("font_size", 34)
-		lbl_num.add_theme_color_override("font_color", Color("0549b4"))
+		lbl_num.add_theme_color_override("font_color", Color("0047ab"))
 		lbl_num.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 		lbl_num.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 		# Nudge à direita: os algarismos da Caveat têm bearing esquerdo largo
@@ -2392,7 +2496,7 @@ func _montar_card_missao(i: int, missao: Dictionary, def: Dictionary, y_base: fl
 		barra.texture_under = load("res://assets/texture_progress.svg")
 		barra.texture_progress = load("res://assets/texture_progress.svg")
 		barra.tint_under = Color(0.63, 0.63, 0.66, 0.5)
-		barra.tint_progress = Color("0549b4")
+		barra.tint_progress = Color("0047ab")
 		barra.nine_patch_stretch = true
 		barra.max_value = def["alvo"]
 		barra.value = progresso
@@ -2557,7 +2661,7 @@ func _abrir_painel_config() -> void:
 	btn_som.add_theme_font_override("font", fonte)
 	btn_som.add_theme_font_size_override("font_size", 40)
 	btn_som.add_theme_color_override("font_color", Color("002867"))
-	btn_som.add_theme_color_override("font_hover_color", Color("0044cc"))
+	btn_som.add_theme_color_override("font_hover_color", Color("0047ab"))
 	btn_som.add_theme_constant_override("icon_max_width", 52)
 	btn_som.flat = true
 	btn_som.custom_minimum_size = Vector2(500, 80)
@@ -2570,7 +2674,7 @@ func _abrir_painel_config() -> void:
 	btn_vibracao.add_theme_font_override("font", fonte)
 	btn_vibracao.add_theme_font_size_override("font_size", 40)
 	btn_vibracao.add_theme_color_override("font_color", Color("002867"))
-	btn_vibracao.add_theme_color_override("font_hover_color", Color("0044cc"))
+	btn_vibracao.add_theme_color_override("font_hover_color", Color("0047ab"))
 	btn_vibracao.add_theme_constant_override("icon_max_width", 52)
 	btn_vibracao.flat = true
 	btn_vibracao.custom_minimum_size = Vector2(500, 80)
@@ -2602,7 +2706,7 @@ func _abrir_painel_config() -> void:
 	btn_stats.add_theme_font_override("font", fonte)
 	btn_stats.add_theme_font_size_override("font_size", 40)
 	btn_stats.add_theme_color_override("font_color", Color("002867"))
-	btn_stats.add_theme_color_override("font_hover_color", Color("0044cc"))
+	btn_stats.add_theme_color_override("font_hover_color", Color("0047ab"))
 	btn_stats.flat = true
 	btn_stats.custom_minimum_size = Vector2(500, 80)
 	btn_stats.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
