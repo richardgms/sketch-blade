@@ -351,9 +351,9 @@ func _versao_mista(m: Node, estado: String) -> void:
 	_linha(c, 170, 910, 180, Color(VERDE, 0.85), 5.0)
 	_chefe_parcial(c, Rect2(190, 215, 700, 640), 1.0 if carimbado else 0.0)
 	if carimbado:
-		_selo(c, Vector2(800, 760), 0.5, -10.0)
+		_selo(c, Vector2(728, 665), 0.72, -14.0)
 	var com_bonus := estado == "bonus"
-	_txt(c, "Tinta conquistada (com anúncio)" if com_bonus else "Tinta conquistada", 36, Color(AZUL_ESCURO, 0.8), 885, 930)
+	_txt(c, "Tinta conquistada (com anúncio)" if com_bonus else "Tinta conquistada", 46, AZUL_ESCURO, 868, 932)
 	var total := "+2.116 tinta" if com_bonus else "+1.058 tinta"
 	var tw: float = NUM.get_string_size(total, HORIZONTAL_ALIGNMENT_LEFT, -1, 130).x
 	var gota := TextureRect.new()
