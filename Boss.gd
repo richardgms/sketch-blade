@@ -58,16 +58,16 @@ func _ready() -> void:
 ## Sem "comportamento", usa o padrão do Borrão (patrulha, leque e mergulho).
 ## Capítulos sem ficha própria usam a do capítulo 1.
 const FICHAS: Dictionary = {
-	1: {"arte": "res://assets/inimigos/chefe_1.png", "fator": 2.1, "raio": 80.0, "vida": 1.0, "comportamento": ""},
-	2: {"arte": "res://assets/inimigos/chefe_2.png", "fator": 2.6, "raio": 115.0, "vida": 1.0, "comportamento": "res://chefes/Aviao.gd"},
-	3: {"arte": "res://assets/inimigos/chefe_3.png", "fator": 2.3, "raio": 100.0, "vida": 0.65, "comportamento": "res://chefes/Mancha.gd"},
-	4: {"arte": "res://assets/inimigos/chefe_4.png", "fator": 2.4, "raio": 105.0, "vida": 1.2, "comportamento": "res://chefes/Grade.gd"},
-	5: {"arte": "res://assets/inimigos/chefe_5.png", "fator": 2.4, "raio": 115.0, "vida": 4.2, "comportamento": "res://chefes/Compasso.gd"},
-	6: {"arte": "res://assets/inimigos/chefe_6.png", "fator": 2.5, "raio": 105.0, "vida": 1.6, "comportamento": "res://chefes/Pirata.gd"},
-	7: {"arte": "res://assets/inimigos/chefe_7.png", "fator": 2.6, "raio": 100.0, "vida": 0.85, "comportamento": "res://chefes/Tsuru.gd"},
-	8: {"arte": "res://assets/inimigos/chefe_8.png", "fator": 2.15, "raio": 85.0, "vida": 1.3, "comportamento": "res://chefes/Fantasma.gd"},
-	9: {"arte": "res://assets/inimigos/chefe_9.png", "fator": 2.6, "raio": 95.0, "vida": 1.6, "comportamento": "res://chefes/Pena.gd"},
-	10: {"arte": "res://assets/inimigos/chefe_10.png", "fator": 2.4, "raio": 115.0, "vida": 3.2, "comportamento": "res://chefes/Estojo.gd"},
+	1: {"nome": "o Borrão", "arte": "res://assets/inimigos/chefe_1.png", "fator": 2.1, "raio": 80.0, "vida": 1.0, "comportamento": ""},
+	2: {"nome": "o Avião de Papel", "arte": "res://assets/inimigos/chefe_2.png", "fator": 2.6, "raio": 115.0, "vida": 1.0, "comportamento": "res://chefes/Aviao.gd"},
+	3: {"nome": "a Mancha", "arte": "res://assets/inimigos/chefe_3.png", "fator": 2.3, "raio": 100.0, "vida": 0.65, "comportamento": "res://chefes/Mancha.gd"},
+	4: {"nome": "o Monstro da Grade", "arte": "res://assets/inimigos/chefe_4.png", "fator": 2.4, "raio": 105.0, "vida": 1.2, "comportamento": "res://chefes/Grade.gd"},
+	5: {"nome": "o Compasso", "arte": "res://assets/inimigos/chefe_5.png", "fator": 2.4, "raio": 115.0, "vida": 4.2, "comportamento": "res://chefes/Compasso.gd"},
+	6: {"nome": "o Pirata do Mapa", "arte": "res://assets/inimigos/chefe_6.png", "fator": 2.5, "raio": 105.0, "vida": 1.6, "comportamento": "res://chefes/Pirata.gd"},
+	7: {"nome": "o Tsuru", "arte": "res://assets/inimigos/chefe_7.png", "fator": 2.6, "raio": 100.0, "vida": 0.85, "comportamento": "res://chefes/Tsuru.gd"},
+	8: {"nome": "o Fantasma de Página", "arte": "res://assets/inimigos/chefe_8.png", "fator": 2.15, "raio": 85.0, "vida": 1.3, "comportamento": "res://chefes/Fantasma.gd"},
+	9: {"nome": "a Pena de Escrever", "arte": "res://assets/inimigos/chefe_9.png", "fator": 2.6, "raio": 95.0, "vida": 1.6, "comportamento": "res://chefes/Pena.gd"},
+	10: {"nome": "o Estojo", "arte": "res://assets/inimigos/chefe_10.png", "fator": 2.4, "raio": 115.0, "vida": 3.2, "comportamento": "res://chefes/Estojo.gd"},
 }
 
 var capitulo: int = 1

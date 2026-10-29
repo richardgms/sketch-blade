@@ -853,11 +853,106 @@ func _processar_fim_de_jogo(venceu: bool) -> void:
 	if venceu:
 		label_total_vitoria.text = texto_total
 		label_detalhes_vitoria.text = "\n".join(linhas)
+		_mostrar_chefe_vitoria(tinta_final)
 	else:
 		label_total_gameover.text = texto_total
 		var label_gameover = menu_game_over.get_node_or_null("DetalhesGameOver")
 		if label_gameover:
 			label_gameover.text = "\n".join(linhas)
+
+const FICHAS_CHEFE: Dictionary = preload("res://Boss.gd").FICHAS
+var _arte_chefe_vitoria: TextureRect
+var _carimbo_vitoria: Control
+var _tween_vitoria: Tween
+
+## Vitória mostra o chefe que caiu: desenho no alto, carimbo "DERROTADO"
+## batendo por cima, nome certo no subtítulo e a tinta contando até o total.
+func _mostrar_chefe_vitoria(tinta_final: int) -> void:
+	var ficha: Dictionary = FICHAS_CHEFE.get(capitulo_atual, FICHAS_CHEFE[1])
+	var sub := menu_vitoria.get_node_or_null("Subtitulo") as Label
+	if sub:
+		sub.text = "Você derrotou %s!" % ficha["nome"]
+	if not _arte_chefe_vitoria:
+		_criar_arte_vitoria()
+	_arte_chefe_vitoria.texture = load(ficha["arte"])
+
+	# Estado inicial da animação
+	_arte_chefe_vitoria.modulate.a = 0.0
+	_arte_chefe_vitoria.scale = Vector2(0.75, 0.75)
+	_carimbo_vitoria.modulate.a = 0.0
+	_carimbo_vitoria.scale = Vector2(2.4, 2.4)
+	label_total_vitoria.text = "+0 tinta"
+
+	if _tween_vitoria and _tween_vitoria.is_valid():
+		_tween_vitoria.kill()
+	_tween_vitoria = create_tween().set_pause_mode(Tween.TWEEN_PAUSE_PROCESS)
+	_tween_vitoria.set_parallel(true)
+	_tween_vitoria.tween_property(_arte_chefe_vitoria, "modulate:a", 1.0, 0.3)
+	_tween_vitoria.tween_property(_arte_chefe_vitoria, "scale", Vector2.ONE, 0.45) \
+		.set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+	# Carimbo bate depois que o chefe aparece
+	_tween_vitoria.tween_property(_carimbo_vitoria, "modulate:a", 1.0, 0.08).set_delay(0.5)
+	_tween_vitoria.tween_property(_carimbo_vitoria, "scale", Vector2.ONE, 0.18) \
+		.set_delay(0.5).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
+	# Tranco do chefe quando o carimbo bate
+	_tween_vitoria.tween_property(_arte_chefe_vitoria, "scale", Vector2(0.94, 0.94), 0.06).set_delay(0.68)
+	_tween_vitoria.tween_property(_arte_chefe_vitoria, "scale", Vector2.ONE, 0.12).set_delay(0.74)
+	# Tinta contando até o total
+	_tween_vitoria.tween_method(func(v: float): label_total_vitoria.text = "+%d tinta" % int(v),
+		0.0, float(tinta_final), 0.9).set_delay(0.8).set_ease(Tween.EASE_OUT)
+	_tween_vitoria.chain().tween_callback(func(): label_total_vitoria.text = "+%d tinta" % tinta_final)
+
+func _criar_arte_vitoria() -> void:
+	var arte := TextureRect.new()
+	arte.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	arte.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	arte.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	arte.set_anchors_preset(Control.PRESET_CENTER)
+	arte.offset_left = -230.0
+	arte.offset_right = 230.0
+	arte.offset_top = -800.0
+	arte.offset_bottom = -340.0
+	arte.pivot_offset = Vector2(230.0, 230.0)
+	arte.rotation_degrees = -3.0
+	menu_vitoria.add_child(arte)
+	_arte_chefe_vitoria = arte
+
+	# Carimbo: moldura vermelha dupla com "DERROTADO", inclinado
+	var cor := Color("c62828")
+	var caixa := PanelContainer.new()
+	var estilo := StyleBoxFlat.new()
+	estilo.bg_color = Color(0.99, 0.97, 0.9, 0.82) # papel por trás: lê sobre o desenho
+	estilo.border_color = cor
+	estilo.set_border_width_all(9)
+	estilo.set_corner_radius_all(14)
+	estilo.content_margin_left = 34.0
+	estilo.content_margin_right = 34.0
+	estilo.content_margin_top = 6.0
+	estilo.content_margin_bottom = 2.0
+	caixa.add_theme_stylebox_override("panel", estilo)
+	var texto := Label.new()
+	texto.text = "DERROTADO"
+	texto.add_theme_font_override("font", preload("res://assets/fonts/ArchitectsDaughter-Regular.ttf"))
+	texto.add_theme_font_size_override("font_size", 86)
+	texto.add_theme_color_override("font_color", cor)
+	texto.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	caixa.add_child(texto)
+	caixa.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	caixa.modulate = Color(1, 1, 1, 0.92)
+
+	# Centraliza o carimbo sobre a metade de baixo do desenho
+	var ancora := Control.new()
+	ancora.set_anchors_preset(Control.PRESET_CENTER)
+	ancora.offset_top = -470.0
+	ancora.offset_bottom = -470.0
+	ancora.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	menu_vitoria.add_child(ancora)
+	ancora.add_child(caixa)
+	caixa.reset_size()
+	caixa.position = -caixa.size / 2.0
+	caixa.pivot_offset = caixa.size / 2.0
+	caixa.rotation_degrees = -12.0
+	_carimbo_vitoria = caixa
 
 ## HUD mais legível no celular: coração ao lado da vida, números maiores e a
 ## barra do chefe abaixo de "Página X/8" (antes os dois se sobrepunham).
