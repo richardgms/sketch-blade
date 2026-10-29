@@ -19,6 +19,7 @@ const BOTAO_RISCADO := "res://assets/ui/botao_riscado.png"
 # Layout pensado em 1080x1920; em telas mais altas o conteúdo fica centrado.
 const ARTE := Rect2(190, 215, 700, 640)
 const SELO_CENTRO := Vector2(728, 665)
+const ESCALA_SELO := 0.82 # maior para o anel (capítulo e nome) ficar legível
 const Y_DESBLOQUEIO := 1450.0
 const BOTAO_VOLTAR := Rect2(130, 1580, 820, 125)
 const BOTAO_ANUNCIO := Rect2(150, 1740, 780, 100)
@@ -222,10 +223,10 @@ func _animar() -> void:
 	_arte.scale = Vector2(0.85, 0.85)
 	(_arte.material as ShaderMaterial).set_shader_parameter("desat", 0.0)
 	_selo.modulate.a = 0.0
-	_selo.scale = Vector2(2.2, 2.2) * 0.72
+	_selo.scale = Vector2(2.2, 2.2) * ESCALA_SELO
 	_destaque.modulate.a = 0.0
 	_destaque.scale = Vector2(0.7, 0.7)
-	_total.text = "+0 tinta"
+	_definir_total(0) # já centrado desde o primeiro quadro
 	var tf: int = int(_dados["tinta_final"])
 
 	_tween = create_tween().set_pause_mode(Tween.TWEEN_PAUSE_PROCESS).set_parallel(true)
@@ -233,7 +234,7 @@ func _animar() -> void:
 	_tween.tween_property(_arte, "scale", Vector2.ONE, 0.35).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
 	# Batida curta do selo
 	_tween.tween_property(_selo, "modulate:a", 1.0, 0.06).set_delay(0.45)
-	_tween.tween_property(_selo, "scale", Vector2(0.72, 0.72), 0.14).set_delay(0.45) \
+	_tween.tween_property(_selo, "scale", Vector2(ESCALA_SELO, ESCALA_SELO), 0.14).set_delay(0.45) \
 		.set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
 	_tween.tween_property(_arte.material, "shader_parameter/desat", 1.0, 0.25).set_delay(0.59)
 	_tween.tween_property(_arte, "scale", Vector2(0.96, 0.96), 0.05).set_delay(0.59)
@@ -257,7 +258,7 @@ func _finalizar_animacao() -> void:
 	_arte.scale = Vector2.ONE
 	(_arte.material as ShaderMaterial).set_shader_parameter("desat", 1.0)
 	_selo.modulate.a = 1.0
-	_selo.scale = Vector2(0.72, 0.72)
+	_selo.scale = Vector2(ESCALA_SELO, ESCALA_SELO)
 	_destaque.modulate.a = 1.0
 	_destaque.scale = Vector2.ONE
 	_definir_total(int(_dados["tinta_final"]))
