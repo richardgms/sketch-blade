@@ -1,7 +1,7 @@
 extends SceneTree
 ## Bateria de equilíbrio dos chefes: um robô joga cada chefe (sem tela, acelerado).
 ## Resumo: python tools/resumo_bateria.py <pasta com esquiva/segue/parado.jsonl>
-## Uso: Godot --headless --fixed-fps 60 --path . -s tools/bateria_chefes.gd -- <saida.jsonl> <bot> <seeds>
+## Uso: Godot --headless --fixed-fps 60 --path . -s tools/bateria_chefes.gd -- <saida.jsonl> <bot> <seeds> [caps 1,2,..] [cenarios a,b]
 ## bot: esquiva | segue | parado
 
 ## Níveis D/H/C do Estojo tirados da tabela B do tools/sim_economia.py (ouro
@@ -34,6 +34,7 @@ var _saida := ""
 var _bot := "esquiva"
 var _seeds: int = 3
 var _caps: Array = range(1, 11)
+var _cens: Array = CENARIOS.keys()
 var m
 var boss
 var _arquivo: FileAccess
@@ -46,12 +47,14 @@ func _initialize() -> void:
 	_seeds = int(a[2])
 	if a.size() > 3:
 		_caps = Array(a[3].split(",")).map(func(v): return int(v))
+	if a.size() > 4:
+		_cens = Array(a[4].split(","))
 	_arquivo = FileAccess.open(_saida, FileAccess.WRITE)
 	_rodar()
 
 func _rodar() -> void:
 	await process_frame
-	for cen in CENARIOS.keys():
+	for cen in _cens:
 		for cap in _caps:
 			for s in _seeds:
 				var r: Dictionary = await _luta(cen, cap, s)

@@ -52,23 +52,29 @@ func _ready() -> void:
 	set_deferred("monitorable", false)
 
 ## Define o padrão de ataque do boss conforme a faixa de capítulos.
-## Ficha de cada chefe: desenho, tamanho do desenho e comportamento.
+## Ficha de cada chefe: desenho, tamanho do desenho, comportamento e "vida"
+## (multiplica a vida por capítulo; calibrada pela bateria de equilíbrio,
+## ver docs/equilibrio-chefes.md).
 ## Sem "comportamento", usa o padrão do Borrão (patrulha, leque e mergulho).
 ## Capítulos sem ficha própria usam a do capítulo 1.
 const FICHAS: Dictionary = {
-	1: {"arte": "res://assets/inimigos/chefe_1.png", "fator": 2.1, "raio": 80.0, "comportamento": ""},
-	2: {"arte": "res://assets/inimigos/chefe_2.png", "fator": 2.6, "raio": 115.0, "comportamento": "res://chefes/Aviao.gd"},
-	3: {"arte": "res://assets/inimigos/chefe_3.png", "fator": 2.3, "raio": 100.0, "comportamento": "res://chefes/Mancha.gd"},
-	4: {"arte": "res://assets/inimigos/chefe_4.png", "fator": 2.4, "raio": 105.0, "comportamento": "res://chefes/Grade.gd"},
-	5: {"arte": "res://assets/inimigos/chefe_5.png", "fator": 2.4, "raio": 115.0, "comportamento": "res://chefes/Compasso.gd"},
-	6: {"arte": "res://assets/inimigos/chefe_6.png", "fator": 2.5, "raio": 105.0, "comportamento": "res://chefes/Pirata.gd"},
-	7: {"arte": "res://assets/inimigos/chefe_7.png", "fator": 2.6, "raio": 100.0, "comportamento": "res://chefes/Tsuru.gd"},
-	8: {"arte": "res://assets/inimigos/chefe_8.png", "fator": 2.15, "raio": 85.0, "comportamento": "res://chefes/Fantasma.gd"},
-	9: {"arte": "res://assets/inimigos/chefe_9.png", "fator": 2.6, "raio": 95.0, "comportamento": "res://chefes/Pena.gd"},
-	10: {"arte": "res://assets/inimigos/chefe_10.png", "fator": 2.4, "raio": 115.0, "comportamento": "res://chefes/Estojo.gd"},
+	1: {"arte": "res://assets/inimigos/chefe_1.png", "fator": 2.1, "raio": 80.0, "vida": 1.0, "comportamento": ""},
+	2: {"arte": "res://assets/inimigos/chefe_2.png", "fator": 2.6, "raio": 115.0, "vida": 1.0, "comportamento": "res://chefes/Aviao.gd"},
+	3: {"arte": "res://assets/inimigos/chefe_3.png", "fator": 2.3, "raio": 100.0, "vida": 0.65, "comportamento": "res://chefes/Mancha.gd"},
+	4: {"arte": "res://assets/inimigos/chefe_4.png", "fator": 2.4, "raio": 105.0, "vida": 1.2, "comportamento": "res://chefes/Grade.gd"},
+	5: {"arte": "res://assets/inimigos/chefe_5.png", "fator": 2.4, "raio": 115.0, "vida": 4.2, "comportamento": "res://chefes/Compasso.gd"},
+	6: {"arte": "res://assets/inimigos/chefe_6.png", "fator": 2.5, "raio": 105.0, "vida": 1.6, "comportamento": "res://chefes/Pirata.gd"},
+	7: {"arte": "res://assets/inimigos/chefe_7.png", "fator": 2.6, "raio": 100.0, "vida": 0.85, "comportamento": "res://chefes/Tsuru.gd"},
+	8: {"arte": "res://assets/inimigos/chefe_8.png", "fator": 2.15, "raio": 85.0, "vida": 1.3, "comportamento": "res://chefes/Fantasma.gd"},
+	9: {"arte": "res://assets/inimigos/chefe_9.png", "fator": 2.6, "raio": 95.0, "vida": 1.6, "comportamento": "res://chefes/Pena.gd"},
+	10: {"arte": "res://assets/inimigos/chefe_10.png", "fator": 2.4, "raio": 115.0, "vida": 3.2, "comportamento": "res://chefes/Estojo.gd"},
 }
 
 var capitulo: int = 1
+var mult_vida: float = 1.0 # da ficha; aplicado pelo WaveManager
+## Sinal de raiva: ao passar de metade da vida, aviso, tremor e
+## o desenho pulsa em vermelho. Mancha (3) e Estojo (10) anunciam as fases deles.
+var _raiva: bool = false
 var _comportamento = null # script do chefe (chefes/*.gd) ou null
 
 func configurar_padrao(cap: int) -> void:
@@ -76,6 +82,7 @@ func configurar_padrao(cap: int) -> void:
 	var ficha: Dictionary = FICHAS.get(cap, FICHAS[1])
 	_aplicar_arte(ficha["arte"], ficha["fator"])
 	definir_raio_acerto(ficha.get("raio", 70.0))
+	mult_vida = ficha.get("vida", 1.0)
 	if ficha["comportamento"] != "":
 		_comportamento = load(ficha["comportamento"]).new(self)
 	if capitulo <= 3:
@@ -181,6 +188,9 @@ func _process(delta: float) -> void:
 		_t_anim += delta
 		var r: float = sin(_t_anim * 3.2)
 		_arte.scale = _escala_arte * Vector2(1.0 + 0.05 * r, 1.0 - 0.05 * r) * (1.0 + _pulso)
+		if _raiva: # pulsa em vermelho enquanto estiver com raiva
+			var v: float = 0.5 + 0.5 * sin(_t_anim * 7.0)
+			_arte.modulate = Color(1.0, 0.62 + 0.2 * v, 0.62 + 0.2 * v, _arte.modulate.a)
 		# O balanço não vale quando o comportamento gira o desenho (Compasso)
 		if not (_comportamento and _comportamento.get("controla_rotacao")):
 			_arte.rotation = 0.05 * sin(_t_anim * 1.7)
@@ -329,6 +339,8 @@ func _aplicar_dano(quantidade: int, critico: bool, pos_numero: Vector2, piscar: 
 	if hp < 0:
 		hp = 0
 	hp_alterado.emit(hp)
+	if not _raiva and hp > 0 and hp <= hp_max / 2 and capitulo != 3 and capitulo != 10:
+		_entrar_raiva()
 
 	# Aciona popup de dano no Main apenas se o Boss sobreviver ao golpe
 	if hp > 0:
@@ -351,6 +363,19 @@ func _aplicar_dano(quantidade: int, critico: bool, pos_numero: Vector2, piscar: 
 	
 	if hp <= 0:
 		morrer()
+
+func _entrar_raiva() -> void:
+	_raiva = true
+	var main = get_parent()
+	if main and main.has_method("aviso_topo"):
+		main.aviso_topo("COM RAIVA!")
+	if main and main.has_method("_shake_tela"):
+		main._shake_tela(14.0)
+	if main and main.has_method("_tocar_som"):
+		main._tocar_som(main._gerar_som_procedural(140.0, 0.35, "square"))
+	var tw := create_tween()
+	tw.tween_property(self, "_pulso", 0.22, 0.15)
+	tw.tween_property(self, "_pulso", 0.0, 0.5)
 
 func morrer() -> void:
 	if is_queued_for_deletion():

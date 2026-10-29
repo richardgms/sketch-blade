@@ -8,8 +8,8 @@ extends RefCounted
 ## de fechar.
 ## Ataques de asa fechada:
 ## - MERGULHO: linha tracejada travada na caneta, mergulha e volta.
-## - DOBRAS: 3 gotas perseguidoras (5 com raiva).
-## - RAJADA: incha e solta 4 tiros mirados seguidos (6 com raiva).
+## - DOBRAS: 4 gotas perseguidoras (6 com raiva).
+## - RAJADA: incha e solta 5 tiros mirados seguidos (7 com raiva).
 ## Com raiva o ritmo acelera (aberto 2,0 s em vez de 2,4 s), mas continua fixo.
 
 enum Fase { ENTRADA, ABERTO, FECHANDO, FECHADO, ABRINDO }
@@ -131,13 +131,16 @@ func processar(delta: float) -> void:
 		Fase.ABERTO:
 			_virar(0.0, delta)
 			_balancar(delta)
-			var meio_t: float = _tempo_aberto() * 0.5
-			if not _avisou and _t >= meio_t - boss.TEMPO_AVISO:
-				_avisou = true
-				boss._avisar_leque()
-			if _avisou and _feitos == 0 and _t >= meio_t:
-				_feitos = 1
-				boss._disparar_leque()
+			# 2 leques por janela aberta (equilíbrio: com 1 o Tsuru quase não ameaçava)
+			if _feitos < 2:
+				var tiro_t: float = _tempo_aberto() * (0.35 if _feitos == 0 else 0.75)
+				if not _avisou and _t >= tiro_t - boss.TEMPO_AVISO:
+					_avisou = true
+					boss._avisar_leque()
+				if _avisou and _t >= tiro_t:
+					_feitos += 1
+					_avisou = false
+					boss._disparar_leque()
 			if _t >= _tempo_aberto():
 				_ir(Fase.FECHANDO)
 		Fase.FECHANDO:
@@ -255,7 +258,7 @@ func _processar_mergulho(delta: float) -> void:
 
 func _processar_dobras(delta: float) -> void:
 	_balancar(delta * 0.4)
-	var total: int = 5 if _furioso() else 3
+	var total: int = 6 if _furioso() else 4
 	if _feitos < total and _t >= 0.4 + _feitos * 0.3:
 		var lado: float = float(_feitos) - (total - 1) / 2.0
 		var dir := Vector2.DOWN.rotated(deg_to_rad(-lado * 22.0))
@@ -264,7 +267,7 @@ func _processar_dobras(delta: float) -> void:
 
 func _processar_rajada(delta: float) -> void:
 	_balancar(delta * 0.4)
-	var total: int = 6 if _furioso() else 4
+	var total: int = 7 if _furioso() else 5
 	if _feitos < total and _t >= boss.TEMPO_AVISO + _feitos * 0.35:
 		var d: Vector2 = boss.mira(boss.position)
 		boss.atirar(boss.position + d * 80.0, d, 560.0, 13.0, "elite")

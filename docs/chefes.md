@@ -12,6 +12,8 @@ O jogador é uma caneta que **só anda na horizontal** e **atira sozinha** para 
 - Luta de 30 a 60 s. Upgrade da roleta pode ser **bônus** contra um chefe, nunca requisito (a roleta é sorteada).
 - Variedade: o chefe sorteia ataques sem repetir o último (pedido do Richard: o Avião ficava repetitivo).
 - Ao matar o chefe: tela limpa (tiros somem, reforços morrem) e a caneta fica protegida.
+- **Raiva** (metade da vida): aviso "COM RAIVA!" no topo, tremor, som e o chefe pulsa em vermelho (`Boss._entrar_raiva`). Mancha e Estojo não usam (anunciam as fases deles). Tsuru e Fantasma: o Richard viu a versão B (escudo/cadeado; sombra forte e cópias transparentes) e preferiu manter como estão.
+- **Vida:** `Boss.FICHAS[cap]["vida"]` multiplica a escala por capítulo; calibrada pela bateria (`docs/equilibrio-chefes.md`). Mudou ataque ou vida: rodar a bateria de novo.
 
 ## Situação dos chefes
 | Cap. | Chefe | Mecânica | Situação |
@@ -31,7 +33,7 @@ Arte de todos já existe: `assets/inimigos/chefe_1..10.png` (512 px) e `chefe_3_
 
 ## Arquitetura
 - `Boss.gd` = chefe-base: entrada, vida, flash, DoT, morte, `atirar(pos, dir, vel, raio, estilo)`, `mira(de)`, `_avisar_leque()`/`_disparar_leque()` (o aviso decide o ângulo e o tiro usa o mesmo), `definir_raio_acerto(r)`, `dano_compartilhado(...)`.
-- `Boss.FICHAS[cap]` = `{arte, fator (tamanho do desenho), raio (círculo de acerto), comportamento}`. Capítulo sem ficha usa a do 1 (Borrão).
+- `Boss.FICHAS[cap]` = `{arte, fator (tamanho do desenho), raio (círculo de acerto), vida (multiplicador), comportamento}`. Capítulo sem ficha usa a do 1 (Borrão).
 - `chefes/<Nome>.gd` (`extends RefCounted`, recebe o `boss` no `_init`, tem `processar(delta)`): o `Boss._process` delega tudo a ele. Se o comportamento gira o desenho, declarar `var controla_rotacao := true`.
 - Defesa (Tsuru): o comportamento pode ter `bloqueia_dano(pos) -> bool`; o `Boss._aplicar_dano` pergunta antes de tirar vida (`spawn_damage_number(0, ...)` mostra "BLOQUEADO").
 - Partes móveis do desenho (asas do Tsuru): recortes da mesma imagem com `region_rect`, filhos do `_arte` com `use_parent_material` (piscam juntos); a parte que gira entra uns px por baixo da vizinha e fica atrás (`show_behind_parent`), senão a emenda abre fresta branca.
@@ -55,7 +57,7 @@ Tiro do jogador em cometa de tinta; respingo no impacto (`ImpactoTinta.gd`); fla
 - Cuidados nos testes: o tiro automático da caneta pode matar cópias/peças antes do roteiro (`attack_timer.stop()`); o chefe só toma dano depois da entrada (`entrada_concluida`); a invencibilidade forçada na caneta é desligada pelo tween de dano do `Player` após o primeiro golpe (não é bug do jogo).
 
 ## Pendências e ideias
-- Os 10 chefes estão feitos e testados. **Equilíbrio:** bateria e resultados em `docs/equilibrio-chefes.md` (a dificuldade ainda não sobe de chefe em chefe; proposta de ajuste lá). Depois: build e teste no celular.
+- Os 10 chefes estão feitos, testados e calibrados (`docs/equilibrio-chefes.md`). Próximo: build e teste no celular.
 - Opção 3 (área de dano maior da caneta): prévia em `Documentos\Sketch Blade - arte original\previa-area-de-dano-caneta.png`; decidir depois de testar a opção 1.
 - Olhos dos monstros animados por código (pupila seguindo a caneta, piscar): ideia aprovada pelo conselho, não feita.
 - Se o "inchar" for fraco como aviso: piscar em vermelho enquanto incha.

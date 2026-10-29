@@ -124,8 +124,9 @@ func _reindexar() -> void:
 func mover_pedaco(p, delta: float) -> void:
 	var n: int = maxi(1, _pedacos.size())
 	var fase: float = TAU * p.indice / n
-	var vel: float = 0.9 if n > 1 else 1.4
-	var alvo := Vector2(540.0 + sin(_t * vel + fase) * 400.0, 310.0 + sin(_t * vel * 1.7 + fase * 2.0) * 120.0)
+	# Mais lentos que antes (0,9/1,4 e 120 px na vertical): só 9% dos tiros acertavam
+	var vel: float = 0.6 if n > 1 else 1.0
+	var alvo := Vector2(540.0 + sin(_t * vel + fase) * 400.0, 310.0 + sin(_t * vel * 1.7 + fase * 2.0) * 70.0)
 	p.position = p.position.lerp(alvo, minf(1.0, 2.5 * delta))
 
 ## Intervalo entre tiros de cada pedaço: mais pedaços, um pouco mais lento;

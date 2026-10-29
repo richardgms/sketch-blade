@@ -252,7 +252,7 @@ func _preparar_boss() -> void:
 		# Geométrica, expoente menor que o dos comuns: a luta encurta de
 		# ~35s (cap 1) até ~19s (cap 10) conforme o Estojo maxa.
 		var mult_boss_hp = pow(1.26, capitulo_atual - 1)
-		boss.hp_max = int(boss.hp_max * mult_boss_hp)
+		boss.hp_max = int(boss.hp_max * mult_boss_hp * boss.mult_vida) # vida da ficha de cada chefe
 		boss.hp = boss.hp_max
 
 		# Ajusta dano de contato do Boss para Capítulos altos

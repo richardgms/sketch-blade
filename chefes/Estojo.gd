@@ -95,7 +95,7 @@ func processar(delta: float) -> void:
 				var ev: Array = _agenda.pop_front()
 				(ev[1] as Callable).call()
 			if _t >= _duracao and _agenda.is_empty():
-				_tempo_passeio = randf_range(1.4, 2.2) * (0.85 if fase_vida == 3 else 1.0)
+				_tempo_passeio = randf_range(1.0, 1.6) * (0.85 if fase_vida == 3 else 1.0) # chefe final: menos pausa
 				_ir(Fase.PASSEIO)
 		Fase.TROCA:
 			boss.position.x += sin(_t * 70.0) * 2.5 # treme

@@ -25,6 +25,24 @@ Meta (Richard, 28/10/2026): **cada chefe mais forte que o anterior**. Luta de 30
 
 No cenário zerado só o Borrão, a Grade e o Compasso morrem em 150 s (os demais exigem Estojo melhorado, como esperado).
 
+## Resultado final (28/10/2026, rodada 9) — calibrado
+Ajustes: vida por chefe na ficha (`Boss.FICHAS[cap]["vida"]`, multiplica a escala 1,26×/capítulo), Mancha mais lenta, Tsuru com 2 leques por janela aberta e ataques fechados maiores, cópias do Fantasma atirando a cada 2,3 s, Estojo com menos pausa entre ataques, e sinal de raiva (ver `chefes.md`).
+Cenário: Estojo da **chegada** + 3 roletas, robô de esquiva, 10 builds por chefe. Margem da bateria: **±15%** entre rodadas (a build muda muito o resultado); ajustes menores que isso não se medem.
+| Cap. | Chefe | Vida (×) | Vida final | Tempo médio (faixa) | Corações perdidos | Morreria |
+|---|---|---|---|---|---|---|
+| 1 | Borrão | 1,0 | 300 | 34 s (27–50) | 42% | 1/10 |
+| 2 | Avião | 1,0 | 378 | 41 s (23–72) | 54% | 0/10 |
+| 3 | Mancha | 0,65 | 309 | 47 s (20–84) | 49% | 1/10 |
+| 4 | Grade | 1,2 | 720 | 29 s (19–36) | 54% | 1/10 |
+| 5 | Compasso | 4,2 | 3175 | 45 s (30–58) | 51% | 1/10 |
+| 6 | Pirata | 1,6 | 1524 | 35 s (24–53) | 68% | 1/10 |
+| 7 | Tsuru | 0,85 | 1020 | 55 s (36–81) | 74% | 1/10 |
+| 8 | Fantasma | 1,3 | 1966 | 47 s (25–63) | 73% | 1/10 |
+| 9 | Pena | 1,6 | 3049 | 54 s (41–86) | 76% | 3/10 |
+| 10 | Estojo | 3,2 | 7684 | 70 s (43–101) | 80% | 4/10 |
+
+Leitura: capítulos 1–5 ≈ metade dos corações; 6–10 de 68% a 80%, com o Estojo como o mais forte. Com o Estojo da **vitória** tudo fica mais leve (o jogador que repetiu o capítulo passa). Mancha continua a mais dependente da build (20–84 s). Próximo: confirmar no celular com humanos.
+
 ## Resultado 2 (28/10/2026) — com roleta (build sorteada) e Estojo da chegada
 300 lutas, 5 builds por chefe. "Morreria" = lutas em que o robô de esquiva perde mais corações do que tem.
 | Cap. | Chefe | Tempo (esquiva) | Variação entre builds | Dano/min | Corações perdidos / vidas | Morreria |
@@ -49,7 +67,7 @@ No cenário zerado só o Borrão, a Grade e o Compasso morrem em 150 s (os demai
 4. **Compasso (5) fácil demais de acertar:** fica parado girando e tem as pernas como área extra; 86% dos tiros acertam.
 5. **"Ficar parado não compensa" funciona** em 9 de 10 chefes (parado perde 2 a 10× mais). Exceção: Avião, onde o parado perde menos (fica no meio e os rasantes têm brecha larga) — aceitável.
 
-## Proposta de ajuste (atualizada com o resultado 2; aguardando decisão)
+## Proposta de ajuste (atualizada com o resultado 2; aplicada, ver resultado final)
 - Meta: fração de corações perdidos na **chegada** subindo de ~25% (cap. 1) a ~75% (cap. 10), com lutas de 25 s a 60 s. Como a pressão já sobe, a vida vira o botão principal: luta mais longa contra chefe mais agressivo = mais perigo, em ordem.
 - Exceções: Mancha (pedaços mais lentos, luta mais curta), Tsuru (mais pressão de asa fechada, luta mais curta), Fantasma (pressão um pouco menor), Compasso (vida bem maior).
 

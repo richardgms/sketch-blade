@@ -18,7 +18,7 @@ const ATAQUES: Array = ["copias", "folhas", "uivo"]
 const TRANSPARENCIA: float = 0.82
 const TEMPO_SUMIR: float = 0.35
 const TEMPO_COPIAS: float = 6.0
-const INTERVALO_TIRO_COPIAS: float = 1.8
+const INTERVALO_TIRO_COPIAS: float = 2.3 # era 1,8: 3 fantasmas atirando pesavam demais
 const COPIA := preload("res://chefes/CopiaFantasma.gd")
 const FOLHA := preload("res://chefes/FolhaFantasma.gd")
 
