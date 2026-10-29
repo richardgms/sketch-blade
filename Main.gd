@@ -926,26 +926,27 @@ func _criar_arte_vitoria() -> void:
 	shader.code = """shader_type canvas_item;
 uniform float cinza : hint_range(0.0, 1.0) = 0.0;
 void fragment() {
-	vec4 c = texture(TEXTURE, UV) * COLOR;
+	vec4 c = COLOR; // no Godot 4 o COLOR já vem com a textura
 	float g = dot(c.rgb, vec3(0.299, 0.587, 0.114));
+	// Preto e branco suave: tira a cor e clareia em direção ao papel
 	c.rgb = mix(c.rgb, vec3(g), cinza);
-	c.rgb = mix(c.rgb, vec3(0.96), cinza * 0.12);
+	c.rgb = mix(c.rgb, vec3(0.97, 0.95, 0.9), cinza * 0.35);
 	COLOR = c;
 }"""
 	var mat := ShaderMaterial.new()
 	mat.shader = shader
 	arte.material = mat
 
-	# Selo redondo de carimbo, sobre o canto de baixo do desenho
+	# Selo redondo de carimbo, bem no centro do desenho
 	var selo := Control.new()
 	selo.set_script(preload("res://SeloDerrotado.gd"))
 	selo.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	selo.set_anchors_preset(Control.PRESET_CENTER)
-	selo.offset_left = 140.0 - 175.0
-	selo.offset_right = 140.0 + 175.0
-	selo.offset_top = -500.0 - 175.0
-	selo.offset_bottom = -500.0 + 175.0
-	selo.pivot_offset = Vector2(175.0, 175.0)
+	selo.offset_left = -180.0
+	selo.offset_right = 180.0
+	selo.offset_top = -570.0 - 180.0 # centro do desenho
+	selo.offset_bottom = -570.0 + 180.0
+	selo.pivot_offset = Vector2(180.0, 180.0)
 	selo.rotation_degrees = -14.0
 	selo.modulate = Color(1, 1, 1, 0.94)
 	menu_vitoria.add_child(selo)

@@ -4,7 +4,8 @@ extends Control
 
 const FONTE = preload("res://assets/fonts/ArchitectsDaughter-Regular.ttf")
 const COR := Color("c62828")
-const PAPEL := Color(0.99, 0.97, 0.9, 0.5) # deixa o chefe aparecer por baixo
+const PAPEL := Color(0.99, 0.97, 0.9, 0.45) # miolo: deixa o chefe aparecer
+const PAPEL_OPACO := Color(0.99, 0.97, 0.9, 1.0)
 
 var capitulo: int = 1
 var nome_chefe: String = ""
@@ -17,8 +18,10 @@ func configurar(cap: int, nome: String) -> void:
 func _draw() -> void:
 	var c := size / 2.0
 	var r: float = min(size.x, size.y) / 2.0 - 6.0
-	# Fundo de papel para ler por cima do desenho
-	draw_circle(c, r, PAPEL)
+	# Miolo meio transparente (o chefe aparece por baixo) e anel de texto
+	# opaco: as letras em arco não podem cair em cima do traço preto
+	draw_circle(c, r - 46.0, PAPEL)
+	draw_arc(c, r - 25.5, 0.0, TAU, 128, PAPEL_OPACO, 41.0, true)
 	# Anéis: grosso por fora, fino por dentro
 	draw_arc(c, r - 5.0, 0.0, TAU, 128, COR, 10.0, true)
 	draw_arc(c, r - 46.0, 0.0, TAU, 128, COR, 4.0, true)
@@ -33,7 +36,7 @@ func _draw() -> void:
 	var tam := 60
 	var largura_txt: float = FONTE.get_string_size("DERROTADO", HORIZONTAL_ALIGNMENT_LEFT, -1, tam).x
 	var faixa := Rect2(c.x - largura_txt / 2.0 - 26.0, c.y - 44.0, largura_txt + 52.0, 88.0)
-	draw_rect(faixa, Color(PAPEL.r, PAPEL.g, PAPEL.b, 1.0))
+	draw_rect(faixa, PAPEL_OPACO)
 	draw_rect(faixa, COR, false, 6.0)
 	draw_string(FONTE, Vector2(faixa.position.x + 26.0, c.y + tam * 0.36), "DERROTADO",
 		HORIZONTAL_ALIGNMENT_LEFT, -1, tam, COR)
