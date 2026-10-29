@@ -69,6 +69,7 @@ var _defaults: Dictionary = {
 	"compras_tokens": [],
 	# Configurações
 	"tutorial_visto": false,
+	"dica_gotas_vista": false, # dica da primeira gota de tinta (uma vez por conta)
 	"som_ativo": true,
 	"vibracao_ativa": true,
 	# Snapshot de run em andamento (rede de segurança contra o app ser fechado

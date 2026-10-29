@@ -936,6 +936,70 @@ func _spawn_drops_de_tinta(posicao: Vector2, quantidade: int, valor_por_gota: in
 		drop.position = posicao
 		drop.setup(valor_por_gota, tex, tinta_label.global_position)
 		add_child(drop)
+		if i == 0 and jogo_iniciado and not SaveManager.dados.get("dica_gotas_vista", false):
+			_mostrar_dica_gotas(drop)
+
+## Primeira gota de tinta da conta: círculo de caneta em volta dela e uma
+## frase curta explicando para que serve (sem pausar o jogo).
+func _mostrar_dica_gotas(drop: Node2D) -> void:
+	SaveManager.dados["dica_gotas_vista"] = true
+	SaveManager.salvar()
+	var azul := Color("0047ab")
+	var escuro := Color("002867")
+	# Círculo de caneta que acompanha a gota (some junto se ela for pega)
+	var anel := Control.new()
+	anel.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	anel.draw.connect(func():
+		var pts: PackedVector2Array = []
+		for k in range(41):
+			var t: float = float(k) / 40.0 * TAU * 1.08 - 0.6
+			pts.append(Vector2(cos(t), sin(t)) * (40.0 + sin(k * 2.3) * 1.6))
+		anel.draw_polyline(pts, azul, 4.5, true))
+	drop.add_child(anel)
+	var tw_anel := create_tween().set_loops(5)
+	tw_anel.tween_property(anel, "scale", Vector2(1.18, 1.18), 0.35)
+	tw_anel.tween_property(anel, "scale", Vector2.ONE, 0.35)
+	tw_anel.finished.connect(func():
+		if is_instance_valid(anel):
+			anel.queue_free())
+
+	# Texto no alto da página: a gota cai para baixo e fica à vista
+	var bloco := Control.new()
+	bloco.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	bloco.position = Vector2(0, 190)
+	bloco.size = Vector2(1080, 220)
+	bloco.z_index = 80
+	$HUD.add_child(bloco)
+	var fonte: Font = load("res://assets/fonts/ArchitectsDaughter-Regular.ttf")
+	var titulo := "Gotas de tinta!"
+	var w: float = fonte.get_string_size(titulo, HORIZONTAL_ALIGNMENT_LEFT, -1, 52).x + 50.0
+	var faixa := ColorRect.new()
+	faixa.color = Color(1.0, 0.92, 0.35, 0.75)
+	faixa.position = Vector2(540 - w / 2.0, 12)
+	faixa.size = Vector2(w, 62)
+	faixa.rotation_degrees = -1.0
+	faixa.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	bloco.add_child(faixa)
+	var linhas := [[titulo, 52, 0.0], ["Passe perto para pegar.", 44, 88.0], ["Use no Estojo para ficar mais forte.", 44, 148.0]]
+	for l in linhas:
+		var lbl := Label.new()
+		lbl.text = l[0]
+		lbl.add_theme_font_override("font", fonte)
+		lbl.add_theme_font_size_override("font_size", l[1])
+		lbl.add_theme_color_override("font_color", escuro)
+		lbl.add_theme_color_override("font_outline_color", Color(1, 1, 1, 0.9))
+		lbl.add_theme_constant_override("outline_size", 10)
+		lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		lbl.position = Vector2(0, l[2])
+		lbl.size = Vector2(1080, 80 if l[1] == 52 else 64)
+		lbl.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		bloco.add_child(lbl)
+	bloco.modulate.a = 0.0
+	var tw := create_tween()
+	tw.tween_property(bloco, "modulate:a", 1.0, 0.25)
+	tw.tween_interval(5.0)
+	tw.tween_property(bloco, "modulate:a", 0.0, 0.8)
+	tw.finished.connect(bloco.queue_free)
 
 var _tween_pulso_tinta: Tween
 

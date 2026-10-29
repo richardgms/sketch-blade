@@ -4,7 +4,7 @@ extends SceneTree
 ## Uso (precisa de janela, não roda com --headless):
 ##   Godot --path . -s tools/capturar_telas.gd -- <pasta_de_saida> [tela1,tela2,...]
 ## Sem lista, captura todas. Telas: hub, hub-cap5-recorde, hub-cap5-chefe, hub-cap5-primeira, hub-cap1/3/4-concluido, retomar, retomar-revive-usado, retomar-confirmar, estojo, loja, missoes, config, recompensa, compra,
-## stats, hud, roleta, pausa, descanso, derrota, vitoria, revive.
+## stats, dica-gotas, hud, roleta, pausa, descanso, derrota, vitoria, revive.
 ##
 ## Usa um save fictício, mas alguns eventos gravam o save do PC
 ## (%APPDATA%\Godot\app_userdata\SketchBlade\save_data.json): faça backup antes.
@@ -31,6 +31,7 @@ func _save(cap: int) -> void:
 	d["capitulo_desbloqueado"] = 5; d["capitulo_selecionado"] = cap
 	d["nivel_dano"] = 4; d["nivel_hp"] = 4; d["nivel_cadencia"] = 4
 	d["canetas_possuidas"] = ["bic_azul", "lapis_hb"]; d["caneta_equipada"] = "bic_azul"; d["tutorial_visto"] = true
+	d["dica_gotas_vista"] = true
 	var hoje := Time.get_date_string_from_system()
 	d["ultimo_login"] = hoje; d["dia_streak"] = 3; d["recompensa_coletada_hoje"] = true
 	d["run_snapshot"] = {"ativa": false}
@@ -115,6 +116,14 @@ func _rodar() -> void:
 	await _hub("recompensa", func(h): h._mostrar_popup_recompensa_diaria(3))
 	await _hub("compra", func(h): h._abrir_popup_compra("clipes"))
 
+	if _quer("dica-gotas"):
+		# Primeira gota de tinta da conta: círculo na gota + dica
+		var m = await _combate()
+		SaveManager_dados()["dica_gotas_vista"] = false
+		m.player.attack_timer.start()
+		m.wave_manager.iniciar_fase_na_pagina(1, 1); await create_timer(2.5).timeout
+		m._on_enemy_morreu(Vector2(620, 820), Color.BLACK, "res://assets/ink.svg")
+		await create_timer(0.9).timeout; await _foto("dica-gotas"); await _fechar()
 	if _quer("hud"):
 		var m = await _combate()
 		for id in ["tiro_duplo", "leque"]: m.player.aplicar_upgrade(id)
