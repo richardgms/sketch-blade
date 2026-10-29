@@ -3,7 +3,7 @@ extends SceneTree
 ##
 ## Uso (precisa de janela, não roda com --headless):
 ##   Godot --path . -s tools/capturar_telas.gd -- <pasta_de_saida> [tela1,tela2,...]
-## Sem lista, captura todas. Telas: hub, hub-cap5-recorde, hub-cap5-chefe, hub-cap5-primeira, estojo, loja, missoes, config, recompensa, compra,
+## Sem lista, captura todas. Telas: hub, hub-cap5-recorde, hub-cap5-chefe, hub-cap5-primeira, hub-cap1/3/4-concluido, estojo, loja, missoes, config, recompensa, compra,
 ## hud, roleta, pausa, descanso, derrota, vitoria, revive.
 ##
 ## Usa um save fictício, mas alguns eventos gravam o save do PC
@@ -85,6 +85,9 @@ func _rodar() -> void:
 	await _hub("hub-cap5-recorde", func(_h): pass, 5, 6)
 	await _hub("hub-cap5-chefe", func(_h): pass, 5, 8)
 	await _hub("hub-cap5-primeira", func(_h): pass, 5, 0)
+	# Concluído: capítulos vencidos (cap < capitulo_desbloqueado = 5)
+	for c in [1, 3, 4]:
+		await _hub("hub-cap%d-concluido" % c, func(_h): pass, c, 8)
 	await _hub("estojo", func(h): h._alterar_aba("estojo"))
 	await _hub("loja", func(h): h._alterar_aba("loja"))
 	await _hub("missoes", func(h): h._abrir_painel_missoes())
