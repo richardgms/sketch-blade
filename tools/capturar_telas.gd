@@ -4,7 +4,7 @@ extends SceneTree
 ## Uso (precisa de janela, não roda com --headless):
 ##   Godot --path . -s tools/capturar_telas.gd -- <pasta_de_saida> [tela1,tela2,...]
 ## Sem lista, captura todas. Telas: hub, hub-cap5-recorde, hub-cap5-chefe, hub-cap5-primeira, hub-cap1/3/4-concluido, retomar, retomar-revive-usado, retomar-confirmar, estojo, loja, missoes, config, recompensa, compra,
-## hud, roleta, pausa, descanso, derrota, vitoria, revive.
+## stats, hud, roleta, pausa, descanso, derrota, vitoria, revive.
 ##
 ## Usa um save fictício, mas alguns eventos gravam o save do PC
 ## (%APPDATA%\Godot\app_userdata\SketchBlade\save_data.json): faça backup antes.
@@ -106,6 +106,12 @@ func _rodar() -> void:
 	await _hub("loja", func(h): h._alterar_aba("loja"))
 	await _hub("missoes", func(h): h._abrir_painel_missoes())
 	await _hub("config", func(h): h._abrir_painel_config())
+	# Painel "Stats de teste" com vitórias/derrotas e páginas em que perdeu
+	await _hub("stats", func(h):
+		var st: Dictionary = SaveManager_dados()["stats"]
+		st["por_capitulo"] = {"1": [3, 1, 0], "2": [2, 4, 1], "3": [1, 7, 2]}
+		st["mortes_pagina"] = {"1": {"5": 1}, "2": {"3": 1, "6": 2, "8": 1}, "3": {"4": 5, "8": 2}}
+		h._abrir_painel_stats())
 	await _hub("recompensa", func(h): h._mostrar_popup_recompensa_diaria(3))
 	await _hub("compra", func(h): h._abrir_popup_compra("clipes"))
 

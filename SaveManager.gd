@@ -61,7 +61,9 @@ var _defaults: Dictionary = {
 		# Chaves dinâmicas (uma por capítulo): ver _mesclar_com_defaults
 		"por_capitulo": {},
 		# Melhor página alcançada por capítulo: {"<cap>": página 1..8}
-		"melhor_pagina": {}
+		"melhor_pagina": {},
+		# Em que página o jogador perdeu: {"<cap>": {"<página>": derrotas}}
+		"mortes_pagina": {}
 	},
 	# Tokens das compras no app já entregues (evita entregar duas vezes)
 	"compras_tokens": [],
@@ -170,6 +172,15 @@ func registrar_capitulo(cap: int, venceu: bool, no_chefe: bool) -> void:
 			c[2] = int(c[2]) + 1
 	tabela[str(cap)] = c
 	dados["stats"]["por_capitulo"] = tabela
+
+## Teste fechado: em que página cada derrota aconteceu, para ver onde o
+## jogo fica difícil demais (painel "Stats de teste").
+func registrar_morte_pagina(cap: int, pagina: int) -> void:
+	var tabela: Dictionary = dados["stats"].get("mortes_pagina", {})
+	var por_pag: Dictionary = tabela.get(str(cap), {})
+	por_pag[str(pagina)] = int(por_pag.get(str(pagina), 0)) + 1
+	tabela[str(cap)] = por_pag
+	dados["stats"]["mortes_pagina"] = tabela
 
 ## Recorde de página do capítulo (0 = nunca jogou). Página 8 = chegou ao chefe.
 func get_melhor_pagina(cap: int) -> int:

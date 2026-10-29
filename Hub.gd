@@ -2758,7 +2758,9 @@ func _abrir_painel_stats() -> void:
 
 	var papel = ColorRect.new()
 	papel.color = Color(0.98, 0.965, 0.93)
-	papel.size = Vector2(820, 1280)
+	# Cresce com as linhas por capítulo (cabem 3 na altura base; ~48 px cada)
+	var n_caps: int = SaveManager.dados["stats"].get("por_capitulo", {}).size()
+	papel.size = Vector2(820, min(1820.0, 1280.0 + max(0, n_caps - 3) * 50.0))
 	papel.set_anchors_preset(Control.PRESET_CENTER)
 	papel.position = -papel.size / 2.0
 	overlay.add_child(papel)
@@ -2864,23 +2866,30 @@ func _abrir_painel_stats() -> void:
 		grid.add_child(lbl_valor)
 
 	# Vitórias e derrotas por capítulo (só partidas normais; o atalho de teste
-	# não conta). "chefe" = derrotas na página do chefe.
+	# não conta). "chefe" = derrotas na página do chefe. Depois, em que
+	# páginas perdeu: "pág. 4×5" = 5 derrotas na página 4.
 	var por_cap: Dictionary = s.get("por_capitulo", {})
+	var mortes: Dictionary = s.get("mortes_pagina", {})
 	var lbl_caps = Label.new()
 	if por_cap.is_empty():
 		lbl_caps.text = "Por capítulo: ainda sem partidas"
 	else:
-		var partes: Array = []
+		var linhas_cap: Array = []
 		for cap in range(1, 11):
 			if por_cap.has(str(cap)):
 				var c: Array = por_cap[str(cap)]
-				partes.append("C%d: %dV %dD (%d chefe)" % [cap, int(c[0]), int(c[1]), int(c[2])])
-		var linhas_cap: Array = []
-		for i in range(0, partes.size(), 2):
-			linhas_cap.append("   ".join(partes.slice(i, i + 2)))
+				var linha := "C%d: %dV %dD (%d chefe)" % [cap, int(c[0]), int(c[1]), int(c[2])]
+				var por_pag: Dictionary = mortes.get(str(cap), {})
+				var pags: Array = []
+				for pag in range(1, 9):
+					if por_pag.has(str(pag)):
+						pags.append("%d×%d" % [pag, int(por_pag[str(pag)])])
+				if not pags.is_empty():
+					linha += "  · pág. " + ", ".join(pags)
+				linhas_cap.append(linha)
 		lbl_caps.text = "\n".join(linhas_cap)
 	lbl_caps.add_theme_font_override("font", fonte)
-	lbl_caps.add_theme_font_size_override("font_size", 26)
+	lbl_caps.add_theme_font_size_override("font_size", 32)
 	lbl_caps.add_theme_color_override("font_color", Color("002867"))
 	lbl_caps.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	vbox.add_child(lbl_caps)
@@ -2905,6 +2914,7 @@ func _abrir_painel_stats() -> void:
 		for chave in ["partidas_jogadas", "monstros_derrotados", "tinta_coletada_total", "gotas_coletadas", "gotas_secas", "tempo_jogado_seg"]:
 			SaveManager.dados["stats"][chave] = 0
 		SaveManager.dados["stats"]["por_capitulo"] = {}
+		SaveManager.dados["stats"]["mortes_pagina"] = {}
 		_salvar_dados()
 		_tocar_som(audio_click_sucesso)
 		overlay.queue_free()

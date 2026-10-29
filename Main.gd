@@ -774,6 +774,9 @@ func _processar_fim_de_jogo(venceu: bool) -> void:
 			wave_manager.pagina_atual >= GameData.PAGINAS.size())
 		SaveManager.registrar_melhor_pagina(capitulo_atual,
 			clamp(wave_manager.pagina_atual, 1, GameData.PAGINAS.size()))
+		if not venceu:
+			SaveManager.registrar_morte_pagina(capitulo_atual,
+				clamp(wave_manager.pagina_atual, 1, GameData.PAGINAS.size()))
 
 	# Se venceu, desbloqueia o próximo capítulo
 	var texto_desbloqueio = ""
