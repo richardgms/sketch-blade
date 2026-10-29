@@ -538,37 +538,48 @@ func _montar_tela_capitulo() -> void:
 	botao_cap_direita.offset_left = -230.0
 	botao_cap_direita.offset_right = -120.0
 
-	# Nome do capítulo maior e escuro; "MODO NORMAL" com sublinhado verde
-	nome_capitulo.offset_top = 495.0
-	nome_capitulo.offset_bottom = 590.0
+	# Nome do capítulo maior e escuro; "MODO NORMAL" entre dois traços verdes
+	nome_capitulo.offset_top = 490.0
+	nome_capitulo.offset_bottom = 585.0
 	nome_capitulo.add_theme_font_size_override("font_size", 64)
 	nome_capitulo.add_theme_color_override("font_color", COR_TEXTO)
 	var dif: Label = $HUD/TelaLutar/DificuldadeLabel
-	dif.offset_top = 585.0
-	dif.offset_bottom = 635.0
-	var sub_verde: TextureRect = _adicionar_sublinhado(tela_lutar, 622.0, 130.0)
-	sub_verde.offset_bottom = 652.0
-	sub_verde.modulate = Color(0.2, 0.6, 0.2, 0.85)
+	dif.offset_top = 598.0
+	dif.offset_bottom = 648.0
+	var tracos := Control.new()
+	tracos.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_posicionar_centro(tracos, 594.0, 656.0, 150.0)
+	tracos.draw.connect(_desenhar_tracos_modo.bind(tracos))
+	tela_lutar.add_child(tracos)
 
-	# Ilustração do objeto do capítulo
-	boss_icon.offset_top = 665.0
-	boss_icon.offset_bottom = 1095.0
-
+	# Bloco de baixo (frase, recorde, trilha, regra) colado no botão LUTAR:
+	# ancorado ao rodapé real, como o botão. Valores pensados em 1920 de altura.
 	lbl_frase_cap = Label.new()
 	lbl_frase_cap.add_theme_font_override("font", fonte_texto)
 	lbl_frase_cap.add_theme_font_size_override("font_size", 40)
 	lbl_frase_cap.add_theme_color_override("font_color", COR_TEXTO)
 	lbl_frase_cap.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	_posicionar_centro(lbl_frase_cap, 1105.0, 1165.0, 480.0)
+	_posicionar_centro(lbl_frase_cap, 1200.0, 1258.0, 480.0)
 	tela_lutar.add_child(lbl_frase_cap)
+	_ancorar_rodape(lbl_frase_cap)
 
-	lbl_recorde_cap = _rich_centro(fonte_texto, 34, COR_AZUL_CANETA, 1180.0, 1230.0)
+	lbl_recorde_cap = _rich_centro(fonte_texto, 34, COR_AZUL_CANETA, 1266.0, 1312.0)
+	_ancorar_rodape(lbl_recorde_cap)
 	trilha_cap = Control.new()
 	trilha_cap.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	_posicionar_centro(trilha_cap, 1240.0, 1340.0, 440.0)
+	_posicionar_centro(trilha_cap, 1318.0, 1418.0, 440.0)
 	trilha_cap.draw.connect(_desenhar_trilha.bind(trilha_cap))
 	tela_lutar.add_child(trilha_cap)
-	lbl_regra_cap = _rich_centro(fonte_texto, 32, COR_AZUL_CANETA, 1352.0, 1400.0)
+	_ancorar_rodape(trilha_cap)
+	lbl_regra_cap = _rich_centro(fonte_texto, 32, COR_AZUL_CANETA, 1428.0, 1474.0)
+	_ancorar_rodape(lbl_regra_cap)
+
+	# Ilustração maior: ocupa do "MODO NORMAL" até a frase (cresce em tela alta)
+	boss_icon.offset_left = -290.0
+	boss_icon.offset_right = 290.0
+	boss_icon.offset_top = 672.0
+	boss_icon.anchor_bottom = 1.0
+	boss_icon.offset_bottom = 1196.0 - 1920.0
 
 	# Botão principal cheio: azul com letra branca e moldura de caneta
 	botao_jogar.flat = false
@@ -588,6 +599,23 @@ func _montar_tela_capitulo() -> void:
 			sb.draw_center = false
 		botao_jogar.add_theme_stylebox_override(estado, sb)
 	botao_jogar.draw.connect(_desenhar_moldura_botao.bind(botao_jogar))
+
+## Prende o controle ao rodapé (anchor 1.0), mantendo a posição em 1920.
+func _ancorar_rodape(c: Control) -> void:
+	c.anchor_top = 1.0
+	c.anchor_bottom = 1.0
+	c.offset_top -= 1920.0
+	c.offset_bottom -= 1920.0
+
+## Dois traços verdes de caneta, acima e abaixo do "MODO NORMAL" (sem laterais).
+func _desenhar_tracos_modo(c: Control) -> void:
+	var cor := Color(0.2, 0.6, 0.2, 0.9)
+	for y in [2.0, c.size.y - 2.0]:
+		var pts: PackedVector2Array = []
+		for i in range(17):
+			var t: float = float(i) / 16.0
+			pts.append(Vector2(t * c.size.x, y + sin(i * 1.7 + y) * 0.8))
+		c.draw_polyline(pts, cor, 2.5, true)
 
 func _posicionar_centro(c: Control, y0: float, y1: float, meia_largura: float) -> void:
 	c.anchor_left = 0.5
