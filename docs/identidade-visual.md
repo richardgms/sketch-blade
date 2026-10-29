@@ -14,7 +14,7 @@ Guia geral (não é regra fixa: cada tela é um caso). Tirado do que o Richard a
 - **Um azul só: `#0047ab`**, em bolinhas, botões, números, textos de ação, barra de XP, gota de tinta e LUTAR da barra. Tons de azul diferentes incomodam: ele mandou unificar todos.
 - `#002867` (azul mais carregado) só em contornos e títulos.
 - Verde `#2e7d32`: "concluído", "MODO NORMAL". O verde de destaque (página atual) precisa ser **claro** (`#6fd877`), senão confunde com o azul de longe.
-- Vermelho `#c62828`: selo/carimbo e ações destrutivas (ABANDONAR).
+- Vermelho `#c62828`: selo/carimbo, ações destrutivas (ABANDONAR) e **vida** (coração e barra de vida do combate: preenchimento riscado `assets/ui/barra_vida_riscada.png`, gerado no ChatGPT a partir do botão azul; original 720x160 em `Documentos\Sketch Blade - design\hub-novo\gerados\`).
 - Amarelo marca-texto: uma novidade por tela ("Capítulo N desbloqueado!"), **sem enfeites** em volta (tracinhos foram cortados).
 
 ## Traço e formas
