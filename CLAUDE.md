@@ -20,4 +20,4 @@ Jogo mobile (Android, retrato) em **Godot 4.7** (GL Compatibility), GDScript. Ro
 
 ## Documentação
 - Publicação e histórico: `docs/plano-publicacao.md` · Compras: `docs/plano-compras.md` · Loja: `docs/ficha-da-loja.md` · Chefes e combate: `docs/chefes.md` · Próximas melhorias: `docs/proximas-melhorias.md` · **Identidade visual (ler antes de qualquer tela nova): `docs/identidade-visual.md`**
-- Página de acompanhamento: https://claude.ai/artifact/XvFoxxh9Kpb1AynTtDaumW
+- Página de acompanhamento: https://claude.ai/artifact/XvFoxxh9Kpb1AynTtDaumW · Melhorias visuais: https://claude.ai/artifact/VdK88T7PA2HgKCCBubEKrg · Sons: https://claude.ai/artifact/YUAvgQ6UbbRQ3YMqvN3db4
