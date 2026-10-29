@@ -203,6 +203,9 @@ func _processar_mergulho(delta: float) -> void:
 			boss.position.x += sin(_tp * 60.0) * 1.5
 			if _tp >= 0.75:
 				_passo(Passo.MERGULHO)
+				var main = boss.get_parent()
+				if main and main.has_method("tocar_rosnado_ataque"):
+					main.tocar_rosnado_ataque()
 		Passo.MERGULHO:
 			boss.position += _dir_mergulho * 1300.0 * delta
 			var p: Vector2 = boss.position

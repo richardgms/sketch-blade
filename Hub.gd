@@ -75,8 +75,8 @@ var oferta_mostrada: Dictionary = {} # moeda -> true (oferta de pacote 1x por vi
 var item_sendo_comprado: String = "clipes" # "clipes" ou "tinta"
 
 # Áudio procedural
-var audio_click_sucesso: AudioStreamWAV
-var audio_click_erro: AudioStreamWAV
+var audio_click_sucesso: AudioStream
+var audio_click_erro: AudioStream
 
 func _adicionar_sublinhado(parent: Control, y_top: float, meio_largura: float) -> TextureRect:
 	var tr = TextureRect.new()
@@ -246,7 +246,7 @@ func _ready() -> void:
 	)
 
 	# Sons procedurais
-	audio_click_sucesso = _gerar_som_procedural(880.0, 0.08, "sin")
+	audio_click_sucesso = preload("res://assets/sons/clique.ogg")
 	audio_click_erro = _gerar_som_procedural(150.0, 0.25, "square")
 	
 	_criar_loja_canetas()
@@ -831,10 +831,8 @@ func _mudar_capitulo(direcao: int) -> void:
 		_salvar_dados()
 		_atualizar_ui_capitulo()
 		
-		# Som procedural de folhear páginas
-		var freq_som = 480.0 + (direcao * 80.0)
-		var som_folha = _gerar_som_procedural(freq_som, 0.06, "sin")
-		_tocar_som(som_folha)
+		# Folhear páginas (mesmo som da página concluída)
+		_tocar_som(preload("res://assets/sons/pagina.ogg"))
 
 func _alterar_aba(nova_aba: String) -> void:
 	aba_ativa = nova_aba

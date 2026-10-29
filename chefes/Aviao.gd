@@ -63,6 +63,7 @@ func processar(delta: float) -> void:
 		Fase.AVISO:
 			if _t >= TEMPO_AVISO_RASANTE:
 				_ir(Fase.RASANTE)
+				_rosnar()
 		Fase.RASANTE:
 			_processar_rasante(delta)
 		Fase.VOLTANDO:
@@ -76,6 +77,7 @@ func processar(delta: float) -> void:
 			boss.position.x += sin(_t * 60.0) * 1.5
 			if _t >= 0.75:
 				_ir(Fase.MERGULHO)
+				_rosnar()
 		Fase.MERGULHO:
 			boss.position += _dir_mergulho * (1250.0 if _furioso() else 1050.0) * delta
 			var p: Vector2 = boss.position
@@ -143,6 +145,11 @@ func _escolher_ataque() -> void:
 			_esquadrilha_tiros = 0
 			boss._avisar_leque()
 			_ir(Fase.ESQUADRILHA)
+
+func _rosnar() -> void:
+	var main = boss.get_parent()
+	if main and main.has_method("tocar_rosnado_ataque"):
+		main.tocar_rosnado_ataque()
 
 ## Escolhe a altura e a brecha do próximo rasante e mostra o aviso na borda.
 func _preparar_rasante() -> void:

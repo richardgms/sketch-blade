@@ -76,10 +76,10 @@ var _pool_partculas: Array = []
 # Atributos por nível do Estojo agora vivem em GameData (10 níveis)
 
 # Áudio procedural
-var audio_hit: AudioStreamWAV
-var audio_kill: AudioStreamWAV
-var audio_dano: AudioStreamWAV
-var audio_vitoria: AudioStreamWAV
+var audio_hit: AudioStream
+var audio_kill: AudioStream
+var audio_dano: AudioStream
+var audio_vitoria: AudioStream
 
 # Sistema de Upgrades Roguelite
 var menu_upgrades: Control
@@ -137,10 +137,11 @@ func _ready() -> void:
 	
 	_aplicar_upgrades_rpg()
 	
-	# Gera sons procedurais
-	audio_kill = _gerar_som_procedural(1450.0, 0.08, "sin")
-	audio_hit = _gerar_som_procedural(950.0, 0.05, "sin")
-	audio_dano = _gerar_som_procedural(200.0, 0.15, "square")
+	# Sons gravados (assets/sons, CC0; créditos em docs/sons.md). O bipe
+	# de "vitória" continua nos momentos menores (descanso, roleta, bônus).
+	audio_kill = SONS["morte"]
+	audio_hit = SONS["gota"] # coleta da gota de tinta
+	audio_dano = SONS["dano"]
 	audio_vitoria = _gerar_som_procedural(600.0, 0.6, "sin")
 	
 	_atualizar_hud()
@@ -525,6 +526,7 @@ func _finalizar_derrota() -> void:
 	SaveManager.limpar_run_snapshot() # Run encerrada: nada a retomar
 	boss_hp_bar.visible = false
 	_processar_fim_de_jogo(false)
+	_tocar_som(SONS["derrota"])
 	get_tree().paused = true
 	menu_game_over.visible = true
 
@@ -724,7 +726,7 @@ func _on_fase_concluida() -> void:
 	
 	_processar_fim_de_jogo(true)
 	
-	_tocar_som(audio_vitoria)
+	_tocar_som(SONS["vitoria"])
 	get_tree().paused = true
 	menu_vitoria.visible = true
 
@@ -1156,6 +1158,29 @@ func _spawn_particles(cor: Color, pos: Vector2) -> void:
 		add_child(particles)
 	particles.emitting = true
 
+## Sons gravados (CC0). Fontes e licenças em docs/sons.md.
+const SONS: Dictionary = {
+	"gota": preload("res://assets/sons/gota.ogg"),
+	"morte": preload("res://assets/sons/morte.ogg"),
+	"dano": preload("res://assets/sons/dano.ogg"),
+	"pagina": preload("res://assets/sons/pagina.ogg"),
+	"clique": preload("res://assets/sons/clique.ogg"),
+	"chefe_surge": preload("res://assets/sons/chefe_surge.ogg"),
+	"chefe_ataque": preload("res://assets/sons/chefe_ataque.ogg"),
+	"vitoria": preload("res://assets/sons/vitoria.ogg"),
+	"derrota": preload("res://assets/sons/derrota.ogg"),
+}
+
+## Rosnado do chefe ao descer para atacar (rasante e mergulho). Espaçado
+## para não repetir em ataques seguidos.
+var _ultimo_rosnado_ms: int = -10000
+func tocar_rosnado_ataque() -> void:
+	var agora := Time.get_ticks_msec()
+	if agora - _ultimo_rosnado_ms < 1500:
+		return
+	_ultimo_rosnado_ms = agora
+	_tocar_som(SONS["chefe_ataque"], randf_range(0.95, 1.05))
+
 func _tocar_som(stream: AudioStream, pitch: float = 1.0) -> void:
 	if stream == null or not SaveManager.dados.get("som_ativo", true):
 		return
@@ -1499,8 +1524,7 @@ func _animar_virada_pagina(numero: int) -> void:
 	folha.add_child(lbl)
 
 	# Som de folhear
-	var som_folha = _gerar_som_procedural(520.0, 0.08, "sin")
-	_tocar_som(som_folha)
+	_tocar_som(SONS["pagina"])
 
 	var tween = create_tween()
 	tween.tween_property(folha, "position:x", 0.0, 0.3).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
@@ -1847,8 +1871,7 @@ func _on_botao_pausa_pressed() -> void:
 		return
 		
 	# Som de clique
-	var som_clic = _gerar_som_procedural(440.0, 0.1, "sin")
-	_tocar_som(som_clic)
+	_tocar_som(SONS["clique"])
 	
 	# Preenche o histórico de upgrades do jogador
 	_atualizar_habilidades_pausa()
@@ -1950,8 +1973,7 @@ func _on_retomar_pausa_pressed() -> void:
 	menu_pausa.visible = false
 	
 	# Som de clique
-	var som_clic = _gerar_som_procedural(880.0, 0.05, "sin")
-	_tocar_som(som_clic)
+	_tocar_som(SONS["clique"])
 	
 	label_contagem.visible = true
 	

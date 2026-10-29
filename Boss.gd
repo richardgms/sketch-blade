@@ -285,6 +285,9 @@ func _processar_telegrafo(delta: float) -> void:
 	if timer_telegrafo <= 0.0:
 		modulate = Color.WHITE
 		estado = EstadoBoss.MERGULHO
+		var main_som = get_parent()
+		if main_som and main_som.has_method("tocar_rosnado_ataque"):
+			main_som.tocar_rosnado_ataque()
 		# Trava a direção do mergulho apontando para o jogador
 		var player_node = get_tree().get_first_node_in_group("player")
 		if player_node:

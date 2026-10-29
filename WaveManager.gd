@@ -235,9 +235,8 @@ func _preparar_boss() -> void:
 	var main_node = get_parent()
 	if main_node:
 		main_node._spawn_feedback("CUIDADO: BOSS!", "miss", Vector2(540, 960))
-		# Som de alerta do boss
-		var som_boss = main_node._gerar_som_procedural(150.0, 0.4, "square")
-		main_node._tocar_som(som_boss)
+		# Chefe surge: rosnado grave + explosão abafada
+		main_node._tocar_som(main_node.SONS["chefe_surge"])
 
 	# Espera 2.5s dramáticos e spawna o Boss
 	await get_tree().create_timer(2.5).timeout
