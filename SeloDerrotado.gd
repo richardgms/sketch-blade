@@ -27,8 +27,8 @@ func _draw() -> void:
 	draw_arc(c, r - 46.0, 0.0, TAU, 128, COR, 4.0, true)
 	# Textos em arco entre os anéis
 	var r_texto: float = r - 25.0
-	_texto_curvo("CAPÍTULO %d" % capitulo, c, r_texto, 30, true)
-	_texto_curvo(nome_chefe, c, r_texto, 28 if nome_chefe.length() <= 14 else 24, false)
+	_texto_curvo("CAPÍTULO %d" % capitulo, c, r_texto, 36, true)
+	_texto_curvo(nome_chefe, c, r_texto, 34 if nome_chefe.length() <= 14 else 30, false)
 	# Pontinhos separando os dois arcos
 	draw_circle(c + Vector2(-r_texto, 0.0), 6.0, COR)
 	draw_circle(c + Vector2(r_texto, 0.0), 6.0, COR)
