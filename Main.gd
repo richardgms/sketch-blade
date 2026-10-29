@@ -875,7 +875,7 @@ func _criar_tela_derrota() -> void:
 ## barra do chefe abaixo de "Página X/8" (antes os dois se sobrepunham).
 func _ajustar_hud_combate() -> void:
 	var coracao := TextureRect.new()
-	coracao.texture = load("res://assets/upgrade2.svg")
+	coracao.texture = load("res://assets/ui/icone_coracao.png") # o mesmo da "Partida em andamento"
 	coracao.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	coracao.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 	coracao.position = Vector2(22, 22)
@@ -885,6 +885,7 @@ func _ajustar_hud_combate() -> void:
 	$HUD.move_child(coracao, hp_bar.get_index())
 	hp_bar.offset_left = 96.0
 	hp_bar.offset_right = 356.0
+	_estilizar_barra_vida()
 	hp_texto_label.offset_left = 372.0
 	hp_texto_label.offset_right = 560.0
 	hp_texto_label.offset_top = 22.0
@@ -1037,6 +1038,27 @@ func _atualizar_hud() -> void:
 		hp_texto_label.text = str(player.vidas) + " / " + str(player.vidas_max)
 	
 	tinta_label.text = str(tinta_partida)
+
+## Barra de vida da caneta: preenchimento riscado à mão em vermelho (mesmo
+## traço do botão LUTAR, gerado no ChatGPT) sobre fundo branco com contorno.
+## Cantos fixos (9 fatias) para o risco não esmagar quando a barra encurta.
+func _estilizar_barra_vida() -> void:
+	var tex: Texture2D = load("res://assets/ui/barra_vida_riscada.png")
+	if tex == null:
+		return
+	var cheio := StyleBoxTexture.new()
+	cheio.texture = tex
+	cheio.texture_margin_left = 12.0
+	cheio.texture_margin_right = 12.0
+	cheio.texture_margin_top = 10.0
+	cheio.texture_margin_bottom = 10.0
+	var fundo := StyleBoxFlat.new()
+	fundo.bg_color = Color(1, 1, 1, 0.92)
+	fundo.border_color = Color(Color("8e1b1b"), 0.55)
+	fundo.set_border_width_all(2)
+	fundo.set_corner_radius_all(12)
+	hp_bar.add_theme_stylebox_override("fill", cheio)
+	hp_bar.add_theme_stylebox_override("background", fundo)
 
 ## Barra de vida do chefe no estilo do caderno: vermelho sobre papel, com
 ## contorno de caneta (o padrão do Godot era cinza sobre cinza, ilegível).
