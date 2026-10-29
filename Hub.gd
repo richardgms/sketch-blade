@@ -1156,6 +1156,12 @@ func _animar_tracinho_novo(tracinhos: Control, nivel_anterior: int) -> void:
 	)
 
 func _on_botao_jogar_pressed() -> void:
+	# Com partida salva, LUTAR não apaga nada sem avisar: mostra o aviso de
+	# retomar (só "Descartar" apaga a partida).
+	if SaveManager.tem_run_ativa():
+		if not $HUD.has_node("PromptRetomarRun"):
+			_mostrar_prompt_retomar_run()
+		return
 	# Iniciar pelo botão = run nova: garante que não haja snapshot antigo e que
 	# o Main não entre em modo de restauração.
 	SaveManager.retomar_run_pendente = false
