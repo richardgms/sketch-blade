@@ -287,21 +287,113 @@ func _versao_amigo(m: Node, carimbado: bool) -> void:
 	_botao_cheio(c, "VOLTAR AO CADERNO", Rect2(130, 1608, 820, 125), 60)
 	_botao_contorno(c, "DOBRAR TINTA", Rect2(150, 1768, 780, 100), "res://assets/ads.svg", 48)
 
+## Chefe com dessaturação PARCIAL: tira ~50% da cor do corpo, preserva os
+## vermelhos (olhos) e não clareia nem deixa transparente.
+func _chefe_parcial(pai: Control, rect: Rect2, desat: float) -> TextureRect:
+	var arte := _chefe(pai, rect, 0.0)
+	var sh := Shader.new()
+	sh.code = """shader_type canvas_item;
+uniform float desat : hint_range(0.0, 1.0) = 0.0;
+void fragment() {
+	vec4 c = COLOR;
+	float g = dot(c.rgb, vec3(0.299, 0.587, 0.114));
+	// vermelho forte (olhos, detalhes) fica intacto
+	float vermelho = clamp((c.r - max(c.g, c.b)) * 3.0, 0.0, 1.0);
+	vec3 suave = mix(c.rgb, vec3(g), 0.5 * desat);
+	c.rgb = mix(suave, c.rgb, vermelho);
+	COLOR = c;
+}"""
+	var mat := ShaderMaterial.new(); mat.shader = sh
+	mat.set_shader_parameter("desat", desat)
+	arte.material = mat
+	return arte
+
+## Botão de anúncio: vídeo + "Ver anúncio ·" + gota + "+1.058".
+func _botao_anuncio(pai: Control, rect: Rect2, recebido: bool) -> void:
+	_botao_contorno(pai, "", rect)
+	var linha := HBoxContainer.new()
+	linha.alignment = BoxContainer.ALIGNMENT_CENTER
+	linha.add_theme_constant_override("separation", 14)
+	linha.position = rect.position + Vector2(0, 6)
+	linha.size = rect.size
+	linha.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	pai.add_child(linha)
+	var cor := Color("2e9e44") if recebido else AZUL
+	var partes: Array = [["res://assets/ads.svg", ""], ["", "Ver anúncio ·"], ["res://assets/ink.svg", ""], ["", "+1.058"]]
+	if recebido:
+		partes = [["", "Bônus recebido  ✓"]]
+	for p in partes:
+		if p[0] != "":
+			var ic := TextureRect.new()
+			ic.texture = load(p[0])
+			ic.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+			ic.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+			ic.custom_minimum_size = Vector2(58, 58)
+			ic.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+			if p[0].ends_with("ads.svg"):
+				ic.modulate = AZUL
+			linha.add_child(ic)
+		else:
+			var l := Label.new()
+			l.text = p[1]
+			l.add_theme_font_override("font", NUM if p[1].begins_with("+") else FONTE)
+			l.add_theme_font_size_override("font_size", 58 if p[1].begins_with("+") else 46)
+			l.add_theme_color_override("font_color", cor)
+			l.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+			linha.add_child(l)
+
+## Versão combinada (pedido de 29/10): estrutura do amigo + barra de XP do
+## conselho. estado: "colorido" (antes do carimbo), "final", "bonus", "repetida".
+func _versao_mista(m: Node, estado: String) -> void:
+	var c := _camada(m)
+	var carimbado := estado != "colorido"
+	_txt(c, "CAPÍTULO CONCLUÍDO!", 74, VERDE, 70, 170)
+	_linha(c, 170, 910, 180, Color(VERDE, 0.85), 5.0)
+	_chefe_parcial(c, Rect2(190, 215, 700, 640), 1.0 if carimbado else 0.0)
+	if carimbado:
+		_selo(c, Vector2(800, 760), 0.5, -10.0)
+	var com_bonus := estado == "bonus"
+	_txt(c, "Tinta conquistada (com anúncio)" if com_bonus else "Tinta conquistada", 36, Color(AZUL_ESCURO, 0.8), 885, 930)
+	var total := "+2.116 tinta" if com_bonus else "+1.058 tinta"
+	var tw: float = NUM.get_string_size(total, HORIZONTAL_ALIGNMENT_LEFT, -1, 130).x
+	var gota := TextureRect.new()
+	gota.texture = load("res://assets/ink.svg")
+	gota.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	gota.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	gota.size = Vector2(96, 96)
+	gota.position = Vector2(540 - (tw + 110) / 2.0, 952)
+	c.add_child(gota)
+	_txt(c, total, 130, AZUL, 925, 1075, NUM, 540 - (tw + 110) / 2.0 + 110, 540 + (tw + 110) / 2.0 + 20, HORIZONTAL_ALIGNMENT_LEFT)
+	var linhas := [["Tinta coletada", "+420"], ["Bônus de vidas", "+336"], ["Bônus do capítulo", "+302"]]
+	if com_bonus:
+		linhas.append(["Bônus do anúncio", "+1.058"])
+	for i in linhas.size():
+		var y := 1090.0 + i * 58.0
+		_txt(c, linhas[i][0], 42, AZUL_ESCURO, y, y + 56, FONTE, 220, 700, HORIZONTAL_ALIGNMENT_LEFT)
+		_txt(c, linhas[i][1], 46, AZUL_ESCURO, y, y + 56, NUM, 700, 860, HORIZONTAL_ALIGNMENT_RIGHT)
+	var y_xp := 1090.0 + linhas.size() * 58.0 + 30.0
+	_linha(c, 200, 880, y_xp - 12.0, Color(AZUL_ESCURO, 0.45), 2.5)
+	# Barra de XP: nível 6, 340 + 110 = 450 de 5500 (preenchimento real)
+	var barra := Control.new()
+	barra.position = Vector2(200, y_xp); barra.size = Vector2(680, 60)
+	barra.draw.connect(func():
+		var r := Rect2(100, 14, 400, 30)
+		barra.draw_rect(r, Color.WHITE)
+		barra.draw_rect(Rect2(r.position, Vector2(r.size.x * 450.0 / 5500.0, r.size.y)), AZUL)
+		barra.draw_rect(r, AZUL_ESCURO, false, 3.0)
+		barra.draw_string(NUM, Vector2(0, 43), "Nv. 6", HORIZONTAL_ALIGNMENT_LEFT, -1, 42, AZUL_ESCURO)
+		barra.draw_string(NUM, Vector2(518, 43), "+110 XP", HORIZONTAL_ALIGNMENT_LEFT, -1, 40, AZUL_ESCURO))
+	c.add_child(barra)
+	# Desbloqueio num espaço fixo: na vitória repetida some sem mexer nos botões
+	if estado != "repetida":
+		_marca_texto(c, "Capítulo 6 desbloqueado!", 1450)
+	_botao_cheio(c, "VOLTAR AO CADERNO", Rect2(130, 1580, 820, 125), 60)
+	_botao_anuncio(c, Rect2(150, 1740, 780, 100), com_bonus)
+
 func _rodar() -> void:
 	await process_frame
-	var m = await _abrir_vitoria()
-	await create_timer(2.5).timeout
-	await _foto("1-atual"); await _fechar()
-
-	m = await _abrir_vitoria()
-	_versao_conselho(m); await create_timer(0.4).timeout
-	await _foto("2-conselho"); await _fechar()
-
-	m = await _abrir_vitoria()
-	_versao_amigo(m, false); await create_timer(0.4).timeout
-	await _foto("3-amigo-antes-do-carimbo"); await _fechar()
-
-	m = await _abrir_vitoria()
-	_versao_amigo(m, true); await create_timer(0.4).timeout
-	await _foto("3-amigo"); await _fechar()
+	for estado in ["colorido", "final", "bonus", "repetida"]:
+		var m = await _abrir_vitoria()
+		_versao_mista(m, estado); await create_timer(0.4).timeout
+		await _foto("4-mista-" + estado); await _fechar()
 	quit()
