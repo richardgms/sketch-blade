@@ -28,4 +28,4 @@ Fonte única da lista de melhorias depois da 1.5.0. Antes/depois para aprovar: h
 | 7 | **Depois da produção:** Ascensão, maratona de chefes, gasto de tinta extra (níveis, cosméticos), sons e música variada | — | Sim |
 
 ## Feito
-- **Vitória com o chefe (29/10):** `Main._mostrar_chefe_vitoria` usa o desenho e o nome da ficha (`Boss.FICHAS[cap]["nome"]`, com artigo: "o Compasso", "a Mancha"); carimbo DERROTADO bate em 0,5 s e a tinta conta até o total. Print: `bash tools/capturar_telas.sh <pasta> vitoria` (gera `vitoria-animando` e `vitoria`, capítulo 5).
+- **Vitória com o chefe (29/10):** `Main._mostrar_chefe_vitoria` usa o desenho e o nome da ficha (`Boss.FICHAS[cap]["nome"]`, com artigo: "o Compasso", "a Mancha"); selo redondo de carimbo (`SeloDerrotado.gd`: anel duplo, "CAPÍTULO N" e nome do chefe em arco, faixa DERROTADO) bate em 0,5 s; nesse momento o desenho vira preto e branco (shader com parâmetro `cinza`); a tinta conta até o total. Print: `bash tools/capturar_telas.sh <pasta> vitoria` (capítulos 5 e 9, no meio da animação e no fim).
