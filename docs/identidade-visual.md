@@ -40,6 +40,7 @@ Guia geral (não é regra fixa: cada tela é um caso). Tirado do que o Richard a
 - Sempre os desenhos do jogo (`assets/inimigos/chefe_N.png`, `stage N`), não os do rascunho.
 - **Selo redondo vermelho "DERROTADO"** no canto de baixo da arte, inclinado, grande o bastante para ler o anel (capítulo e nome do chefe), **sem cobrir o rosto**.
 - Vitória: o chefe entra colorido e, quando o selo bate, perde parte da cor (~50%, os olhos continuam vermelhos, sem transparência).
+- Derrota: irmã da vitória com título vermelho; mostra até onde chegou (trilha com X vermelho) e o recorde, para motivar a revanche. Frases azuis de motivação grandes (52/50): ele pediu para aumentar de 42/40.
 
 ## Ícones
 - Estilo do rascunho do amigo: **simples**, contorno grosso de caneta, hachura leve, miolo branco, poucos detalhes (a asa ficou boa com 3 dobras; a detalhada não). Sem brilhinhos nem rabiscos em volta.
@@ -48,7 +49,7 @@ Guia geral (não é regra fixa: cada tela é um caso). Tirado do que o Richard a
 ## Informação e recompensa
 - Um "herói" por bloco (o total de tinta), com um rótulo legível ("Tinta conquistada").
 - Detalhar quando ensina algo: os bônus separados (coletada, vidas, capítulo) ficaram, porque mostram que vale terminar com corações.
-- Progressão como barra (XP), não como linha de texto.
+- Progressão como barra (XP), não como linha de texto. A linha "Nv. 6 [barra] +23 XP" fica **centrada na página como um bloco só**.
 - Anúncio: sempre **opcional e explícito** ("Ver anúncio · +1.058"), nunca o botão principal, só funciona depois que a animação termina, e mostra "Bônus recebido ✓" depois.
 
 ## Como ele decide
