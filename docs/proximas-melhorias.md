@@ -2,6 +2,14 @@
 
 Fonte única da lista de melhorias depois da 1.5.0. Antes/depois para aprovar: https://claude.ai/artifact/VdK88T7PA2HgKCCBubEKrg Decisão: conselho de LLMs de 29/10/2026, rodado sobre prints do jogo atual (`tools/capturar_prints.gd` + `tools/capturar_telas.sh`). Uma rodada anterior usou a revisão visual de 27/10, já desatualizada (monstros e chefes já têm arte), e foi descartada.
 
+## Conselho de 29/10 (noite, depois da 1.6.0): som, outra tela ou outra coisa?
+- **Consenso (4 de 5 + todas as revisões):** o gargalo não é qualidade, são os **12 testadores ativos por 14 dias** (hoje 4). Nada de som ou tela move esse número. Também: o fluxo novo (hub, vitória, derrota) nunca foi jogado num aparelho real.
+- **Telas antigas** (roleta, pausa, Estojo, Loja): não redesenhar agora; funcionam e não travam nada.
+- **Som:** hoje não há música e os efeitos são bipes gerados por código. Choque: o Expansionista quer som completo já (efeitos + 2 músicas + volume separado); os outros, só um pacote pequeno de efeitos CC0 (Kenney) no lugar dos bipes, e música depois da produção. Revisores: muita gente joga no mudo; som completo "em 1 dia" foi subestimado.
+- **Pontos cegos (revisão):** manter os testadores ativos (lembrete, grupo, motivo para voltar); conferir se o fluxo novo não quebra o save de quem atualiza da 1.5.0; medir onde o jogador morre já nesta leva; adiantar anúncios reais e "Segurança dos dados" durante a espera.
+- **Ordem:** 1) enviar a 1.6.0 e jogar no celular (dono); 2) recrutar testadores (dono); 3) código: tirar a música de exemplo do plugin do AAB (1,8 MB), painel "página em que morreu", dica das gotas e pedido de avaliação; 4) som pequeno (5–8 efeitos); 5) legibilidade no chefe; depois música, álbum e telas antigas.
+- Achado: `addons/admob/assets/music.ogg` (1,8 MB, exemplo do plugin) vai no AAB sem uso.
+
 ## Veredito
 - **Consenso (5 de 5):** a arte do combate já está no nível da loja (monstros, elite, chefes, roleta). Mais arte de monstro rende pouco.
 - **Onde a arte ainda rende:** onde o jogador para e olha e hoje não vê o que conquistou.
