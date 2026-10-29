@@ -119,11 +119,7 @@ func _ready() -> void:
 		c.offset_top  += shift
 		c.offset_bottom += shift
 
-	# Conteúdo da TelaLutar desce para abrir espaço após o sublinhado
-	var shift_lutar := 70.0
-	for label_node in [$HUD/TelaLutar/NomeCapitulo, $HUD/TelaLutar/DificuldadeLabel]:
-		label_node.offset_top    += shift_lutar
-		label_node.offset_bottom += shift_lutar
+	_montar_tela_capitulo()
 
 	# Ícones inline no Header (ao lado dos labels de saldo, sem tocar no .tscn)
 	_adicionar_icone_header("res://assets/ink.svg",  saldo_tinta_label)
@@ -506,9 +502,208 @@ func _atualizar_ui_capitulo() -> void:
 	botao_cap_direita.disabled = (cap_sel >= cap_desb or cap_sel >= 10)
 	botao_cap_direita.modulate.a = 0.3 if botao_cap_direita.disabled else 1.0
 	
+	if trilha_cap:
+		_atualizar_estado_capitulo(cap_sel)
+
 	# Aplica visual do caderno dinamicamente no Hub
 	if has_node("Paper"):
 		$Paper.configurar_para_capitulo(cap_sel)
+
+# ============================================================
+# TELA DO CAPÍTULO (rascunho do amigo designer, 29/10/2026)
+# ============================================================
+const COR_AZUL_CANETA := Color("0047ab")
+const COR_AZUL_ESCURO := Color("002867")
+const COR_TEXTO := Color(0.1, 0.1, 0.15)
+
+var lbl_frase_cap: Label
+var lbl_recorde_cap: RichTextLabel
+var lbl_regra_cap: RichTextLabel
+var trilha_cap: Control
+var recorde_trilha: int = 0 # páginas pintadas na trilha (0..8)
+
+## Reposiciona os nós do .tscn e cria os textos/trilha novos. Layout pensado
+## em 1080x1920; o botão LUTAR segue ancorado ao rodapé real.
+func _montar_tela_capitulo() -> void:
+	var fonte_texto: Font = load("res://assets/fonts/ArchitectsDaughter-Regular.ttf")
+
+	# Setas sobem para os lados do título: o centro fica livre para a arte
+	for b in [botao_cap_esquerda, botao_cap_direita]:
+		b.anchor_top = 0.0
+		b.anchor_bottom = 0.0
+		b.offset_top = 335.0
+		b.offset_bottom = 445.0
+	botao_cap_esquerda.offset_left = 120.0
+	botao_cap_esquerda.offset_right = 230.0
+	botao_cap_direita.offset_left = -230.0
+	botao_cap_direita.offset_right = -120.0
+
+	# Nome do capítulo maior e escuro; "MODO NORMAL" com sublinhado verde
+	nome_capitulo.offset_top = 495.0
+	nome_capitulo.offset_bottom = 590.0
+	nome_capitulo.add_theme_font_size_override("font_size", 64)
+	nome_capitulo.add_theme_color_override("font_color", COR_TEXTO)
+	var dif: Label = $HUD/TelaLutar/DificuldadeLabel
+	dif.offset_top = 585.0
+	dif.offset_bottom = 635.0
+	var sub_verde: TextureRect = _adicionar_sublinhado(tela_lutar, 622.0, 130.0)
+	sub_verde.offset_bottom = 652.0
+	sub_verde.modulate = Color(0.2, 0.6, 0.2, 0.85)
+
+	# Ilustração do objeto do capítulo
+	boss_icon.offset_top = 665.0
+	boss_icon.offset_bottom = 1095.0
+
+	lbl_frase_cap = Label.new()
+	lbl_frase_cap.add_theme_font_override("font", fonte_texto)
+	lbl_frase_cap.add_theme_font_size_override("font_size", 40)
+	lbl_frase_cap.add_theme_color_override("font_color", COR_TEXTO)
+	lbl_frase_cap.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_posicionar_centro(lbl_frase_cap, 1105.0, 1165.0, 480.0)
+	tela_lutar.add_child(lbl_frase_cap)
+
+	lbl_recorde_cap = _rich_centro(fonte_texto, 34, COR_AZUL_CANETA, 1180.0, 1230.0)
+	trilha_cap = Control.new()
+	trilha_cap.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_posicionar_centro(trilha_cap, 1240.0, 1340.0, 440.0)
+	trilha_cap.draw.connect(_desenhar_trilha.bind(trilha_cap))
+	tela_lutar.add_child(trilha_cap)
+	lbl_regra_cap = _rich_centro(fonte_texto, 32, COR_AZUL_CANETA, 1352.0, 1400.0)
+
+	# Botão principal cheio: azul com letra branca e moldura de caneta
+	botao_jogar.flat = false
+	botao_jogar.text = "LUTAR"
+	botao_jogar.offset_left = -330.0
+	botao_jogar.offset_right = 330.0
+	botao_jogar.offset_top = -415.0
+	botao_jogar.offset_bottom = -290.0
+	botao_jogar.add_theme_font_size_override("font_size", 76)
+	for estado in ["font_color", "font_hover_color", "font_pressed_color", "font_focus_color"]:
+		botao_jogar.add_theme_color_override(estado, Color.WHITE)
+	for estado in ["normal", "hover", "focus", "pressed"]:
+		var sb := StyleBoxFlat.new()
+		sb.bg_color = COR_AZUL_CANETA.darkened(0.25) if estado == "pressed" else COR_AZUL_CANETA
+		sb.set_corner_radius_all(14)
+		if estado == "focus":
+			sb.draw_center = false
+		botao_jogar.add_theme_stylebox_override(estado, sb)
+	botao_jogar.draw.connect(_desenhar_moldura_botao.bind(botao_jogar))
+
+func _posicionar_centro(c: Control, y0: float, y1: float, meia_largura: float) -> void:
+	c.anchor_left = 0.5
+	c.anchor_right = 0.5
+	c.offset_left = -meia_largura
+	c.offset_right = meia_largura
+	c.offset_top = y0
+	c.offset_bottom = y1
+
+## Texto centralizado com números na Caveat (como o resto do jogo).
+func _rich_centro(fonte: Font, tamanho: int, cor: Color, y0: float, y1: float) -> RichTextLabel:
+	var r := RichTextLabel.new()
+	r.bbcode_enabled = true
+	r.scroll_active = false
+	r.fit_content = true
+	r.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	r.add_theme_font_override("normal_font", fonte)
+	r.add_theme_font_size_override("normal_font_size", tamanho)
+	r.add_theme_color_override("default_color", cor)
+	_posicionar_centro(r, y0, y1, 480.0)
+	tela_lutar.add_child(r)
+	return r
+
+func _texto_rich_centro(r: RichTextLabel, texto: String) -> void:
+	r.visible = texto != ""
+	r.text = "[center]" + _bbcode_numeros(texto) + "[/center]"
+
+## Textos e trilha conforme o estado do capítulo selecionado.
+func _atualizar_estado_capitulo(cap: int) -> void:
+	var total: int = GameData.PAGINAS.size()
+	var recorde: int = SaveManager.get_melhor_pagina(cap)
+	recorde_trilha = recorde
+	lbl_frase_cap.text = "Algo se mexe nesta página..."
+	if recorde <= 0:
+		# Primeira vez: só a regra do capítulo, trilha vazia
+		_texto_rich_centro(lbl_recorde_cap, "%d  páginas · o chefe espera na última." % total)
+		_texto_rich_centro(lbl_regra_cap, "")
+	else:
+		if recorde >= total:
+			_texto_rich_centro(lbl_recorde_cap, "Melhor tentativa: chegou ao chefe!")
+		else:
+			_texto_rich_centro(lbl_recorde_cap, "Melhor tentativa: página %d  de %d" % [recorde, total])
+		_texto_rich_centro(lbl_regra_cap, "Nova tentativa começa na página 1.")
+	trilha_cap.queue_redraw()
+
+## Trilha de páginas: 7 casas + o chefe (círculo maior com "?").
+## Casas até o recorde ficam pintadas de azul.
+func _desenhar_trilha(c: Control) -> void:
+	var total: int = GameData.PAGINAS.size()
+	var y: float = c.size.y / 2.0
+	var r_pag: float = 21.0
+	var r_chefe: float = 40.0
+	var x0: float = 30.0
+	var x_chefe: float = c.size.x - r_chefe - 6.0
+	var passo: float = (x_chefe - r_chefe - r_pag - 34.0 - x0) / float(total - 2)
+	var xs: Array = []
+	for i in range(total - 1):
+		xs.append(x0 + passo * i)
+	xs.append(x_chefe)
+	# Traço que liga as casas
+	for i in range(total - 1):
+		var ra: float = r_pag
+		var rb: float = r_chefe if i == total - 2 else r_pag
+		c.draw_line(Vector2(xs[i] + ra, y), Vector2(xs[i + 1] - rb, y), COR_AZUL_ESCURO, 3.0, true)
+	for i in range(total - 1):
+		var centro := Vector2(xs[i], y)
+		_disco(c, centro, r_pag, COR_AZUL_CANETA if i + 1 <= recorde_trilha else Color(1, 1, 1, 0.9))
+		_circulo_caneta(c, centro, r_pag, COR_AZUL_ESCURO, 3.0, i)
+	# Chefe: "?" até ser vencido
+	var cc := Vector2(x_chefe, y)
+	var chegou: bool = recorde_trilha >= total
+	_disco(c, cc, r_chefe, Color("dbe6f7") if chegou else Color(1, 1, 1, 0.9))
+	_circulo_caneta(c, cc, r_chefe, COR_AZUL_ESCURO, 4.0, 99)
+	var fonte: Font = load("res://assets/fonts/ArchitectsDaughter-Regular.ttf")
+	var tam: int = 56
+	var w: float = fonte.get_string_size("?", HORIZONTAL_ALIGNMENT_LEFT, -1, tam).x
+	c.draw_string(fonte, cc + Vector2(-w / 2.0, tam * 0.36), "?", HORIZONTAL_ALIGNMENT_LEFT, -1, tam, COR_AZUL_ESCURO)
+
+func _disco(c: Control, centro: Vector2, raio: float, cor: Color) -> void:
+	var pts: PackedVector2Array = []
+	for i in range(48):
+		var t: float = float(i) / 48.0 * TAU
+		pts.append(centro + Vector2(cos(t), sin(t)) * raio)
+	c.draw_colored_polygon(pts, cor)
+
+## Círculo de caneta com leve tremor determinístico (semente = casa).
+func _circulo_caneta(c: Control, centro: Vector2, raio: float, cor: Color, espessura: float, semente: int) -> void:
+	var pontos: PackedVector2Array = []
+	var n: int = 48
+	for i in range(n + 1):
+		var t: float = float(i) / n * TAU * 1.06 + semente
+		var rr: float = raio + sin(i * 2.1 + semente) * 0.8
+		pontos.append(centro + Vector2(cos(t), sin(t)) * rr)
+	c.draw_polyline(pontos, cor, espessura, true)
+
+## Moldura de caneta por fora do botão cheio: um contorno arredondado,
+## levemente deslocado, como se o botão tivesse sido contornado à mão.
+func _desenhar_moldura_botao(b: Control) -> void:
+	var r: float = 22.0
+	var m: float = -6.0
+	var desloc := Vector2(3.0, 3.0)
+	var w: float = b.size.x
+	var h: float = b.size.y
+	var cantos := [
+		[Vector2(w - m - r, m + r), -PI / 2.0], [Vector2(w - m - r, h - m - r), 0.0],
+		[Vector2(m + r, h - m - r), PI / 2.0], [Vector2(m + r, m + r), PI]]
+	var pontos: PackedVector2Array = []
+	var idx: int = 0
+	for canto in cantos:
+		for i in range(9):
+			var a: float = canto[1] + float(i) / 8.0 * PI / 2.0
+			pontos.append(canto[0] + Vector2(cos(a), sin(a)) * r + desloc
+				+ Vector2(sin(idx * 7.31), cos(idx * 5.17)) * 1.2)
+			idx += 1
+	pontos.append(pontos[0] + Vector2(-14.0, -1.5))
+	b.draw_polyline(pontos, Color(COR_AZUL_ESCURO, 0.9), 3.5, true)
 
 func _mudar_capitulo(direcao: int) -> void:
 	var novo_cap = dados_save["capitulo_selecionado"] + direcao
