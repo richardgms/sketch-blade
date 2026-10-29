@@ -78,6 +78,8 @@ func _hub(nome: String, acao: Callable, cap: int = 1, recorde: int = -1) -> void
 func _combate() -> Node:
 	_save(1)
 	var m = _abrir("res://main.tscn"); await create_timer(1.0).timeout
+	# Como no jogo real: o rótulo da página já está na tela ao fim da partida
+	m.label_pagina.text = "Página 8 / 8"; m.label_pagina.visible = true
 	m.player.invencivel = true
 	m.jogo_iniciado = true; m.menu_iniciar.visible = false
 	return m

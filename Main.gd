@@ -734,6 +734,9 @@ func _on_fase_concluida() -> void:
 var run_de_teste: bool = false
 
 func _processar_fim_de_jogo(venceu: bool) -> void:
+	# "Página X / 8" do combate fica por cima das telas de fim: esconde
+	if label_pagina:
+		label_pagina.visible = false
 	# 1. Bônus por vidas (10% por vida)
 	var bonus_vida_pct: int = player.vidas * 10
 	var tinta_bonus_vida: int = int(tinta_partida * (float(bonus_vida_pct) / 100.0)) if venceu else 0

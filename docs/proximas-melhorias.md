@@ -61,6 +61,7 @@ Protótipo `tools/prototipo_derrota.gd` (versões A e B; A aprovada, B sem desen
 - **Código**: `TelaDerrota.gd` (filho de `MenuGameOver`, nós antigos escondidos). `Main._processar_fim_de_jogo` lê `recorde_antes` antes de `registrar_melhor_pagina` e chama `tela_derrota.mostrar(...)`; dobro e falha do anúncio iguais à vitória; voltar do Android pula a animação, depois sai. Removidos o DOBRAR TINTA de colchetes e `_montar_tela_resultado`.
 - **Animação**: desenho entra → trilha se preenche → X bate → recorde → tinta conta; toque pula; botões travados 0,5 s depois.
 - Barra de XP centrada como bloco (nível + barra + XP), na derrota e na vitória (`TelaFim._barra_xp`).
+- Corrigido (29/10): o "Página 8 / 8" do combate (`label_pagina`, criado depois dos menus no HUD) aparecia por cima das telas de fim; `_processar_fim_de_jogo` agora o esconde. O `capturar_telas` preenche esse rótulo no combate para os prints pegarem o caso.
 - Prints: `tools/capturar_telas.sh <pasta> derrota` (página 6, chefe com recorde, 1ª tentativa no cap. 1, animando, bônus).
 
 ## Hub novo: rascunho do amigo designer (29/10) — FEITO (3 telas aprovadas)
