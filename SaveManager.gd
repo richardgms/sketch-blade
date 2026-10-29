@@ -148,6 +148,21 @@ func incrementar_stat(chave: String, quantidade: int = 1) -> void:
 	if dados["stats"].has(chave):
 		dados["stats"][chave] += quantidade
 
+## Teste fechado: vitórias e derrotas por capítulo (e quantas derrotas foram
+## no chefe), para os testadores mandarem print do painel "Stats de teste".
+## Guardado como {"<cap>": [vitórias, derrotas, derrotas no chefe]}.
+func registrar_capitulo(cap: int, venceu: bool, no_chefe: bool) -> void:
+	var tabela: Dictionary = dados["stats"].get("por_capitulo", {})
+	var c: Array = tabela.get(str(cap), [0, 0, 0])
+	if venceu:
+		c[0] = int(c[0]) + 1
+	else:
+		c[1] = int(c[1]) + 1
+		if no_chefe:
+			c[2] = int(c[2]) + 1
+	tabela[str(cap)] = c
+	dados["stats"]["por_capitulo"] = tabela
+
 # ============================================================
 # SNAPSHOT DE RUN (retomar partida interrompida)
 # ============================================================

@@ -2177,7 +2177,7 @@ func _abrir_painel_stats() -> void:
 
 	var papel = ColorRect.new()
 	papel.color = Color(0.98, 0.965, 0.93)
-	papel.size = Vector2(820, 1060)
+	papel.size = Vector2(820, 1280)
 	papel.set_anchors_preset(Control.PRESET_CENTER)
 	papel.position = -papel.size / 2.0
 	overlay.add_child(papel)
@@ -2282,6 +2282,28 @@ func _abrir_painel_stats() -> void:
 		lbl_valor.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		grid.add_child(lbl_valor)
 
+	# Vitórias e derrotas por capítulo (só partidas normais; o atalho de teste
+	# não conta). "chefe" = derrotas na página do chefe.
+	var por_cap: Dictionary = s.get("por_capitulo", {})
+	var lbl_caps = Label.new()
+	if por_cap.is_empty():
+		lbl_caps.text = "Por capítulo: ainda sem partidas"
+	else:
+		var partes: Array = []
+		for cap in range(1, 11):
+			if por_cap.has(str(cap)):
+				var c: Array = por_cap[str(cap)]
+				partes.append("C%d: %dV %dD (%d chefe)" % [cap, int(c[0]), int(c[1]), int(c[2])])
+		var linhas_cap: Array = []
+		for i in range(0, partes.size(), 2):
+			linhas_cap.append("   ".join(partes.slice(i, i + 2)))
+		lbl_caps.text = "\n".join(linhas_cap)
+	lbl_caps.add_theme_font_override("font", fonte)
+	lbl_caps.add_theme_font_size_override("font_size", 26)
+	lbl_caps.add_theme_color_override("font_color", Color("002867"))
+	lbl_caps.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	vbox.add_child(lbl_caps)
+
 	# Botão Zerar (só telemetria) — com confirmação em dois toques
 	var btn_zerar = Button.new()
 	btn_zerar.text = "[ ZERAR ]"
@@ -2301,6 +2323,7 @@ func _abrir_painel_stats() -> void:
 			return
 		for chave in ["partidas_jogadas", "monstros_derrotados", "tinta_coletada_total", "gotas_coletadas", "gotas_secas", "tempo_jogado_seg"]:
 			SaveManager.dados["stats"][chave] = 0
+		SaveManager.dados["stats"]["por_capitulo"] = {}
 		_salvar_dados()
 		_tocar_som(audio_click_sucesso)
 		overlay.queue_free()

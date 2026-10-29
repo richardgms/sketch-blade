@@ -80,4 +80,4 @@ AAB: `Documentos\Sketch Blade - builds\sketchblade-1.1.0-vc4.aab` (43,8 MB; ante
 - 2026-10-24: investigação feita, plano criado.
 
 ## Chefes e combate
-Fonte única: `docs/chefes.md` (regras de design, situação de cada chefe, arquitetura, como testar). Versão 1.4.0 (código 7) gerada em 28/10 com chefes 2, 3 e 5; depois dela vieram os ajustes do teste do Richard (ainda sem build). Próximo: chefes 4, 6 e 9 (versão 1.5).
+Fonte única: `docs/chefes.md` (regras de design, situação de cada chefe, arquitetura, como testar). Versão 1.4.0 (código 7) gerada em 28/10 com chefes 2, 3 e 5. Depois dela: os 10 chefes prontos e calibrados (`docs/equilibrio-chefes.md`), sinal de raiva e contador de vitórias/derrotas por capítulo no painel "Stats de teste" (o atalho "Testar chefe" não conta). **Próximo build: 1.5.0 (código 8).**

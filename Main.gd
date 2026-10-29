@@ -266,6 +266,7 @@ func _on_botao_jogar_pressed() -> void:
 	jogo_iniciado = true
 	menu_iniciar.visible = false
 	player.attack_timer.start()
+	run_de_teste = SaveManager.teste_chefe > 0
 	if SaveManager.teste_chefe > 0:
 		# Modo de teste: vai direto para a página do chefe do capítulo escolhido
 		capitulo_atual = SaveManager.teste_chefe
@@ -761,6 +762,9 @@ func _on_fase_concluida() -> void:
 	get_tree().paused = true
 	menu_vitoria.visible = true
 
+## true quando a partida foi aberta pelo atalho "Testar chefe" (Stats de teste)
+var run_de_teste: bool = false
+
 func _processar_fim_de_jogo(venceu: bool) -> void:
 	# 1. Bônus por vidas (10% por vida)
 	var bonus_vida_pct: int = player.vidas * 10
@@ -802,6 +806,9 @@ func _processar_fim_de_jogo(venceu: bool) -> void:
 		SaveManager.incrementar_stat("bosses_derrotados")
 	if venceu:
 		SaveManager.incrementar_stat("capitulos_vencidos")
+	if not run_de_teste: # atalho "Testar chefe" não entra na conta
+		SaveManager.registrar_capitulo(capitulo_atual, venceu,
+			wave_manager.pagina_atual >= GameData.PAGINAS.size())
 	
 	# Se venceu, desbloqueia o próximo capítulo
 	var texto_desbloqueio = ""
