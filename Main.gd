@@ -865,8 +865,8 @@ var _arte_chefe_vitoria: TextureRect
 var _carimbo_vitoria: Control
 var _tween_vitoria: Tween
 
-## Vitória mostra o chefe que caiu: desenho no alto, carimbo "DERROTADO"
-## batendo por cima, nome certo no subtítulo e a tinta contando até o total.
+## Vitória mostra o chefe que caiu: desenho colorido no alto, selo redondo
+## "DERROTADO" batendo por cima (aí a foto fica preto e branco), nome certo no subtítulo e a tinta contando até o total.
 func _mostrar_chefe_vitoria(tinta_final: int) -> void:
 	var ficha: Dictionary = FICHAS_CHEFE.get(capitulo_atual, FICHAS_CHEFE[1])
 	var sub := menu_vitoria.get_node_or_null("Subtitulo") as Label
@@ -875,6 +875,8 @@ func _mostrar_chefe_vitoria(tinta_final: int) -> void:
 	if not _arte_chefe_vitoria:
 		_criar_arte_vitoria()
 	_arte_chefe_vitoria.texture = load(ficha["arte"])
+	_carimbo_vitoria.configurar(capitulo_atual, ficha["nome"].substr(2))
+	(_arte_chefe_vitoria.material as ShaderMaterial).set_shader_parameter("cinza", 0.0)
 
 	# Estado inicial da animação
 	_arte_chefe_vitoria.modulate.a = 0.0
@@ -894,6 +896,8 @@ func _mostrar_chefe_vitoria(tinta_final: int) -> void:
 	_tween_vitoria.tween_property(_carimbo_vitoria, "modulate:a", 1.0, 0.08).set_delay(0.5)
 	_tween_vitoria.tween_property(_carimbo_vitoria, "scale", Vector2.ONE, 0.18) \
 		.set_delay(0.5).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
+	# Foto perde a cor quando o selo bate
+	_tween_vitoria.tween_property(_arte_chefe_vitoria.material, "shader_parameter/cinza", 1.0, 0.3).set_delay(0.66)
 	# Tranco do chefe quando o carimbo bate
 	_tween_vitoria.tween_property(_arte_chefe_vitoria, "scale", Vector2(0.94, 0.94), 0.06).set_delay(0.68)
 	_tween_vitoria.tween_property(_arte_chefe_vitoria, "scale", Vector2.ONE, 0.12).set_delay(0.74)
@@ -917,42 +921,35 @@ func _criar_arte_vitoria() -> void:
 	menu_vitoria.add_child(arte)
 	_arte_chefe_vitoria = arte
 
-	# Carimbo: moldura vermelha dupla com "DERROTADO", inclinado
-	var cor := Color("c62828")
-	var caixa := PanelContainer.new()
-	var estilo := StyleBoxFlat.new()
-	estilo.bg_color = Color(0.99, 0.97, 0.9, 0.82) # papel por trás: lê sobre o desenho
-	estilo.border_color = cor
-	estilo.set_border_width_all(9)
-	estilo.set_corner_radius_all(14)
-	estilo.content_margin_left = 34.0
-	estilo.content_margin_right = 34.0
-	estilo.content_margin_top = 6.0
-	estilo.content_margin_bottom = 2.0
-	caixa.add_theme_stylebox_override("panel", estilo)
-	var texto := Label.new()
-	texto.text = "DERROTADO"
-	texto.add_theme_font_override("font", preload("res://assets/fonts/ArchitectsDaughter-Regular.ttf"))
-	texto.add_theme_font_size_override("font_size", 86)
-	texto.add_theme_color_override("font_color", cor)
-	texto.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	caixa.add_child(texto)
-	caixa.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	caixa.modulate = Color(1, 1, 1, 0.92)
+	# Foto vira preto e branco quando o selo bate (parâmetro "cinza" 0 → 1)
+	var shader := Shader.new()
+	shader.code = """shader_type canvas_item;
+uniform float cinza : hint_range(0.0, 1.0) = 0.0;
+void fragment() {
+	vec4 c = texture(TEXTURE, UV) * COLOR;
+	float g = dot(c.rgb, vec3(0.299, 0.587, 0.114));
+	c.rgb = mix(c.rgb, vec3(g), cinza);
+	c.rgb = mix(c.rgb, vec3(0.96), cinza * 0.12);
+	COLOR = c;
+}"""
+	var mat := ShaderMaterial.new()
+	mat.shader = shader
+	arte.material = mat
 
-	# Centraliza o carimbo sobre a metade de baixo do desenho
-	var ancora := Control.new()
-	ancora.set_anchors_preset(Control.PRESET_CENTER)
-	ancora.offset_top = -470.0
-	ancora.offset_bottom = -470.0
-	ancora.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	menu_vitoria.add_child(ancora)
-	ancora.add_child(caixa)
-	caixa.reset_size()
-	caixa.position = -caixa.size / 2.0
-	caixa.pivot_offset = caixa.size / 2.0
-	caixa.rotation_degrees = -12.0
-	_carimbo_vitoria = caixa
+	# Selo redondo de carimbo, sobre o canto de baixo do desenho
+	var selo := Control.new()
+	selo.set_script(preload("res://SeloDerrotado.gd"))
+	selo.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	selo.set_anchors_preset(Control.PRESET_CENTER)
+	selo.offset_left = 140.0 - 175.0
+	selo.offset_right = 140.0 + 175.0
+	selo.offset_top = -500.0 - 175.0
+	selo.offset_bottom = -500.0 + 175.0
+	selo.pivot_offset = Vector2(175.0, 175.0)
+	selo.rotation_degrees = -14.0
+	selo.modulate = Color(1, 1, 1, 0.94)
+	menu_vitoria.add_child(selo)
+	_carimbo_vitoria = selo
 
 ## HUD mais legível no celular: coração ao lado da vida, números maiores e a
 ## barra do chefe abaixo de "Página X/8" (antes os dois se sobrepunham).

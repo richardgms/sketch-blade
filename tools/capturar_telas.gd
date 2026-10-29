@@ -112,12 +112,14 @@ func _rodar() -> void:
 		m._processar_fim_de_jogo(false); m.menu_game_over.visible = true
 		await create_timer(0.8).timeout; await _foto("derrota"); await _fechar()
 	if _quer("vitoria"):
-		var m = await _combate()
-		m.capitulo_atual = 5
-		m.tinta_partida = 420; m.monstros_derrotados_partida = 40; m.boss_derrotado_partida = true
-		m._processar_fim_de_jogo(true); m.menu_vitoria.visible = true
-		await create_timer(0.35).timeout; await _foto("vitoria-animando")
-		await create_timer(2.0).timeout; await _foto("vitoria"); await _fechar()
+		# Capítulo 5 (nome curto) e 9 (nome longo no selo)
+		for cap in [5, 9]:
+			var m = await _combate()
+			m.capitulo_atual = cap
+			m.tinta_partida = 420; m.monstros_derrotados_partida = 40; m.boss_derrotado_partida = true
+			m._processar_fim_de_jogo(true); m.menu_vitoria.visible = true
+			await create_timer(0.35).timeout; await _foto("vitoria-cap%d-animando" % cap)
+			await create_timer(2.0).timeout; await _foto("vitoria-cap%d" % cap); await _fechar()
 	if _quer("revive"):
 		var m = await _combate()
 		m.menu_revive.visible = true; await create_timer(0.5).timeout
