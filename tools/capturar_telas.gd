@@ -3,7 +3,7 @@ extends SceneTree
 ##
 ## Uso (precisa de janela, não roda com --headless):
 ##   Godot --path . -s tools/capturar_telas.gd -- <pasta_de_saida> [tela1,tela2,...]
-## Sem lista, captura todas. Telas: hub, hub-cap5-recorde, hub-cap5-chefe, hub-cap5-primeira, hub-cap1/3/4-concluido, retomar, retomar-revive-usado, estojo, loja, missoes, config, recompensa, compra,
+## Sem lista, captura todas. Telas: hub, hub-cap5-recorde, hub-cap5-chefe, hub-cap5-primeira, hub-cap1/3/4-concluido, retomar, retomar-revive-usado, retomar-confirmar, estojo, loja, missoes, config, recompensa, compra,
 ## hud, roleta, pausa, descanso, derrota, vitoria, revive.
 ##
 ## Usa um save fictício, mas alguns eventos gravam o save do PC
@@ -97,6 +97,11 @@ func _rodar() -> void:
 			SaveManager_dados()["run_snapshot"] = {"ativa": true, "capitulo": 5, "pagina": 4, "hp": 3,
 				"tinta_partida": 120, "upgrades": {"tiro_duplo": 1}, "revive_usado": usado}
 			h._mostrar_prompt_retomar_run(), 5, 6)
+	await _hub("retomar-confirmar", func(h):
+		SaveManager_dados()["run_snapshot"] = {"ativa": true, "capitulo": 5, "pagina": 4, "hp": 3,
+			"tinta_partida": 120, "upgrades": {"tiro_duplo": 1}, "revive_usado": false}
+		h._mostrar_prompt_retomar_run()
+		h._confirmar_abandono(h.get_node("HUD/PromptRetomarRun"), load("res://assets/fonts/ArchitectsDaughter-Regular.ttf")), 5, 6)
 	await _hub("estojo", func(h): h._alterar_aba("estojo"))
 	await _hub("loja", func(h): h._alterar_aba("loja"))
 	await _hub("missoes", func(h): h._abrir_painel_missoes())
