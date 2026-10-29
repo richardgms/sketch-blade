@@ -44,7 +44,8 @@ var menu_revive: Control
 var tinta_final_ultima_run: int = 0
 var label_total_vitoria: Label
 var label_total_gameover: Label
-var botao_dobrar_vitoria: Button
+var botao_dobrar_vitoria: Button # só na derrota hoje; a vitória usa TelaVitoria
+var tela_vitoria: Control
 var botao_dobrar_gameover: Button
 
 # Dados de Tinta, Progresso e Save
@@ -110,7 +111,7 @@ func _ready() -> void:
 	if lbl_detalhes_gameover:
 		lbl_detalhes_gameover.add_theme_font_override("font", FONTE_NUMEROS)
 
-	_montar_tela_resultado(menu_vitoria, label_detalhes_vitoria, Color("1b5e20"), true)
+	_criar_tela_vitoria()
 	if lbl_detalhes_gameover:
 		_montar_tela_resultado(menu_game_over, lbl_detalhes_gameover, Color("8e1b1b"), false)
 
@@ -403,6 +404,8 @@ func _tratar_voltar() -> void:
 		_on_botao_recomecar_pressed()
 		return
 	if menu_vitoria and menu_vitoria.visible:
+		if tela_vitoria and tela_vitoria.voltar_do_sistema():
+			return
 		_on_botao_continuar_pressed()
 		return
 	# Já pausado: voltar retoma a partida.
@@ -605,7 +608,6 @@ func _criar_menu_revive() -> void:
 	)
 
 func _criar_botoes_dobrar_tinta() -> void:
-	botao_dobrar_vitoria = _criar_botao_dobrar(menu_vitoria)
 	botao_dobrar_gameover = _criar_botao_dobrar(menu_game_over)
 
 func _criar_botao_dobrar(menu_pai: Control) -> Button:
@@ -658,6 +660,8 @@ func _on_anuncio_falhou(placement: String) -> void:
 				if btn and btn.disabled:
 					btn.disabled = false
 					btn.text = "[ DOBRAR TINTA ]"
+			if tela_vitoria and menu_vitoria.visible:
+				tela_vitoria.anuncio_falhou()
 			_spawn_feedback("FALHA DE REDE!", "miss", Vector2(540, 1500))
 
 func _executar_revive() -> void:
@@ -701,6 +705,8 @@ func _executar_dobro_tinta() -> void:
 	for btn in [botao_dobrar_vitoria, botao_dobrar_gameover]:
 		if btn and btn.disabled:
 			btn.text = "[ +%d RECEBIDO ✓ ]" % tinta_final_ultima_run
+	if tela_vitoria and menu_vitoria.visible:
+		tela_vitoria.bonus_recebido()
 
 	_tocar_som(audio_vitoria)
 
@@ -856,9 +862,23 @@ func _processar_fim_de_jogo(venceu: bool) -> void:
 		linhas.append("Capítulo %d desbloqueado!" % cap_desbloqueado)
 	var texto_total := "+%d tinta" % tinta_final
 	if venceu:
-		label_total_vitoria.text = texto_total
-		label_detalhes_vitoria.text = "\n".join(linhas)
-		_mostrar_chefe_vitoria(tinta_final, cap_desbloqueado)
+		var ficha: Dictionary = FICHAS_CHEFE.get(capitulo_atual, FICHAS_CHEFE[1])
+		tela_vitoria.mostrar({
+			"cap": capitulo_atual,
+			"nome": ficha["nome"].substr(2), # sem o artigo ("o Compasso" → "Compasso")
+			"arte": ficha["arte"],
+			"tinta_partida": tinta_partida,
+			"bonus_vida": tinta_bonus_vida,
+			"bonus_cap": tinta_bonus_cap,
+			"tinta_final": tinta_final,
+			"xp_ganho": xp_ganho,
+			"nivel": dados_save["nivel_conta"],
+			"xp": dados_save["xp_conta"],
+			"xp_req": get_xp_necessario_para_nivel(dados_save["nivel_conta"]),
+			"niveis_ganhos": niveis_ganhos,
+			"clipes": niveis_ganhos * 5,
+			"cap_desbloqueado": cap_desbloqueado,
+		})
 	else:
 		label_total_gameover.text = texto_total
 		var label_gameover = menu_game_over.get_node_or_null("DetalhesGameOver")
@@ -866,142 +886,18 @@ func _processar_fim_de_jogo(venceu: bool) -> void:
 			label_gameover.text = "\n".join(linhas)
 
 const FICHAS_CHEFE: Dictionary = preload("res://Boss.gd").FICHAS
-var _arte_chefe_vitoria: TextureRect
-var _carimbo_vitoria: Control
-var _tween_vitoria: Tween
-var _destaque_desbloqueio: PanelContainer
-
-## Vitória mostra o chefe que caiu: desenho colorido no alto, selo redondo
-## "DERROTADO" batendo por cima (aí a foto fica preto e branco), nome certo no subtítulo e a tinta contando até o total.
-func _mostrar_chefe_vitoria(tinta_final: int, cap_desbloqueado: int = 0) -> void:
-	var ficha: Dictionary = FICHAS_CHEFE.get(capitulo_atual, FICHAS_CHEFE[1])
-	var sub := menu_vitoria.get_node_or_null("Subtitulo") as Label
-	if sub:
-		sub.text = "Você derrotou %s!" % ficha["nome"]
-	if not _arte_chefe_vitoria:
-		_criar_arte_vitoria()
-	_arte_chefe_vitoria.texture = load(ficha["arte"])
-	_carimbo_vitoria.configurar(capitulo_atual, ficha["nome"].substr(2))
-	(_arte_chefe_vitoria.material as ShaderMaterial).set_shader_parameter("cinza", 0.0)
-
-	# Estado inicial da animação
-	_arte_chefe_vitoria.modulate.a = 0.0
-	_arte_chefe_vitoria.scale = Vector2(0.75, 0.75)
-	_carimbo_vitoria.modulate.a = 0.0
-	_carimbo_vitoria.scale = Vector2(2.4, 2.4)
-	label_total_vitoria.text = "+0 tinta"
-	_destaque_desbloqueio.visible = cap_desbloqueado > 0
-	_destaque_desbloqueio.modulate.a = 0.0
-	_destaque_desbloqueio.scale = Vector2(0.6, 0.6)
-	if cap_desbloqueado > 0:
-		var lbl := _destaque_desbloqueio.get_child(0) as Label
-		lbl.text = "Capítulo %d desbloqueado!" % cap_desbloqueado
-		_destaque_desbloqueio.reset_size()
-		_destaque_desbloqueio.position.x = -_destaque_desbloqueio.size.x / 2.0
-		_destaque_desbloqueio.pivot_offset = _destaque_desbloqueio.size / 2.0
-
-	if _tween_vitoria and _tween_vitoria.is_valid():
-		_tween_vitoria.kill()
-	_tween_vitoria = create_tween().set_pause_mode(Tween.TWEEN_PAUSE_PROCESS)
-	_tween_vitoria.set_parallel(true)
-	_tween_vitoria.tween_property(_arte_chefe_vitoria, "modulate:a", 1.0, 0.3)
-	_tween_vitoria.tween_property(_arte_chefe_vitoria, "scale", Vector2.ONE, 0.45) \
-		.set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
-	# Carimbo bate depois que o chefe aparece
-	_tween_vitoria.tween_property(_carimbo_vitoria, "modulate:a", 1.0, 0.08).set_delay(0.5)
-	_tween_vitoria.tween_property(_carimbo_vitoria, "scale", Vector2.ONE, 0.18) \
-		.set_delay(0.5).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
-	# Foto perde a cor quando o selo bate
-	_tween_vitoria.tween_property(_arte_chefe_vitoria.material, "shader_parameter/cinza", 1.0, 0.3).set_delay(0.66)
-	# Tranco do chefe quando o carimbo bate
-	_tween_vitoria.tween_property(_arte_chefe_vitoria, "scale", Vector2(0.94, 0.94), 0.06).set_delay(0.68)
-	_tween_vitoria.tween_property(_arte_chefe_vitoria, "scale", Vector2.ONE, 0.12).set_delay(0.74)
-	# Tinta contando até o total
-	_tween_vitoria.tween_method(func(v: float): label_total_vitoria.text = "+%d tinta" % int(v),
-		0.0, float(tinta_final), 0.9).set_delay(0.8).set_ease(Tween.EASE_OUT)
-	# Destaque do capítulo novo entra depois da contagem
-	if cap_desbloqueado > 0:
-		_tween_vitoria.tween_property(_destaque_desbloqueio, "modulate:a", 1.0, 0.15).set_delay(1.75)
-		_tween_vitoria.tween_property(_destaque_desbloqueio, "scale", Vector2.ONE, 0.35) 			.set_delay(1.75).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
-	_tween_vitoria.chain().tween_callback(func(): label_total_vitoria.text = "+%d tinta" % tinta_final)
-
-func _criar_arte_vitoria() -> void:
-	var arte := TextureRect.new()
-	arte.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-	arte.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-	arte.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	arte.set_anchors_preset(Control.PRESET_CENTER)
-	arte.offset_left = -230.0
-	arte.offset_right = 230.0
-	arte.offset_top = -800.0
-	arte.offset_bottom = -340.0
-	arte.pivot_offset = Vector2(230.0, 230.0)
-	arte.rotation_degrees = -3.0
-	menu_vitoria.add_child(arte)
-	_arte_chefe_vitoria = arte
-
-	# Foto vira preto e branco quando o selo bate (parâmetro "cinza" 0 → 1)
-	var shader := Shader.new()
-	shader.code = """shader_type canvas_item;
-uniform float cinza : hint_range(0.0, 1.0) = 0.0;
-void fragment() {
-	vec4 c = COLOR; // no Godot 4 o COLOR já vem com a textura
-	float g = dot(c.rgb, vec3(0.299, 0.587, 0.114));
-	// Preto e branco suave: tira a cor e clareia em direção ao papel
-	c.rgb = mix(c.rgb, vec3(g), cinza);
-	c.rgb = mix(c.rgb, vec3(0.97, 0.95, 0.9), cinza * 0.35);
-	COLOR = c;
-}"""
-	var mat := ShaderMaterial.new()
-	mat.shader = shader
-	arte.material = mat
-
-	# Selo redondo de carimbo, bem no centro do desenho
-	var selo := Control.new()
-	selo.set_script(preload("res://SeloDerrotado.gd"))
-	selo.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	selo.set_anchors_preset(Control.PRESET_CENTER)
-	selo.offset_left = -180.0
-	selo.offset_right = 180.0
-	selo.offset_top = -570.0 - 180.0 # centro do desenho
-	selo.offset_bottom = -570.0 + 180.0
-	selo.pivot_offset = Vector2(180.0, 180.0)
-	selo.rotation_degrees = -14.0
-	selo.modulate = Color(1, 1, 1, 0.94)
-	menu_vitoria.add_child(selo)
-	_carimbo_vitoria = selo
-
-	# "Capítulo N desbloqueado!": letra de título, azul de caneta, faixa de
-	# marca-texto amarelo por trás (levemente torta, como feita à mão)
-	var ancora_d := Control.new()
-	ancora_d.set_anchors_preset(Control.PRESET_CENTER)
-	ancora_d.offset_top = 300.0
-	ancora_d.offset_bottom = 300.0
-	ancora_d.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	menu_vitoria.add_child(ancora_d)
-	var destaque := PanelContainer.new()
-	var marca := StyleBoxFlat.new()
-	marca.bg_color = Color(1.0, 0.89, 0.25, 0.6)
-	marca.set_corner_radius_all(6)
-	marca.content_margin_left = 22.0
-	marca.content_margin_right = 22.0
-	marca.content_margin_top = 0.0
-	marca.content_margin_bottom = 0.0
-	destaque.add_theme_stylebox_override("panel", marca)
-	destaque.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	destaque.rotation_degrees = -1.5
-	var lbl_d := Label.new()
-	lbl_d.add_theme_font_override("font", preload("res://assets/fonts/ArchitectsDaughter-Regular.ttf"))
-	lbl_d.add_theme_font_size_override("font_size", 46)
-	lbl_d.add_theme_color_override("font_color", Color("1d3fa6"))
-	lbl_d.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	destaque.add_child(lbl_d)
-	ancora_d.add_child(destaque)
-	destaque.visible = false
-	_destaque_desbloqueio = destaque
-	# Espaço para o destaque: CONTINUAR desce um pouco
-	botao_continuar.offset_top += 45.0
-	botao_continuar.offset_bottom += 45.0
+## Tela de vitória redesenhada (TelaVitoria.gd). Os nós antigos do .tscn
+## ficam escondidos; o BotaoContinuar segue ligado ao voltar do Android.
+func _criar_tela_vitoria() -> void:
+	for nome in ["FundoDourado", "Titulo", "Subtitulo", "DetalhesVitoria", "BotaoContinuar"]:
+		var n := menu_vitoria.get_node_or_null(nome)
+		if n:
+			n.visible = false
+	tela_vitoria = Control.new()
+	tela_vitoria.set_script(preload("res://TelaVitoria.gd"))
+	menu_vitoria.add_child(tela_vitoria)
+	tela_vitoria.voltar_pressionado.connect(_on_botao_continuar_pressed)
+	tela_vitoria.anuncio_pressionado.connect(func(): AdsManager.mostrar_rewarded("dobrar_tinta"))
 
 ## HUD mais legível no celular: coração ao lado da vida, números maiores e a
 ## barra do chefe abaixo de "Página X/8" (antes os dois se sobrepunham).
