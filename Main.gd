@@ -1241,7 +1241,10 @@ func spawn_dano_chefe(quantidade: int, critico: bool) -> void:
 		_lbl_dano_chefe.add_theme_color_override("font_outline_color", Color("1a1a2e"))
 		_lbl_dano_chefe.add_theme_constant_override("outline_size", 10)
 		_lbl_dano_chefe.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
-		_lbl_dano_chefe.position = Vector2(boss_hp_bar.offset_right - 300.0, boss_hp_bar.offset_bottom + 2.0)
+		# Encostado na ponta direita da barra (ela é ancorada no centro: usar
+		# a posição real, não os offsets)
+		_lbl_dano_chefe.position = Vector2(boss_hp_bar.position.x + boss_hp_bar.size.x - 300.0,
+			boss_hp_bar.position.y + boss_hp_bar.size.y + 2.0)
 		_lbl_dano_chefe.size = Vector2(300, 56)
 		_lbl_dano_chefe.pivot_offset = Vector2(300, 28)
 		_lbl_dano_chefe.mouse_filter = Control.MOUSE_FILTER_IGNORE
