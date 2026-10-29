@@ -2018,7 +2018,7 @@ func _criar_menu_pausa() -> void:
 	btn_retomar.add_theme_font_override("font", load("res://assets/fonts/ArchitectsDaughter-Regular.ttf"))
 	btn_retomar.add_theme_font_size_override("font_size", 48)
 	btn_retomar.add_theme_color_override("font_color", Color("002867"))
-	btn_retomar.add_theme_color_override("font_hover_color", Color("0044cc"))
+	btn_retomar.add_theme_color_override("font_hover_color", Color("0047ab"))
 	btn_retomar.add_theme_color_override("font_pressed_color", Color("001a66"))
 	btn_retomar.flat = true
 	btn_retomar.position = Vector2(340, 950)
