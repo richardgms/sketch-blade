@@ -847,13 +847,16 @@ func _processar_fim_de_jogo(venceu: bool) -> void:
 	linhas.append("+%d XP" % xp_ganho)
 	if subiu_nivel:
 		linhas.append("Novo nível %d!  +%d clipes" % [dados_save["nivel_conta"], niveis_ganhos * 5])
-	if texto_desbloqueio != "":
-		linhas.append("Capítulo %d desbloqueado!" % dados_save["capitulo_desbloqueado"])
+	# Vitória: o capítulo desbloqueado ganha destaque próprio (marca-texto),
+	# separado dos números da partida
+	var cap_desbloqueado: int = dados_save["capitulo_desbloqueado"] if texto_desbloqueio != "" else 0
+	if cap_desbloqueado > 0 and not venceu:
+		linhas.append("Capítulo %d desbloqueado!" % cap_desbloqueado)
 	var texto_total := "+%d tinta" % tinta_final
 	if venceu:
 		label_total_vitoria.text = texto_total
 		label_detalhes_vitoria.text = "\n".join(linhas)
-		_mostrar_chefe_vitoria(tinta_final)
+		_mostrar_chefe_vitoria(tinta_final, cap_desbloqueado)
 	else:
 		label_total_gameover.text = texto_total
 		var label_gameover = menu_game_over.get_node_or_null("DetalhesGameOver")
@@ -864,10 +867,11 @@ const FICHAS_CHEFE: Dictionary = preload("res://Boss.gd").FICHAS
 var _arte_chefe_vitoria: TextureRect
 var _carimbo_vitoria: Control
 var _tween_vitoria: Tween
+var _destaque_desbloqueio: PanelContainer
 
 ## Vitória mostra o chefe que caiu: desenho colorido no alto, selo redondo
 ## "DERROTADO" batendo por cima (aí a foto fica preto e branco), nome certo no subtítulo e a tinta contando até o total.
-func _mostrar_chefe_vitoria(tinta_final: int) -> void:
+func _mostrar_chefe_vitoria(tinta_final: int, cap_desbloqueado: int = 0) -> void:
 	var ficha: Dictionary = FICHAS_CHEFE.get(capitulo_atual, FICHAS_CHEFE[1])
 	var sub := menu_vitoria.get_node_or_null("Subtitulo") as Label
 	if sub:
@@ -884,6 +888,15 @@ func _mostrar_chefe_vitoria(tinta_final: int) -> void:
 	_carimbo_vitoria.modulate.a = 0.0
 	_carimbo_vitoria.scale = Vector2(2.4, 2.4)
 	label_total_vitoria.text = "+0 tinta"
+	_destaque_desbloqueio.visible = cap_desbloqueado > 0
+	_destaque_desbloqueio.modulate.a = 0.0
+	_destaque_desbloqueio.scale = Vector2(0.6, 0.6)
+	if cap_desbloqueado > 0:
+		var lbl := _destaque_desbloqueio.get_child(0) as Label
+		lbl.text = "Capítulo %d desbloqueado!" % cap_desbloqueado
+		_destaque_desbloqueio.reset_size()
+		_destaque_desbloqueio.position.x = -_destaque_desbloqueio.size.x / 2.0
+		_destaque_desbloqueio.pivot_offset = _destaque_desbloqueio.size / 2.0
 
 	if _tween_vitoria and _tween_vitoria.is_valid():
 		_tween_vitoria.kill()
@@ -904,6 +917,10 @@ func _mostrar_chefe_vitoria(tinta_final: int) -> void:
 	# Tinta contando até o total
 	_tween_vitoria.tween_method(func(v: float): label_total_vitoria.text = "+%d tinta" % int(v),
 		0.0, float(tinta_final), 0.9).set_delay(0.8).set_ease(Tween.EASE_OUT)
+	# Destaque do capítulo novo entra depois da contagem
+	if cap_desbloqueado > 0:
+		_tween_vitoria.tween_property(_destaque_desbloqueio, "modulate:a", 1.0, 0.15).set_delay(1.75)
+		_tween_vitoria.tween_property(_destaque_desbloqueio, "scale", Vector2.ONE, 0.35) 			.set_delay(1.75).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
 	_tween_vitoria.chain().tween_callback(func(): label_total_vitoria.text = "+%d tinta" % tinta_final)
 
 func _criar_arte_vitoria() -> void:
@@ -951,6 +968,38 @@ void fragment() {
 	selo.modulate = Color(1, 1, 1, 0.94)
 	menu_vitoria.add_child(selo)
 	_carimbo_vitoria = selo
+
+	# "Capítulo N desbloqueado!": letra de título, azul de caneta, faixa de
+	# marca-texto amarelo por trás (levemente torta, como feita à mão)
+	var ancora_d := Control.new()
+	ancora_d.set_anchors_preset(Control.PRESET_CENTER)
+	ancora_d.offset_top = 300.0
+	ancora_d.offset_bottom = 300.0
+	ancora_d.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	menu_vitoria.add_child(ancora_d)
+	var destaque := PanelContainer.new()
+	var marca := StyleBoxFlat.new()
+	marca.bg_color = Color(1.0, 0.89, 0.25, 0.6)
+	marca.set_corner_radius_all(6)
+	marca.content_margin_left = 22.0
+	marca.content_margin_right = 22.0
+	marca.content_margin_top = 0.0
+	marca.content_margin_bottom = 0.0
+	destaque.add_theme_stylebox_override("panel", marca)
+	destaque.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	destaque.rotation_degrees = -1.5
+	var lbl_d := Label.new()
+	lbl_d.add_theme_font_override("font", preload("res://assets/fonts/ArchitectsDaughter-Regular.ttf"))
+	lbl_d.add_theme_font_size_override("font_size", 46)
+	lbl_d.add_theme_color_override("font_color", Color("1d3fa6"))
+	lbl_d.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	destaque.add_child(lbl_d)
+	ancora_d.add_child(destaque)
+	destaque.visible = false
+	_destaque_desbloqueio = destaque
+	# Espaço para o destaque: CONTINUAR desce um pouco
+	botao_continuar.offset_top += 45.0
+	botao_continuar.offset_bottom += 45.0
 
 ## HUD mais legível no celular: coração ao lado da vida, números maiores e a
 ## barra do chefe abaixo de "Página X/8" (antes os dois se sobrepunham).
