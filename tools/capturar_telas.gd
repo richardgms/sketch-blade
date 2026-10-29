@@ -3,7 +3,7 @@ extends SceneTree
 ##
 ## Uso (precisa de janela, não roda com --headless):
 ##   Godot --path . -s tools/capturar_telas.gd -- <pasta_de_saida> [tela1,tela2,...]
-## Sem lista, captura todas. Telas: hub, estojo, loja, missoes, config, recompensa, compra,
+## Sem lista, captura todas. Telas: hub, hub-cap5-recorde, hub-cap5-chefe, hub-cap5-primeira, estojo, loja, missoes, config, recompensa, compra,
 ## hud, roleta, pausa, descanso, derrota, vitoria, revive.
 ##
 ## Usa um save fictício, mas alguns eventos gravam o save do PC
@@ -60,10 +60,12 @@ func _fechar() -> void:
 	paused = false; Engine.time_scale = 1.0
 	_sv.queue_free(); await process_frame; await process_frame
 
-func _hub(nome: String, acao: Callable) -> void:
+func _hub(nome: String, acao: Callable, cap: int = 1, recorde: int = -1) -> void:
 	if not _quer(nome):
 		return
-	_save(1)
+	_save(cap)
+	if recorde >= 0:
+		root.get_node("SaveManager").dados["stats"]["melhor_pagina"] = {str(cap): recorde}
 	var hub = _abrir("res://hub.tscn"); await create_timer(1.5).timeout
 	acao.call(hub); await create_timer(0.8).timeout
 	await _foto(nome); await _fechar()
@@ -79,6 +81,10 @@ func _combate() -> Node:
 func _rodar() -> void:
 	await process_frame
 	await _hub("hub", func(_h): pass)
+	# Hub novo (rascunho do amigo): capítulo 5 não vencido, com recorde e 1ª vez
+	await _hub("hub-cap5-recorde", func(_h): pass, 5, 6)
+	await _hub("hub-cap5-chefe", func(_h): pass, 5, 8)
+	await _hub("hub-cap5-primeira", func(_h): pass, 5, 0)
 	await _hub("estojo", func(h): h._alterar_aba("estojo"))
 	await _hub("loja", func(h): h._alterar_aba("loja"))
 	await _hub("missoes", func(h): h._abrir_painel_missoes())
