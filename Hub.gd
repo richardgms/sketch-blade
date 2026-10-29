@@ -515,6 +515,9 @@ func _atualizar_ui_capitulo() -> void:
 const COR_AZUL_CANETA := Color("0047ab")
 const COR_AZUL_ESCURO := Color("002867")
 const COR_TEXTO := Color(0.1, 0.1, 0.15)
+## Tamanho padrão dos textos azuis das telas do capítulo (aprovado 29/10)
+const TAM_TEXTO_AZUL := 42
+const TAM_TEXTO_AZUL_REGRA := 40
 
 var lbl_frase_cap: Label
 var lbl_recorde_cap: RichTextLabel
@@ -566,7 +569,7 @@ func _montar_tela_capitulo() -> void:
 	tela_lutar.add_child(lbl_frase_cap)
 	_ancorar_rodape(lbl_frase_cap)
 
-	lbl_recorde_cap = _rich_centro(fonte_texto, 42, COR_AZUL_CANETA, 1234.0, 1290.0)
+	lbl_recorde_cap = _rich_centro(fonte_texto, TAM_TEXTO_AZUL, COR_AZUL_CANETA, 1234.0, 1290.0)
 	_ancorar_rodape(lbl_recorde_cap)
 	trilha_cap = Control.new()
 	trilha_cap.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -574,7 +577,7 @@ func _montar_tela_capitulo() -> void:
 	trilha_cap.draw.connect(_desenhar_trilha.bind(trilha_cap))
 	tela_lutar.add_child(trilha_cap)
 	_ancorar_rodape(trilha_cap)
-	lbl_regra_cap = _rich_centro(fonte_texto, 40, COR_AZUL_CANETA, 1412.0, 1466.0)
+	lbl_regra_cap = _rich_centro(fonte_texto, TAM_TEXTO_AZUL_REGRA, COR_AZUL_CANETA, 1412.0, 1466.0)
 	_ancorar_rodape(lbl_regra_cap)
 
 	# Ilustração maior: ocupa do "MODO NORMAL" até a frase (cresce em tela alta)
@@ -612,16 +615,42 @@ func _montar_tela_capitulo() -> void:
 	botao_jogar.offset_top = -415.0
 	botao_jogar.offset_bottom = -290.0
 	botao_jogar.add_theme_font_size_override("font_size", 76)
+	_estilizar_botao_cheio(botao_jogar)
+
+## Botão principal cheio: fundo azul riscado à caneta (imagem) com letra
+## branca. Sem a imagem, cai num azul liso com moldura desenhada.
+const CAMINHO_BOTAO_RISCADO := "res://assets/ui/botao_riscado.png"
+
+func _estilizar_botao_cheio(b: Button) -> void:
+	b.flat = false
 	for estado in ["font_color", "font_hover_color", "font_pressed_color", "font_focus_color"]:
-		botao_jogar.add_theme_color_override(estado, Color.WHITE)
+		b.add_theme_color_override(estado, Color.WHITE)
+	b.add_theme_color_override("font_outline_color", Color(COR_AZUL_ESCURO, 0.6))
+	b.add_theme_constant_override("outline_size", 6)
+	var tem_textura: bool = ResourceLoader.exists(CAMINHO_BOTAO_RISCADO)
 	for estado in ["normal", "hover", "focus", "pressed"]:
-		var sb := StyleBoxFlat.new()
-		sb.bg_color = COR_AZUL_CANETA.darkened(0.25) if estado == "pressed" else COR_AZUL_CANETA
-		sb.set_corner_radius_all(14)
+		var sb: StyleBox
+		if tem_textura:
+			var st := StyleBoxTexture.new()
+			st.texture = load(CAMINHO_BOTAO_RISCADO)
+			# Cantos fixos, miolo estica: serve para botões de larguras diferentes
+			st.texture_margin_left = 48.0
+			st.texture_margin_right = 48.0
+			st.texture_margin_top = 36.0
+			st.texture_margin_bottom = 36.0
+			if estado == "pressed":
+				st.modulate_color = Color(0.8, 0.8, 0.85)
+			sb = st
+		else:
+			var sf := StyleBoxFlat.new()
+			sf.bg_color = COR_AZUL_CANETA.darkened(0.25) if estado == "pressed" else COR_AZUL_CANETA
+			sf.set_corner_radius_all(14)
+			sb = sf
 		if estado == "focus":
-			sb.draw_center = false
-		botao_jogar.add_theme_stylebox_override(estado, sb)
-	botao_jogar.draw.connect(_desenhar_moldura_botao.bind(botao_jogar))
+			sb = StyleBoxEmpty.new()
+		b.add_theme_stylebox_override(estado, sb)
+	if not tem_textura:
+		b.draw.connect(_desenhar_moldura_botao.bind(b))
 
 ## Prende o controle ao rodapé (anchor 1.0), mantendo a posição em 1920.
 func _ancorar_rodape(c: Control) -> void:
@@ -770,7 +799,7 @@ func _circulo_caneta(c: Control, centro: Vector2, raio: float, cor: Color, espes
 
 ## Moldura de caneta por fora do botão cheio: um contorno arredondado,
 ## levemente deslocado, como se o botão tivesse sido contornado à mão.
-func _desenhar_moldura_botao(b: Control) -> void:
+func _desenhar_moldura_botao(b: Control, cor: Color = COR_AZUL_ESCURO) -> void:
 	var r: float = 22.0
 	var m: float = -6.0
 	var desloc := Vector2(3.0, 3.0)
@@ -788,7 +817,7 @@ func _desenhar_moldura_botao(b: Control) -> void:
 				+ Vector2(sin(idx * 7.31), cos(idx * 5.17)) * 1.2)
 			idx += 1
 	pontos.append(pontos[0] + Vector2(-14.0, -1.5))
-	b.draw_polyline(pontos, Color(COR_AZUL_ESCURO, 0.9), 3.5, true)
+	b.draw_polyline(pontos, Color(cor, 0.9), 3.5, true)
 
 func _mudar_capitulo(direcao: int) -> void:
 	var novo_cap = dados_save["capitulo_selecionado"] + direcao
@@ -1264,75 +1293,224 @@ func _mostrar_prompt_retomar_run() -> void:
 	if snap.is_empty() or not snap.get("ativa", false):
 		return
 
+	var total: int = GameData.PAGINAS.size()
 	var cap: int = clamp(int(snap.get("capitulo", 1)), 1, nomes_capitulos.size() - 1)
-	var pagina: int = int(snap.get("pagina", 1))
-	var total_paginas: int = GameData.PAGINAS.size()
+	var pagina: int = clamp(int(snap.get("pagina", 1)), 1, total)
+	var coracoes: int = int(snap.get("hp", 1))
+	var tinta: int = int(snap.get("tinta_partida", 0))
+	var melhorias: int = 0
+	var ups = snap.get("upgrades", {})
+	if ups is Dictionary:
+		for k in ups:
+			melhorias += int(ups[k])
+	var revive_usado: bool = bool(snap.get("revive_usado", false))
+	var fonte: Font = load("res://assets/fonts/ArchitectsDaughter-Regular.ttf")
 
-	var overlay = Control.new()
+	var overlay := Control.new()
 	overlay.name = "PromptRetomarRun"
 	overlay.set_anchors_preset(Control.PRESET_FULL_RECT)
 	overlay.z_index = 100
 	$HUD.add_child(overlay)
 
-	var fundo = ColorRect.new()
-	fundo.color = Color(0.98, 0.965, 0.93, 0.96)
+	# Hub apagado atrás (cinza), o cartão de papel por cima
+	var fundo := ColorRect.new()
+	fundo.color = Color(0.35, 0.36, 0.4, 0.55)
 	fundo.set_anchors_preset(Control.PRESET_FULL_RECT)
 	overlay.add_child(fundo)
 
-	var fonte_texto = load("res://assets/fonts/ArchitectsDaughter-Regular.ttf")
+	var cartao := Control.new()
+	cartao.anchor_left = 0.5
+	cartao.anchor_right = 0.5
+	cartao.anchor_top = 0.5
+	cartao.anchor_bottom = 0.5
+	cartao.offset_left = -490.0
+	cartao.offset_right = 490.0
+	cartao.offset_top = -850.0
+	cartao.offset_bottom = 850.0
+	cartao.draw.connect(_desenhar_cartao_retomar.bind(cartao))
+	overlay.add_child(cartao)
 
-	var titulo = Label.new()
-	titulo.text = "✏️ RUN EM ANDAMENTO"
-	titulo.add_theme_font_override("font", fonte_texto)
-	titulo.add_theme_font_size_override("font_size", 60)
-	titulo.add_theme_color_override("font_color", Color("002867"))
-	titulo.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	titulo.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	titulo.position = Vector2(0, 560)
-	titulo.size = Vector2(1080, 120)
-	overlay.add_child(titulo)
+	_label_cartao(cartao, "PARTIDA EM\nANDAMENTO", fonte, 76, COR_AZUL_ESCURO, 40.0, 210.0)
+	var sub := TextureRect.new()
+	sub.texture = load("res://assets/sublinhado.svg")
+	sub.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	sub.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	sub.modulate = COR_AZUL_CANETA
+	sub.position = Vector2(190, 212)
+	sub.size = Vector2(600, 40)
+	sub.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	cartao.add_child(sub)
+	_rich_cartao(cartao, "Capítulo %d  · %s" % [cap, nomes_capitulos[cap]], fonte, 50, COR_AZUL_ESCURO, 262.0)
 
-	var sub = Label.new()
-	sub.text = "Você parou no Capítulo %d — Página %d/%d.\nDeseja continuar de onde parou?" % [cap, pagina, total_paginas]
-	sub.add_theme_font_override("font", fonte_texto)
-	sub.add_theme_font_size_override("font_size", 36)
-	sub.add_theme_color_override("font_color", Color(0.4, 0.4, 0.45))
-	sub.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	sub.position = Vector2(0, 700)
-	sub.size = Vector2(1080, 140)
-	overlay.add_child(sub)
+	var arte := TextureRect.new()
+	var caminho_arte := "res://assets/images/stage%d.png" % cap
+	if ResourceLoader.exists("res://assets/images/stage%d.svg" % cap):
+		caminho_arte = "res://assets/images/stage%d.svg" % cap
+	arte.texture = load(caminho_arte) if ResourceLoader.exists(caminho_arte) else boss_icon.texture
+	arte.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	arte.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	arte.position = Vector2(290, 340)
+	arte.size = Vector2(400, 360)
+	arte.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	cartao.add_child(arte)
 
-	var btn_continuar = Button.new()
-	btn_continuar.text = "[ CONTINUAR RUN ]"
-	btn_continuar.add_theme_font_override("font", fonte_texto)
-	btn_continuar.add_theme_font_size_override("font_size", 52)
-	btn_continuar.add_theme_color_override("font_color", Color("2e7d32"))
-	btn_continuar.add_theme_color_override("font_hover_color", Color("43a047"))
-	btn_continuar.flat = true
-	btn_continuar.position = Vector2(240, 900)
-	btn_continuar.size = Vector2(600, 90)
-	overlay.add_child(btn_continuar)
+	_rich_cartao(cartao, "Página %d  de %d" % [pagina, total], fonte, 50, COR_TEXTO, 712.0)
+	var trilha := Control.new()
+	trilha.position = Vector2(70, 782)
+	trilha.size = Vector2(840, 140)
+	trilha.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	trilha.draw.connect(_desenhar_trilha_retomar.bind(trilha, pagina))
+	cartao.add_child(trilha)
+	_rich_cartao(cartao, "Você voltará ao início da página %d." % pagina, fonte, TAM_TEXTO_AZUL_REGRA, COR_AZUL_CANETA, 930.0)
+
+	# Bloco "Preservado nesta partida" (entre linhas tracejadas)
+	_rich_cartao(cartao, "Preservado nesta partida", fonte, TAM_TEXTO_AZUL, COR_AZUL_ESCURO, 1030.0)
+	var itens := [
+		["res://assets/upgrade2.svg", "%d  %s" % [coracoes, "coração" if coracoes == 1 else "corações"], Vector2(70, 1110)],
+		["res://assets/ink.svg", "%d  de tinta" % tinta, Vector2(520, 1110)],
+		["res://assets/ui/icone_melhoria.png", "%d  %s" % [melhorias, "melhoria ativa" if melhorias == 1 else "melhorias ativas"], Vector2(70, 1190)],
+		["res://assets/ui/icone_reviver.png", "Reviver já usado" if revive_usado else "Reviver disponível", Vector2(70, 1270)],
+	]
+	for it in itens:
+		var ic := TextureRect.new()
+		ic.texture = load(it[0])
+		ic.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+		ic.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+		ic.position = it[2]
+		ic.size = Vector2(64, 64)
+		ic.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		if it[0].ends_with("icone_reviver.png") and revive_usado:
+			ic.modulate = Color(1, 1, 1, 0.4)
+		cartao.add_child(ic)
+		var r := RichTextLabel.new()
+		r.bbcode_enabled = true
+		r.scroll_active = false
+		r.autowrap_mode = TextServer.AUTOWRAP_OFF
+		r.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		r.add_theme_font_override("normal_font", fonte)
+		r.add_theme_font_size_override("normal_font_size", TAM_TEXTO_AZUL)
+		r.add_theme_color_override("default_color", COR_TEXTO)
+		r.position = it[2] + Vector2(84, 4)
+		r.size = Vector2(400, 64)
+		r.text = _bbcode_numeros(it[1])
+		cartao.add_child(r)
+
+	var btn_continuar := Button.new()
+	btn_continuar.text = "CONTINUAR PARTIDA"
+	btn_continuar.add_theme_font_override("font", fonte)
+	btn_continuar.add_theme_font_size_override("font_size", 58)
+	btn_continuar.position = Vector2(150, 1390)
+	btn_continuar.size = Vector2(680, 125)
+	_estilizar_botao_cheio(btn_continuar)
+	cartao.add_child(btn_continuar)
 	btn_continuar.pressed.connect(func():
 		_tocar_som(audio_click_sucesso)
 		SaveManager.retomar_run_pendente = true
 		get_tree().change_scene_to_file("res://main.tscn")
 	)
 
-	var btn_descartar = Button.new()
-	btn_descartar.text = "[ DESCARTAR ]"
-	btn_descartar.add_theme_font_override("font", fonte_texto)
-	btn_descartar.add_theme_font_size_override("font_size", 36)
-	btn_descartar.add_theme_color_override("font_color", Color(0.6, 0.15, 0.15))
-	btn_descartar.add_theme_color_override("font_hover_color", Color(0.85, 0.1, 0.1))
-	btn_descartar.flat = true
-	btn_descartar.position = Vector2(340, 1050)
-	btn_descartar.size = Vector2(400, 80)
-	overlay.add_child(btn_descartar)
-	btn_descartar.pressed.connect(func():
+	var btn_abandonar := Button.new()
+	btn_abandonar.text = "ABANDONAR PARTIDA"
+	btn_abandonar.flat = true
+	btn_abandonar.add_theme_font_override("font", fonte)
+	btn_abandonar.add_theme_font_size_override("font_size", TAM_TEXTO_AZUL_REGRA)
+	for estado in ["font_color", "font_hover_color", "font_focus_color"]:
+		btn_abandonar.add_theme_color_override(estado, COR_VERMELHO_CANETA)
+	btn_abandonar.add_theme_color_override("font_pressed_color", COR_VERMELHO_CANETA.darkened(0.3))
+	btn_abandonar.add_theme_stylebox_override("focus", StyleBoxEmpty.new())
+	btn_abandonar.position = Vector2(230, 1555)
+	btn_abandonar.size = Vector2(520, 88)
+	btn_abandonar.draw.connect(_desenhar_moldura_botao.bind(btn_abandonar, COR_VERMELHO_CANETA))
+	cartao.add_child(btn_abandonar)
+	btn_abandonar.pressed.connect(func():
 		_tocar_som(audio_click_erro)
 		SaveManager.limpar_run_snapshot()
 		overlay.queue_free()
 	)
+	_rich_cartao(cartao, "Ao abandonar, você perde os ganhos desta partida.", fonte, 30, Color(0.4, 0.4, 0.45), 1656.0)
+
+const COR_VERMELHO_CANETA := Color("c62828")
+
+func _label_cartao(cartao: Control, texto: String, fonte: Font, tam: int, cor: Color, y0: float, y1: float) -> void:
+	var l := Label.new()
+	l.text = texto
+	l.add_theme_font_override("font", fonte)
+	l.add_theme_font_size_override("font_size", tam)
+	l.add_theme_color_override("font_color", cor)
+	l.add_theme_constant_override("line_spacing", -14)
+	l.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	l.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	l.position = Vector2(0, y0)
+	l.size = Vector2(980.0, y1 - y0)
+	l.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	cartao.add_child(l)
+
+func _rich_cartao(cartao: Control, texto: String, fonte: Font, tam: int, cor: Color, y0: float) -> void:
+	var r := RichTextLabel.new()
+	r.bbcode_enabled = true
+	r.scroll_active = false
+	r.fit_content = true
+	r.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	r.add_theme_font_override("normal_font", fonte)
+	r.add_theme_font_size_override("normal_font_size", tam)
+	r.add_theme_color_override("default_color", cor)
+	r.position = Vector2(20, y0)
+	r.size = Vector2(940, tam + 20)
+	r.text = "[center]" + _bbcode_numeros(texto) + "[/center]"
+	cartao.add_child(r)
+
+## Cartão de papel com contorno azul de caneta e duas linhas tracejadas
+## separando o bloco "Preservado nesta partida".
+func _desenhar_cartao_retomar(c: Control) -> void:
+	var sb := StyleBoxFlat.new()
+	sb.bg_color = Color(0.99, 0.985, 0.97)
+	sb.set_corner_radius_all(22)
+	sb.border_color = COR_AZUL_CANETA
+	sb.set_border_width_all(5)
+	c.draw_style_box(sb, Rect2(Vector2.ZERO, c.size))
+	_desenhar_moldura_botao(c)
+	for y in [1005.0, 1360.0]:
+		c.draw_dashed_line(Vector2(40, y), Vector2(c.size.x - 40, y), Color(COR_AZUL_ESCURO, 0.45), 2.5, 12.0)
+
+## Trilha numerada da partida salva: páginas passadas cheias, a atual com
+## anel amarelo, as seguintes vazias e o chefe com "?".
+func _desenhar_trilha_retomar(c: Control, pagina: int) -> void:
+	var total: int = GameData.PAGINAS.size()
+	var y: float = 46.0
+	var r_pag: float = 22.0
+	var r_chefe: float = 40.0
+	var x0: float = 30.0
+	var x_chefe: float = c.size.x - r_chefe - 6.0
+	var passo: float = (x_chefe - r_chefe - r_pag - 34.0 - x0) / float(total - 2)
+	var xs: Array = []
+	for i in range(total - 1):
+		xs.append(x0 + passo * i)
+	xs.append(x_chefe)
+	for i in range(total - 1):
+		var rb: float = r_chefe if i == total - 2 else r_pag
+		c.draw_line(Vector2(xs[i] + r_pag, y), Vector2(xs[i + 1] - rb, y), COR_AZUL_ESCURO, 3.0, true)
+	for i in range(total):
+		var n: int = i + 1
+		var centro := Vector2(xs[i], y)
+		var raio: float = r_chefe if n == total else r_pag
+		if n == pagina:
+			_disco(c, centro, raio + 10.0, Color("f2c230"))
+			_disco(c, centro, raio + 3.0, Color.WHITE)
+			_circulo_caneta(c, centro, raio + 3.0, COR_AZUL_CANETA, 6.0, i)
+		elif n < pagina:
+			_disco(c, centro, raio, COR_AZUL_CANETA)
+			_circulo_caneta(c, centro, raio, COR_AZUL_ESCURO, 3.0, i)
+		else:
+			_disco(c, centro, raio, Color.WHITE)
+			_circulo_caneta(c, centro, raio, COR_AZUL_ESCURO, 3.0 if n < total else 4.0, i)
+		if n == total:
+			var tq: int = 56
+			var wq: float = FONTE_NUMEROS.get_string_size("?", HORIZONTAL_ALIGNMENT_LEFT, -1, tq).x
+			c.draw_string(FONTE_NUMEROS, centro + Vector2(-wq / 2.0, tq * 0.34), "?", HORIZONTAL_ALIGNMENT_LEFT, -1, tq, COR_AZUL_ESCURO)
+		var rotulo: String = str(n) if n < total else "chefe"
+		var tam: int = 38 if n < total else 30
+		var w: float = FONTE_NUMEROS.get_string_size(rotulo, HORIZONTAL_ALIGNMENT_LEFT, -1, tam).x
+		c.draw_string(FONTE_NUMEROS, Vector2(xs[i] - w / 2.0, y + r_chefe + 44.0), rotulo, HORIZONTAL_ALIGNMENT_LEFT, -1, tam, COR_AZUL_ESCURO)
 
 # ============================================================
 # GESTO/BOTÃO VOLTAR NO HUB
