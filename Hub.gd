@@ -1431,7 +1431,7 @@ func _mostrar_prompt_retomar_run() -> void:
 	btn_abandonar.text = "ABANDONAR PARTIDA"
 	_fundo_branco_botao(btn_abandonar)
 	btn_abandonar.add_theme_font_override("font", fonte)
-	btn_abandonar.add_theme_font_size_override("font_size", TAM_TEXTO_AZUL_REGRA)
+	btn_abandonar.add_theme_font_size_override("font_size", 48)
 	for estado in ["font_color", "font_hover_color", "font_focus_color"]:
 		btn_abandonar.add_theme_color_override(estado, COR_VERMELHO_CANETA)
 	btn_abandonar.add_theme_color_override("font_pressed_color", COR_VERMELHO_CANETA.darkened(0.3))
@@ -1452,6 +1452,8 @@ func _fundo_branco_botao(b: Button) -> void:
 		var sb := StyleBoxFlat.new()
 		sb.bg_color = Color(0.94, 0.94, 0.94) if estado == "pressed" else Color.WHITE
 		sb.set_corner_radius_all(14)
+		# A moldura de caneta é desenhada 3 px para baixo: o texto acompanha
+		sb.content_margin_top = 8.0
 		b.add_theme_stylebox_override(estado, sb)
 
 ## Segunda pergunta antes de apagar a partida salva.
@@ -1604,7 +1606,7 @@ func _desenhar_trilha_retomar(c: Control, pagina: int) -> void:
 		var centro := Vector2(xs[i], y)
 		var raio: float = r_chefe if n == total else r_pag
 		if n == pagina:
-			_disco(c, centro, raio + 10.0, Color("2e9e44"))
+			_disco(c, centro, raio + 14.0, Color("6fd877"))
 			_disco(c, centro, raio + 3.0, Color.WHITE)
 			_circulo_caneta(c, centro, raio + 3.0, COR_AZUL_CANETA, 6.0, i)
 		elif n < pagina:
@@ -1614,11 +1616,13 @@ func _desenhar_trilha_retomar(c: Control, pagina: int) -> void:
 			_disco(c, centro, raio, Color.WHITE)
 			_circulo_caneta(c, centro, raio, COR_AZUL_ESCURO, 3.0 if n < total else 4.0, i)
 		if n == total:
+			# Mesmo "?" da trilha do hub (a Caveat é inclinada e saía torta)
+			var fq: Font = load("res://assets/fonts/ArchitectsDaughter-Regular.ttf")
 			var tq: int = 56
-			var wq: float = FONTE_NUMEROS.get_string_size("?", HORIZONTAL_ALIGNMENT_LEFT, -1, tq).x
-			c.draw_string(FONTE_NUMEROS, centro + Vector2(-wq / 2.0, tq * 0.34), "?", HORIZONTAL_ALIGNMENT_LEFT, -1, tq, COR_AZUL_ESCURO)
-		var rotulo: String = str(n) if n < total else "chefe"
-		var tam: int = 38 if n < total else 30
+			var wq: float = fq.get_string_size("?", HORIZONTAL_ALIGNMENT_LEFT, -1, tq).x
+			c.draw_string(fq, centro + Vector2(-wq / 2.0, tq * 0.36), "?", HORIZONTAL_ALIGNMENT_LEFT, -1, tq, COR_AZUL_ESCURO)
+		var rotulo: String = str(n)
+		var tam: int = 38
 		var w: float = FONTE_NUMEROS.get_string_size(rotulo, HORIZONTAL_ALIGNMENT_LEFT, -1, tam).x
 		c.draw_string(FONTE_NUMEROS, Vector2(xs[i] - w / 2.0, y + r_chefe + 44.0), rotulo, HORIZONTAL_ALIGNMENT_LEFT, -1, tam, COR_AZUL_ESCURO)
 
