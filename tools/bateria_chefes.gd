@@ -4,13 +4,29 @@ extends SceneTree
 ## Uso: Godot --headless --fixed-fps 60 --path . -s tools/bateria_chefes.gd -- <saida.jsonl> <bot> <seeds>
 ## bot: esquiva | segue | parado
 
-const CENARIOS: Dictionary = {
+## Níveis D/H/C do Estojo tirados da tabela B do tools/sim_economia.py (ouro
+## ganho por run + preços atuais da loja): "chegada" = 1ª vez no capítulo,
+## "vitoria" = run em que vence o capítulo.
+const NIVEIS: Dictionary = {
+	"chegada": {1: [1, 1, 1], 2: [3, 3, 3], 3: [4, 3, 4], 4: [4, 4, 5], 5: [5, 5, 6],
+		6: [6, 5, 6], 7: [7, 7, 7], 8: [7, 7, 8], 9: [8, 8, 9], 10: [9, 9, 9]},
+	"vitoria": {1: [3, 2, 3], 2: [3, 3, 3], 3: [4, 3, 4], 4: [5, 4, 5], 5: [5, 5, 6],
+		6: [7, 6, 7], 7: [7, 7, 7], 8: [8, 8, 9], 9: [9, 8, 9], 10: [10, 9, 10]},
 	"zerado": {1: [1, 1, 1], 2: [1, 1, 1], 3: [1, 1, 1], 4: [1, 1, 1], 5: [1, 1, 1],
 		6: [1, 1, 1], 7: [1, 1, 1], 8: [1, 1, 1], 9: [1, 1, 1], 10: [1, 1, 1]},
-	# níveis D/H/C na vitória de cada capítulo (tools/sim_economia.py, tabela B)
-	"progressao": {1: [3, 2, 3], 2: [3, 3, 3], 3: [4, 3, 4], 4: [5, 4, 5], 5: [5, 5, 6],
-		6: [7, 6, 7], 7: [7, 7, 7], 8: [8, 8, 9], 9: [9, 8, 9], 10: [10, 9, 10]},
 }
+## Cenário = níveis + se passa pelas 3 roletas da run (páginas 2, 4 e 6).
+const CENARIOS: Dictionary = {
+	"chegada+roleta": {"niveis": "chegada", "roleta": true},
+	"vitoria+roleta": {"niveis": "vitoria", "roleta": true},
+	"vitoria": {"niveis": "vitoria", "roleta": false},
+}
+## Preferência de um jogador típico na roleta (primeiro = mais desejado).
+const PREFERENCIA: Array = ["tiro_duplo", "leque", "apontador_rapido", "ponta_critica",
+	"ricochete", "tiro_perfurante", "borrao_explosivo", "tinta_corrosiva",
+	"escudo_borracha", "corretivo_liquido", "pote_tinta"]
+const ROLETAS_NA_RUN: int = 3
+const CHANCE_ESCOLHA_POR_GOSTO: float = 0.3
 const LIMITE_LUTA: float = 150.0
 const Y_CANETA: float = 1700.0
 
@@ -47,7 +63,7 @@ func _rodar() -> void:
 
 func _luta(cen: String, cap: int, s: int) -> Dictionary:
 	seed(1000 * cap + 17 * s + (0 if cen == "zerado" else 7))
-	var niv: Array = CENARIOS[cen][cap]
+	var niv: Array = NIVEIS[CENARIOS[cen]["niveis"]][cap]
 	var sm = root.get_node("SaveManager")
 	var d: Dictionary = sm.dados
 	d["tutorial_visto"] = true; d["run_snapshot"] = {"ativa": false}
@@ -60,6 +76,7 @@ func _luta(cen: String, cap: int, s: int) -> Dictionary:
 	m.player.vidas = 9999
 	m.jogo_iniciado = true; m.menu_iniciar.visible = false
 	m.capitulo_atual = cap
+	var build: Array = _passar_roletas() if CENARIOS[cen]["roleta"] else []
 	m.player.position = Vector2(540, Y_CANETA)
 	m.player.mover_para(Vector2(540, Y_CANETA))
 	m.player.attack_timer.start()
@@ -93,7 +110,7 @@ func _luta(cen: String, cap: int, s: int) -> Dictionary:
 	var dano: int = 9999 - m.player.vidas
 	var hp_rest: int = boss.hp if is_instance_valid(boss) else 0
 	var r := {
-		"cen": cen, "cap": cap, "seed": s, "bot": _bot,
+		"cen": cen, "cap": cap, "seed": s, "bot": _bot, "build": build,
 		"ttk": snappedf(t, 0.1), "matou": morto[0], "dano": dano, "vidas": vidas_max,
 		"hp_boss": hp_max, "hp_rest": hp_rest, "dano_caneta": m.player.dano,
 		"intervalo": snappedf(m.player.intervalo_ataque, 0.01),
@@ -104,6 +121,29 @@ func _luta(cen: String, cap: int, s: int) -> Dictionary:
 	m.queue_free()
 	for i in 5: await process_frame
 	return r
+
+## Simula as roletas da run: sorteia 3 opções como o jogo (só não maxados +
+## consumíveis) e escolhe como um jogador (preferência, às vezes por gosto).
+func _passar_roletas() -> Array:
+	var gd = root.get_node("GameData")
+	var escolhas: Array = []
+	for r in ROLETAS_NA_RUN:
+		var pool: Array = []
+		for up in gd.UPGRADES:
+			if up.get("consumivel", false) or m.player.nivel_upgrade(up["id"]) < up["nivel_max"]:
+				pool.append(up)
+		pool.shuffle()
+		var opcoes: Array = pool.slice(0, 3).map(func(u): return u["id"])
+		var escolha: String
+		if randf() < CHANCE_ESCOLHA_POR_GOSTO:
+			escolha = opcoes[randi() % opcoes.size()]
+		else:
+			opcoes.sort_custom(func(a, b): return PREFERENCIA.find(a) < PREFERENCIA.find(b))
+			escolha = opcoes[0]
+		if not gd.get_upgrade(escolha).get("consumivel", false):
+			m.player.aplicar_upgrade(escolha)
+		escolhas.append(escolha)
+	return escolhas
 
 # --- robôs -------------------------------------------------------------------
 

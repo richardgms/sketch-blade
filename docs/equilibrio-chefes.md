@@ -5,7 +5,7 @@ Meta (Richard, 28/10/2026): **cada chefe mais forte que o anterior**. Luta de 30
 ## Como medir
 - `tools/bateria_chefes.gd`: um robô joga cada chefe, sem tela e acelerado (`--headless --fixed-fps 60`, ~5 min para 180 lutas). Caneta com 9999 vidas para contar o dano; luta cortada em 150 s.
 - Robôs: **esquiva** (desvia de tiros, zonas, paredes, folhas e mergulhos; mira antecipando o movimento do chefe), **segue** (só persegue o chefe), **parado** (fica em x = 540).
-- Cenários: **zerado** (Estojo 1/1/1) e **progressão** (níveis D/H/C na vitória de cada capítulo, da tabela B do `tools/sim_economia.py`). Sem upgrades da roleta.
+- Cenários: níveis D/H/C do Estojo na **chegada** (1ª vez no capítulo) e na **vitória** de cada capítulo, tirados da tabela B do `tools/sim_economia.py` (ouro por run + preços da loja); com ou sem as **3 roletas** da run (páginas 2, 4 e 6: sorteio igual ao do jogo; o robô escolhe pela preferência de um jogador típico, 30% das vezes por gosto). Cada luta tem uma build diferente.
 - 3 sementes por combinação. Rodar os 3 robôs em paralelo e resumir com `python tools/resumo_bateria.py <pasta>`.
 - Limite do robô: mira pior que uma pessoa em alvo rápido (aproveitamento baixo no Avião, na Mancha e no Tsuru). Por isso o tempo de luta usa o **melhor** dos 3 robôs.
 
@@ -25,14 +25,35 @@ Meta (Richard, 28/10/2026): **cada chefe mais forte que o anterior**. Luta de 30
 
 No cenário zerado só o Borrão, a Grade e o Compasso morrem em 150 s (os demais exigem Estojo melhorado, como esperado).
 
-## Achados
+## Resultado 2 (28/10/2026) — com roleta (build sorteada) e Estojo da chegada
+300 lutas, 5 builds por chefe. "Morreria" = lutas em que o robô de esquiva perde mais corações do que tem.
+| Cap. | Chefe | Tempo (esquiva) | Variação entre builds | Dano/min | Corações perdidos / vidas | Morreria |
+|---|---|---|---|---|---|---|
+| 1 | Borrão | 33 s | 28–43 s | 2,9 | 1,6 / 5 | 0/5 |
+| 2 | Avião | 32 s | 24–45 s | 5,6 | 3,0 / 7 | 0/5 |
+| 3 | Mancha | **66 s** | 29–98 s | 6,0 | **6,6 / 7** | **2/5** |
+| 4 | Grade | 25 s | 23–31 s | 6,3 | 2,6 / 8 | 0/5 |
+| 5 | Compasso | **11 s** | 7–15 s | 6,7 | 1,2 / 9 | 0/5 |
+| 6 | Pirata | 21 s | 19–23 s | 7,5 | 2,6 / 9 | 0/5 |
+| 7 | Tsuru | 65 s | 47–87 s | **4,6** | 5,0 / 11 | 0/5 |
+| 8 | Fantasma | 37 s | 31–45 s | **11,4** | 7,0 / 11 | 1/5 |
+| 9 | Pena | 29 s | 23–39 s | 8,3 | 4,0 / 12 | 0/5 |
+| 10 | Estojo | **21 s** | 18–25 s | 9,2 | 3,2 / 13 | 0/5 |
+
+**O que a roleta mudou:** leque e tiro duplo cobrem chefe que se move (Avião: 117 s sem roleta → 32 s com). Com a build real, a **pressão (dano/min) já sobe quase em ordem** (2,9 → 9,2), com 2 exceções: Tsuru baixo e Fantasma alto. O problema passa a ser outro: **a partir do cap. 4 as lutas são curtas e seguras** (perde de 13% a 33% dos corações), e o chefe final morre em 21 s. Mancha continua fora da curva (longa, letal e muito dependente da build: 29–98 s).
+
+## Achados do resultado 1 (sem roleta)
 1. **A dificuldade não sobe com o capítulo.** Dano por minuto: 2,9 → 5,4 → 9,9 → **12,7** → **2,8** → 9,1 → 4,8 → 7,9 → 10,4 → 7,1. A Grade (4) é a que mais machuca; o Compasso (5) e o Tsuru (7) quase não ameaçam; o Estojo (10), chefe final, é mediano.
 2. **A vida dos chefes não acompanha a caneta.** A vida sobe 1,26× por capítulo (300 → 2401, 8×), mas o dano por segundo da caneta na progressão sobe 14× (13 → 194). Resultado: Compasso morre em 14 s e o Estojo em 24 s.
 3. **Mancha (3) fora da curva:** pedaços pequenos e rápidos (até ~360 px/s, também na vertical): só 9% dos tiros acertam e quem fica parado perde 21 corações. Difícil demais para o capítulo 3.
 4. **Compasso (5) fácil demais de acertar:** fica parado girando e tem as pernas como área extra; 86% dos tiros acertam.
 5. **"Ficar parado não compensa" funciona** em 9 de 10 chefes (parado perde 2 a 10× mais). Exceção: Avião, onde o parado perde menos (fica no meio e os rasantes têm brecha larga) — aceitável.
 
-## Proposta de ajuste (aguardando decisão)
+## Proposta de ajuste (atualizada com o resultado 2; aguardando decisão)
+- Meta: fração de corações perdidos na **chegada** subindo de ~25% (cap. 1) a ~75% (cap. 10), com lutas de 25 s a 60 s. Como a pressão já sobe, a vida vira o botão principal: luta mais longa contra chefe mais agressivo = mais perigo, em ordem.
+- Exceções: Mancha (pedaços mais lentos, luta mais curta), Tsuru (mais pressão de asa fechada, luta mais curta), Fantasma (pressão um pouco menor), Compasso (vida bem maior).
+
+### Proposta anterior (resultado 1)
 - **Vida por chefe** (multiplicador na ficha), para a duração subir de 30 s (cap. 1) a 55 s (cap. 10): Borrão ×1,1, Avião ×1,1, Mancha ×0,7, Grade ×1,1, Compasso ×2,9, Pirata ×1,8, Tsuru ×0,6, Fantasma ×1,5, Pena ×1,8, Estojo ×2,3.
 - **Pressão em ordem crescente:** Mancha mais lenta (pedaços a ~60% da velocidade), Grade com leque de 3 tiros e aviso de 1,4 s, Compasso com descanso menor e mais perseguidoras, Tsuru com ataques de asa fechada mais fortes, Estojo com passeio menor e leque de 5 tiros.
 - Rodar a bateria de novo e só seguir para o build quando a curva subir de chefe em chefe.
