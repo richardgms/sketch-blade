@@ -3,7 +3,7 @@ extends SceneTree
 ##
 ## Uso (precisa de janela, não roda com --headless):
 ##   Godot --path . -s tools/capturar_telas.gd -- <pasta_de_saida> [tela1,tela2,...]
-## Sem lista, captura todas. Telas: hub, hub-cap5-recorde, hub-cap5-chefe, hub-cap5-primeira, hub-cap1/3/4-concluido, estojo, loja, missoes, config, recompensa, compra,
+## Sem lista, captura todas. Telas: hub, hub-cap5-recorde, hub-cap5-chefe, hub-cap5-primeira, hub-cap1/3/4-concluido, retomar, retomar-revive-usado, estojo, loja, missoes, config, recompensa, compra,
 ## hud, roleta, pausa, descanso, derrota, vitoria, revive.
 ##
 ## Usa um save fictício, mas alguns eventos gravam o save do PC
@@ -44,6 +44,9 @@ func _save(cap: int) -> void:
 		{"id": "perfeccionista", "base": 0, "coletada": false},
 		{"id": "colecionador", "base": 0, "coletada": true},
 	]
+
+func SaveManager_dados() -> Dictionary:
+	return root.get_node("SaveManager").dados
 
 func _abrir(c: String) -> Node:
 	_sv = SubViewport.new(); _sv.size = Vector2i(1080, 1920)
@@ -88,6 +91,12 @@ func _rodar() -> void:
 	# Concluído: capítulos vencidos (cap < capitulo_desbloqueado = 5)
 	for c in [1, 3, 4]:
 		await _hub("hub-cap%d-concluido" % c, func(_h): pass, c, 8)
+	# Retomar partida (capítulo 5, página 4): reviver disponível e já usado
+	for usado in [false, true]:
+		await _hub("retomar" + ("-revive-usado" if usado else ""), func(h):
+			SaveManager_dados()["run_snapshot"] = {"ativa": true, "capitulo": 5, "pagina": 4, "hp": 3,
+				"tinta_partida": 120, "upgrades": {"tiro_duplo": 1}, "revive_usado": usado}
+			h._mostrar_prompt_retomar_run(), 5, 6)
 	await _hub("estojo", func(h): h._alterar_aba("estojo"))
 	await _hub("loja", func(h): h._alterar_aba("loja"))
 	await _hub("missoes", func(h): h._abrir_painel_missoes())
