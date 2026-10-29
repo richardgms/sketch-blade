@@ -42,11 +42,8 @@ var bg_cards_descanso: Array = []
 # Rewarded ads (revive e dobrar tinta)
 var menu_revive: Control
 var tinta_final_ultima_run: int = 0
-var label_total_vitoria: Label
-var label_total_gameover: Label
-var botao_dobrar_vitoria: Button # só na derrota hoje; a vitória usa TelaVitoria
 var tela_vitoria: Control
-var botao_dobrar_gameover: Button
+var tela_derrota: Control
 
 # Dados de Tinta, Progresso e Save
 var tinta_partida: int = 0
@@ -107,13 +104,9 @@ func _ready() -> void:
 	hp_texto_label.add_theme_font_override("font", FONTE_NUMEROS)
 	tinta_label.add_theme_font_override("font", FONTE_NUMEROS)
 	label_detalhes_vitoria.add_theme_font_override("font", FONTE_NUMEROS)
-	var lbl_detalhes_gameover = menu_game_over.get_node_or_null("DetalhesGameOver")
-	if lbl_detalhes_gameover:
-		lbl_detalhes_gameover.add_theme_font_override("font", FONTE_NUMEROS)
 
 	_criar_tela_vitoria()
-	if lbl_detalhes_gameover:
-		_montar_tela_resultado(menu_game_over, lbl_detalhes_gameover, Color("8e1b1b"), false)
+	_criar_tela_derrota()
 
 	_ajustar_hud_combate()
 
@@ -159,7 +152,6 @@ func _ready() -> void:
 	_criar_label_pagina()
 	_criar_menu_descanso()
 	_criar_menu_revive()
-	_criar_botoes_dobrar_tinta()
 
 	# Ícone de tinta inline no HUD (à direita do número, ancora na borda direita)
 	var icone_tinta_hud = TextureRect.new()
@@ -401,6 +393,8 @@ func _tratar_voltar() -> void:
 		return
 	# Menus de fim de partida: voltar equivale a sair para o Hub.
 	if menu_game_over and menu_game_over.visible:
+		if tela_derrota and tela_derrota.voltar_do_sistema():
+			return
 		_on_botao_recomecar_pressed()
 		return
 	if menu_vitoria and menu_vitoria.visible:
@@ -607,37 +601,6 @@ func _criar_menu_revive() -> void:
 		_finalizar_derrota()
 	)
 
-func _criar_botoes_dobrar_tinta() -> void:
-	botao_dobrar_gameover = _criar_botao_dobrar(menu_game_over)
-
-func _criar_botao_dobrar(menu_pai: Control) -> Button:
-	var btn = Button.new()
-	btn.text = "[ DOBRAR TINTA ]"
-	btn.icon = load("res://assets/ads.svg")
-	btn.add_theme_constant_override("icon_max_width", 36)
-	btn.add_theme_font_override("font", load("res://assets/fonts/ArchitectsDaughter-Regular.ttf"))
-	btn.add_theme_font_size_override("font_size", 40)
-	btn.add_theme_color_override("font_color", Color("2e7d32"))
-	btn.add_theme_color_override("font_hover_color", Color("43a047"))
-	btn.flat = true
-	# Ancorado no CENTRO como os demais filhos destes menus (que usam
-	# anchors_preset=8): em telas mais altas que 16:9 tudo desce junto e a
-	# distância pro [CONTINUAR]/[RECOMEÇAR] se mantém. Em 1080×1920 esses
-	# offsets reproduzem a posição original (290, 1560).
-	btn.set_anchors_preset(Control.PRESET_CENTER)
-	btn.offset_left = -250.0
-	btn.offset_right = 250.0
-	btn.offset_top = 600.0
-	btn.offset_bottom = 680.0
-	btn.process_mode = Node.PROCESS_MODE_ALWAYS
-	menu_pai.add_child(btn)
-	btn.pressed.connect(func():
-		btn.disabled = true
-		btn.text = "[ Carregando... ]"
-		AdsManager.mostrar_rewarded("dobrar_tinta")
-	)
-	return btn
-
 func _on_recompensa_ad(placement: String) -> void:
 	match placement:
 		"revive":
@@ -656,12 +619,10 @@ func _on_anuncio_falhou(placement: String) -> void:
 			AdsManager.revive_usado_na_run = false
 			_spawn_feedback("SEM CONEXÃO!", "miss", player.global_position if player else Vector2(540, 960))
 		"dobrar_tinta":
-			for btn in [botao_dobrar_vitoria, botao_dobrar_gameover]:
-				if btn and btn.disabled:
-					btn.disabled = false
-					btn.text = "[ DOBRAR TINTA ]"
 			if tela_vitoria and menu_vitoria.visible:
 				tela_vitoria.anuncio_falhou()
+			if tela_derrota and menu_game_over.visible:
+				tela_derrota.anuncio_falhou()
 			_spawn_feedback("FALHA DE REDE!", "miss", Vector2(540, 1500))
 
 func _executar_revive() -> void:
@@ -702,11 +663,10 @@ func _executar_dobro_tinta() -> void:
 	dados_save["tinta"] += tinta_final_ultima_run
 	SaveManager.salvar()
 
-	for btn in [botao_dobrar_vitoria, botao_dobrar_gameover]:
-		if btn and btn.disabled:
-			btn.text = "[ +%d RECEBIDO ✓ ]" % tinta_final_ultima_run
 	if tela_vitoria and menu_vitoria.visible:
 		tela_vitoria.bonus_recebido()
+	if tela_derrota and menu_game_over.visible:
+		tela_derrota.bonus_recebido()
 
 	_tocar_som(audio_vitoria)
 
@@ -784,13 +744,8 @@ func _processar_fim_de_jogo(venceu: bool) -> void:
 	var tinta_bonus_cap: int = int(tinta_base_final * (float(bonus_cap_pct) / 100.0))
 	var tinta_final: int = tinta_base_final + tinta_bonus_cap
 
-	# Guarda para o botão "DOBRAR TINTA" (rewarded ad) e reabilita os botões
+	# Guarda para o "Ver anúncio" (dobrar tinta) das telas de fim
 	tinta_final_ultima_run = tinta_final
-	for btn in [botao_dobrar_vitoria, botao_dobrar_gameover]:
-		if btn:
-			btn.disabled = false
-			btn.text = "[ DOBRAR TINTA ]"
-			btn.visible = tinta_final > 0
 	
 	# 3. Calcula XP ganho na run (dificultado)
 	var xp_ganho = (monstros_derrotados_partida * 1) + (20 if boss_derrotado_partida else 0) + (50 if venceu else 0)
@@ -812,6 +767,8 @@ func _processar_fim_de_jogo(venceu: bool) -> void:
 		SaveManager.incrementar_stat("bosses_derrotados")
 	if venceu:
 		SaveManager.incrementar_stat("capitulos_vencidos")
+	# Recorde antes desta partida (a derrota mostra "Novo recorde!")
+	var recorde_antes: int = SaveManager.get_melhor_pagina(capitulo_atual)
 	if not run_de_teste: # atalho "Testar chefe" não entra na conta
 		SaveManager.registrar_capitulo(capitulo_atual, venceu,
 			wave_manager.pagina_atual >= GameData.PAGINAS.size())
@@ -844,46 +801,34 @@ func _processar_fim_de_jogo(venceu: bool) -> void:
 	_registrar_telemetria_run(tinta_final)
 	SaveManager.salvar()
 	
-	# 7. Atualiza UI dos menus: total grande + poucas linhas de detalhe
-	var linhas: Array = []
-	if venceu:
-		linhas.append("Coletada na partida: +%d" % tinta_partida)
-		if tinta_bonus_vida > 0:
-			linhas.append("Bônus de vidas: +%d" % tinta_bonus_vida)
-		if tinta_bonus_cap > 0:
-			linhas.append("Bônus do capítulo: +%d" % tinta_bonus_cap)
-	linhas.append("+%d XP" % xp_ganho)
-	if subiu_nivel:
-		linhas.append("Novo nível %d!  +%d clipes" % [dados_save["nivel_conta"], niveis_ganhos * 5])
-	# Vitória: o capítulo desbloqueado ganha destaque próprio (marca-texto),
-	# separado dos números da partida
+	# 7. Telas de fim (TelaVitoria / TelaDerrota) com os números da partida
 	var cap_desbloqueado: int = dados_save["capitulo_desbloqueado"] if texto_desbloqueio != "" else 0
-	if cap_desbloqueado > 0 and not venceu:
-		linhas.append("Capítulo %d desbloqueado!" % cap_desbloqueado)
-	var texto_total := "+%d tinta" % tinta_final
+	var ficha: Dictionary = FICHAS_CHEFE.get(capitulo_atual, FICHAS_CHEFE[1])
+	var dados_tela := {
+		"cap": capitulo_atual,
+		"tinta_partida": tinta_partida,
+		"bonus_vida": tinta_bonus_vida,
+		"bonus_cap": tinta_bonus_cap,
+		"tinta_final": tinta_final,
+		"xp_ganho": xp_ganho,
+		"nivel": dados_save["nivel_conta"],
+		"xp": dados_save["xp_conta"],
+		"xp_req": get_xp_necessario_para_nivel(dados_save["nivel_conta"]),
+		"niveis_ganhos": niveis_ganhos,
+		"clipes": niveis_ganhos * 5,
+	}
 	if venceu:
-		var ficha: Dictionary = FICHAS_CHEFE.get(capitulo_atual, FICHAS_CHEFE[1])
-		tela_vitoria.mostrar({
-			"cap": capitulo_atual,
-			"nome": ficha["nome"].substr(2), # sem o artigo ("o Compasso" → "Compasso")
-			"arte": ficha["arte"],
-			"tinta_partida": tinta_partida,
-			"bonus_vida": tinta_bonus_vida,
-			"bonus_cap": tinta_bonus_cap,
-			"tinta_final": tinta_final,
-			"xp_ganho": xp_ganho,
-			"nivel": dados_save["nivel_conta"],
-			"xp": dados_save["xp_conta"],
-			"xp_req": get_xp_necessario_para_nivel(dados_save["nivel_conta"]),
-			"niveis_ganhos": niveis_ganhos,
-			"clipes": niveis_ganhos * 5,
-			"cap_desbloqueado": cap_desbloqueado,
-		})
+		dados_tela["nome"] = ficha["nome"].substr(2) # sem o artigo ("o Compasso" → "Compasso")
+		dados_tela["arte"] = ficha["arte"]
+		dados_tela["cap_desbloqueado"] = cap_desbloqueado
+		tela_vitoria.mostrar(dados_tela)
 	else:
-		label_total_gameover.text = texto_total
-		var label_gameover = menu_game_over.get_node_or_null("DetalhesGameOver")
-		if label_gameover:
-			label_gameover.text = "\n".join(linhas)
+		dados_tela["nome"] = ficha["nome"] # com o artigo: "O Compasso venceu desta vez!"
+		dados_tela["arte_chefe"] = ficha["arte"]
+		dados_tela["pagina"] = wave_manager.pagina_atual
+		dados_tela["total_paginas"] = GameData.PAGINAS.size()
+		dados_tela["recorde_antes"] = recorde_antes
+		tela_derrota.mostrar(dados_tela)
 
 const FICHAS_CHEFE: Dictionary = preload("res://Boss.gd").FICHAS
 ## Tela de vitória redesenhada (TelaVitoria.gd). Os nós antigos do .tscn
@@ -898,6 +843,19 @@ func _criar_tela_vitoria() -> void:
 	menu_vitoria.add_child(tela_vitoria)
 	tela_vitoria.voltar_pressionado.connect(_on_botao_continuar_pressed)
 	tela_vitoria.anuncio_pressionado.connect(func(): AdsManager.mostrar_rewarded("dobrar_tinta"))
+
+## Tela de derrota redesenhada (TelaDerrota.gd, irmã da vitória). Os nós
+## antigos do .tscn ficam escondidos.
+func _criar_tela_derrota() -> void:
+	for nome in ["FundoVegetal", "Titulo", "DetalhesGameOver", "BotaoRecomecar"]:
+		var n := menu_game_over.get_node_or_null(nome)
+		if n:
+			n.visible = false
+	tela_derrota = Control.new()
+	tela_derrota.set_script(preload("res://TelaDerrota.gd"))
+	menu_game_over.add_child(tela_derrota)
+	tela_derrota.voltar_pressionado.connect(_on_botao_recomecar_pressed)
+	tela_derrota.anuncio_pressionado.connect(func(): AdsManager.mostrar_rewarded("dobrar_tinta"))
 
 ## HUD mais legível no celular: coração ao lado da vida, números maiores e a
 ## barra do chefe abaixo de "Página X/8" (antes os dois se sobrepunham).
@@ -929,39 +887,6 @@ func _topo_bloco_roleta() -> float:
 	var altura_bloco: float = 230.0 + 3.0 * TAM_CARTA_ROLETA.y + 2.0 * 22.0
 	var altura_tela: float = get_viewport().get_visible_rect().size.y
 	return max(160.0, (altura_tela - altura_bloco) / 2.0)
-
-func _montar_tela_resultado(menu: Control, detalhes: Label, cor: Color, eh_vitoria: bool) -> void:
-	var total := Label.new()
-	total.add_theme_font_override("font", FONTE_NUMEROS)
-	total.add_theme_font_size_override("font_size", 130)
-	total.add_theme_color_override("font_color", cor)
-	total.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	total.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	total.set_anchors_preset(Control.PRESET_CENTER)
-	total.offset_left = -450.0
-	total.offset_right = 450.0
-	total.offset_top = -80.0 if eh_vitoria else -90.0
-	total.offset_bottom = total.offset_top + 150.0
-	menu.add_child(total)
-	if eh_vitoria:
-		label_total_vitoria = total
-	else:
-		label_total_gameover = total
-	# Detalhes logo abaixo do total
-	detalhes.add_theme_font_size_override("font_size", 40)
-	detalhes.add_theme_color_override("font_color", Color(0.18, 0.18, 0.24))
-	detalhes.offset_top = total.offset_bottom + 5.0
-	detalhes.offset_bottom = detalhes.offset_top + 260.0
-	detalhes.vertical_alignment = VERTICAL_ALIGNMENT_TOP
-	var titulo := menu.get_node_or_null("Titulo") as Label
-	if titulo:
-		titulo.offset_top = -330.0
-		titulo.offset_bottom = -200.0
-	var sub := menu.get_node_or_null("Subtitulo") as Label
-	if sub:
-		sub.add_theme_font_size_override("font_size", 40)
-		sub.offset_top = -200.0
-		sub.offset_bottom = -130.0
 
 func get_xp_necessario_para_nivel(nivel: int) -> int:
 	if nivel == 1:

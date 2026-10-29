@@ -130,10 +130,22 @@ func _rodar() -> void:
 		m._on_descanso_iniciado(); await create_timer(1.5).timeout
 		await _foto("descanso"); await _fechar()
 	if _quer("derrota"):
-		var m = await _combate()
-		m.tinta_partida = 180; m.monstros_derrotados_partida = 23
-		m._processar_fim_de_jogo(false); m.menu_game_over.visible = true
-		await create_timer(0.8).timeout; await _foto("derrota"); await _fechar()
+		# [nome, capítulo, página onde caiu, recorde antes]
+		for caso in [["derrota-cap5-pagina6", 5, 6, 7], ["derrota-cap5-chefe-recorde", 5, 8, 6],
+				["derrota-cap1-primeira", 1, 3, 0]]:
+			var m = await _combate()
+			SaveManager_dados()["stats"]["melhor_pagina"] = {str(caso[1]): caso[3]}
+			m.capitulo_atual = caso[1]; m.wave_manager.pagina_atual = caso[2]
+			m.tinta_partida = 180; m.monstros_derrotados_partida = 23
+			m._processar_fim_de_jogo(false); m.menu_game_over.visible = true
+			if caso[0] == "derrota-cap5-pagina6":
+				await create_timer(0.35).timeout; await _foto("derrota-cap5-animando")
+			await create_timer(2.0).timeout; await _foto(caso[0])
+			if caso[0] == "derrota-cap5-pagina6":
+				# Anúncio assistido (recompensa confirmada): "Bônus recebido ✓" e total 2x
+				m._executar_dobro_tinta(); await create_timer(0.3).timeout
+				await _foto("derrota-cap5-bonus")
+			await _fechar()
 	if _quer("vitoria"):
 		# Capítulo 5 (nome curto) e 9 (nome longo no selo)
 		for cap in [5, 9]:
