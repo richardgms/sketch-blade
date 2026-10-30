@@ -3,7 +3,7 @@ extends SceneTree
 ##
 ## Uso (precisa de janela, não roda com --headless):
 ##   Godot --path . -s tools/capturar_telas.gd -- <pasta_de_saida> [tela1,tela2,...]
-## Sem lista, captura todas. Telas: hub, hub-cap5-recorde, hub-cap5-chefe, hub-cap5-primeira, hub-cap1/3/4-concluido, retomar, retomar-revive-usado, retomar-confirmar, estojo, estojo-estados, estojo-fluxo, loja, loja-pacotes, missoes, config, recompensa, compra, oferta,
+## Sem lista, captura todas. Telas: hub, hub-cap5-recorde, hub-cap5-chefe, hub-cap5-primeira, hub-cap1/3/4-concluido, retomar, retomar-revive-usado, retomar-confirmar, estojo, estojo-estados, estojo-fluxo, loja, loja-pacotes, loja-fluxo, missoes, config, recompensa, compra, oferta,
 ## stats, dica-gotas, canetas, hud-vida, hud, roleta, roleta-fluxo, pausa, pausa-fluxo, descanso, descanso-fluxo, derrota, vitoria, revive.
 ##
 ## Usa um save fictício, mas alguns eventos gravam o save do PC
@@ -115,6 +115,8 @@ func _rodar() -> void:
 		await _fluxo_estojo()
 	await _hub("loja", func(h): h._alterar_aba("loja"))
 	await _hub("loja-pacotes", func(h): h._abrir_pacotes())
+	if _quer("loja-fluxo"):
+		await _fluxo_loja()
 	await _hub("missoes", func(h): h._abrir_painel_missoes())
 	await _hub("config", func(h): h._abrir_painel_config())
 	# Painel "Stats de teste" com vitórias/derrotas e páginas em que perdeu
@@ -347,3 +349,62 @@ func _fluxo_estojo() -> void:
 	await create_timer(0.3).timeout
 	print("[capturar_telas] estojo [+] do topo: aba=", h.aba_ativa, " (esperado loja)")
 	await _fechar()
+
+## Loja: compra de caneta com clipes (pulso e toque travado logo depois),
+## equipar, caneta sem tinta (ficha treme e abre a oferta, "Agora não" travado
+## no começo), aba Pacotes, compra simulada do pacote ("Abrindo a loja...",
+## tinta entra) e a caneta liberada na volta para Canetas.
+func _fluxo_loja() -> void:
+	_save(1)
+	var d := SaveManager_dados()
+	var h = _abrir("res://hub.tscn"); await create_timer(1.5).timeout
+	h._alterar_aba("loja"); await create_timer(0.3).timeout
+	var l = h.loja
+	print("[capturar_telas] loja botoes=", l._btns.size(), " (esperado 4)")
+	await _tocar(_btn_caneta(l, "gel_vermelha"))
+	print("[capturar_telas] loja compra gel: clipes=", d["clipes_ouro"], " equipada=", d["caneta_equipada"], " (esperado 15 e gel_vermelha)")
+	await create_timer(0.08).timeout
+	await _foto("loja-fluxo-1-comprando")
+	await _tocar(_btn_caneta(l, "lapis_hb"))
+	print("[capturar_telas] loja toque travado: equipada=", d["caneta_equipada"], " (esperado gel_vermelha)")
+	await create_timer(0.6).timeout
+	await _tocar(_btn_caneta(l, "lapis_hb"))
+	print("[capturar_telas] loja equipar: equipada=", d["caneta_equipada"], " (esperado lapis_hb)")
+	await create_timer(0.6).timeout
+	await _foto("loja-fluxo-2-equipou")
+	# Nanquim sem tinta (640 < 1.500): treme e abre a oferta
+	await _tocar(_btn_caneta(l, "nanquim"))
+	await create_timer(0.1).timeout
+	print("[capturar_telas] loja sem tinta: oferta=", h.popup_compra.visible, " falta=", h._falta_oferta, " (esperado true e 860)")
+	await _tocar(h.popup_compra._btn_nao)
+	print("[capturar_telas] loja 'Agora não' travado: aberta=", h.popup_compra.visible, " (esperado true)")
+	await create_timer(0.5).timeout
+	await _foto("loja-fluxo-3-oferta")
+	await _tocar(h.popup_compra._btn_nao)
+	print("[capturar_telas] loja 'Agora não': aberta=", h.popup_compra.visible, " (esperado false)")
+	# Aba Pacotes e compra simulada do pacote de tinta
+	await _tocar(_aba_loja(l, "PACOTES")); await create_timer(0.3).timeout
+	print("[capturar_telas] loja aba=", h.sub_aba_loja, " (esperado pacotes)")
+	await _foto("loja-fluxo-4-pacotes")
+	await _tocar(l._btns[0]); await create_timer(0.5).timeout
+	await _tocar(h.popup_compra._btn_ok); await create_timer(0.1).timeout
+	await _foto("loja-fluxo-5-abrindo")
+	await create_timer(1.0).timeout
+	print("[capturar_telas] loja pacote: tinta=", d["tinta"], " aberta=", h.popup_compra.visible, " (esperado 5640 e false)")
+	await _tocar(_aba_loja(l, "CANETAS")); await create_timer(0.3).timeout
+	await _foto("loja-fluxo-6-liberada")
+	await _fechar()
+
+## Botão da ficha de uma caneta (a em uso não tem botão).
+func _btn_caneta(l: Control, id: String) -> Button:
+	var ficha: Control = l._fichas_atuais[l._ids.find(id)]
+	for c in ficha.get_children():
+		if c is Button:
+			return c
+	return null
+
+func _aba_loja(l: Control, texto: String) -> Button:
+	for c in l._bloco.get_children():
+		if c is Button and c.text == texto:
+			return c
+	return null
