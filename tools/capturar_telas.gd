@@ -4,7 +4,7 @@ extends SceneTree
 ## Uso (precisa de janela, não roda com --headless):
 ##   Godot --path . -s tools/capturar_telas.gd -- <pasta_de_saida> [tela1,tela2,...]
 ## Sem lista, captura todas. Telas: hub, hub-cap5-recorde, hub-cap5-chefe, hub-cap5-primeira, hub-cap1/3/4-concluido, retomar, retomar-revive-usado, retomar-confirmar, estojo, loja, missoes, config, recompensa, compra,
-## stats, dica-gotas, canetas, hud-vida, hud, roleta, pausa, descanso, derrota, vitoria, revive.
+## stats, dica-gotas, canetas, hud-vida, hud, roleta, roleta-fluxo, pausa, descanso, derrota, vitoria, revive.
 ##
 ## Usa um save fictício, mas alguns eventos gravam o save do PC
 ## (%APPDATA%\Godot\app_userdata\SketchBlade\save_data.json): faça backup antes.
@@ -153,8 +153,28 @@ func _rodar() -> void:
 	if _quer("roleta"):
 		var m = await _combate()
 		m.player.aplicar_upgrade("tiro_duplo")
-		m._abrir_roleta_upgrades(); await create_timer(7.0).timeout
+		m.wave_manager.pagina_atual = 4
+		m._abrir_roleta_upgrades(); await create_timer(3.0).timeout
 		await _foto("roleta"); await _fechar()
+	if _quer("roleta-fluxo"):
+		# Toque durante o giro não escolhe; depois, a carta tocada é aplicada e a roleta fecha
+		var m = await _combate()
+		m.player.aplicar_upgrade("tiro_duplo")
+		m.wave_manager.pagina_atual = 2
+		m._abrir_roleta_upgrades(); await create_timer(0.3).timeout
+		await _foto("roleta-animando")
+		m.tela_roleta._cartas[0]["botao"].pressed.emit(); await create_timer(0.6).timeout
+		print("[capturar_telas] toque no giro -> roleta aberta: ", m.menu_upgrades.visible)
+		await create_timer(1.5).timeout
+		var op: Dictionary = m.opcoes_roleta[1]
+		var antes: int = m.player.nivel_upgrade(op["id"])
+		var vidas: int = m.player.vidas; var tinta: int = m.tinta_partida
+		m.tela_roleta._cartas[1]["botao"].pressed.emit(); await create_timer(0.1).timeout
+		await _foto("roleta-tocada"); await create_timer(1.0).timeout
+		print("[capturar_telas] escolheu ", op["id"], " nivel ", antes, " -> ", m.player.nivel_upgrade(op["id"]),
+			" | vidas ", vidas, " -> ", m.player.vidas, " | tinta ", tinta, " -> ", m.tinta_partida,
+			" | roleta aberta: ", m.menu_upgrades.visible, " | pausado: ", paused)
+		await _fechar()
 	if _quer("pausa"):
 		var m = await _combate()
 		for id in ["tiro_duplo", "leque", "ricochete"]: m.player.aplicar_upgrade(id)

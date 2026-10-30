@@ -35,7 +35,6 @@ var label_pagina: Label
 var menu_descanso: Control
 var label_status_hp_descanso: Label
 var label_status_tinta_descanso: Label
-var fundo_upgrades: Node
 var fundo_descanso: Node
 var bg_cards_descanso: Array = []
 
@@ -83,17 +82,14 @@ var audio_vitoria: AudioStream
 
 # Sistema de Upgrades Roguelite
 var menu_upgrades: Control
-var botoes_upgrades: Array = []
-var dados_cartas: Array = []
-var label_dica_upgrades: Label
+# Roleta de melhorias no estilo caderno (TelaRoleta.gd, filho de menu_upgrades)
+var tela_roleta: Control
 var menu_pausa: Control
 var botao_pausa_hud: Button
 var container_habilidades_pausa: HBoxContainer
 var label_contagem: Label
 # Opções sorteadas na roleta atual (definições vindas de GameData.UPGRADES)
 var opcoes_roleta: Array = []
-const TAM_CARTA_ROLETA := Vector2(960, 365)
-const LADO_ICONE_ROLETA: float = 230.0
 
 func _ready() -> void:
 	player.recebeu_dano.connect(_on_player_dano)
@@ -393,6 +389,7 @@ func _tratar_voltar() -> void:
 	if menu_revive and menu_revive.visible:
 		return
 	if menu_upgrades and menu_upgrades.visible:
+		tela_roleta.voltar_do_sistema() # só pula a animação: a escolha é obrigatória
 		return
 	if menu_descanso and menu_descanso.visible:
 		return
@@ -850,13 +847,6 @@ func _ajustar_hud_combate() -> void:
 	boss_hp_bar.offset_top = 150.0
 	boss_hp_bar.offset_bottom = 190.0
 
-## Topo do bloco da roleta para que título + dica + 3 cartas fiquem no
-## centro vertical da tela (altura real, que passa de 1920 em celulares altos).
-func _topo_bloco_roleta() -> float:
-	var altura_bloco: float = 230.0 + 3.0 * TAM_CARTA_ROLETA.y + 2.0 * 22.0
-	var altura_tela: float = get_viewport().get_visible_rect().size.y
-	return max(160.0, (altura_tela - altura_bloco) / 2.0)
-
 func get_xp_necessario_para_nivel(nivel: int) -> int:
 	if nivel == 1:
 		return 200
@@ -1306,151 +1296,15 @@ func _criar_menu_upgrades() -> void:
 	menu_upgrades.visible = false
 	menu_upgrades.set_anchors_preset(Control.PRESET_FULL_RECT)
 	$HUD.add_child(menu_upgrades)
-	
-	# Fundo estilo folha de caderno da fase atual (apenas cor sólida)
-	var fundo = ColorRect.new()
-	fundo.color = _obter_cor_papel_capitulo(capitulo_atual)
-	fundo.set_anchors_preset(Control.PRESET_FULL_RECT)
-	fundo.modulate.a = 0.96
-	menu_upgrades.add_child(fundo)
-	fundo_upgrades = fundo
-	
-	# Título
-	var titulo = Label.new()
-	titulo.text = "ESCOLHA UM UPGRADE"
-	titulo.add_theme_font_override("font", load("res://assets/fonts/ArchitectsDaughter-Regular.ttf"))
-	titulo.add_theme_font_size_override("font_size", 60)
-	titulo.add_theme_color_override("font_color", Color("002867")) # Azul BIC
-	titulo.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	titulo.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	# Bloco (título, dica e 3 cartas) centrado na altura real da tela; o
-	# "Página X/8" continua no topo, fora do bloco.
-	var y_bloco: float = _topo_bloco_roleta()
-	titulo.position = Vector2(0, y_bloco)
-	titulo.size = Vector2(1080, 120)
-	menu_upgrades.add_child(titulo)
-	
-	# Dica/Status
-	label_dica_upgrades = Label.new()
-	label_dica_upgrades.text = "⭐ Girando a roleta de materiais... ⭐"
-	label_dica_upgrades.add_theme_font_override("font", load("res://assets/fonts/ArchitectsDaughter-Regular.ttf"))
-	label_dica_upgrades.add_theme_font_size_override("font_size", 34)
-	label_dica_upgrades.add_theme_color_override("font_color", Color(0.4, 0.4, 0.45))
-	label_dica_upgrades.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	label_dica_upgrades.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	label_dica_upgrades.position = Vector2(0, y_bloco + 100)
-	label_dica_upgrades.size = Vector2(1080, 80)
-	menu_upgrades.add_child(label_dica_upgrades)
-	
-	# Cartas em linhas, largura da tela (antes: 3 colunas de 280 px com texto
-	# de 18-28 px, difícil de ler no celular). Ícone à esquerda; nome,
-	# descrição e efeito dentro da carta, à direita.
-	for i in range(3):
-		var btn = Button.new()
-		btn.size = TAM_CARTA_ROLETA
-		btn.position = Vector2(60, y_bloco + 230 + i * (TAM_CARTA_ROLETA.y + 22))
-		btn.flat = true
-		btn.pivot_offset = TAM_CARTA_ROLETA / 2.0 # Para animação de escala centralizada
-		menu_upgrades.add_child(btn)
-		botoes_upgrades.append(btn)
-
-		# Moldura desenhada à mão em nine-patch (cantos preservados na carta larga)
-		var bg_card = NinePatchRect.new()
-		bg_card.texture = load("res://assets/card-roleta.png")
-		bg_card.patch_margin_left = 62
-		bg_card.patch_margin_right = 62
-		bg_card.patch_margin_top = 62
-		bg_card.patch_margin_bottom = 62
-		bg_card.set_anchors_preset(Control.PRESET_FULL_RECT)
-		bg_card.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		btn.add_child(bg_card)
-
-		# Área de recorte do ícone, à esquerda
-		var recorte = Control.new()
-		recorte.size = Vector2(LADO_ICONE_ROLETA, LADO_ICONE_ROLETA)
-		recorte.position = Vector2(50, (TAM_CARTA_ROLETA.y - LADO_ICONE_ROLETA) / 2.0)
-		recorte.clip_contents = true
-		recorte.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		btn.add_child(recorte)
-
-		# Carrossel de ícones rolável (10 slots verticais)
-		var carrossel = Control.new()
-		carrossel.size = Vector2(LADO_ICONE_ROLETA, LADO_ICONE_ROLETA * 10)
-		carrossel.position = Vector2(0, -LADO_ICONE_ROLETA * 9)
-		carrossel.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		recorte.add_child(carrossel)
-
-		var texturas_carrossel: Array = []
-		for j in range(10):
-			var tex = TextureRect.new()
-			tex.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-			tex.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-			tex.size = Vector2(LADO_ICONE_ROLETA, LADO_ICONE_ROLETA)
-			tex.position = Vector2(0, j * LADO_ICONE_ROLETA)
-			tex.mouse_filter = Control.MOUSE_FILTER_IGNORE
-			carrossel.add_child(tex)
-			texturas_carrossel.append(tex)
-
-		var x_texto: float = 50 + LADO_ICONE_ROLETA + 30
-		var largura_texto: float = TAM_CARTA_ROLETA.x - x_texto - 50
-
-		# Status "GIRANDO..." no lugar do texto até a roleta parar
-		var lbl_status = Label.new()
-		lbl_status.text = "GIRANDO..."
-		lbl_status.add_theme_font_override("font", load("res://assets/fonts/ArchitectsDaughter-Regular.ttf"))
-		lbl_status.add_theme_font_size_override("font_size", 44)
-		lbl_status.add_theme_color_override("font_color", Color("002867"))
-		lbl_status.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-		lbl_status.position = Vector2(x_texto, 0)
-		lbl_status.size = Vector2(largura_texto, TAM_CARTA_ROLETA.y)
-		btn.add_child(lbl_status)
-
-		# Nome, descrição e efeito, alinhados à esquerda
-		var vbox_info = VBoxContainer.new()
-		vbox_info.name = "Info"
-		vbox_info.position = Vector2(x_texto, 32)
-		vbox_info.size = Vector2(largura_texto, TAM_CARTA_ROLETA.y - 64)
-		vbox_info.add_theme_constant_override("separation", 2)
-		vbox_info.alignment = BoxContainer.ALIGNMENT_CENTER
-		vbox_info.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		vbox_info.visible = false
-		btn.add_child(vbox_info)
-
-		var lbl_nome = Label.new()
-		lbl_nome.add_theme_font_override("font", load("res://assets/fonts/ArchitectsDaughter-Regular.ttf"))
-		lbl_nome.add_theme_font_size_override("font_size", 46)
-		lbl_nome.add_theme_color_override("font_color", Color("002867")) # Azul BIC
-		lbl_nome.autowrap_mode = TextServer.AUTOWRAP_WORD
-		vbox_info.add_child(lbl_nome)
-
-		var lbl_desc = Label.new()
-		lbl_desc.add_theme_font_override("font", load("res://assets/fonts/ArchitectsDaughter-Regular.ttf"))
-		lbl_desc.add_theme_font_size_override("font_size", 36)
-		lbl_desc.add_theme_color_override("font_color", Color(0.22, 0.22, 0.27))
-		lbl_desc.autowrap_mode = TextServer.AUTOWRAP_WORD
-		vbox_info.add_child(lbl_desc)
-
-		# Efeito do próximo nível, agora dentro da carta
-		var lbl_stats = Label.new()
-		lbl_stats.add_theme_font_override("font", FONTE_NUMEROS)
-		lbl_stats.add_theme_font_size_override("font_size", 42)
-		lbl_stats.autowrap_mode = TextServer.AUTOWRAP_WORD
-		lbl_stats.visible = false
-		vbox_info.add_child(lbl_stats)
-
-		# Salva a referência da carta para manipulação simples
-		dados_cartas.append({
-			"botao": btn,
-			"bg_card": bg_card,
-			"carrossel": carrossel,
-			"texturas": texturas_carrossel,
-			"vbox_info": vbox_info,
-			"lbl_nome": lbl_nome,
-			"lbl_desc": lbl_desc,
-			"lbl_stats": lbl_stats,
-			"lbl_status": lbl_status,
-			"pos_original": btn.position
-		})
+	# Papel da fase, 3 cartas com contorno de caneta, nível visível e as
+	# melhorias que já tem; cartas travadas até os ícones pararem de girar.
+	tela_roleta = Control.new()
+	tela_roleta.set_script(preload("res://TelaRoleta.gd"))
+	menu_upgrades.add_child(tela_roleta)
+	tela_roleta.escolhido.connect(func(i: int):
+		if i >= 0 and i < opcoes_roleta.size():
+			_aplicar_upgrade(opcoes_roleta[i]["id"], i))
+	tela_roleta.icone_parou.connect(_tocar_som_clunk)
 
 # ============================================================
 # FLUXO DAS PÁGINAS DO CADERNO
@@ -1720,27 +1574,6 @@ func _abrir_roleta_upgrades() -> void:
 	if not is_inside_tree() or not get_tree():
 		return
 	get_tree().paused = true
-	
-	# Garante que o fundo esteja adaptado ao capítulo atual (apenas a cor)
-	if fundo_upgrades:
-		fundo_upgrades.color = _obter_cor_papel_capitulo(capitulo_atual)
-	
-	# Restaura modulated e posições originais das cartas
-	var cor_fundo_carta = _obter_cor_fundo_carta(capitulo_atual)
-	for i in range(3):
-		var carta = dados_cartas[i]
-		carta["botao"].modulate = Color.WHITE
-		carta["botao"].scale = Vector2.ONE
-		carta["botao"].position = carta["pos_original"]
-		carta["botao"].disabled = true # Desabilita cliques durante o giro
-		carta["vbox_info"].visible = false
-		carta["lbl_stats"].visible = false
-		carta["lbl_status"].visible = true
-		carta["carrossel"].position.y = -LADO_ICONE_ROLETA * 9
-		if carta.has("bg_card") and carta["bg_card"]:
-			carta["bg_card"].modulate = cor_fundo_carta
-	
-	label_dica_upgrades.text = "⭐ Girando a roleta de materiais... ⭐"
 
 	# Monta o pool: só upgrades NÃO maxados + consumíveis (sempre disponíveis)
 	var pool: Array = []
@@ -1760,105 +1593,26 @@ func _abrir_roleta_upgrades() -> void:
 
 	opcoes_roleta = opcoes
 	menu_upgrades.visible = true
+	# A tela já mostra "Página N de 8": o rótulo do combate (criado depois dos
+	# menus, fica por cima) sai enquanto a roleta está aberta
+	if label_pagina:
+		label_pagina.visible = false
 	_tocar_som(audio_vitoria)
-	
-	# Inicia o giro e tremor de cada slot com delays sequenciais
-	for i in range(3):
-		var carta = dados_cartas[i]
-		var info_final = opcoes[i]
-		
-		# Configura as texturas do carrossel (ícone final na posição 0, outros aleatórios)
-		carta["texturas"][0].texture = load(info_final["icone"])
-		for j in range(1, 10):
-			var index_aleatorio = randi() % GameData.UPGRADES.size()
-			carta["texturas"][j].texture = load(GameData.UPGRADES[index_aleatorio]["icone"])
-
-		# Popula as informações de textos (stats do PRÓXIMO nível + indicador Lv)
-		var nivel_atual = player.nivel_upgrade(info_final["id"])
-		var nivel_alvo = nivel_atual + 1
-		var idx_stats = clamp(nivel_alvo - 1, 0, info_final["stats"].size() - 1)
-		var texto_stats: String = info_final["stats"][idx_stats].replace("\n", " ")
-		if not info_final.get("consumivel", false):
-			if nivel_atual > 0:
-				texto_stats += "  ·  Lv.%d → Lv.%d" % [nivel_atual, nivel_alvo]
-			else:
-				texto_stats += "  ·  NOVO!"
-
-		carta["lbl_nome"].text = info_final["nome"].replace("\n", " ")
-		carta["lbl_desc"].text = info_final["descricao"].replace("\n", " ")
-		carta["lbl_stats"].text = texto_stats
-		carta["lbl_stats"].add_theme_color_override("font_color", Color(info_final["cor_stats"]))
-		
-		# Limpa e conecta os sinais de cliques
-		for conn in carta["botao"].pressed.get_connections():
-			carta["botao"].pressed.disconnect(conn.callable)
-		carta["botao"].pressed.connect(func():
-			_aplicar_upgrade(info_final["id"], i)
-		)
-		
-		# Efeito de tremor lateral suave (tremor de máquina)
-		var tween_tremor = create_tween().set_loops(int(10 + i * 8))
-		tween_tremor.set_pause_mode(Tween.TWEEN_PAUSE_PROCESS)
-		var pos_org = carta["botao"].position
-		tween_tremor.tween_property(carta["botao"], "position:x", pos_org.x + randf_range(-3.0, 3.0), 0.05)
-		tween_tremor.tween_property(carta["botao"], "position:x", pos_org.x, 0.05)
-		
-		# Giro vertical usando Tween com bounce elástico no final
-		var tempo_giro = 1.0 + (i * 0.4)
-		var tween_giro = create_tween()
-		tween_giro.set_pause_mode(Tween.TWEEN_PAUSE_PROCESS)
-		tween_giro.tween_property(carta["carrossel"], "position:y", 0.0, tempo_giro).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
-		
-		# Callback da parada da roleta
-		tween_giro.finished.connect(func():
-			tween_tremor.kill()
-			carta["botao"].position = pos_org
-			carta["lbl_status"].visible = false
-			carta["vbox_info"].visible = true
-			carta["lbl_stats"].visible = true
-			_tocar_som_clunk()
-			
-			# Se for a última roleta a parar (índice 2)
-			if i == 2:
-				label_dica_upgrades.text = "👉 Toque em um para escolher! 👈"
-				for k in range(3):
-					dados_cartas[k]["botao"].disabled = false # Habilita cliques
-		)
+	tela_roleta.mostrar(tela_roleta.montar_dados(opcoes, player, capitulo_atual,
+		max(1, wave_manager.pagina_atual), GameData.PAGINAS.size()))
 
 func _tocar_som_clunk() -> void:
 	var som = _gerar_som_procedural(250.0, 0.08, "square")
 	_tocar_som(som)
 
-func _aplicar_upgrade(id: String, index_escolhido: int) -> void:
-	# Desabilita cliques para evitar duplo clique
-	for i in range(3):
-		dados_cartas[i]["botao"].disabled = true
-		
-	# Som de seleção
+func _aplicar_upgrade(id: String, _index_escolhido: int) -> void:
+	# Som de seleção (a animação da carta escolhida fica na TelaRoleta)
 	var som_sel = _gerar_som_procedural(880.0, 0.08, "sin")
 	_tocar_som(som_sel)
-	
-	# Animação da carta escolhida: pulso de escala + brilho
-	var carta_escolhida = dados_cartas[index_escolhido]
-	var tween_sel = create_tween()
-	tween_sel.set_pause_mode(Tween.TWEEN_PAUSE_PROCESS)
-	tween_sel.tween_property(carta_escolhida["botao"], "scale", Vector2(1.15, 1.15), 0.15).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
-	tween_sel.tween_property(carta_escolhida["botao"], "scale", Vector2(1.0, 1.0), 0.15).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
-	
-	# Escurece e desliza as outras cartas para fora da tela
-	for i in range(3):
-		if i != index_escolhido:
-			var carta_outra = dados_cartas[i]
-			var direcao_deslizar = -400.0 if i < index_escolhido else 400.0
-			var tween_outra = create_tween().set_parallel(true)
-			tween_outra.set_pause_mode(Tween.TWEEN_PAUSE_PROCESS)
-			tween_outra.tween_property(carta_outra["botao"], "modulate", Color(0.2, 0.2, 0.2, 0.0), 0.5)
-			tween_outra.tween_property(carta_outra["botao"], "position:x", carta_outra["botao"].position.x + direcao_deslizar, 0.5).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
-			
-	# Espera concluir as animações antes de aplicar os efeitos e fechar
-	await get_tree().create_timer(0.6).timeout
-	
+
 	menu_upgrades.visible = false
+	if label_pagina:
+		label_pagina.visible = true
 	get_tree().paused = false
 	
 	# Aplica modificadores no Player
