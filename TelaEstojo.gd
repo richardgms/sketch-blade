@@ -1,12 +1,12 @@
 extends "res://TelaFim.gd"
-## Estojo no estilo caderno (protótipo de 30/10/2026): gastar tinta em dano,
-## corações e cadência, com o card da roleta (caneta + papel), nível em
-## bolinhas e o resultado da compra ("23 → 28 de dano").
+## Estojo no estilo caderno (aprovado em 30/10/2026): gastar tinta em dano,
+## corações e cadência. Fichas com o card da roleta (caneta + papel), margem
+## vermelha e furo de etiqueta, nível em tracinhos de contagem e o resultado
+## da compra ("23 → 28 de dano").
 ## Fica dentro do Hub (aba Estojo): o papel, o cabeçalho e a barra de abas são
 ## do Hub, então esta tela não cobre nada e não bloqueia toques fora dos botões.
 ## O Hub chama mostrar(montar_dados(save)) e compra no sinal upar(chave);
 ## depois chama mostrar() de novo com "comprado" = chave para animar.
-## versao: "A" (fichas largas empilhadas) ou "B" (3 cartas em pé).
 
 signal upar(chave: String)
 
@@ -15,18 +15,18 @@ const CARD_MARGENS := Vector4(40, 40, 55, 55)
 const BOTAO_FALTA := "res://assets/ui/botao_falta.png"
 const BOTAO_MAXIMO := "res://assets/ui/botao_maximo.png"
 const ITENS := [
-	{"chave": "nivel_dano", "nome": "Dano da Caneta", "nome_b": "Dano da\nCaneta",
+	{"chave": "nivel_dano", "nome": "Dano da Caneta",
 		"icone": "res://assets/upgrade1.svg", "unidade": "de dano"},
-	{"chave": "nivel_hp", "nome": "Corações", "nome_b": "Corações",
+	{"chave": "nivel_hp", "nome": "Corações",
 		"icone": "res://assets/upgrade2.svg", "unidade": "corações"},
-	{"chave": "nivel_cadencia", "nome": "Cadência de Tiro", "nome_b": "Cadência\nde Tiro",
+	{"chave": "nivel_cadencia", "nome": "Cadência de Tiro",
 		"icone": "res://assets/upgrade3.svg", "unidade": ""},
 ]
 
-var versao := "A"
 var _bloco: Control
 var _estilo_card: StyleBoxTexture
 var _btns: Array = []
+var _fichas_atuais: Array = []
 
 func _montar_fixo() -> void:
 	# O Hub já tem papel, cabeçalho e abas: esta tela só desenha o miolo
@@ -86,7 +86,8 @@ func mostrar(d: Dictionary) -> void:
 	_txt(_bloco, "MEU ESTOJO", 74, AZUL_ESCURO, 318, 418)
 	_traco(_bloco, 300, 780, 432, Color(AZUL_ESCURO, 0.85), 5.0)
 	_txt(_bloco, "Melhorias para todas as partidas.", 44, AZUL, 455, 515)
-	var cartas: Array = _cartas_em_pe(d["itens"]) if versao == "B" else _fichas(d["itens"])
+	var cartas: Array = _fichas(d["itens"])
+	_fichas_atuais = cartas
 	var comprado: String = d.get("comprado", "")
 	if comprado != "":
 		_animar_compra(cartas[_indice(comprado)])
@@ -97,9 +98,7 @@ func _indice(chave: String) -> int:
 			return k
 	return 0
 
-# ------------------------------------------------------------
-# Versão A: fichas largas, uma por linha
-# ------------------------------------------------------------
+## Uma ficha larga por melhoria: desenho | nome, tracinhos e resultado | botão.
 func _fichas(itens: Array) -> Array:
 	var cartas: Array = []
 	var alt := 320.0
@@ -107,54 +106,19 @@ func _fichas(itens: Array) -> Array:
 	for it in itens:
 		var c := _carta(Rect2(50, y, 980, alt))
 		cartas.append(c)
-		var dx := 0.0
-		if versao == "A2":
-			_etiqueta(c)
-			dx = 22.0
-		_icone_em(c, it["icone"], Rect2(84, 70, 170, 170) if versao == "A2" else Rect2(40, 62, 190, 190))
+		_etiqueta(c)
+		var dx := 22.0
+		_icone_em(c, it["icone"], Rect2(84, 70, 170, 170))
 		# Nome e "Nv. 4" na mesma linha
 		var linha := _linha(c, Vector2(255 + dx, 28), 560, 76, BoxContainer.ALIGNMENT_BEGIN)
 		linha.add_child(_lbl(it["nome"], FONTE, 52, AZUL_ESCURO))
 		linha.add_child(_lbl("  Nv. %d" % int(it["nivel"]), NUM, 52, AZUL))
-		if versao == "A2":
-			_tracinhos(c, Vector2(265 + dx, 140), int(it["nivel"]), it["chave"] == _dados.get("comprado", ""))
-		else:
-			_bolinhas(c, Vector2(275, 140), int(it["nivel"]), 34.0, 12.0, 10)
+		_tracinhos(c, Vector2(265 + dx, 140), int(it["nivel"]), it["chave"] == _dados.get("comprado", ""))
 		# Resultado da compra
 		var ef := _linha(c, Vector2(255 + dx, 178), 420, 76, BoxContainer.ALIGNMENT_BEGIN)
 		_efeito(ef, it, 58)
 		_zona_compra(c, it, Rect2(688, 112, 252, 140))
 		y += alt + 34.0
-	return cartas
-
-# ------------------------------------------------------------
-# Versão B: 3 cartas em pé lado a lado (como o descanso)
-# ------------------------------------------------------------
-func _cartas_em_pe(itens: Array) -> Array:
-	var cartas: Array = []
-	var larg := 318.0
-	var alt := 960.0
-	var vao := 22.0
-	var x0: float = (1080.0 - (3 * larg + 2 * vao)) / 2.0
-	for k in range(itens.size()):
-		var it: Dictionary = itens[k]
-		var c := _carta(Rect2(x0 + k * (larg + vao), 560, larg, alt))
-		cartas.append(c)
-		_icone_em(c, it["icone"], Rect2((larg - 210) / 2.0 - 8, 40, 210, 210))
-		# Nome com espaço para 2 linhas; o de 1 linha fica no meio dessa altura
-		var nome := _txt(c, it["nome_b"], 46, AZUL_ESCURO, 262, 372, FONTE, 14, larg - 30)
-		nome.add_theme_constant_override("line_spacing", -8)
-		_txt(c, "Nv. %d" % int(it["nivel"]), 54, AZUL, 380, 440, NUM, 0, larg - 16)
-		# 10 níveis em 2 linhas de 5 bolinhas
-		var cx: float = (larg - 16) / 2.0 - 2 * 40.0
-		_bolinhas(c, Vector2(cx, 470), int(it["nivel"]), 40.0, 14.0, 5)
-		_bolinhas(c, Vector2(cx, 512), int(it["nivel"]) - 5, 40.0, 14.0, 5)
-		# Resultado: número grande e a unidade embaixo
-		var ef := _txt(c, _texto_efeito(it), 60, AZUL, 550, 630, NUM, 10, larg - 26)
-		ef.autowrap_mode = TextServer.AUTOWRAP_WORD
-		var un: String = it["unidade"] if it["unidade"] != "" else "entre tiros"
-		_txt(c, un, 42, AZUL_ESCURO, 630, 690, FONTE, 10, larg - 26)
-		_zona_compra(c, it, Rect2(22, 740, larg - 60, 150))
 	return cartas
 
 # ------------------------------------------------------------
@@ -253,19 +217,6 @@ func _estilo_riscado(caminho: String) -> StyleBoxTexture:
 	st.texture_margin_top = 36.0
 	st.texture_margin_bottom = 36.0
 	return st
-
-## n bolinhas de nível (cheias até "nivel"), com contorno de caneta.
-func _bolinhas(pai: Control, inicio: Vector2, nivel: int, passo: float, raio: float, n: int) -> void:
-	var d := Control.new()
-	d.size = pai.size
-	d.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	d.draw.connect(func():
-		for q in range(n):
-			var c := inicio + Vector2(q * passo, 0) + Vector2(sin(q * 2.3) * 0.8, cos(q * 1.7) * 0.8)
-			if q < nivel:
-				d.draw_circle(c, raio, AZUL)
-			d.draw_arc(c, raio, 0, TAU, 32, AZUL_ESCURO, 3.0, true))
-	pai.add_child(d)
 
 ## Cara de etiqueta: margem vermelha vertical (como a do caderno) e um furo
 ## à esquerda, mostrando o papel por baixo.
@@ -373,3 +324,15 @@ func _animar_compra(carta: Control) -> void:
 		for b in _btns:
 			if is_instance_valid(b):
 				b.mouse_filter = Control.MOUSE_FILTER_STOP)
+
+## Sem tinta: a ficha treme (o Hub oferece o pacote em seguida).
+func negar(chave: String) -> void:
+	var k := _indice(chave)
+	if k >= _fichas_atuais.size() or not is_instance_valid(_fichas_atuais[k]):
+		return
+	var c: Control = _fichas_atuais[k]
+	var x0: float = c.position.x
+	var t := create_tween()
+	t.tween_property(c, "position:x", x0 - 15, 0.05)
+	t.tween_property(c, "position:x", x0 + 15, 0.05)
+	t.tween_property(c, "position:x", x0, 0.05)

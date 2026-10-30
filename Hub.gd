@@ -28,10 +28,8 @@ const CAMINHO_FONTE_NUMEROS = "res://assets/fonts/Caveat/static/Caveat-Bold.ttf"
 @onready var botao_aba_lutar: Button = $HUD/BottomNavigation/BotaoAbaLutar
 @onready var botao_aba_loja: Button = $HUD/BottomNavigation/BotaoAbaLoja
 
-# Contêineres de upgrade (dentro de tela_estojo)
-@onready var container_dano: Control = $HUD/TelaEstojo/Estojo/UpgradeDano
-@onready var container_hp: Control = $HUD/TelaEstojo/Estojo/UpgradeHP
-@onready var container_cadencia: Control = $HUD/TelaEstojo/Estojo/UpgradeCadencia
+# Aba Estojo no estilo caderno (TelaEstojo.gd, filho de tela_estojo)
+var estojo: Control
 
 # Nós do Popup de Compra (IAP Sandbox)
 @onready var popup_compra: Control = $HUD/PopupCompra
@@ -110,14 +108,7 @@ func _ready() -> void:
 
 	# Sublinhados decorativos abaixo de cada título de página
 	_adicionar_sublinhado(tela_lutar,  448.0, 220.0)
-	_adicionar_sublinhado(tela_estojo, 448.0, 300.0)
 	sublinhado_loja = _adicionar_sublinhado(tela_loja, 448.0, 200.0)
-
-	# Conteúdo do Estojo desce para abrir espaço após o sublinhado
-	var shift := 80.0
-	for c in [container_dano, container_hp, container_cadencia]:
-		c.offset_top  += shift
-		c.offset_bottom += shift
 
 	_montar_tela_capitulo()
 
@@ -208,14 +199,13 @@ func _ready() -> void:
 	lbl_xp_texto.offset_bottom = xp_bar.offset_bottom + 36
 	$HUD/Header.add_child(lbl_xp_texto)
 
+	estojo = Control.new()
+	estojo.set_script(preload("res://TelaEstojo.gd"))
+	tela_estojo.add_child(estojo)
+	estojo.upar.connect(_on_upar)
 	_atualizar_ui_upgrades()
 	_iniciar_ui_nivel()
 	_atualizar_ui_capitulo()
-	
-	# Conecta botões de upgrades
-	container_dano.get_node("BotaoUpar").pressed.connect(func(): _on_upar_pressed("nivel_dano", container_dano))
-	container_hp.get_node("BotaoUpar").pressed.connect(func(): _on_upar_pressed("nivel_hp", container_hp))
-	container_cadencia.get_node("BotaoUpar").pressed.connect(func(): _on_upar_pressed("nivel_cadencia", container_cadencia))
 	
 	# Conecta botão de Jogar
 	botao_jogar.pressed.connect(_on_botao_jogar_pressed)
@@ -979,34 +969,24 @@ func _on_cancelar_compra_pressed() -> void:
 	if desenho_hub:
 		desenho_hub.queue_redraw()
 
-func _on_upar_pressed(upgrade_key: String, container: Control) -> void:
-	var nivel_atual = dados_save[upgrade_key]
-
-	if nivel_atual >= GameData.NIVEL_MAX_ESTOJO:
+## Toque num botão do Estojo: compra o nível se der; sem tinta, a ficha
+## treme e oferece o pacote (1x por visita). Preços e níveis do GameData.
+func _on_upar(chave: String) -> void:
+	var nivel: int = dados_save[chave]
+	if nivel >= GameData.NIVEL_MAX_ESTOJO:
 		_tocar_som(audio_click_erro)
 		return
-
-	var custo = GameData.CUSTOS_ESTOJO[nivel_atual - 1]
+	var custo: int = GameData.CUSTOS_ESTOJO[nivel - 1]
 	if dados_save["tinta"] >= custo:
 		dados_save["tinta"] -= custo
-		dados_save[upgrade_key] += 1
+		dados_save[chave] += 1
 		_salvar_dados()
-		_atualizar_ui_upgrades()
-		
+		_atualizar_ui_upgrades(chave)
 		_tocar_som(audio_click_sucesso)
-		
-		# Animação de pulso
-		var tween = create_tween()
-		tween.tween_property(container, "scale", Vector2(1.05, 1.05), 0.1).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
-		tween.tween_property(container, "scale", Vector2(1.0, 1.0), 0.1).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
 	else:
 		_tocar_som(audio_click_erro)
-		var pos_original = container.position
-		var tween = create_tween()
-		tween.tween_property(container, "position:x", pos_original.x - 15, 0.05)
-		tween.tween_property(container, "position:x", pos_original.x + 15, 0.05)
-		tween.tween_property(container, "position:x", pos_original.x, 0.05)
-		tween.tween_callback(func(): _oferecer_pacote("tinta", custo - dados_save["tinta"]))
+		estojo.negar(chave)
+		_oferecer_pacote("tinta", custo - dados_save["tinta"])
 
 ## Oferece o pacote quando o jogador tenta comprar algo sem saldo.
 ## No máximo uma vez por moeda a cada visita ao Hub, para não insistir.
@@ -1019,256 +999,13 @@ func _oferecer_pacote(chave: String, falta: int) -> void:
 	popup_titulo.text = "Faltam %d %s" % [falta, moeda]
 	popup_descricao.text = "Quer o pacote de %s por %s?" % [BillingManager.nome(chave), BillingManager.preco(chave)]
 
-func _atualizar_ui_upgrades() -> void:
-	_configurar_container(container_dano, "nivel_dano", "Dano da Caneta", "res://assets/upgrade1.svg")
-	_configurar_container(container_hp, "nivel_hp", "Corações de HP", "res://assets/upgrade2.svg")
-	_configurar_container(container_cadencia, "nivel_cadencia", "Cadência de Tiro", "res://assets/upgrade3.svg")
+## Redesenha o Estojo; "comprado" anima a ficha que acabou de subir.
+func _atualizar_ui_upgrades(comprado: String = "") -> void:
+	var d: Dictionary = estojo.montar_dados(dados_save)
+	d["comprado"] = comprado
+	estojo.mostrar(d)
 	if desenho_hub:
 		desenho_hub.queue_redraw()
-
-## Curva de atributo por chave de upgrade do Estojo (índice = nível).
-func _atributos_estojo(upgrade_key: String) -> Array:
-	match upgrade_key:
-		"nivel_dano":
-			return GameData.DANO_POR_NIVEL
-		"nivel_hp":
-			return GameData.HP_POR_NIVEL
-		"nivel_cadencia":
-			return GameData.CADENCIA_POR_NIVEL
-	return []
-
-## Formata o valor do atributo (cadência em segundos, o resto inteiro).
-func _formatar_valor_estojo(upgrade_key: String, valor) -> String:
-	if upgrade_key == "nivel_cadencia":
-		return "%.2fs" % valor
-	return str(valor)
-
-func _configurar_container(container: Control, upgrade_key: String, nome_upgrade: String, icone_path: String = "") -> void:
-	var nivel = dados_save[upgrade_key]
-	var label_info: Label = container.get_node("InfoLabel")
-	var botao_upar: Button = container.get_node("BotaoUpar")
-	var atributos: Array = _atributos_estojo(upgrade_key)
-	var fonte: Font = load("res://assets/fonts/ArchitectsDaughter-Regular.ttf")
-
-	# Card de fundo desenhado à mão (atrás dos textos e ícones), criado sob demanda
-	var bg_card: TextureRect = container.get_node_or_null("CardBackground")
-	if bg_card == null:
-		bg_card = TextureRect.new()
-		bg_card.name = "CardBackground"
-		bg_card.texture = load("res://assets/card-upgrade.svg")
-		bg_card.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-		bg_card.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-		bg_card.position = Vector2.ZERO
-		bg_card.size = container.size
-		bg_card.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		container.add_child(bg_card)
-		container.move_child(bg_card, 0) # Garante que fique atrás de tudo
-
-	# Ícone temático do upgrade à esquerda do card, criado sob demanda
-	if icone_path != "":
-		var icone: TextureRect = container.get_node_or_null("IconeUpgrade")
-		if icone == null:
-			icone = TextureRect.new()
-			icone.name = "IconeUpgrade"
-			icone.texture = load(icone_path)
-			icone.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-			icone.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-			icone.position = Vector2(75, 48)
-			icone.size = Vector2(145, 145)
-			icone.mouse_filter = Control.MOUSE_FILTER_IGNORE
-			container.add_child(icone)
-			container.move_child(icone, 1) # Logo acima do fundo, atrás dos textos
-
-	# Label de valor "atual → próximo" (criada sob demanda)
-	var lbl_valor: Label = container.get_node_or_null("ValorLabel")
-	if lbl_valor == null:
-		lbl_valor = Label.new()
-		lbl_valor.name = "ValorLabel"
-		lbl_valor.add_theme_font_override("font", FONTE_NUMEROS)
-		container.add_child(lbl_valor)
-
-	# Label "faltam X" sob o botão (criada sob demanda)
-	var lbl_falta: Label = container.get_node_or_null("FaltaLabel")
-	if lbl_falta == null:
-		lbl_falta = Label.new()
-		lbl_falta.name = "FaltaLabel"
-		lbl_falta.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-		lbl_falta.add_theme_font_override("font", FONTE_NUMEROS)
-		lbl_falta.add_theme_color_override("font_color", Color("a33d3d"))
-		container.add_child(lbl_falta)
-
-	# Indicador "Nível X" em azul BIC ao lado do título (criado sob demanda)
-	var lbl_nivel: RichTextLabel = container.get_node_or_null("NivelLabel")
-	if lbl_nivel == null:
-		lbl_nivel = RichTextLabel.new()
-		lbl_nivel.name = "NivelLabel"
-		lbl_nivel.bbcode_enabled = true
-		lbl_nivel.scroll_active = false
-		lbl_nivel.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		lbl_nivel.add_theme_font_override("normal_font", FONTE_NUMEROS)
-		container.add_child(lbl_nivel)
-
-	# Tracinhos de contagem manuscrita dentro do card (acima do fundo).
-	# Ao subir de nível, o traço novo é "escrito" com uma animação em vez de
-	# aparecer pronto — ver _animar_tracinho_novo().
-	var tracinhos: Control = container.get_node_or_null("Tracinhos")
-	if tracinhos == null:
-		tracinhos = Control.new()
-		tracinhos.name = "Tracinhos"
-		tracinhos.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		tracinhos.draw.connect(func(): _desenhar_tracinhos_card(tracinhos))
-		tracinhos.set_meta("nivel", nivel)
-		tracinhos.set_meta("nivel_desenhado", nivel)
-		tracinhos.set_meta("progress", 1.0)
-		tracinhos.set_meta("anim_idx", -1)
-		container.add_child(tracinhos)
-		tracinhos.queue_redraw()
-	else:
-		var nivel_anterior: int = int(tracinhos.get_meta("nivel_desenhado", nivel))
-		if nivel != nivel_anterior:
-			tracinhos.set_meta("nivel_desenhado", nivel)
-			if nivel == nivel_anterior + 1:
-				_animar_tracinho_novo(tracinhos, nivel_anterior)
-			else:
-				# Salto maior que 1 nível (ex.: reset de save) — sem animação
-				tracinhos.set_meta("nivel", nivel)
-				tracinhos.set_meta("progress", 1.0)
-				tracinhos.set_meta("anim_idx", -1)
-				tracinhos.queue_redraw()
-
-	# ---- Grade do card (840×240): ícone | conteúdo | ação ----
-	# Linha 1: título + nível · Linha 2: tracinhos · Linha 3: valor
-	label_info.position = Vector2(275, 30)
-	label_info.size = Vector2(400, 52)
-	label_info.add_theme_font_size_override("font_size", 38)
-
-	# "Nível X" encostado no fim do título (largura medida na fonte real)
-	var largura_titulo: float = fonte.get_string_size(nome_upgrade, HORIZONTAL_ALIGNMENT_LEFT, -1, 38).x
-	lbl_nivel.position = Vector2(275 + largura_titulo + 14, 33)
-	lbl_nivel.size = Vector2(160, 48)
-	lbl_nivel.add_theme_font_size_override("normal_font_size", 33)
-
-	tracinhos.position = Vector2(275, 92)
-	tracinhos.size = Vector2(220, 44)
-
-	lbl_valor.position = Vector2(255, 143)
-	lbl_valor.size = Vector2(380, 52)
-	lbl_valor.add_theme_font_size_override("font_size", 40)
-
-	# Zona de ação à direita: botão abaixo do "Nível X" + "faltam X" logo abaixo.
-	# Antes (y=70) brigava visualmente com o badge de nível (y~34) — agora começa
-	# em y=110, bem separado.
-	botao_upar.position = Vector2(580, 112)
-	botao_upar.size = Vector2(230, 85)
-	botao_upar.add_theme_font_override("font", FONTE_NUMEROS)
-	botao_upar.add_theme_font_size_override("font_size", 40)
-
-	lbl_falta.position = Vector2(580, 202)
-	lbl_falta.size = Vector2(230, 38)
-	lbl_falta.add_theme_font_size_override("font_size", 32)
-
-	var tex_upar: Texture2D = load("res://assets/upar.svg")
-	botao_upar.icon = tex_upar
-	botao_upar.add_theme_constant_override("icon_max_width", 48)
-
-	if nivel >= GameData.NIVEL_MAX_ESTOJO:
-		label_info.text = nome_upgrade
-		lbl_nivel.text = "[color=#f39c12]MÁX[/color]"
-		botao_upar.text = "[ MAX ]"
-		botao_upar.icon = null
-		botao_upar.disabled = true
-		botao_upar.modulate.a = 1.0
-		lbl_valor.text = _formatar_valor_estojo(upgrade_key, atributos[nivel]) + " · MÁX"
-		lbl_valor.add_theme_color_override("font_color", Color("f39c12"))
-		lbl_falta.visible = false
-	else:
-		var custo = GameData.CUSTOS_ESTOJO[nivel - 1]
-		var pode_pagar: bool = dados_save["tinta"] >= custo
-		label_info.text = nome_upgrade
-		lbl_nivel.text = "[color=#0047ab]NV. [font_size=36]%d[/font_size][/color]" % nivel
-		botao_upar.text = "[ " + str(custo) + " ]"
-		botao_upar.disabled = false
-
-		# Antes → depois do atributo em verde (mesma linguagem das passivas da loja)
-		lbl_valor.text = "%s → %s" % [
-			_formatar_valor_estojo(upgrade_key, atributos[nivel]),
-			_formatar_valor_estojo(upgrade_key, atributos[nivel + 1])
-		]
-		lbl_valor.add_theme_color_override("font_color", Color("2f5d3a"))
-
-		# Sem tinta suficiente: botão esmaecido em vermelho + quanto falta
-		if pode_pagar:
-			botao_upar.add_theme_color_override("font_color", Color("002867"))
-			botao_upar.add_theme_color_override("icon_normal_color", Color("002867"))
-			botao_upar.modulate.a = 1.0
-			lbl_falta.visible = false
-		else:
-			botao_upar.add_theme_color_override("font_color", Color("a33d3d"))
-			botao_upar.add_theme_color_override("icon_normal_color", Color("a33d3d"))
-			botao_upar.modulate.a = 0.65
-			lbl_falta.text = "faltam %d" % (custo - dados_save["tinta"])
-			lbl_falta.visible = true
-
-## Tracinhos de contagem escolar desenhados dentro do card: grupos de 5
-## (4 riscos + corte diagonal). Níveis futuros aparecem como fantasma a lápis.
-## O traço em "anim_idx" é desenhado parcialmente (0..progress) para simular
-## uma caneta escrevendo-o em tempo real — ver _animar_tracinho_novo().
-func _desenhar_tracinhos_card(ctrl: Control) -> void:
-	var nivel: int = int(ctrl.get_meta("nivel", 0))
-	var progress: float = float(ctrl.get_meta("progress", 1.0))
-	var anim_idx: int = int(ctrl.get_meta("anim_idx", -1))
-	var cor := Color("002867") # Azul BIC
-	var cor_fantasma := Color(cor.r, cor.g, cor.b, 0.16)
-	var altura: float = 30.0
-	var passo: float = 17.0
-	var gap_grupo: float = 30.0
-	var cy: float = ctrl.size.y / 2.0
-
-	for i in range(GameData.NIVEL_MAX_ESTOJO):
-		var grupo: int = int(i / 5.0)
-		var idx: int = i % 5
-		var animando: bool = (i == anim_idx)
-		var c: Color = cor if (i < nivel or animando) else cor_fantasma
-		var base_x: float = 10.0 + grupo * (4.0 * passo + gap_grupo)
-
-		var p_inicio: Vector2
-		var p_fim: Vector2
-		if idx < 4:
-			# Risco vertical com leve inclinação alternada (traço de mão)
-			var x = base_x + idx * passo
-			var tilt: float = 2.0 if (i % 2 == 0) else -1.5
-			p_inicio = Vector2(x + tilt, cy - altura / 2.0)
-			p_fim = Vector2(x - tilt, cy + altura / 2.0)
-		else:
-			# Quinto risco: corta o grupo na diagonal
-			p_inicio = Vector2(base_x - 8, cy + altura / 2.0 - 4.0)
-			p_fim = Vector2(base_x + 3.0 * passo + 8.0, cy - altura / 2.0 + 4.0)
-
-		if animando:
-			p_fim = p_inicio.lerp(p_fim, progress)
-		ctrl.draw_line(p_inicio, p_fim, c, 3.5, true)
-
-## Anima o traço que marca o novo nível como se fosse escrito na hora:
-## cresce de p_inicio até p_fim em ~0.22s, então assenta como traço definitivo.
-func _animar_tracinho_novo(tracinhos: Control, nivel_anterior: int) -> void:
-	tracinhos.set_meta("nivel", nivel_anterior)
-	tracinhos.set_meta("progress", 0.0)
-	tracinhos.set_meta("anim_idx", nivel_anterior) # índice 0-based do traço novo
-	tracinhos.queue_redraw()
-
-	var tween = tracinhos.create_tween()
-	tween.tween_method(
-		func(p: float):
-			tracinhos.set_meta("progress", p)
-			tracinhos.queue_redraw(),
-		0.0, 1.0, 0.22
-	).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
-	tween.tween_callback(func():
-		tracinhos.set_meta("nivel", nivel_anterior + 1)
-		tracinhos.set_meta("anim_idx", -1)
-		tracinhos.set_meta("progress", 1.0)
-		tracinhos.queue_redraw()
-	)
 
 func _on_botao_jogar_pressed() -> void:
 	# Com partida salva, LUTAR não apaga nada sem avisar: mostra o aviso de
@@ -2299,7 +2036,7 @@ func _atualizar_badge_missoes() -> void:
 		_tween_badge_missoes.tween_property(badge_missoes, "scale", Vector2(1.0, 1.0), 0.55).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
 
 ## Desenha a bolinha vermelha com contorno de tinta, no mesmo traço à mão do
-## resto da UI (ver _desenhar_tracinhos_card no Estojo) — sem precisar de
+## resto da UI (como os tracinhos do Estojo) — sem precisar de
 ## mais um SVG para um indicador tão simples.
 func _desenhar_badge_missoes(ctrl: Control) -> void:
 	var centro: Vector2 = ctrl.size / 2.0
