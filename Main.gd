@@ -33,10 +33,8 @@ var fim_de_jogo_declarado: bool = false
 var dano_sofrido_na_pagina: bool = false
 var label_pagina: Label
 var menu_descanso: Control
-var label_status_hp_descanso: Label
-var label_status_tinta_descanso: Label
-var fundo_descanso: Node
-var bg_cards_descanso: Array = []
+# Página de descanso no estilo caderno (TelaDescanso.gd, filho de menu_descanso)
+var tela_descanso: Control
 
 # Rewarded ads (revive e dobrar tinta)
 var menu_revive: Control
@@ -392,6 +390,7 @@ func _tratar_voltar() -> void:
 		tela_roleta.voltar_do_sistema() # só pula a animação: a escolha é obrigatória
 		return
 	if menu_descanso and menu_descanso.visible:
+		tela_descanso.voltar_do_sistema() # só pula a animação: a escolha é obrigatória
 		return
 	# Menus de fim de partida: voltar equivale a sair para o Hub.
 	if menu_game_over and menu_game_over.visible:
@@ -1339,18 +1338,9 @@ func _on_pagina_concluida(numero: int) -> void:
 
 func _on_descanso_iniciado() -> void:
 	get_tree().paused = true
-	
-	# Garante que o fundo esteja adaptado ao capítulo atual (apenas a cor)
-	if fundo_descanso:
-		fundo_descanso.color = _obter_cor_papel_capitulo(capitulo_atual)
-		
-	# Atualiza o modulate das cartas de descanso para o capítulo atual
-	var cor_fundo_carta = _obter_cor_fundo_carta(capitulo_atual)
-	for bg in bg_cards_descanso:
-		if bg:
-			bg.modulate = cor_fundo_carta
-	
-	# Oculta o HUD de gameplay poluído por trás
+
+	# A tela cobre o combate com o papel da fase; o rótulo "Página N / 8"
+	# (criado depois dos menus) ficaria por cima, então sai junto com o HUD
 	hp_bar.visible = false
 	hp_texto_label.visible = false
 	tinta_label.visible = false
@@ -1358,19 +1348,12 @@ func _on_descanso_iniciado() -> void:
 		botao_pausa_hud.visible = false
 	if label_pagina:
 		label_pagina.visible = false
-		
-	# Atualiza informações de status no descanso
-	if label_status_hp_descanso:
-		label_status_hp_descanso.text = "🩸 Vida: %d / %d" % [player.vidas, player.vidas_max]
-	if label_status_tinta_descanso:
-		label_status_tinta_descanso.text = "Tinta: %d" % tinta_partida
-		
-	# Atualiza o texto do pote de tinta do descanso com o valor correto deste capítulo
-	var label_desc_tinta = menu_descanso.get_node_or_null("CartaDescansoTinta/Desc")
-	if label_desc_tinta:
-		label_desc_tinta.text = "+%d gotas de tinta" % GameData.tinta_descanso(capitulo_atual)
 
 	menu_descanso.visible = true
+	tela_descanso.mostrar({"cap": capitulo_atual, "pagina": max(1, wave_manager.pagina_atual),
+		"total_paginas": GameData.PAGINAS.size(), "vidas": player.vidas, "vidas_max": player.vidas_max,
+		"cura": GameData.DESCANSO_CURA, "tinta_partida": tinta_partida,
+		"ganho_tinta": GameData.tinta_descanso(capitulo_atual)})
 	_tocar_som(audio_vitoria)
 
 func _criar_label_pagina() -> void:
@@ -1430,118 +1413,12 @@ func _criar_menu_descanso() -> void:
 	menu_descanso.visible = false
 	menu_descanso.set_anchors_preset(Control.PRESET_FULL_RECT)
 	$HUD.add_child(menu_descanso)
-
-	# Fundo estilo folha de caderno da fase atual (apenas cor sólida)
-	var fundo = ColorRect.new()
-	fundo.color = _obter_cor_papel_capitulo(capitulo_atual)
-	fundo.set_anchors_preset(Control.PRESET_FULL_RECT)
-	fundo.modulate.a = 0.96
-	menu_descanso.add_child(fundo)
-	fundo_descanso = fundo
-
-	var titulo = Label.new()
-	titulo.text = "🍃 PÁGINA DE DESCANSO 🍃"
-	titulo.add_theme_font_override("font", load("res://assets/fonts/ArchitectsDaughter-Regular.ttf"))
-	titulo.add_theme_font_size_override("font_size", 56)
-	titulo.add_theme_color_override("font_color", Color("002867"))
-	titulo.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	titulo.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	titulo.position = Vector2(0, 200)
-	titulo.size = Vector2(1080, 120)
-	menu_descanso.add_child(titulo)
-
-	var sub = Label.new()
-	sub.text = "Um momento de paz no caderno.\nEscolha com sabedoria:"
-	sub.add_theme_font_override("font", load("res://assets/fonts/ArchitectsDaughter-Regular.ttf"))
-	sub.add_theme_font_size_override("font_size", 34)
-	sub.add_theme_color_override("font_color", Color(0.4, 0.4, 0.45))
-	sub.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	sub.position = Vector2(0, 310)
-	sub.size = Vector2(1080, 100)
-	menu_descanso.add_child(sub)
-
-	# Container para status do jogador em destaque
-	var container_status = HBoxContainer.new()
-	container_status.alignment = BoxContainer.ALIGNMENT_CENTER
-	container_status.position = Vector2(0, 435)
-	container_status.size = Vector2(1080, 80)
-	menu_descanso.add_child(container_status)
-
-	label_status_hp_descanso = Label.new()
-	label_status_hp_descanso.text = "🩸 Vida: - / -"
-	label_status_hp_descanso.add_theme_font_override("font", FONTE_NUMEROS)
-	label_status_hp_descanso.add_theme_font_size_override("font_size", 36)
-	label_status_hp_descanso.add_theme_color_override("font_color", Color("d9534f"))
-	container_status.add_child(label_status_hp_descanso)
-
-	var espacador = Control.new()
-	espacador.custom_minimum_size = Vector2(80, 10)
-	container_status.add_child(espacador)
-
-	label_status_tinta_descanso = Label.new()
-	label_status_tinta_descanso.text = "Tinta: -"
-	label_status_tinta_descanso.add_theme_font_override("font", FONTE_NUMEROS)
-	label_status_tinta_descanso.add_theme_font_size_override("font_size", 36)
-	label_status_tinta_descanso.add_theme_color_override("font_color", Color("002867"))
-	container_status.add_child(label_status_tinta_descanso)
-
-	# Duas cartas de escolha lado a lado
-	var opcoes_descanso = [
-		{"id": "curar", "titulo": "CORRETIVO\nDA SORTE", "desc": "Cura %d corações" % GameData.DESCANSO_CURA, "icone": "res://assets/corretivo.png"},
-		{"id": "tinta", "titulo": "POTE DE\nTINTA", "desc": "+%d gotas de tinta" % GameData.tinta_descanso(capitulo_atual), "icone": "res://assets/pote_tinta.png"}
-	]
-
-	bg_cards_descanso.clear()
-	for i in range(2):
-		var op = opcoes_descanso[i]
-		var btn = Button.new()
-		btn.size = Vector2(360, 520)
-		btn.position = Vector2(120 + i * 480, 560)
-		btn.flat = true
-		btn.clip_contents = true
-		btn.name = "CartaDescanso" + op["id"].capitalize()
-		menu_descanso.add_child(btn)
-
-		var bg_card = TextureRect.new()
-		bg_card.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-		bg_card.stretch_mode = TextureRect.STRETCH_SCALE
-		bg_card.texture = load("res://assets/backgroundpowerup.png")
-		bg_card.position = Vector2.ZERO
-		bg_card.size = Vector2(360, 520)
-		btn.add_child(bg_card)
-		bg_cards_descanso.append(bg_card)
-
-		var img = TextureRect.new()
-		img.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-		img.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-		img.texture = load(op["icone"])
-		img.size = Vector2(180, 180)
-		img.position = Vector2(90, 70)
-		btn.add_child(img)
-
-		var lbl_titulo = Label.new()
-		lbl_titulo.text = op["titulo"]
-		lbl_titulo.add_theme_font_override("font", load("res://assets/fonts/ArchitectsDaughter-Regular.ttf"))
-		lbl_titulo.add_theme_font_size_override("font_size", 36)
-		lbl_titulo.add_theme_color_override("font_color", Color("002867"))
-		lbl_titulo.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-		lbl_titulo.position = Vector2(30, 270)
-		lbl_titulo.size = Vector2(300, 100)
-		btn.add_child(lbl_titulo)
-
-		var lbl_desc = Label.new()
-		lbl_desc.name = "Desc"
-		lbl_desc.text = op["desc"]
-		lbl_desc.add_theme_font_override("font", load("res://assets/fonts/ArchitectsDaughter-Regular.ttf"))
-		lbl_desc.add_theme_font_size_override("font_size", 28)
-		lbl_desc.add_theme_color_override("font_color", Color(0.35, 0.35, 0.4))
-		lbl_desc.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-		lbl_desc.autowrap_mode = TextServer.AUTOWRAP_WORD
-		lbl_desc.position = Vector2(30, 380)
-		lbl_desc.size = Vector2(300, 90)
-		btn.add_child(lbl_desc)
-
-		btn.pressed.connect(func(): _on_descanso_escolhido(op["id"]))
+	# Corações + tinta da partida, 2 cartas em pé (curar / tinta) com o
+	# resultado de cada uma; cartas travadas ~0,5 s depois de abrir.
+	tela_descanso = Control.new()
+	tela_descanso.set_script(preload("res://TelaDescanso.gd"))
+	menu_descanso.add_child(tela_descanso)
+	tela_descanso.escolhido.connect(_on_descanso_escolhido)
 
 func _on_descanso_escolhido(id: String) -> void:
 	SaveManager.incrementar_stat("descansos_usados")
@@ -1853,37 +1730,3 @@ func _atualizar_habilidades_pausa() -> void:
 			lbl_nivel.position = Vector2(0, 140)
 			lbl_nivel.size = Vector2(140, 30)
 			container_icone.add_child(lbl_nivel)
-
-func _obter_cor_fundo_carta(capitulo: int) -> Color:
-	if capitulo <= 2:
-		# Branco total para os dois primeiros capítulos
-		return Color.WHITE
-	elif capitulo == 3:
-		# Bege bem clarinho
-		return Color("faf6ee")
-	elif capitulo >= 4 and capitulo <= 5:
-		# Quadriculado: azul claro/cinza suave
-		return Color("e6ecf5")
-	elif capitulo >= 6 and capitulo <= 7:
-		# Bege / Kraft Rústico
-		return Color("dccfb5")
-	elif capitulo >= 8 and capitulo <= 9:
-		# Caderno Antigo Amarelado
-		return Color("eedfc4")
-	elif capitulo == 10:
-		# Papel Milimetrado Técnico
-		return Color("f5ece2")
-	return Color.WHITE
-
-func _obter_cor_papel_capitulo(capitulo: int) -> Color:
-	if capitulo >= 1 and capitulo <= 3:
-		return Color("faf6ee")
-	elif capitulo >= 4 and capitulo <= 5:
-		return Color("f5f5f7")
-	elif capitulo >= 6 and capitulo <= 7:
-		return Color("e5dcc6")
-	elif capitulo >= 8 and capitulo <= 9:
-		return Color("f7f0e1")
-	elif capitulo == 10:
-		return Color("fdfaf4")
-	return Color("faf6ee")

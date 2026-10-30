@@ -4,7 +4,7 @@ extends SceneTree
 ## Uso (precisa de janela, não roda com --headless):
 ##   Godot --path . -s tools/capturar_telas.gd -- <pasta_de_saida> [tela1,tela2,...]
 ## Sem lista, captura todas. Telas: hub, hub-cap5-recorde, hub-cap5-chefe, hub-cap5-primeira, hub-cap1/3/4-concluido, retomar, retomar-revive-usado, retomar-confirmar, estojo, loja, missoes, config, recompensa, compra,
-## stats, dica-gotas, canetas, hud-vida, hud, roleta, roleta-fluxo, pausa, descanso, derrota, vitoria, revive.
+## stats, dica-gotas, canetas, hud-vida, hud, roleta, roleta-fluxo, pausa, descanso, descanso-fluxo, derrota, vitoria, revive.
 ##
 ## Usa um save fictício, mas alguns eventos gravam o save do PC
 ## (%APPDATA%\Godot\app_userdata\SketchBlade\save_data.json): faça backup antes.
@@ -182,8 +182,26 @@ func _rodar() -> void:
 		await _foto("pausa"); await _fechar()
 	if _quer("descanso"):
 		var m = await _combate()
+		# Página 4 com a caneta ferida (5 de 8) e tinta da partida, como no jogo
+		m.wave_manager.pagina_atual = 4
+		m.player.vidas = 5; m.tinta_partida = 120
 		m._on_descanso_iniciado(); await create_timer(1.5).timeout
 		await _foto("descanso"); await _fechar()
+	if _quer("descanso-fluxo"):
+		# Toque logo ao abrir não escolhe; depois, curar soma 2 corações e abre a roleta
+		var m = await _combate()
+		m.wave_manager.pagina_atual = 4
+		m.player.vidas = 5; m.tinta_partida = 120
+		m._on_descanso_iniciado(); await create_timer(0.15).timeout
+		await _foto("descanso-animando")
+		m.tela_descanso._cartas[0]["botao"].pressed.emit(); await create_timer(0.6).timeout
+		print("[capturar_telas] toque cedo -> descanso aberto: ", m.menu_descanso.visible)
+		await create_timer(0.6).timeout
+		m.tela_descanso._cartas[0]["botao"].pressed.emit(); await create_timer(0.1).timeout
+		await _foto("descanso-tocada"); await create_timer(1.0).timeout
+		print("[capturar_telas] curar -> vidas ", m.player.vidas, " | descanso aberto: ", m.menu_descanso.visible,
+			" | roleta aberta: ", m.menu_upgrades.visible, " | tinta ", m.tinta_partida)
+		await _foto("descanso-depois-roleta"); await _fechar()
 	if _quer("derrota"):
 		# [nome, capítulo, página onde caiu, recorde antes]
 		for caso in [["derrota-cap5-pagina6", 5, 6, 7], ["derrota-cap5-chefe-recorde", 5, 8, 6],
