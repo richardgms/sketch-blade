@@ -12,6 +12,7 @@ var textura_caneta: Texture2D = null:
 	set(valor):
 		textura_caneta = valor
 		_atualizar_hitbox()
+		_bico_desenho = _calcular_bico(valor)
 
 var vidas: int = 5
 var posicao_alvo: Vector2
@@ -60,6 +61,43 @@ var timer_escudo: float = 0.0
 var projectile_scene: PackedScene = preload("res://projectile.tscn")
 
 @onready var attack_timer: Timer = $AttackTimer
+
+## Bico real do desenho da caneta (ponto mais alto depois de girar e
+## escalar como em _draw). Só para a gotinha: tiro e hitbox não mudam.
+## Calculado uma vez por textura e guardado.
+var _bico_desenho: Vector2 = Vector2(0, -100)
+static var _cache_bico: Dictionary = {}
+static func _calcular_bico(tex: Texture2D) -> Vector2:
+	if tex == null:
+		return Vector2(0, -60)
+	var chave: String = tex.resource_path
+	if chave != "" and _cache_bico.has(chave):
+		return _cache_bico[chave]
+	var img := tex.get_image()
+	if img == null:
+		return Vector2(0, -100)
+	if img.is_compressed():
+		img.decompress()
+	var w := img.get_width()
+	var h := img.get_height()
+	var esc := 200.0 / float(max(w, h))
+	var ang := deg_to_rad(150.0)
+	var c := cos(ang)
+	var sn := sin(ang)
+	var bico := Vector2(0, 0)
+	var passo: int = max(1, int(max(w, h) / 220))
+	for y in range(0, h, passo):
+		for x in range(0, w, passo):
+			if img.get_pixel(x, y).a < 0.5:
+				continue
+			var px := (x - w * 0.5) * esc
+			var py := (y - h * 0.5) * esc
+			var p := Vector2(px * c - py * sn, px * sn + py * c) + Vector2(0, -10)
+			if p.y < bico.y:
+				bico = p
+	if chave != "":
+		_cache_bico[chave] = bico
+	return bico
 
 func obter_y_ponta() -> float:
 	return -100.0 if textura_caneta else -60.0
@@ -188,10 +226,10 @@ func _draw() -> void:
 	var dedo_parado = _tempo_alvo_estatico > 0.08
 	if (perto_o_suficiente or dedo_parado) and not Engine.is_editor_hint():
 		# Logo acima do bico, por fora (antes ficava em cima da ponta)
-		var y_gota = obter_y_ponta() - 17.0
+		var gota := _bico_desenho + Vector2(0, -10.0)
 		var pulso = 1.0 + 0.15 * sin(Time.get_ticks_msec() * 0.015)
-		draw_circle(Vector2(0, y_gota), 5.8 * pulso, cor_projetil)
-		draw_circle(Vector2(-1, y_gota - 1.0), 2.0 * pulso, Color(1.0, 1.0, 1.0, 0.6))
+		draw_circle(gota, 5.8 * pulso, cor_projetil)
+		draw_circle(gota + Vector2(-1, -1.0), 2.0 * pulso, Color(1.0, 1.0, 1.0, 0.6))
 
 	# Desenho do Escudo de Borracha (arco tracejado envolvendo a caneta)
 	if nivel_upgrade("escudo_borracha") > 0 and tem_escudo_ativo:

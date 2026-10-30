@@ -4,7 +4,7 @@ extends SceneTree
 ## Uso (precisa de janela, não roda com --headless):
 ##   Godot --path . -s tools/capturar_telas.gd -- <pasta_de_saida> [tela1,tela2,...]
 ## Sem lista, captura todas. Telas: hub, hub-cap5-recorde, hub-cap5-chefe, hub-cap5-primeira, hub-cap1/3/4-concluido, retomar, retomar-revive-usado, retomar-confirmar, estojo, loja, missoes, config, recompensa, compra,
-## stats, dica-gotas, hud-vida, hud, roleta, pausa, descanso, derrota, vitoria, revive.
+## stats, dica-gotas, canetas, hud-vida, hud, roleta, pausa, descanso, derrota, vitoria, revive.
 ##
 ## Usa um save fictício, mas alguns eventos gravam o save do PC
 ## (%APPDATA%\Godot\app_userdata\SketchBlade\save_data.json): faça backup antes.
@@ -126,6 +126,17 @@ func _rodar() -> void:
 		m.wave_manager.iniciar_fase_na_pagina(1, 1); await create_timer(2.5).timeout
 		m._on_enemy_morreu(Vector2(620, 820), Color.BLACK, "res://assets/ink.svg")
 		await create_timer(0.9).timeout; await _foto("dica-gotas"); await _fechar()
+	if _quer("canetas"):
+		# Cada caneta da loja parada (gotinha da ponta visível)
+		for id in ["bic_azul", "lapis_hb", "nanquim", "gel_vermelha", "nanquim_real"]:
+			_save(1)
+			SaveManager_dados()["caneta_equipada"] = id
+			SaveManager_dados()["canetas_possuidas"] = [id]
+			var m = _abrir("res://main.tscn"); await create_timer(1.0).timeout
+			m.player.invencivel = true
+			m.jogo_iniciado = true; m.menu_iniciar.visible = false
+			await create_timer(0.6).timeout
+			await _foto("caneta-" + id); await _fechar()
 	if _quer("hud-vida"):
 		# Barra de vida riscada com 3 de 8 e com 1 de 8
 		var m = await _combate()
