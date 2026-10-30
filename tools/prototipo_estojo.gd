@@ -1,20 +1,23 @@
 extends SceneTree
 ## Protótipo do Estojo no estilo caderno (TelaEstojo.gd, versões A e B), por
 ## cima do Hub real, sem mexer no Hub.gd.
-## Uso (com backup do save do PC): Godot --path . -s tools/prototipo_estojo.gd -- <pasta>
+## Uso (com backup do save do PC): Godot --path . -s tools/prototipo_estojo.gd -- <pasta> [A,B,A2]
 
 var _sv: SubViewport
 var _saida := ""
+var _versoes: PackedStringArray = ["A", "B"]
 
 func _initialize() -> void:
 	var args := OS.get_cmdline_user_args()
 	_saida = args[0] if args.size() > 0 else "C:/Users/joalh/Documentos/Sketch Blade - design/estojo-novo/v1"
+	if args.size() > 1:
+		_versoes = args[1].split(",") # ex.: A2 (fichas com tracinhos)
 	DirAccess.make_dir_recursive_absolute(_saida)
 	_rodar()
 
 func _rodar() -> void:
 	await process_frame
-	for v in ["A", "B"]:
+	for v in _versoes:
 		# Os 3 estados numa tela: dá para subir, falta tinta, nível máximo
 		await _caso(v, "misto", 640, 4, 6, 10)
 		await _caso(v, "inicio", 120, 1, 1, 1)

@@ -84,7 +84,7 @@ func mostrar(d: Dictionary) -> void:
 	_txt(_bloco, "MEU ESTOJO", 74, AZUL_ESCURO, 318, 418)
 	_traco(_bloco, 300, 780, 432, Color(AZUL_ESCURO, 0.85), 5.0)
 	_txt(_bloco, "Melhorias para todas as partidas.", 44, AZUL, 455, 515)
-	var cartas: Array = _fichas(d["itens"]) if versao == "A" else _cartas_em_pe(d["itens"])
+	var cartas: Array = _cartas_em_pe(d["itens"]) if versao == "B" else _fichas(d["itens"])
 	var comprado: String = d.get("comprado", "")
 	if comprado != "":
 		_animar_compra(cartas[_indice(comprado)])
@@ -110,7 +110,10 @@ func _fichas(itens: Array) -> Array:
 		var linha := _linha(c, Vector2(255, 28), 560, 76, BoxContainer.ALIGNMENT_BEGIN)
 		linha.add_child(_lbl(it["nome"], FONTE, 52, AZUL_ESCURO))
 		linha.add_child(_lbl("  Nv. %d" % int(it["nivel"]), NUM, 52, AZUL))
-		_bolinhas(c, Vector2(275, 140), int(it["nivel"]), 34.0, 12.0, 10)
+		if versao == "A2":
+			_tracinhos(c, Vector2(265, 140), int(it["nivel"]), it["chave"] == _dados.get("comprado", ""))
+		else:
+			_bolinhas(c, Vector2(275, 140), int(it["nivel"]), 34.0, 12.0, 10)
 		# Resultado da compra
 		var ef := _linha(c, Vector2(255, 178), 420, 76, BoxContainer.ALIGNMENT_BEGIN)
 		_efeito(ef, it, 58)
@@ -244,6 +247,44 @@ func _bolinhas(pai: Control, inicio: Vector2, nivel: int, passo: float, raio: fl
 				d.draw_circle(c, raio, AZUL)
 			d.draw_arc(c, raio, 0, TAU, 32, AZUL_ESCURO, 3.0, true))
 	pai.add_child(d)
+
+## Tracinhos de contagem escolar: grupos de 5 (4 riscos + corte na diagonal),
+## os níveis que faltam bem apagados. Na compra, o traço novo é "escrito"
+## em ~0,25 s.
+func _tracinhos(pai: Control, inicio: Vector2, nivel: int, animar: bool) -> void:
+	var d := Control.new()
+	d.size = pai.size
+	d.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	d.set_meta("p", 0.0 if animar else 1.0)
+	var alt := 44.0
+	var passo := 22.0
+	d.draw.connect(func():
+		var p: float = d.get_meta("p")
+		for i in range(GameData.NIVEL_MAX_ESTOJO):
+			var g := i / 5
+			var k := i % 5
+			var bx: float = inicio.x + g * (4 * passo + 44.0)
+			var a: Vector2
+			var b: Vector2
+			if k < 4:
+				var x: float = bx + k * passo
+				var tilt: float = 2.5 if i % 2 == 0 else -2.0
+				a = Vector2(x + tilt, inicio.y - alt / 2.0)
+				b = Vector2(x - tilt, inicio.y + alt / 2.0)
+			else:
+				a = Vector2(bx - 10, inicio.y + alt / 2.0 - 6)
+				b = Vector2(bx + 3 * passo + 10, inicio.y - alt / 2.0 + 6)
+			var novo: bool = animar and i == nivel - 1
+			if i >= nivel or (novo and p < 1.0):
+				d.draw_line(a, b, Color(AZUL_ESCURO, 0.16), 4.5, true)
+			if i < nivel:
+				d.draw_line(a, a.lerp(b, p) if novo else b, AZUL, 4.5, true))
+	pai.add_child(d)
+	if animar:
+		var t := d.create_tween()
+		t.tween_method(func(v: float):
+			d.set_meta("p", v)
+			d.queue_redraw(), 0.0, 1.0, 0.25).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
 
 func _linha(pai: Control, pos: Vector2, larg: float, alt: float, alinh: int) -> HBoxContainer:
 	var h := HBoxContainer.new()
