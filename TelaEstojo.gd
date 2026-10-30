@@ -216,6 +216,9 @@ func _estilo_riscado(caminho: String) -> StyleBoxTexture:
 	st.texture_margin_right = 48.0
 	st.texture_margin_top = 36.0
 	st.texture_margin_bottom = 36.0
+	# Sem isso a margem da textura vira margem do texto e o botão alarga
+	for lado in [SIDE_LEFT, SIDE_RIGHT, SIDE_TOP, SIDE_BOTTOM]:
+		st.set_content_margin(lado, 6.0)
 	return st
 
 ## Cara de etiqueta: margem vermelha vertical (como a do caderno) e um furo

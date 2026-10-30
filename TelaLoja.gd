@@ -28,6 +28,7 @@ const PACOTES := [
 		"desc": "Para as canetas\nespeciais."},
 ]
 const CLIPE_BRANCO := "res://assets/ui/clipe_branco.png"
+const BOTAO_EQUIPAR := "res://assets/ui/botao_equipar.png"
 const GOTA_BRANCA := "res://assets/ui/gota_branca.png"
 
 var _ids: Array = [] # id da caneta de cada ficha (para pulsar/tremer)
@@ -178,12 +179,20 @@ func _acao_caneta(pai: Control, it: Dictionary, r: Rect2) -> void:
 			l.add_theme_color_override("font_outline_color", Color(VERDE, 0.6))
 			l.add_theme_constant_override("outline_size", 6)
 		"equipar":
-			var b := _botao_contorno(r)
+			# Contorno de caneta riscado (ChatGPT), miolo de papel branco
+			var b := _botao_cheio("EQUIPAR", r)
+			var st := _estilo_riscado(BOTAO_EQUIPAR)
+			var st_p: StyleBoxTexture = st.duplicate()
+			st_p.modulate_color = Color(0.85, 0.85, 0.9)
+			for e in ["normal", "hover"]:
+				b.add_theme_stylebox_override(e, st)
+			b.add_theme_stylebox_override("pressed", st_p)
+			b.add_theme_font_size_override("font_size", 46)
+			for e in ["font_color", "font_hover_color", "font_pressed_color", "font_focus_color"]:
+				b.add_theme_color_override(e, AZUL)
+			b.add_theme_constant_override("outline_size", 0)
 			b.reparent(pai, false)
 			b.position = r.position
-			var l := _lbl("EQUIPAR", FONTE, 46, AZUL)
-			l.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-			_linha_anuncio.add_child(l)
 			b.pressed.connect(func(): caneta.emit(id))
 			_btns.append(b)
 		_:
