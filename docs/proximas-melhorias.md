@@ -2,6 +2,8 @@
 
 Fonte única da lista de melhorias depois da 1.5.0. Antes/depois para aprovar: https://claude.ai/artifact/VdK88T7PA2HgKCCBubEKrg Decisão: conselho de LLMs de 29/10/2026, rodado sobre prints do jogo atual (`tools/capturar_prints.gd` + `tools/capturar_telas.sh`). Uma rodada anterior usou a revisão visual de 27/10, já desatualizada (monstros e chefes já têm arte), e foi descartada.
 
+**Próximo:** roleta de upgrades no estilo caderno (prompt pronto em `docs/prompt-roleta.md`). Sem build desde a 1.6.0.
+
 ## Conselho de 29/10 (noite, depois da 1.6.0): som, outra tela ou outra coisa?
 - **Consenso (4 de 5 + todas as revisões):** o gargalo não é qualidade, são os **12 testadores ativos por 14 dias** (hoje 4). Nada de som ou tela move esse número. Também: o fluxo novo (hub, vitória, derrota) nunca foi jogado num aparelho real.
 - **Telas antigas** (roleta, pausa, Estojo, Loja): não redesenhar agora; funcionam e não travam nada.
