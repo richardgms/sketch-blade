@@ -13,6 +13,7 @@ var versao := "A"
 
 const CINZA_TEXTO := Color("3d3d4a")
 const AZUL_CLARINHO := Color("e3edfc")
+const VAO_TEXTOS := 28.0 # espaço igual entre nome, nível, descrição e efeito
 const ALT_LINHA_RODAPE := 110.0
 const ICONES_1A_LINHA := 3
 const LARG_CARTA := 960.0
@@ -187,43 +188,42 @@ func _preencher_textos(c: Dictionary, op: Dictionary, alt: float) -> void:
 	var nv: Control = c["nivel"]
 	for f in nv.get_children():
 		f.queue_free()
-	var y_nome := 22.0
-	var y_nivel := 86.0
-	var y_desc := 146.0
-	var y_efeito: float = alt - 88.0
-	if not (com_nivel and duas_linhas):
-		# Bloco mais curto: textos juntos e centrados na altura da carta
-		var h_desc: float = 104.0 if duas_linhas else 52.0
-		var total: float = 64.0 + (60.0 if com_nivel else 0.0) + h_desc + 12.0 + 66.0
-		y_nome = (alt - total) / 2.0 - 4.0
-		y_nivel = y_nome + 64.0
-		y_desc = y_nivel + (60.0 if com_nivel else 0.0)
-		y_efeito = y_desc + h_desc + 12.0
-	nome.position = Vector2(c["x0"], y_nome)
-	nome.size = Vector2(larg, 66)
-	nv.position = Vector2(c["x0"], y_nivel)
-	nv.size = Vector2(larg, 58)
-	desc.position = Vector2(c["x0"], y_desc)
-	desc.size = Vector2(larg, 110)
-	efeito.position = Vector2(c["x0"], y_efeito)
-	efeito.size = Vector2(larg, 72)
-	if not com_nivel:
-		return
-	var atual := int(op["nivel_atual"])
-	if atual <= 0:
-		var t := "NOVO"
-		var w: float = FONTE.get_string_size(t, HORIZONTAL_ALIGNMENT_LEFT, -1, 42).x + 30.0
-		var faixa := ColorRect.new()
-		faixa.color = Color(1.0, 0.92, 0.35, 0.8)
-		faixa.position = Vector2(-10, 4)
-		faixa.size = Vector2(w, 52)
-		faixa.rotation_degrees = -2.0
-		faixa.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		nv.add_child(faixa)
-		_txt(nv, t, 42, AZUL_ESCURO, 0, 58, FONTE, -10, w - 10)
-	else:
-		_txt(nv, "Nv. %d → %d" % [atual, atual + 1], 50, AZUL_ESCURO, 0, 58, NUM, 0, larg,
-			HORIZONTAL_ALIGNMENT_LEFT)
+	nv.visible = com_nivel
+	# Cada elemento entra com a faixa de tinta dele (topo das letras → linha de
+	# base, medidas nas fontes do jogo) e o MESMO vão entre um e outro; o bloco
+	# fica centrado na carta (margens de cima e de baixo maiores, como antes).
+	var k: float = tam / 52.0
+	var itens: Array = [[nome, 16.0 * k, 52.0 * k, 73.0 * k]]
+	if com_nivel:
+		var atual := int(op["nivel_atual"])
+		if atual <= 0:
+			var t := "NOVO"
+			var w: float = FONTE.get_string_size(t, HORIZONTAL_ALIGNMENT_LEFT, -1, 42).x + 30.0
+			var faixa := ColorRect.new()
+			faixa.color = Color(1.0, 0.92, 0.35, 0.8)
+			faixa.position = Vector2(-10, 0)
+			faixa.size = Vector2(w, 52)
+			faixa.rotation_degrees = -2.0
+			faixa.mouse_filter = Control.MOUSE_FILTER_IGNORE
+			nv.add_child(faixa)
+			_txt(nv, t, 42, AZUL_ESCURO, 0, 59, FONTE, -10, w - 10)
+			itens.append([nv, 0.0, 52.0, 59.0])
+		else:
+			_txt(nv, "Nv. %d → %d" % [atual, atual + 1], 50, AZUL_ESCURO, 0, 69, NUM, 0, larg,
+				HORIZONTAL_ALIGNMENT_LEFT)
+			itens.append([nv, 18.0, 48.0, 69.0])
+	var linhas_desc: int = 2 if duas_linhas else 1
+	itens.append([desc, 13.0, 42.0 + (linhas_desc - 1) * 53.0, 59.0 + (linhas_desc - 1) * 53.0])
+	itens.append([efeito, 13.0, 52.0, 69.0])
+	var total: float = VAO_TEXTOS * (itens.size() - 1)
+	for it in itens:
+		total += it[2] - it[1]
+	var y_tinta: float = (alt - total) / 2.0
+	for it in itens:
+		var n: Control = it[0]
+		n.position = Vector2(c["x0"], y_tinta - it[1])
+		n.size = Vector2(larg, it[3])
+		y_tinta += it[2] - it[1] + VAO_TEXTOS
 
 func _linha_rodape() -> HBoxContainer:
 	var linha := HBoxContainer.new()
