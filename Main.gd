@@ -170,8 +170,12 @@ func _ready() -> void:
 	$HUD.add_child(icone_tinta_hud)
 	# Atrás dos menus, junto do número da tinta, para escurecer com o overlay
 	$HUD.move_child(icone_tinta_hud, menu_iniciar.get_index())
-	# Recua o número para não sobrepor o ícone de tinta
-	tinta_label.offset_right = -124.0
+	# Número da tinta: com respiro antes da gota e centrado na altura dela
+	# (antes ficava mais baixo e colado no ícone)
+	tinta_label.offset_right = -134.0
+	tinta_label.offset_top = 21.0
+	tinta_label.offset_bottom = 85.0
+	tinta_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 
 	# Handler central de recompensas de anúncio
 	AdsManager.recompensa_concedida.connect(_on_recompensa_ad)
@@ -878,8 +882,8 @@ func _ajustar_hud_combate() -> void:
 	coracao.texture = load("res://assets/ui/icone_coracao.png") # o mesmo da "Partida em andamento"
 	coracao.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	coracao.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-	coracao.position = Vector2(22, 22)
-	coracao.size = Vector2(66, 66)
+	coracao.position = Vector2(30, 28) # centrado na altura da barra (35–75)
+	coracao.size = Vector2(54, 54)
 	coracao.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	$HUD.add_child(coracao)
 	$HUD.move_child(coracao, hp_bar.get_index())

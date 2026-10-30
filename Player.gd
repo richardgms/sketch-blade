@@ -187,10 +187,11 @@ func _draw() -> void:
 	var perto_o_suficiente = position.distance_to(posicao_alvo) < 28.0
 	var dedo_parado = _tempo_alvo_estatico > 0.08
 	if (perto_o_suficiente or dedo_parado) and not Engine.is_editor_hint():
-		var y_ponta = obter_y_ponta()
+		# Logo acima do bico, por fora (antes ficava em cima da ponta)
+		var y_gota = obter_y_ponta() - 17.0
 		var pulso = 1.0 + 0.15 * sin(Time.get_ticks_msec() * 0.015)
-		draw_circle(Vector2(0, y_ponta), 5.8 * pulso, cor_projetil)
-		draw_circle(Vector2(-1, y_ponta - 1.0), 2.0 * pulso, Color(1.0, 1.0, 1.0, 0.6))
+		draw_circle(Vector2(0, y_gota), 5.8 * pulso, cor_projetil)
+		draw_circle(Vector2(-1, y_gota - 1.0), 2.0 * pulso, Color(1.0, 1.0, 1.0, 0.6))
 
 	# Desenho do Escudo de Borracha (arco tracejado envolvendo a caneta)
 	if nivel_upgrade("escudo_borracha") > 0 and tem_escudo_ativo:
