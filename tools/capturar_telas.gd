@@ -3,7 +3,7 @@ extends SceneTree
 ##
 ## Uso (precisa de janela, não roda com --headless):
 ##   Godot --path . -s tools/capturar_telas.gd -- <pasta_de_saida> [tela1,tela2,...]
-## Sem lista, captura todas. Telas: hub, hub-cap5-recorde, hub-cap5-chefe, hub-cap5-primeira, hub-cap1/3/4-concluido, retomar, retomar-revive-usado, retomar-confirmar, estojo, loja, missoes, config, recompensa, compra,
+## Sem lista, captura todas. Telas: hub, hub-cap5-recorde, hub-cap5-chefe, hub-cap5-primeira, hub-cap1/3/4-concluido, retomar, retomar-revive-usado, retomar-confirmar, estojo, estojo-estados, estojo-fluxo, loja, missoes, config, recompensa, compra,
 ## stats, dica-gotas, canetas, hud-vida, hud, roleta, roleta-fluxo, pausa, pausa-fluxo, descanso, descanso-fluxo, derrota, vitoria, revive.
 ##
 ## Usa um save fictício, mas alguns eventos gravam o save do PC
@@ -106,6 +106,13 @@ func _rodar() -> void:
 		h._mostrar_prompt_retomar_run()
 		h._confirmar_abandono(h.get_node("HUD/PromptRetomarRun"), load("res://assets/fonts/ArchitectsDaughter-Regular.ttf")), 5, 6)
 	await _hub("estojo", func(h): h._alterar_aba("estojo"))
+	# Estojo com os 3 estados: dá para subir, falta tinta, nível máximo
+	await _hub("estojo-estados", func(h):
+		var d := SaveManager_dados()
+		d["nivel_hp"] = 6; d["nivel_cadencia"] = 10
+		h._alterar_aba("estojo"))
+	if _quer("estojo-fluxo"):
+		await _fluxo_estojo()
 	await _hub("loja", func(h): h._alterar_aba("loja"))
 	await _hub("missoes", func(h): h._abrir_painel_missoes())
 	await _hub("config", func(h): h._abrir_painel_config())
@@ -293,3 +300,47 @@ func _rodar() -> void:
 				await create_timer(0.3).timeout; await _foto("revive-a-animando")
 			await create_timer(1.3).timeout; await _foto("revive-" + versao); await _fechar()
 	quit()
+
+## Toque de verdade (mouse) no centro de um controle, como o dedo no celular.
+func _tocar(c: Control) -> void:
+	var pos: Vector2 = c.get_global_rect().get_center()
+	for apertado in [true, false]:
+		var ev := InputEventMouseButton.new()
+		ev.button_index = MOUSE_BUTTON_LEFT
+		ev.pressed = apertado
+		ev.position = pos
+		ev.global_position = pos
+		_sv.push_input(ev)
+		await process_frame
+
+## Estojo: compra com tinta (nível sobe, tinta desce, traço novo animando),
+## toque travado logo depois da compra, toque sem tinta (ficha treme e abre a
+## oferta do pacote), nível máximo sem botão e o [+] do topo ainda tocável.
+func _fluxo_estojo() -> void:
+	_save(1)
+	var d := SaveManager_dados()
+	d["nivel_hp"] = 6; d["nivel_cadencia"] = 10
+	var h = _abrir("res://hub.tscn"); await create_timer(1.5).timeout
+	h._alterar_aba("estojo"); await create_timer(0.3).timeout
+	var e = h.estojo
+	print("[capturar_telas] estojo botoes=", e._btns.size(), " (esperado 2: dano e corações)")
+	await _tocar(e._btns[0])
+	print("[capturar_telas] estojo compra: dano=", d["nivel_dano"], " tinta=", d["tinta"], " (esperado 5 e 90)")
+	await create_timer(0.08).timeout
+	await _foto("estojo-fluxo-1-comprando")
+	# Logo depois da compra os botões estão travados: toque não compra de novo
+	await _tocar(h.estojo._btns[0])
+	print("[capturar_telas] estojo toque travado: dano=", d["nivel_dano"], " (esperado 5)")
+	await create_timer(0.6).timeout
+	await _foto("estojo-fluxo-2-depois")
+	# Sem tinta (90 < 770): não compra, ficha treme e abre a oferta do pacote
+	await _tocar(h.estojo._btns[0])
+	await create_timer(0.4).timeout
+	print("[capturar_telas] estojo sem tinta: dano=", d["nivel_dano"], " oferta=", h.popup_compra.visible, " (esperado 5 e true)")
+	await _foto("estojo-fluxo-3-oferta")
+	h._on_cancelar_compra_pressed(); await create_timer(0.2).timeout
+	# [+] do topo continua tocável com o Estojo aberto (abre Pacotes na Loja)
+	await _tocar(h.botao_comprar_tinta)
+	await create_timer(0.3).timeout
+	print("[capturar_telas] estojo [+] do topo: aba=", h.aba_ativa, " (esperado loja)")
+	await _fechar()
