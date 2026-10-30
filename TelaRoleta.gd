@@ -14,6 +14,8 @@ var versao := "A"
 const CINZA_TEXTO := Color("3d3d4a")
 const AZUL_CLARINHO := Color("e3edfc")
 const VAO_TEXTOS := 28.0 # espaço igual entre nome, nível, descrição e efeito
+const CARD_IMAGEM := "res://assets/ui/card_roleta.png" # caneta + papel (ChatGPT)
+const CARD_MARGENS := Vector4(40, 40, 55, 55) # cantos preservados ao esticar
 const ALT_LINHA_RODAPE := 110.0
 const ICONES_1A_LINHA := 3
 const LARG_CARTA := 960.0
@@ -30,6 +32,19 @@ var _cab: Control
 var _selecionada := -1
 var _liberado := false
 var _icones_giro: Array = []
+var _estilo_card: StyleBoxTexture = null
+
+## Usa uma imagem de card (nine-patch) no lugar do contorno desenhado em código.
+## margens = cantos preservados ao esticar (em pixels da imagem).
+func usar_card_imagem(tex: Texture2D, margens: Vector4) -> void:
+	_estilo_card = StyleBoxTexture.new()
+	_estilo_card.texture = tex
+	_estilo_card.texture_margin_left = margens.x
+	_estilo_card.texture_margin_top = margens.y
+	_estilo_card.texture_margin_right = margens.z
+	_estilo_card.texture_margin_bottom = margens.w
+	for c in _cartas:
+		c["botao"].queue_redraw()
 
 func _montar_fixo() -> void:
 	# Cabeçalho num bloco só, que desce/sobe para centrar a tela
@@ -43,6 +58,9 @@ func _montar_fixo() -> void:
 	_sub = _txt(_cab, "", 44, AZUL, 200, 260)
 	for i in range(3):
 		_cartas.append(_criar_carta(i))
+	# Card desenhado (contorno de caneta + papel); sem a imagem, cai no contorno em código
+	if ResourceLoader.exists(CARD_IMAGEM):
+		usar_card_imagem(load(CARD_IMAGEM), CARD_MARGENS)
 	# "Nesta partida:" + ícones das melhorias que já tem
 	# 1ª linha: "Nesta partida:" + até 3 ícones; do 4º em diante, 2ª linha centrada
 	_rodape = VBoxContainer.new()
@@ -89,14 +107,30 @@ func _criar_carta(i: int) -> Dictionary:
 	b.add_child(nivel)
 	return {"botao": b, "icone": ic, "nome": nome, "desc": desc, "efeito": efeito, "nivel": nivel, "x0": x0, "larg": larg}
 
-## Miolo branco + contorno de caneta (levemente torto, cantos arredondados).
-## Selecionada (versão B): contorno azul mais grosso e um ✓ no canto.
+## Card em imagem (assets/ui/card_roleta.png) ou, sem ela, miolo branco +
+## contorno de caneta em código. Tocada: azul clarinho + ✓ no canto.
 func _desenhar_carta(b: Button, i: int) -> void:
 	var w := b.size.x
 	var h := b.size.y
 	var sel := (i == _selecionada)
+	if _estilo_card:
+		# Card desenhado (imagem do ChatGPT) esticado sem deformar os cantos;
+		# a tocada recebe um tom azul clarinho por cima
+		b.draw_style_box(_estilo_card, Rect2(Vector2.ZERO, b.size))
+		if sel:
+			# Véu azul clarinho por cima do papel (mantém a textura, sem acinzentar)
+			var veu := StyleBoxFlat.new()
+			veu.bg_color = Color(AZUL_CLARINHO, 0.7)
+			veu.set_corner_radius_all(30)
+			b.draw_style_box(veu, Rect2(10, 10, w - 20, h - 20))
+			var c := Vector2(w - 8, 8)
+			b.draw_circle(c, 34, AZUL)
+			b.draw_polyline(PackedVector2Array([c + Vector2(-15, 1), c + Vector2(-4, 12), c + Vector2(16, -11)]),
+				Color.WHITE, 7.0, true)
+		return
 	# Selecionada: miolo azul bem clarinho (destaca no papel); as outras, branco
-	b.draw_rect(Rect2(6, 6, w - 12, h - 12), AZUL_CLARINHO if sel else Color.WHITE)
+	var miolo: Color = AZUL_CLARINHO if sel else Color.WHITE
+	b.draw_rect(Rect2(6, 6, w - 12, h - 12), miolo)
 	var pts := _contorno_torto(w, h, 26.0, i)
 	b.draw_polyline(pts, AZUL if sel else Color(AZUL_ESCURO, 0.9), 7.0 if sel else 4.0, true)
 	if sel:

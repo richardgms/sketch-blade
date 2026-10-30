@@ -53,6 +53,12 @@ func _caso(nome: String, versao: String, cap: int, pagina: int, ups: Dictionary,
 	tela.versao = versao
 	m.get_node("HUD").add_child(tela)
 	await process_frame
+	# Teste de card em imagem: ROLETA_CARD=<png> ROLETA_MARGEM=l,t,r,b
+	var card := OS.get_environment("ROLETA_CARD")
+	if card != "":
+		var mg := OS.get_environment("ROLETA_MARGEM").split(",")
+		tela.usar_card_imagem(ImageTexture.create_from_image(Image.load_from_file(card)),
+			Vector4(float(mg[0]), float(mg[1]), float(mg[2]), float(mg[3])))
 	tela.mostrar(tela.montar_dados(opcoes, m.player, cap, pagina, 8))
 	if espera > 0.0:
 		await create_timer(espera, true).timeout
