@@ -9,6 +9,8 @@ Jogo mobile (Android, retrato) em **Godot 4.7** (GL Compatibility), GDScript. Ro
 - Imagem nova em `assets/`: rode `--headless --path . --import` antes dos prints (sem isso `ResourceLoader.exists` dá falso).
 - Economia: `python tools/sim_economia.py`.
 - Equilíbrio dos chefes (robô joga sem tela): ver `docs/equilibrio-chefes.md`.
+- Prints das telas: `bash tools/capturar_telas.sh <pasta> <telas>` (faz backup e restaura o save do PC; flags de autoload passam de uma partida de teste para a outra). Se o Godot de teste travar, encerre só esse processo pelo PID (`Get-CimInstance Win32_Process`): o editor aberto também se chama Godot.
+- Imagens geradas no ChatGPT: original em `Documentos\Sketch Blade - design\<tela>\gerados\`, versão de uso em `assets/ui/`.
 - Testar chefe no jogo: Configurações → Stats de teste → "Testar chefe" / "Zerar Estojo" (só com `GameData.MODO_TESTE`). Teste por script: ver `docs/chefes.md`.
 
 ## Regras que importam
@@ -19,5 +21,5 @@ Jogo mobile (Android, retrato) em **Godot 4.7** (GL Compatibility), GDScript. Ro
 - Push que envolva pagamento ou anúncios: perguntar antes.
 
 ## Documentação
-- Publicação e histórico: `docs/plano-publicacao.md` · Compras: `docs/plano-compras.md` · Loja: `docs/ficha-da-loja.md` · Chefes e combate: `docs/chefes.md` · Sons (fontes e licenças): `docs/sons.md` · Próximo chat (roleta): `docs/prompt-roleta.md` · Próximas melhorias: `docs/proximas-melhorias.md` · **Identidade visual (ler antes de qualquer tela nova): `docs/identidade-visual.md`**
+- Publicação e histórico: `docs/plano-publicacao.md` · Compras: `docs/plano-compras.md` · Loja: `docs/ficha-da-loja.md` · Chefes e combate: `docs/chefes.md` · Sons (fontes e licenças): `docs/sons.md` · Próximas melhorias: `docs/proximas-melhorias.md` · **Identidade visual (ler antes de qualquer tela nova): `docs/identidade-visual.md`**
 - Página de acompanhamento: https://claude.ai/artifact/XvFoxxh9Kpb1AynTtDaumW · Melhorias visuais: https://claude.ai/artifact/VdK88T7PA2HgKCCBubEKrg · Sons: https://claude.ai/artifact/YUAvgQ6UbbRQ3YMqvN3db4
