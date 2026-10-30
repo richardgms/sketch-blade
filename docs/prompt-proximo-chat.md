@@ -16,7 +16,7 @@ Loja (TelaLoja.gd, abas Canetas | Pacotes, + JanelaCompra.gd) também: fichas de
 tracinhos e botões riscados por estado (azul / falta / máximo ou EM USO). As telas novas usam a
 base TelaFim.gd (papel da fase, _botao_cheio riscado, _botao_contorno, _txt, _traco) e o card
 desenhado assets/ui/card_roleta.png (caneta + papel, nine-patch 40/40/55/55); botões:
-assets/ui/botao_riscado.png, botao_falta.png, botao_maximo.png; ícones brancos em cima do azul:
+assets/ui/botao_riscado.png, botao_falta.png, botao_maximo.png, botao_equipar.png; ícones brancos em cima do azul:
 gota_branca.png e clipe_branco.png (tools/gerar_gota_branca.gd).
 A 1.7.0 (código 10) está no Teste fechado; a 1.7.1 (código 11, descanso + pausa) foi gerada e
 pode já ter sido enviada: me pergunte antes de gerar outra. Estojo e Loja novos ainda sem build.
@@ -49,6 +49,8 @@ Regras:
 ```
 
 ## Lições técnicas dos chats de 29–30/10
+- **Fundo riscado (StyleBoxTexture) em botão com texto:** sem `set_content_margin` a margem da textura (48) vira margem do texto e o botão alarga além do `size` (aconteceu no EQUIPAR); `TelaEstojo._estilo_riscado` já põe 6.
+- **Botão do ChatGPT com borda fina:** recorte por flood fill nos cantos, abertura (MinFilter 5 + MaxFilter 5) para tirar os pontinhos da hachura e MaxFilter para engrossar o contorno antes de reduzir para 720 (script em `Documentos\Sketch Blade - design\loja-nova\gerados\`).
 - **Control direto num CanvasLayer (HUD do Hub) dentro do SubViewport dos prints:** as âncoras não resolvem e o tamanho fica 0; um ColorRect "tela inteira" precisa de `size = get_viewport_rect().size` (foi o fundo escuro da `JanelaCompra`).
 - **Botão desabilitado:** sem estilo "disabled" o Godot desenha um cinza chapado; `TelaFim._botao_cheio` agora usa o mesmo riscado e quem chama esmaece com `modulate`.
 - **Teste de toque na Loja:** a ficha em uso não tem botão, então `_btns` muda de ordem depois de cada compra; ache o botão pela caneta (`_btn_caneta(loja, id)` no `capturar_telas.gd`).

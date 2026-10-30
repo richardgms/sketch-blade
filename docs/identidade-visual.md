@@ -43,11 +43,11 @@ Guia geral (não é regra fixa: cada tela é um caso). Tirado do que o Richard a
 ## Fichas (Estojo)
 - Melhoria permanente = ficha larga com cara de **etiqueta**: card da roleta + margem vermelha vertical + furo à esquerda.
 - Nível em **tracinhos de contagem** (grupos de 5, o 5º corta na diagonal), os que faltam bem apagados; ele preferiu aos círculos.
-- Cada estado do botão tem o próprio fundo riscado do ChatGPT: azul (dá para fazer), papel com hachura clarinha (falta algo, ainda tocável) e verde (concluído, sem toque). Texto nunca encosta na borda desenhada: alargar o botão antes de diminuir a letra.
+- Cada estado do botão tem o próprio fundo riscado do ChatGPT: azul (dá para fazer), papel com hachura clarinha e **uma borda só** (falta algo, ainda tocável; a borda dupla incomodou) e verde (concluído, sem toque). Texto nunca encosta na borda desenhada: alargar o botão antes de diminuir a letra.
 
 ## Loja
 - Mesma ficha de etiqueta do Estojo, uma por caneta (5 em lista, sem rolagem); as abas viram o título da tela ("CANETAS | PACOTES").
-- Estado da caneta no botão, cada um com o fundo riscado dele: EM USO verde, EQUIPAR contorno, COMPRAR azul com a moeda em caneta branca, falta de saldo em papel riscado clarinho. Nada de cadeado nem cartão cinzento.
+- Estado da caneta no botão, cada um com o fundo riscado dele: EM USO verde, EQUIPAR contorno de caneta com miolo branco (`botao_equipar.png`), COMPRAR azul com a moeda em caneta branca, falta de saldo em papel riscado clarinho. Nada de cadeado nem cartão cinzento.
 - Janela de compra: card da roleta sobre o hub escurecido, o preço dentro do botão principal ("COMPRAR · R$ 4,90") e "Agora não" com contorno; nunca colchetes.
 
 ## Texto
