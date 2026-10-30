@@ -45,6 +45,11 @@ Guia geral (não é regra fixa: cada tela é um caso). Tirado do que o Richard a
 - Nível em **tracinhos de contagem** (grupos de 5, o 5º corta na diagonal), os que faltam bem apagados; ele preferiu aos círculos.
 - Cada estado do botão tem o próprio fundo riscado do ChatGPT: azul (dá para fazer), papel com hachura clarinha (falta algo, ainda tocável) e verde (concluído, sem toque). Texto nunca encosta na borda desenhada: alargar o botão antes de diminuir a letra.
 
+## Loja
+- Mesma ficha de etiqueta do Estojo, uma por caneta (5 em lista, sem rolagem); as abas viram o título da tela ("CANETAS | PACOTES").
+- Estado da caneta no botão, cada um com o fundo riscado dele: EM USO verde, EQUIPAR contorno, COMPRAR azul com a moeda em caneta branca, falta de saldo em papel riscado clarinho. Nada de cadeado nem cartão cinzento.
+- Janela de compra: card da roleta sobre o hub escurecido, o preço dentro do botão principal ("COMPRAR · R$ 4,90") e "Agora não" com contorno; nunca colchetes.
+
 ## Texto
 - Architects Daughter para palavras; Caveat para números (com espaço extra depois do número, senão gruda: "página 6  de 8").
 - **Legibilidade no celular manda:** textos azuis de informação em 42/40 (`TAM_TEXTO_AZUL`), rótulos nunca abaixo de ~40. Toda vez que algo ficou pequeno (34, 36, letras do selo), ele pediu para aumentar.

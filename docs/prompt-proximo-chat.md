@@ -11,18 +11,19 @@ Continuação do Sketch Blade (Godot 4.7, pasta atual). Leia primeiro:
 
 Onde estamos (30/10): todo o visual de DENTRO da partida está no estilo "caderno à caneta":
 hub (3 telas), vitória, derrota, reviver, HUD, chefe legível, sons, roleta (TelaRoleta.gd),
-descanso (TelaDescanso.gd) e pausa (TelaPausa.gd). Fora da partida, o Estojo (TelaEstojo.gd,
-dentro do Hub) também: fichas de etiqueta, tracinhos e botões riscados por estado (azul / falta /
-máximo). As telas novas usam a base TelaFim.gd (papel da fase, _botao_cheio riscado,
-_botao_contorno, _txt, _traco) e o card desenhado assets/ui/card_roleta.png (caneta + papel,
-nine-patch 40/40/55/55); botões: assets/ui/botao_riscado.png, botao_falta.png, botao_maximo.png,
-gota_branca.png (ícone em cima do azul).
+descanso (TelaDescanso.gd) e pausa (TelaPausa.gd). Fora da partida, o Estojo (TelaEstojo.gd) e a
+Loja (TelaLoja.gd, abas Canetas | Pacotes, + JanelaCompra.gd) também: fichas de etiqueta,
+tracinhos e botões riscados por estado (azul / falta / máximo ou EM USO). As telas novas usam a
+base TelaFim.gd (papel da fase, _botao_cheio riscado, _botao_contorno, _txt, _traco) e o card
+desenhado assets/ui/card_roleta.png (caneta + papel, nine-patch 40/40/55/55); botões:
+assets/ui/botao_riscado.png, botao_falta.png, botao_maximo.png; ícones brancos em cima do azul:
+gota_branca.png e clipe_branco.png (tools/gerar_gota_branca.gd).
 A 1.7.0 (código 10) está no Teste fechado; a 1.7.1 (código 11, descanso + pausa) foi gerada e
-pode já ter sido enviada: me pergunte antes de gerar outra.
+pode já ter sido enviada: me pergunte antes de gerar outra. Estojo e Loja novos ainda sem build.
 
-Próximo: redesenhar a LOJA (abas Canetas e Pacotes, dentro do Hub.gd) e a janela de
-compra/oferta de pacote (ainda com colchetes) no mesmo estilo. Mexe com compras: só o visual,
-nada de BillingManager; push que envolva pagamento: me pergunte antes.
+Próximo: a definir comigo. Telas antigas que sobram fora da partida: missões, configurações e
+recompensa diária (painéis do Hub.gd). Compras e anúncios: só o visual; push que envolva
+pagamento ou anúncio: me pergunte antes.
 
 Como trabalhamos (o mesmo processo da roleta, do descanso e da pausa):
 1. Print real da tela atual (tools/capturar_telas.sh <pasta> loja,compra; faz backup e restaura o
@@ -48,6 +49,9 @@ Regras:
 ```
 
 ## Lições técnicas dos chats de 29–30/10
+- **Control direto num CanvasLayer (HUD do Hub) dentro do SubViewport dos prints:** as âncoras não resolvem e o tamanho fica 0; um ColorRect "tela inteira" precisa de `size = get_viewport_rect().size` (foi o fundo escuro da `JanelaCompra`).
+- **Botão desabilitado:** sem estilo "disabled" o Godot desenha um cinza chapado; `TelaFim._botao_cheio` agora usa o mesmo riscado e quem chama esmaece com `modulate`.
+- **Teste de toque na Loja:** a ficha em uso não tem botão, então `_btns` muda de ordem depois de cada compra; ache o botão pela caneta (`_btn_caneta(loja, id)` no `capturar_telas.gd`).
 - **Ícone em cima do azul:** não pintar a silhueta de branco (vira mancha). Gerar a versão branca com contorno grosso e miolo vazado por distância até a borda (`tools/gerar_gota_branca.gd`); dilatar o desenho todo junta os rabiscos de dentro.
 - **Fundo de botão por estado (ChatGPT):** passar `botao_riscado.png` como referência e pedir a mesma forma em outra tinta ou com hachura clarinha; recortar o branco de fora com flood fill a partir dos cantos e reduzir para 720 de largura (margens 48/36 iguais ao azul).
 - **Edição por Python no Bash:** a barra invertida dentro de heredoc vira outra coisa; para trocar texto com `\n` ou caminhos do Windows, escreva o script num arquivo (scratchpad) e rode.
