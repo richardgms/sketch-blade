@@ -216,10 +216,10 @@ func _zona_compra(c: Control, it: Dictionary, r: Rect2) -> void:
 	preco.alignment = BoxContainer.ALIGNMENT_CENTER
 	preco.add_theme_constant_override("separation", 8)
 	preco.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	var gota := _icone("res://assets/ink.svg", 46)
-	gota.modulate = Color.WHITE if pode else Color(1, 1, 1, 0.5)
-	if pode:
-		gota.material = _material_branco()
+	# No azul, a gota desenhada em branco (tools/gerar_gota_branca.gd)
+	var gota := _icone("res://assets/ui/gota_branca.png" if pode else "res://assets/ink.svg", 50 if pode else 46)
+	if not pode:
+		gota.modulate = Color(1, 1, 1, 0.5)
 	preco.add_child(gota)
 	preco.add_child(_lbl(_milhar(int(it["custo"])), NUM, 56, cor))
 	col.add_child(preco)
@@ -230,14 +230,6 @@ func _zona_compra(c: Control, it: Dictionary, r: Rect2) -> void:
 	var chave: String = it["chave"]
 	b.pressed.connect(func(): upar.emit(chave))
 	_btns.append(b)
-
-## Gota branca em cima do botão azul (a textura é azul; o shader troca a cor).
-func _material_branco() -> ShaderMaterial:
-	var m := ShaderMaterial.new()
-	var s := Shader.new()
-	s.code = "shader_type canvas_item; void fragment(){ COLOR = vec4(1.0, 1.0, 1.0, texture(TEXTURE, UV).a); }"
-	m.shader = s
-	return m
 
 ## n bolinhas de nível (cheias até "nivel"), com contorno de caneta.
 func _bolinhas(pai: Control, inicio: Vector2, nivel: int, passo: float, raio: float, n: int) -> void:

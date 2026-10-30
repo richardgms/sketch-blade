@@ -56,6 +56,7 @@ Guia geral (não é regra fixa: cada tela é um caso). Tirado do que o Richard a
 ## Ícones
 - Estilo do rascunho do amigo: **simples**, contorno grosso de caneta, hachura leve, miolo branco, poucos detalhes (a asa ficou boa com 3 dobras; a detalhada não). Sem brilhinhos nem rabiscos em volta.
 - Ícone ao lado do valor que ele representa (gota + "+1.058 tinta").
+- Em cima do azul (botão cheio), ícone em **caneta branca com o miolo vazado**, nunca silhueta branca cheia: `assets/ui/gota_branca.png` (gerada por `tools/gerar_gota_branca.gd`; o mesmo método serve para outros ícones).
 
 ## Informação e recompensa
 - Um "herói" por bloco (o total de tinta), com um rótulo legível ("Tinta conquistada").
