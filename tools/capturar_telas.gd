@@ -205,6 +205,7 @@ func _rodar() -> void:
 		await _foto("vitoria-cap3-pulada"); await _fechar()
 	if _quer("revive-fluxo"):
 		# Desistir leva à página arruinada; continuar (anúncio simulado) volta com 3 corações
+		root.get_node("AdsManager").revive_usado_na_run = false
 		var m = await _combate()
 		m.wave_manager.pagina_atual = 6
 		m._on_player_morreu(); await create_timer(1.5).timeout
@@ -221,6 +222,7 @@ func _rodar() -> void:
 	if _quer("revive"):
 		# A caneta perde o último coração na página 6 (versões A e B)
 		for versao in ["a", "b"]:
+			root.get_node("AdsManager").revive_usado_na_run = false
 			var m = await _combate()
 			m.wave_manager.pagina_atual = 6
 			m.tela_reviver.anuncio_principal = versao == "a"

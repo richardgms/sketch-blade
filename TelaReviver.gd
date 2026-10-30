@@ -14,6 +14,7 @@ var _arte: TextureRect
 var _coracoes: HBoxContainer
 var _frase: Label
 var _aviso_anuncio: Label
+var _lbl_continuar: Label
 
 func _montar_fixo() -> void:
 	_txt(_conteudo, "SEGUNDA CHANCE?", 74, AZUL_ESCURO, 70, 170)
@@ -57,7 +58,39 @@ func _montar_botoes() -> void:
 		if b:
 			b.queue_free()
 	if anuncio_principal:
-		_btn_anuncio = _botao_cheio("CONTINUAR", BOTAO_VOLTAR)
+		# Ícone do anúncio em branco + CONTINUAR, centrados juntos no botão
+		_btn_anuncio = _botao_cheio("", BOTAO_VOLTAR)
+		var linha := HBoxContainer.new()
+		linha.alignment = BoxContainer.ALIGNMENT_CENTER
+		linha.add_theme_constant_override("separation", 20)
+		linha.set_anchors_preset(Control.PRESET_FULL_RECT)
+		linha.offset_top = 4.0
+		linha.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		_btn_anuncio.add_child(linha)
+		var ic := TextureRect.new()
+		ic.texture = load("res://assets/ads.svg")
+		ic.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+		ic.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+		ic.custom_minimum_size = Vector2(66, 66)
+		ic.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+		ic.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		var sh := Shader.new()
+		sh.code = "shader_type canvas_item;
+void fragment() { COLOR = vec4(1.0, 1.0, 1.0, texture(TEXTURE, UV).a); }"
+		var mat := ShaderMaterial.new()
+		mat.shader = sh
+		ic.material = mat
+		linha.add_child(ic)
+		_lbl_continuar = Label.new()
+		_lbl_continuar.text = "CONTINUAR"
+		_lbl_continuar.add_theme_font_override("font", FONTE)
+		_lbl_continuar.add_theme_font_size_override("font_size", 60)
+		_lbl_continuar.add_theme_color_override("font_color", Color.WHITE)
+		_lbl_continuar.add_theme_color_override("font_outline_color", Color(AZUL_ESCURO, 0.6))
+		_lbl_continuar.add_theme_constant_override("outline_size", 6)
+		_lbl_continuar.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+		_lbl_continuar.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		linha.add_child(_lbl_continuar)
 		_btn_voltar = _botao_contorno(BOTAO_ANUNCIO)
 		_conteudo_linha([["", "Desistir", VERMELHO]])
 		_aviso_anuncio.visible = true
@@ -70,7 +103,7 @@ func _montar_botoes() -> void:
 	_btn_anuncio.pressed.connect(func():
 		_btn_anuncio.disabled = true
 		if anuncio_principal:
-			_btn_anuncio.text = "Carregando..."
+			_lbl_continuar.text = "Carregando..."
 		else:
 			_conteudo_linha([["", "Carregando...", AZUL]])
 		anuncio_pressionado.emit())
@@ -139,6 +172,6 @@ func _finalizar_animacao() -> void:
 func anuncio_falhou() -> void:
 	_btn_anuncio.disabled = false
 	if anuncio_principal:
-		_btn_anuncio.text = "CONTINUAR"
+		_lbl_continuar.text = "CONTINUAR"
 	else:
 		_conteudo_linha([["res://assets/ads.svg", "", AZUL], ["", "Ver anúncio · continuar", AZUL]])

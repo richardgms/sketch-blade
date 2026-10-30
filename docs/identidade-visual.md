@@ -50,6 +50,7 @@ Guia geral (não é regra fixa: cada tela é um caso). Tirado do que o Richard a
 - Um "herói" por bloco (o total de tinta), com um rótulo legível ("Tinta conquistada").
 - Detalhar quando ensina algo: os bônus separados (coletada, vidas, capítulo) ficaram, porque mostram que vale terminar com corações.
 - Progressão como barra (XP), não como linha de texto. A linha "Nv. 6 [barra] +23 XP" fica **centrada na página como um bloco só**.
+- Exceção: na "Segunda chance?" (reviver) o anúncio é o botão cheio, porque a tela só existe para oferecê-lo; mesmo assim, com ícone de anúncio no botão, aviso escrito acima e botões travados ~0,8 s.
 - Anúncio: sempre **opcional e explícito** ("Ver anúncio · +1.058"), nunca o botão principal, só funciona depois que a animação termina, e mostra "Bônus recebido ✓" depois.
 
 ## Como ele decide
