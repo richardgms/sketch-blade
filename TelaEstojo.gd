@@ -12,6 +12,8 @@ signal upar(chave: String)
 
 const CARD_IMAGEM := "res://assets/ui/card_roleta.png"
 const CARD_MARGENS := Vector4(40, 40, 55, 55)
+const BOTAO_FALTA := "res://assets/ui/botao_falta.png"
+const BOTAO_MAXIMO := "res://assets/ui/botao_maximo.png"
 const ITENS := [
 	{"chave": "nivel_dano", "nome": "Dano da Caneta", "nome_b": "Dano da\nCaneta",
 		"icone": "res://assets/upgrade1.svg", "unidade": "de dano"},
@@ -103,7 +105,7 @@ func _fichas(itens: Array) -> Array:
 	var alt := 320.0
 	var y := 560.0
 	for it in itens:
-		var c := _carta(Rect2(70, y, 940, alt))
+		var c := _carta(Rect2(50, y, 980, alt))
 		cartas.append(c)
 		var dx := 0.0
 		if versao == "A2":
@@ -121,7 +123,7 @@ func _fichas(itens: Array) -> Array:
 		# Resultado da compra
 		var ef := _linha(c, Vector2(255 + dx, 178), 420, 76, BoxContainer.ALIGNMENT_BEGIN)
 		_efeito(ef, it, 58)
-		_zona_compra(c, it, Rect2(680, 112, 225, 140))
+		_zona_compra(c, it, Rect2(688, 112, 252, 140))
 		y += alt + 34.0
 	return cartas
 
@@ -183,21 +185,32 @@ func _efeito(linha: HBoxContainer, it: Dictionary, tam: int) -> void:
 		un.custom_minimum_size.y = 62
 		linha.add_child(un)
 
-## Botão de compra: cheio (SUBIR + gota + custo) quando dá para pagar;
-## contorno com o custo apagado e "faltam N" quando não dá; no nível 10,
-## "MÁXIMO ✓" em verde, sem botão.
+## Botão de compra: azul riscado (SUBIR + gota + custo) quando dá para pagar;
+## riscado clarinho com o custo apagado e "faltam N" quando não dá; no nível
+## 10, selo verde riscado "NÍVEL MÁXIMO ✓" (sem toque). Texturas do ChatGPT,
+## originais em Documentos\Sketch Blade - design\estojo-novo\gerados\.
 func _zona_compra(c: Control, it: Dictionary, r: Rect2) -> void:
 	if it["maximo"]:
-		var mx := _txt(c, "NÍVEL\nMÁXIMO ✓", 44, VERDE, r.position.y, r.end.y, FONTE, r.position.x, r.end.x)
+		var selo := Panel.new()
+		selo.add_theme_stylebox_override("panel", _estilo_riscado(BOTAO_MAXIMO))
+		selo.position = r.position
+		selo.size = r.size
+		selo.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		c.add_child(selo)
+		var mx := _txt(selo, "NÍVEL\nMÁXIMO ✓", 40, Color.WHITE, 4, r.size.y, FONTE, 0, r.size.x)
 		mx.add_theme_constant_override("line_spacing", -12)
+		mx.add_theme_color_override("font_outline_color", Color(VERDE, 0.6))
+		mx.add_theme_constant_override("outline_size", 6)
 		return
 	var pode: bool = int(it["falta"]) == 0
-	var b: Button
-	if pode:
-		b = _botao_cheio("", r)
-	else:
-		b = _botao_contorno(r)
-		_linha_anuncio.queue_free()
+	var b := _botao_cheio("", r)
+	if not pode:
+		var st := _estilo_riscado(BOTAO_FALTA)
+		var st_p: StyleBoxTexture = st.duplicate()
+		st_p.modulate_color = Color(0.85, 0.85, 0.9)
+		for e in ["normal", "hover"]:
+			b.add_theme_stylebox_override(e, st)
+		b.add_theme_stylebox_override("pressed", st_p)
 	b.reparent(c, false)
 	b.position = r.position
 	var col := VBoxContainer.new()
@@ -221,15 +234,25 @@ func _zona_compra(c: Control, it: Dictionary, r: Rect2) -> void:
 	if not pode:
 		gota.modulate = Color(1, 1, 1, 0.5)
 	preco.add_child(gota)
-	preco.add_child(_lbl(_milhar(int(it["custo"])), NUM, 56, cor))
+	preco.add_child(_lbl(_milhar(int(it["custo"])), NUM, 52, cor))
 	col.add_child(preco)
 	if not pode:
-		var f := _lbl("faltam %s" % _milhar(int(it["falta"])), NUM, 44, AZUL_ESCURO)
+		var f := _lbl("faltam %s" % _milhar(int(it["falta"])), NUM, 42, AZUL_ESCURO)
 		f.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 		col.add_child(f)
 	var chave: String = it["chave"]
 	b.pressed.connect(func(): upar.emit(chave))
 	_btns.append(b)
+
+## Fundo riscado (mesmas margens do botão azul).
+func _estilo_riscado(caminho: String) -> StyleBoxTexture:
+	var st := StyleBoxTexture.new()
+	st.texture = load(caminho)
+	st.texture_margin_left = 48.0
+	st.texture_margin_right = 48.0
+	st.texture_margin_top = 36.0
+	st.texture_margin_bottom = 36.0
+	return st
 
 ## n bolinhas de nível (cheias até "nivel"), com contorno de caneta.
 func _bolinhas(pai: Control, inicio: Vector2, nivel: int, passo: float, raio: float, n: int) -> void:
