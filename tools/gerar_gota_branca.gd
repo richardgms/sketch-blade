@@ -3,13 +3,17 @@ extends SceneTree
 ## cima do azul (botão SUBIR do Estojo): contorno grosso em branco (perto da
 ## grossura dos números em Caveat Bold do botão), miolo vazado mostrando o azul
 ## do botão e só o brilho claro do desenho por dentro.
-## Uso: Godot --headless --path . -s tools/gerar_gota_branca.gd
+## Uso: Godot --headless --path . -s tools/gerar_gota_branca.gd [-- <svg> <png>]
+## (o mesmo método serve para outros ícones; ex.: assets/clip.svg → clipe_branco.png)
 
 ## Grossura do contorno (px na imagem de 256; no botão a gota tem ~50 px).
 const ANEL := 20.0
 
 func _initialize() -> void:
-	var svg := FileAccess.get_file_as_string("res://assets/ink.svg")
+	var args := OS.get_cmdline_user_args()
+	var origem: String = args[0] if args.size() > 0 else "res://assets/ink.svg"
+	var saida: String = args[1] if args.size() > 1 else "res://assets/ui/gota_branca.png"
+	var svg := FileAccess.get_file_as_string(origem)
 	var img := Image.new()
 	img.load_svg_from_string(svg, 256.0 / 72.0)
 	img.convert(Image.FORMAT_RGBA8)
@@ -29,8 +33,8 @@ func _initialize() -> void:
 			var lum: float = 0.299 * c.r + 0.587 * c.g + 0.114 * c.b
 			a = max(a, smoothstep(0.78, 0.9, lum))
 			out.set_pixel(x, y, Color(1, 1, 1, c.a * a))
-	out.save_png("res://assets/ui/gota_branca.png")
-	print("[gota_branca] ", out.get_size())
+	out.save_png(saida)
+	print("[gota_branca] ", saida, " ", out.get_size())
 	quit()
 
 ## Distância (chanfro 3-4, em px) de cada pixel do desenho até o lado de fora.

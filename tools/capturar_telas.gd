@@ -3,7 +3,7 @@ extends SceneTree
 ##
 ## Uso (precisa de janela, não roda com --headless):
 ##   Godot --path . -s tools/capturar_telas.gd -- <pasta_de_saida> [tela1,tela2,...]
-## Sem lista, captura todas. Telas: hub, hub-cap5-recorde, hub-cap5-chefe, hub-cap5-primeira, hub-cap1/3/4-concluido, retomar, retomar-revive-usado, retomar-confirmar, estojo, estojo-estados, estojo-fluxo, loja, missoes, config, recompensa, compra,
+## Sem lista, captura todas. Telas: hub, hub-cap5-recorde, hub-cap5-chefe, hub-cap5-primeira, hub-cap1/3/4-concluido, retomar, retomar-revive-usado, retomar-confirmar, estojo, estojo-estados, estojo-fluxo, loja, loja-pacotes, missoes, config, recompensa, compra, oferta,
 ## stats, dica-gotas, canetas, hud-vida, hud, roleta, roleta-fluxo, pausa, pausa-fluxo, descanso, descanso-fluxo, derrota, vitoria, revive.
 ##
 ## Usa um save fictício, mas alguns eventos gravam o save do PC
@@ -114,6 +114,7 @@ func _rodar() -> void:
 	if _quer("estojo-fluxo"):
 		await _fluxo_estojo()
 	await _hub("loja", func(h): h._alterar_aba("loja"))
+	await _hub("loja-pacotes", func(h): h._abrir_pacotes())
 	await _hub("missoes", func(h): h._abrir_painel_missoes())
 	await _hub("config", func(h): h._abrir_painel_config())
 	# Painel "Stats de teste" com vitórias/derrotas e páginas em que perdeu
@@ -124,6 +125,8 @@ func _rodar() -> void:
 		h._abrir_painel_stats())
 	await _hub("recompensa", func(h): h._mostrar_popup_recompensa_diaria(3))
 	await _hub("compra", func(h): h._abrir_popup_compra("clipes"))
+	# Oferta quando falta tinta (Estojo ou caneta sem saldo)
+	await _hub("oferta", func(h): h._oferecer_pacote("tinta", 130))
 
 	if _quer("dica-gotas"):
 		# Primeira gota de tinta da conta: círculo na gota + dica
