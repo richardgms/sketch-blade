@@ -84,7 +84,8 @@ var menu_upgrades: Control
 var tela_roleta: Control
 var menu_pausa: Control
 var botao_pausa_hud: Button
-var container_habilidades_pausa: HBoxContainer
+# Pausa no estilo caderno (TelaPausa.gd, filho de menu_pausa)
+var tela_pausa: Control
 var label_contagem: Label
 # Opções sorteadas na roleta atual (definições vindas de GameData.UPGRADES)
 var opcoes_roleta: Array = []
@@ -405,7 +406,8 @@ func _tratar_voltar() -> void:
 		return
 	# Já pausado: voltar retoma a partida.
 	if menu_pausa and menu_pausa.visible:
-		_on_retomar_pausa_pressed()
+		if not tela_pausa.voltar_do_sistema(): # primeiro fecha a confirmação
+			_on_retomar_pausa_pressed()
 		return
 	# Em plena partida: voltar abre a pausa (em vez de fechar o app).
 	if jogo_iniciado:
@@ -1541,10 +1543,22 @@ func _on_botao_pausa_pressed() -> void:
 	# Som de clique
 	_tocar_som(SONS["clique"])
 	
-	# Preenche o histórico de upgrades do jogador
-	_atualizar_habilidades_pausa()
-	
+	# Melhorias da partida (nome, nível e efeito atual) para as cartas da pausa
+	var melhorias: Array = []
+	for id in player.upgrades.keys():
+		var up = GameData.get_upgrade(id)
+		var nv: int = int(player.upgrades[id])
+		if not up.is_empty() and nv > 0:
+			melhorias.append({"icone": up["icone"], "nome": up["nome"], "nivel": nv,
+				"efeito": up["stats"][clamp(nv - 1, 0, up["stats"].size() - 1)]})
+	# O rótulo "Página N / 8" (criado depois dos menus) ficaria por cima
+	if label_pagina:
+		label_pagina.visible = false
 	menu_pausa.visible = true
+	tela_pausa.mostrar({"cap": capitulo_atual, "pagina": max(1, wave_manager.pagina_atual),
+		"total_paginas": GameData.PAGINAS.size(), "vidas": player.vidas, "vidas_max": player.vidas_max,
+		"tinta_partida": tinta_partida, "melhorias": melhorias,
+		"som": SaveManager.dados.get("som_ativo", true), "vibracao": SaveManager.dados.get("vibracao_ativa", true)})
 	get_tree().paused = true
 
 func _criar_menu_pausa() -> void:
@@ -1553,75 +1567,19 @@ func _criar_menu_pausa() -> void:
 	menu_pausa.visible = false
 	menu_pausa.set_anchors_preset(Control.PRESET_FULL_RECT)
 	$HUD.add_child(menu_pausa)
-	
-	# Fundo semi-transparente estilo folha de rascunho
-	var fundo = ColorRect.new()
-	fundo.color = Color(0.98, 0.965, 0.93, 0.95)
-	fundo.set_anchors_preset(Control.PRESET_FULL_RECT)
-	menu_pausa.add_child(fundo)
-	
-	# Título
-	var titulo = Label.new()
-	titulo.text = "PARTIDA PAUSADA"
-	titulo.add_theme_font_override("font", load("res://assets/fonts/ArchitectsDaughter-Regular.ttf"))
-	titulo.add_theme_font_size_override("font_size", 64)
-	titulo.add_theme_color_override("font_color", Color("002867"))
-	titulo.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	titulo.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	titulo.position = Vector2(0, 300)
-	titulo.size = Vector2(1080, 100)
-	menu_pausa.add_child(titulo)
-	
-	# Subtítulo Habilidades
-	var sub = Label.new()
-	sub.text = "Habilidades nesta run:"
-	sub.add_theme_font_override("font", load("res://assets/fonts/ArchitectsDaughter-Regular.ttf"))
-	sub.add_theme_font_size_override("font_size", 34)
-	sub.add_theme_color_override("font_color", Color(0.3, 0.3, 0.35))
-	sub.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	sub.position = Vector2(0, 500)
-	sub.size = Vector2(1080, 60)
-	menu_pausa.add_child(sub)
-	
-	# HBoxContainer para as habilidades ativas na run
-	container_habilidades_pausa = HBoxContainer.new()
-	container_habilidades_pausa.position = Vector2(140, 580)
-	container_habilidades_pausa.size = Vector2(800, 200)
-	container_habilidades_pausa.alignment = BoxContainer.ALIGNMENT_CENTER
-	container_habilidades_pausa.add_theme_constant_override("separation", 30)
-	menu_pausa.add_child(container_habilidades_pausa)
-	
-	# Botão Retomar
-	var btn_retomar = Button.new()
-	btn_retomar.text = "[ RETOMAR ]"
-	btn_retomar.add_theme_font_override("font", load("res://assets/fonts/ArchitectsDaughter-Regular.ttf"))
-	btn_retomar.add_theme_font_size_override("font_size", 48)
-	btn_retomar.add_theme_color_override("font_color", Color("002867"))
-	btn_retomar.add_theme_color_override("font_hover_color", Color("0047ab"))
-	btn_retomar.add_theme_color_override("font_pressed_color", Color("001a66"))
-	btn_retomar.flat = true
-	btn_retomar.position = Vector2(340, 950)
-	btn_retomar.size = Vector2(400, 80)
-	menu_pausa.add_child(btn_retomar)
-	btn_retomar.pressed.connect(_on_retomar_pausa_pressed)
-	
-	# Botão Sair para o Hub
-	var btn_sair = Button.new()
-	btn_sair.text = "[ SAIR PARA O HUB ]"
-	btn_sair.add_theme_font_override("font", load("res://assets/fonts/ArchitectsDaughter-Regular.ttf"))
-	btn_sair.add_theme_font_size_override("font_size", 36)
-	btn_sair.add_theme_color_override("font_color", Color(0.6, 0.15, 0.15))
-	btn_sair.add_theme_color_override("font_hover_color", Color(0.85, 0.1, 0.1))
-	btn_sair.add_theme_color_override("font_pressed_color", Color(0.4, 0.05, 0.05))
-	btn_sair.flat = true
-	btn_sair.position = Vector2(340, 1100)
-	btn_sair.size = Vector2(400, 80)
-	menu_pausa.add_child(btn_sair)
-	btn_sair.pressed.connect(func():
+	tela_pausa = Control.new()
+	tela_pausa.set_script(preload("res://TelaPausa.gd"))
+	menu_pausa.add_child(tela_pausa)
+	tela_pausa.continuar.connect(_on_retomar_pausa_pressed)
+	tela_pausa.abandonar.connect(func():
 		SaveManager.limpar_run_snapshot() # Saída deliberada: abandona a run
 		get_tree().paused = false
-		get_tree().change_scene_to_file("res://hub.tscn")
-	)
+		get_tree().change_scene_to_file("res://hub.tscn"))
+	# Som e vibração: os mesmos ajustes das Configurações do hub
+	tela_pausa.ajuste_alterado.connect(func(chave: String, ligado: bool):
+		SaveManager.dados[chave] = ligado
+		SaveManager.salvar()
+		_tocar_som(SONS["clique"]))
 
 func _criar_label_contagem() -> void:
 	label_contagem = Label.new()
@@ -1639,6 +1597,8 @@ func _criar_label_contagem() -> void:
 
 func _on_retomar_pausa_pressed() -> void:
 	menu_pausa.visible = false
+	if label_pagina:
+		label_pagina.visible = true
 	
 	# Som de clique
 	_tocar_som(SONS["clique"])
@@ -1671,62 +1631,3 @@ func _on_retomar_pausa_pressed() -> void:
 		label_contagem.visible = false
 		get_tree().paused = false
 	)
-
-func _atualizar_habilidades_pausa() -> void:
-	for child in container_habilidades_pausa.get_children():
-		child.queue_free()
-		
-	if not player:
-		return
-		
-	# Lista habilidades ativas com nível: [{icone, nivel}, ...]
-	var habilidades_ativas: Array = []
-	for id in player.upgrades.keys():
-		var up = GameData.get_upgrade(id)
-		if not up.is_empty():
-			habilidades_ativas.append({"icone": up["icone"], "nivel": player.upgrades[id]})
-
-	if habilidades_ativas.size() == 0:
-		var lbl_nenhuma = Label.new()
-		lbl_nenhuma.text = "(Nenhuma habilidade nesta run)"
-		lbl_nenhuma.add_theme_font_override("font", load("res://assets/fonts/ArchitectsDaughter-Regular.ttf"))
-		lbl_nenhuma.add_theme_font_size_override("font_size", 38)
-		lbl_nenhuma.add_theme_color_override("font_color", Color(0.5, 0.5, 0.5))
-		lbl_nenhuma.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-		container_habilidades_pausa.add_child(lbl_nenhuma)
-	else:
-		for habilidade in habilidades_ativas:
-			var container_icone = Control.new()
-			container_icone.custom_minimum_size = Vector2(140, 170)
-			container_icone.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
-			container_icone.size_flags_vertical = Control.SIZE_SHRINK_CENTER
-			container_habilidades_pausa.add_child(container_icone)
-
-			# Fundo: moldura fixa de 140x140 (mesmo padrão dos cards de upgrade)
-			var bg = TextureRect.new()
-			bg.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-			bg.stretch_mode = TextureRect.STRETCH_SCALE
-			bg.texture = load("res://assets/backgroundpowerup.png")
-			bg.size = Vector2(140, 140)
-			bg.position = Vector2.ZERO
-			container_icone.add_child(bg)
-
-			# Ícone centralizado dentro da moldura
-			var img = TextureRect.new()
-			img.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-			img.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-			img.texture = load(habilidade["icone"])
-			img.size = Vector2(100, 100)
-			img.position = Vector2(20, 20)
-			container_icone.add_child(img)
-
-			# Nível da habilidade abaixo da moldura
-			var lbl_nivel = Label.new()
-			lbl_nivel.text = "Lv.%d" % habilidade["nivel"]
-			lbl_nivel.add_theme_font_override("font", FONTE_NUMEROS)
-			lbl_nivel.add_theme_font_size_override("font_size", 36)
-			lbl_nivel.add_theme_color_override("font_color", Color("002867"))
-			lbl_nivel.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-			lbl_nivel.position = Vector2(0, 140)
-			lbl_nivel.size = Vector2(140, 30)
-			container_icone.add_child(lbl_nivel)

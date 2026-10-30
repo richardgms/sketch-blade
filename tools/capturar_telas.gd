@@ -4,7 +4,7 @@ extends SceneTree
 ## Uso (precisa de janela, não roda com --headless):
 ##   Godot --path . -s tools/capturar_telas.gd -- <pasta_de_saida> [tela1,tela2,...]
 ## Sem lista, captura todas. Telas: hub, hub-cap5-recorde, hub-cap5-chefe, hub-cap5-primeira, hub-cap1/3/4-concluido, retomar, retomar-revive-usado, retomar-confirmar, estojo, loja, missoes, config, recompensa, compra,
-## stats, dica-gotas, canetas, hud-vida, hud, roleta, roleta-fluxo, pausa, descanso, descanso-fluxo, derrota, vitoria, revive.
+## stats, dica-gotas, canetas, hud-vida, hud, roleta, roleta-fluxo, pausa, pausa-fluxo, descanso, descanso-fluxo, derrota, vitoria, revive.
 ##
 ## Usa um save fictício, mas alguns eventos gravam o save do PC
 ## (%APPDATA%\Godot\app_userdata\SketchBlade\save_data.json): faça backup antes.
@@ -178,8 +178,32 @@ func _rodar() -> void:
 	if _quer("pausa"):
 		var m = await _combate()
 		for id in ["tiro_duplo", "leque", "ricochete"]: m.player.aplicar_upgrade(id)
+		m.wave_manager.pagina_atual = 5; m.player.vidas = 6; m.tinta_partida = 460
 		m._on_botao_pausa_pressed(); await create_timer(0.8).timeout
 		await _foto("pausa"); await _fechar()
+	if _quer("pausa-fluxo"):
+		# Abandonar pede confirmação (voltar fecha só ela); som liga/desliga e
+		# grava; continuar faz a contagem e despausa
+		var m = await _combate()
+		m.player.aplicar_upgrade("leque")
+		m.wave_manager.pagina_atual = 3
+		var som_antes: bool = SaveManager_dados().get("som_ativo", true)
+		m._on_botao_pausa_pressed(); await create_timer(0.6).timeout
+		var t = m.tela_pausa
+		# _btns: [som, vibração, CONTINUAR, Abandonar]
+		t._btns[3].pressed.emit(); await create_timer(0.1).timeout
+		print("[capturar_telas] abandonar -> confirmação aberta: ", t._confirma != null, " | ainda na partida: ", m.menu_pausa.visible)
+		await _foto("pausa-confirmar")
+		m._tratar_voltar(); await create_timer(0.1).timeout
+		print("[capturar_telas] voltar -> confirmação fechada: ", t._confirma == null, " | pausa aberta: ", m.menu_pausa.visible)
+		t._btns[0].pressed.emit(); await create_timer(0.1).timeout
+		print("[capturar_telas] som: ", som_antes, " -> ", SaveManager_dados().get("som_ativo", true))
+		await _foto("pausa-som-off")
+		t._btns[0].pressed.emit(); await create_timer(0.1).timeout
+		t._btns[2].pressed.emit(); await create_timer(4.6).timeout
+		print("[capturar_telas] continuar -> pausa: ", m.menu_pausa.visible, " | pausado: ", paused,
+			" | página visível: ", m.label_pagina.visible, " | som: ", SaveManager_dados().get("som_ativo", true))
+		await _fechar()
 	if _quer("descanso"):
 		var m = await _combate()
 		# Página 4 com a caneta ferida (5 de 8) e tinta da partida, como no jogo
