@@ -4,9 +4,9 @@ Jogo mobile (Android, retrato) em **Godot 4.7** (GL Compatibility), GDScript. Ro
 
 ## Comandos
 - Godot: `D:\Godot_v4.7-stable_win64.exe\Godot_v4.7-stable_win64_console.exe` (rode pela linha de comando; o editor aberto reescreve `project.godot`).
-- AAB de release: `--headless --path . --export-release "Android" "<saida>.aab"` (chave de upload em `Documentos\keys`, senha em `.godot/export_credentials.cfg`, fora do git).
+- AAB de release: `timeout 540 ... --headless --path . --export-release "Android" "<saida>.aab"` (o Godot não fecha sozinho depois de gravar; confira o arquivo) (chave de upload em `Documentos\keys`, senha em `.godot/export_credentials.cfg`, fora do git).
 - Prints da loja (1080x1920): `-s tools/capturar_prints.gd -- <pasta> [LxA]` — faça backup do save do PC antes.
-- Imagem nova em `assets/`: rode `--headless --path . --import` antes dos prints (sem isso `ResourceLoader.exists` dá falso).
+- Imagem nova em `assets/` ou script novo: rode `--headless --path . --import` antes dos prints e do commit (sem isso `ResourceLoader.exists` dá falso e o `.uid` não existe).
 - Economia: `python tools/sim_economia.py`.
 - Equilíbrio dos chefes (robô joga sem tela): ver `docs/equilibrio-chefes.md`.
 - Prints das telas: `bash tools/capturar_telas.sh <pasta> <telas>` (faz backup e restaura o save do PC; flags de autoload passam de uma partida de teste para a outra). Se o Godot de teste travar, encerre só esse processo pelo PID (`Get-CimInstance Win32_Process`): o editor aberto também se chama Godot.
@@ -21,5 +21,5 @@ Jogo mobile (Android, retrato) em **Godot 4.7** (GL Compatibility), GDScript. Ro
 - Push que envolva pagamento ou anúncios: perguntar antes.
 
 ## Documentação
-- Publicação e histórico: `docs/plano-publicacao.md` · Compras: `docs/plano-compras.md` · Loja: `docs/ficha-da-loja.md` · Chefes e combate: `docs/chefes.md` · Sons (fontes e licenças): `docs/sons.md` · Próximas melhorias: `docs/proximas-melhorias.md` · **Identidade visual (ler antes de qualquer tela nova): `docs/identidade-visual.md`**
+- Publicação e histórico: `docs/plano-publicacao.md` · Compras: `docs/plano-compras.md` · Loja: `docs/ficha-da-loja.md` · Chefes e combate: `docs/chefes.md` · Sons (fontes e licenças): `docs/sons.md` · Próximas melhorias: `docs/proximas-melhorias.md` · **Próximo chat (prompt pronto + lições técnicas): `docs/prompt-proximo-chat.md`** · **Identidade visual (ler antes de qualquer tela nova): `docs/identidade-visual.md`**
 - Página de acompanhamento: https://claude.ai/artifact/XvFoxxh9Kpb1AynTtDaumW · Melhorias visuais: https://claude.ai/artifact/VdK88T7PA2HgKCCBubEKrg · Sons: https://claude.ai/artifact/YUAvgQ6UbbRQ3YMqvN3db4

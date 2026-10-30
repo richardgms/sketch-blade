@@ -1,0 +1,53 @@
+# Prompt para o próximo chat
+
+Copie o bloco abaixo num chat novo do Claude Code, nesta pasta. Atualize este arquivo no fim de cada chat (ele substitui o antigo `prompt-roleta.md`).
+
+```
+Continuação do Sketch Blade (Godot 4.7, pasta atual). Leia primeiro:
+- CLAUDE.md
+- docs/identidade-visual.md (a pegada visual aprovada: base para tudo, inclusive a seção "Cartas")
+- docs/proximas-melhorias.md (topo: "Próximo" e as entradas de 29–30/10: roleta, descanso, pausa)
+- docs/plano-publicacao.md (fim: builds 1.7.0 e 1.7.1)
+
+Onde estamos (30/10): todo o visual de DENTRO da partida está no estilo "caderno à caneta":
+hub (3 telas), vitória, derrota, reviver, HUD, chefe legível, sons, roleta (TelaRoleta.gd),
+descanso (TelaDescanso.gd) e pausa (TelaPausa.gd). As telas novas usam a base TelaFim.gd
+(papel da fase, _botao_cheio riscado, _botao_contorno, _txt, _traco) e o card desenhado
+assets/ui/card_roleta.png (caneta + papel, nine-patch 40/40/55/55).
+A 1.7.0 (código 10) está no Teste fechado; a 1.7.1 (código 11, descanso + pausa) foi gerada e
+pode já ter sido enviada: me pergunte antes de gerar outra.
+
+Próximo: redesenhar o ESTOJO (tela de gastar tinta em dano, vida e cadência, fora da partida,
+dentro do Hub.gd) no mesmo estilo. Depois, a LOJA (canetas e pacotes; mexe com compras:
+só o visual, nada de BillingManager).
+
+Como trabalhamos (o mesmo processo da roleta, do descanso e da pausa):
+1. Print real da tela atual (tools/capturar_telas.sh <pasta> estojo; faz backup e restaura o
+   save do PC). Prints e originais em Documentos\Sketch Blade - design\<tela>\.
+2. Me traga 2 versões (e mais 2 de ângulos diferentes se eu pedir) como protótipo num script
+   novo (ex.: TelaEstojo.gd) + tools/prototipo_<tela>.gd, prints 1080x1920.
+3. Publique antes/depois na página "Melhorias visuais"
+   (https://claude.ai/artifact/VdK88T7PA2HgKCCBubEKrg) numa seção nova no topo, lendo a página
+   antes; imagens em arquivos separados (img/...), nunca base64. Atualize a página a cada
+   rodada de ajuste (versão nova em cima, as antigas embaixo, na mesma seção).
+4. Espere minha escolha/ajustes; depois ligue no jogo, teste com caso de fluxo no
+   capturar_telas.gd + robô (tools/bateria_chefes.gd), commit por item, docs e push.
+5. Página de acompanhamento geral: https://claude.ai/artifact/XvFoxxh9Kpb1AynTtDaumW
+
+Regras:
+- nada novo no save; não mudar economia, preços nem upgrades (só o visual);
+- textos nunca abaixo de ~40; um azul só (#0047ab), #002867 em contornos e títulos;
+- ação destrutiva sempre com confirmação; botões/cartas só aceitam toque depois da animação;
+- não gerar build sem eu pedir;
+- se eu disser que mandei uma imagem e ela não aparecer, procure em %TEMP%\orca-paste-*.png.
+```
+
+## Lições técnicas dos chats de 29–30/10
+- **Label com quebra de linha (Godot):** ligue `autowrap_mode` e só depois defina `size`. Se o rótulo nasce sem quebra, ele cresce até a largura do texto e não encolhe de volta (os nomes longos saíam da carta na pausa).
+- **Espaço igual entre textos de fontes diferentes:** posicione pela faixa de tinta (topo das letras até a linha de base), não pela caixa do rótulo. Medidas (rótulo de uma linha): Architects Daughter 52 = tinta 16→52; 42 = 13→42 (linha seguinte +53 com `line_spacing -6`); Caveat Bold 54 = 13→52; Caveat 50 "Nv." = 18→48. Código em `TelaRoleta._preencher_textos`.
+- **Script novo carregado por `set_script(preload(...))`:** o `.uid` só aparece depois de `--headless --path . --import`; rode antes do commit.
+- **Imagem nova em `assets/`:** também precisa do `--import` antes dos prints.
+- **Export do AAB:** o arquivo sai, mas o Godot não fecha; rode com `timeout 540` e confira o AAB com `zipfile` (íntegro, `META-INF/UPLOAD.RSA`, versão no manifest, telas novas dentro, sem `.jpg`).
+- **Testes de fluxo:** a contagem 3-2-1 da pausa leva ~4 s; na pausa, `_btns` = [som, vibração, CONTINUAR, Abandonar].
+- **Edições por script Python:** cuidado com `\n` dentro de heredoc (virou quebra de linha literal dentro de uma string GDScript) e com substituições que não acham o texto: confira com `assert`.
+- **Card gerado no ChatGPT:** gerar 2–3 opções passando o botão riscado e um print do jogo como referência; recortar o fundo branco de fora (flood fill), reduzir para a altura de uso e esticar como nine-patch. Juntar duas imagens (contorno de uma + textura de outra) por multiplicação funcionou melhor que pedir de novo.
