@@ -29,12 +29,14 @@ Guia geral (não é regra fixa: cada tela é um caso). Tirado do que o Richard a
 - Texto centrado na vertical de verdade (a moldura desenhada desloca o olho: compensar).
 - Espaços **iguais** entre o último bloco, os botões e o fim do cartão.
 
-## Cartas de escolha (roleta)
+## Cartas de escolha (roleta e descanso)
 - Card desenhado no ChatGPT: contorno de caneta com sombra hachurada **sobre textura de papel** (`assets/ui/card_roleta.png`), no lugar do branco chapado. Pedido: "caneta + papel".
 - A **tocada** ganha um véu **azul bem clarinho** (`#e3edfc`) e ✓ (destacar no papel, sem acinzentar a textura).
 - Ordem dos textos: nome → nível ("Nv. 1 → 2" ou NOVO em marca-texto) → descrição → efeito, com **o mesmo espaço entre todos** (medido pela tinta das letras, porque Caveat e Architects Daughter têm folgas diferentes) e o bloco centrado; em cima e embaixo pode sobrar mais.
 - Rodapé de contexto ("Nesta partida") grande: letra 50, ícones 100, até 3 por linha e o resto centrado na linha de baixo.
 - Tocar na carta escolhe (um toque); a trava depois da animação já evita o toque sem querer.
+- Com duas opções (descanso), cartas em pé lado a lado com desenho grande; nome de 1 linha centrado na altura do nome de 2 linhas, para descrição e efeito ficarem alinhados. Cada carta mostra o resultado ("5 → 7 corações").
+- Estado do jogador em desenho, não só em número: corações cheios e apagados.
 
 ## Texto
 - Architects Daughter para palavras; Caveat para números (com espaço extra depois do número, senão gruda: "página 6  de 8").
