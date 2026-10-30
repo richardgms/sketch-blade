@@ -40,6 +40,11 @@ Guia geral (não é regra fixa: cada tela é um caso). Tirado do que o Richard a
 - Coleção (pausa): cartas grandes 2 por linha, nível em bolinhas (●●○), seção centrada no espaço livre; vazio = espaços tracejados com "?".
 - Ação destrutiva (abandonar) sempre com confirmação, nunca num toque só. Ajustes rápidos (som, vibração) longe do botão principal, como ícones nos cantos do título.
 
+## Fichas (Estojo)
+- Melhoria permanente = ficha larga com cara de **etiqueta**: card da roleta + margem vermelha vertical + furo à esquerda.
+- Nível em **tracinhos de contagem** (grupos de 5, o 5º corta na diagonal), os que faltam bem apagados; ele preferiu aos círculos.
+- Cada estado do botão tem o próprio fundo riscado do ChatGPT: azul (dá para fazer), papel com hachura clarinha (falta algo, ainda tocável) e verde (concluído, sem toque). Texto nunca encosta na borda desenhada: alargar o botão antes de diminuir a letra.
+
 ## Texto
 - Architects Daughter para palavras; Caveat para números (com espaço extra depois do número, senão gruda: "página 6  de 8").
 - **Legibilidade no celular manda:** textos azuis de informação em 42/40 (`TAM_TEXTO_AZUL`), rótulos nunca abaixo de ~40. Toda vez que algo ficou pequeno (34, 36, letras do selo), ele pediu para aumentar.
