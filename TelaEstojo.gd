@@ -105,17 +105,21 @@ func _fichas(itens: Array) -> Array:
 	for it in itens:
 		var c := _carta(Rect2(70, y, 940, alt))
 		cartas.append(c)
-		_icone_em(c, it["icone"], Rect2(40, 62, 190, 190))
+		var dx := 0.0
+		if versao == "A2":
+			_etiqueta(c)
+			dx = 22.0
+		_icone_em(c, it["icone"], Rect2(84, 70, 170, 170) if versao == "A2" else Rect2(40, 62, 190, 190))
 		# Nome e "Nv. 4" na mesma linha
-		var linha := _linha(c, Vector2(255, 28), 560, 76, BoxContainer.ALIGNMENT_BEGIN)
+		var linha := _linha(c, Vector2(255 + dx, 28), 560, 76, BoxContainer.ALIGNMENT_BEGIN)
 		linha.add_child(_lbl(it["nome"], FONTE, 52, AZUL_ESCURO))
 		linha.add_child(_lbl("  Nv. %d" % int(it["nivel"]), NUM, 52, AZUL))
 		if versao == "A2":
-			_tracinhos(c, Vector2(265, 140), int(it["nivel"]), it["chave"] == _dados.get("comprado", ""))
+			_tracinhos(c, Vector2(265 + dx, 140), int(it["nivel"]), it["chave"] == _dados.get("comprado", ""))
 		else:
 			_bolinhas(c, Vector2(275, 140), int(it["nivel"]), 34.0, 12.0, 10)
 		# Resultado da compra
-		var ef := _linha(c, Vector2(255, 178), 420, 76, BoxContainer.ALIGNMENT_BEGIN)
+		var ef := _linha(c, Vector2(255 + dx, 178), 420, 76, BoxContainer.ALIGNMENT_BEGIN)
 		_efeito(ef, it, 58)
 		_zona_compra(c, it, Rect2(680, 112, 225, 140))
 		y += alt + 34.0
@@ -247,6 +251,26 @@ func _bolinhas(pai: Control, inicio: Vector2, nivel: int, passo: float, raio: fl
 				d.draw_circle(c, raio, AZUL)
 			d.draw_arc(c, raio, 0, TAU, 32, AZUL_ESCURO, 3.0, true))
 	pai.add_child(d)
+
+## Cara de etiqueta: margem vermelha vertical (como a do caderno) e um furo
+## à esquerda, mostrando o papel por baixo.
+func _etiqueta(c: Control) -> void:
+	var e := Control.new()
+	e.size = c.size
+	e.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	e.draw.connect(func():
+		var x := 66.0
+		var pts: PackedVector2Array = []
+		for i in range(13):
+			var y: float = lerp(16.0, c.size.y - 30.0, float(i) / 12.0)
+			pts.append(Vector2(x + sin(i * 1.7) * 1.2, y))
+		e.draw_polyline(pts, Color(VERMELHO, 0.7), 3.5, true)
+		var f := Vector2(38, c.size.y / 2.0 - 6)
+		e.draw_circle(f, 13, Color("f3efe6"))
+		e.draw_arc(f, 13, 0, TAU, 32, Color(AZUL_ESCURO, 0.85), 3.0, true)
+		# Sombra de dentro do furo (borda de cima), para parecer vazado
+		e.draw_arc(f, 9, PI * 1.1, PI * 1.9, 12, Color(AZUL_ESCURO, 0.3), 3.0, true))
+	c.add_child(e)
 
 ## Tracinhos de contagem escolar: grupos de 5 (4 riscos + corte na diagonal),
 ## os níveis que faltam bem apagados. Na compra, o traço novo é "escrito"
