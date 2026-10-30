@@ -1,11 +1,10 @@
 extends "res://TelaFim.gd"
-## Janela de compra de pacote no estilo caderno (protótipo de 30/10/2026):
+## Janela de compra de pacote no estilo caderno (versão A, 30/10/2026):
 ## compra pela aba Pacotes ou oferta quando falta saldo ("Faltam 130 gotas").
 ## Hub apagado atrás; cartão com o desenho do pacote, o preço da Play Store
 ## num botão cheio e "Agora não" com contorno. Só o visual: quem compra é o
-## Hub (BillingManager), pelos sinais confirmar e cancelar.
-## Versões: "A" = card da roleta (caneta + papel); "B" = papel da fase com
-## contorno de caneta (como "Partida em andamento").
+## Hub (BillingManager), pelos sinais confirmar e cancelar. Ao abrir, os
+## botões só aceitam toque depois de ~0,4 s (dedo ainda na tela).
 
 signal confirmar
 signal cancelar
@@ -13,7 +12,6 @@ signal cancelar
 const CARD_IMAGEM := "res://assets/ui/card_roleta.png"
 const CARD := Rect2(70, 420, 940, 1110)
 
-var versao := "A"
 var _bloco: Control
 var _btn_ok: Button
 var _btn_nao: Button
@@ -33,7 +31,8 @@ func _montar_fixo() -> void:
 	_conteudo.add_child(_bloco)
 
 ## d: nome, icone, preco, disponivel; falta (0 = compra pela loja), moeda
-## ("gotas de tinta"/"clipes"); estado: "" | "abrindo" | mensagem de erro.
+## ("gotas de tinta"/"clipes"); estado: "" | "abrindo" | mensagem de erro;
+## nova: true quando acabou de abrir (trava os botões um instante).
 func mostrar(d: Dictionary) -> void:
 	_dados = d
 	for f in _bloco.get_children():
@@ -90,52 +89,27 @@ func mostrar(d: Dictionary) -> void:
 	l.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	_linha_anuncio.add_child(l)
 	_btn_nao.pressed.connect(func(): cancelar.emit())
+	if d.get("nova", false):
+		for b in [_btn_ok, _btn_nao]:
+			b.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		var t := create_tween()
+		t.tween_interval(0.4)
+		t.tween_callback(func():
+			for b in [_btn_ok, _btn_nao]:
+				if is_instance_valid(b):
+					b.mouse_filter = Control.MOUSE_FILTER_STOP)
 
-## Moldura do cartão: card da roleta (A) ou papel da fase com contorno (B).
+## Moldura do cartão: o card da roleta (caneta + papel).
 func _cartao() -> void:
 	var c := Control.new()
 	c.position = CARD.position
 	c.size = CARD.size
 	c.mouse_filter = Control.MOUSE_FILTER_STOP
 	_bloco.add_child(c)
-	if versao == "A":
-		var st := StyleBoxTexture.new()
-		st.texture = load(CARD_IMAGEM)
-		st.texture_margin_left = 40
-		st.texture_margin_top = 40
-		st.texture_margin_right = 55
-		st.texture_margin_bottom = 55
-		c.draw.connect(func(): c.draw_style_box(st, Rect2(Vector2.ZERO, c.size)))
-		return
-	var recorte := Control.new()
-	recorte.clip_contents = true
-	recorte.size = c.size
-	recorte.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	c.add_child(recorte)
-	var papel := ColorRect.new()
-	papel.set_script(preload("res://Paper.gd"))
-	papel.desenhar_margem = false
-	papel.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	papel.position = -CARD.position
-	recorte.add_child(papel)
-	var borda := Control.new()
-	borda.size = c.size
-	borda.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	borda.draw.connect(func():
-		var pts: PackedVector2Array = []
-		var w := borda.size.x
-		var h := borda.size.y
-		var cantos := [Vector2(4, 6), Vector2(w - 6, 3), Vector2(w - 3, h - 5), Vector2(5, h - 3)]
-		for i in range(4):
-			var a: Vector2 = cantos[i]
-			var b: Vector2 = cantos[(i + 1) % 4]
-			for k in range(12):
-				var t := float(k) / 12.0
-				pts.append(a.lerp(b, t) + Vector2(sin(k * 2.1 + i), cos(k * 1.7 + i)) * 1.3)
-		pts.append(pts[0])
-		borda.draw_polyline(pts, AZUL_ESCURO, 5.0, true)
-		var pts2: PackedVector2Array = []
-		for p in pts:
-			pts2.append(p + Vector2(4, 5))
-		borda.draw_polyline(pts2, Color(AZUL, 0.35), 2.5, true))
-	c.add_child(borda)
+	var st := StyleBoxTexture.new()
+	st.texture = load(CARD_IMAGEM)
+	st.texture_margin_left = 40
+	st.texture_margin_top = 40
+	st.texture_margin_right = 55
+	st.texture_margin_bottom = 55
+	c.draw.connect(func(): c.draw_style_box(st, Rect2(Vector2.ZERO, c.size)))

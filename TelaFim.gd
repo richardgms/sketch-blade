@@ -259,6 +259,9 @@ func _botao_cheio(t: String, rect: Rect2) -> Button:
 	b.add_theme_stylebox_override("normal", st)
 	b.add_theme_stylebox_override("hover", st)
 	b.add_theme_stylebox_override("pressed", st_p)
+	# Apagado (ex.: "Abrindo a loja..."): o mesmo riscado, esmaecido por modulate
+	b.add_theme_stylebox_override("disabled", st)
+	b.add_theme_color_override("font_disabled_color", Color.WHITE)
 	b.add_theme_stylebox_override("focus", StyleBoxEmpty.new())
 	b.position = rect.position
 	b.size = rect.size

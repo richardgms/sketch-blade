@@ -1,10 +1,11 @@
 extends "res://TelaEstojo.gd"
-## Loja no estilo caderno (protótipo de 30/10/2026): abas Canetas | Pacotes.
+## Loja no estilo caderno (versão A aprovada em 30/10/2026): abas
+## CANETAS | PACOTES, fichas de etiqueta em lista (irmã do Estojo).
 ## Fica dentro do Hub (aba Loja), como o Estojo: papel, cabeçalho e barra de
 ## abas são do Hub. Reaproveita as peças do Estojo (card da roleta, etiqueta,
 ## botões riscados por estado).
-## Versões: "A" = fichas de etiqueta em lista (irmã do Estojo);
-##          "B" = vitrine (uma caneta grande, miniaturas e um botão só).
+## O Hub chama mostrar(montar_dados(save) + pacotes + aba) e compra nos
+## sinais; "comprado" = id pulsa a ficha e trava os botões um instante.
 ## Sinais: sub_aba(chave), caneta(id) (equipar ou comprar) e pacote(chave).
 
 signal sub_aba(chave: String)
@@ -28,10 +29,8 @@ const PACOTES := [
 ]
 const CLIPE_BRANCO := "res://assets/ui/clipe_branco.png"
 const GOTA_BRANCA := "res://assets/ui/gota_branca.png"
-const VEU := Color("e3edfc")
 
-var versao := "A"
-var _sel := "" # vitrine: caneta mostrada em destaque
+var _ids: Array = [] # id da caneta de cada ficha (para pulsar/tremer)
 
 ## Monta canetas (estado, preço, falta) e pacotes a partir do save.
 static func montar_dados(save: Dictionary) -> Dictionary:
@@ -64,22 +63,40 @@ func montar_pacotes() -> Array:
 		lista.append(d)
 	return lista
 
+static func icone_pacote(chave: String) -> String:
+	for p in PACOTES:
+		if p["chave"] == chave:
+			return p["icone"]
+	return ""
+
 func mostrar(d: Dictionary) -> void:
 	_dados = d
 	for f in _bloco.get_children():
 		_bloco.remove_child(f)
 		f.queue_free()
 	_btns.clear()
+	_fichas_atuais.clear()
+	_ids.clear()
 	_abas(d.get("aba", "canetas"))
 	if d.get("aba", "canetas") == "pacotes":
-		if versao == "A":
-			_pacotes_fichas(d["pacotes"])
-		else:
-			_pacotes_cartas(d["pacotes"])
-	elif versao == "A":
-		_canetas_fichas(d["canetas"])
-	else:
-		_vitrine(d["canetas"])
+		_pacotes_fichas(d["pacotes"])
+		return
+	_canetas_fichas(d["canetas"])
+	var comprado: String = d.get("comprado", "")
+	if comprado in _ids:
+		_animar_compra(_fichas_atuais[_ids.find(comprado)])
+
+## Sem saldo: a ficha treme (o Hub oferece o pacote em seguida).
+func negar(id: String) -> void:
+	var k := _ids.find(id)
+	if k < 0 or not is_instance_valid(_fichas_atuais[k]):
+		return
+	var c: Control = _fichas_atuais[k]
+	var x0: float = c.position.x
+	var t := create_tween()
+	t.tween_property(c, "position:x", x0 - 15, 0.05)
+	t.tween_property(c, "position:x", x0 + 15, 0.05)
+	t.tween_property(c, "position:x", x0, 0.05)
 
 # ------------------------------------------------------------
 # Abas Canetas | Pacotes (título da tela)
@@ -112,7 +129,7 @@ func _abas(ativa: String) -> void:
 	_bloco.add_child(sep)
 
 # ------------------------------------------------------------
-# Versão A: fichas de etiqueta em lista
+# Fichas
 # ------------------------------------------------------------
 func _canetas_fichas(canetas: Array) -> void:
 	var alt := 216.0
@@ -120,10 +137,12 @@ func _canetas_fichas(canetas: Array) -> void:
 	for k in range(canetas.size()):
 		var it: Dictionary = canetas[k]
 		var c := _carta(Rect2(50, y, 980, alt))
+		_fichas_atuais.append(c)
+		_ids.append(it["id"])
 		_etiqueta(c)
 		_icone_inclinado(c, it["icone"], Rect2(92, 28, 150, 150))
 		_txt(c, it["nome"], 50, AZUL_ESCURO, 12, 76, FONTE, 262, 690, HORIZONTAL_ALIGNMENT_LEFT)
-		_efeito_rico(c, it["efeito"], Rect2(262, 78, 430, 110), 40, false)
+		_efeito_rico(c, it["efeito"], Rect2(262, 78, 430, 110), 40)
 		_acao_caneta(c, it, Rect2(690, 38, 252, 132))
 		y += alt + 16.0
 
@@ -141,69 +160,11 @@ func _pacotes_fichas(pacotes: Array) -> void:
 	_nota(1300)
 
 # ------------------------------------------------------------
-# Versão B: vitrine (uma caneta grande + miniaturas + um botão)
-# ------------------------------------------------------------
-func _vitrine(canetas: Array) -> void:
-	if _sel == "":
-		for it in canetas:
-			if it["estado"] == "uso":
-				_sel = it["id"]
-	var atual: Dictionary = canetas[0]
-	for it in canetas:
-		if it["id"] == _sel:
-			atual = it
-	var c := _carta(Rect2(70, 470, 940, 660))
-	_icone_inclinado(c, atual["icone"], Rect2(320, 36, 300, 300))
-	_txt(c, atual["nome"], 66, AZUL_ESCURO, 336, 426)
-	_traco(c, 300, 640, 434, Color(AZUL_ESCURO, 0.6), 4.0)
-	_efeito_rico(c, atual["efeito"], Rect2(60, 462, 820, 130), 46, true)
-	# Miniaturas
-	var larg := 176.0
-	var x0 := 540.0 - (canetas.size() * larg + (canetas.size() - 1) * 14.0) / 2.0
-	for k in range(canetas.size()):
-		var it: Dictionary = canetas[k]
-		var m := _carta(Rect2(x0 + k * (larg + 14.0), 1170, larg, 176))
-		var escolhida: bool = it["id"] == _sel
-		if escolhida:
-			_veu(m)
-		var ic := _icone_inclinado(m, it["icone"], Rect2(22, 18, 132, 132))
-		if it["estado"] == "falta":
-			ic.modulate = Color(1, 1, 1, 0.45)
-		if it["estado"] == "uso":
-			_txt(m, "✓", 54, VERDE, 96, 160, FONTE, 110, 176)
-		var t := Button.new()
-		t.flat = true
-		t.focus_mode = Control.FOCUS_NONE
-		t.size = m.size
-		var id: String = it["id"]
-		t.pressed.connect(func():
-			_sel = id
-			mostrar(_dados))
-		m.add_child(t)
-		if escolhida:
-			# Marca de caneta embaixo da escolhida
-			_traco(_bloco, m.position.x + 30, m.position.x + larg - 30, 1362, AZUL, 5.0)
-	_acao_caneta(_bloco, atual, Rect2(170, 1420, 740, 136), true)
-
-func _pacotes_cartas(pacotes: Array) -> void:
-	for k in range(pacotes.size()):
-		var p: Dictionary = pacotes[k]
-		var c := _carta(Rect2(60 + k * 495, 480, 465, 820))
-		_icone_em(c, p["icone"], Rect2(82, 50, 300, 300))
-		var nome: String = (p["nome"] as String).replace(" de ", "\nde ")
-		var n := _txt(c, nome, 52, AZUL_ESCURO, 360, 500, FONTE, 20, 445)
-		n.add_theme_constant_override("line_spacing", -10)
-		var desc := _txt(c, p["desc"], 42, AZUL, 510, 640, FONTE, 20, 445)
-		desc.add_theme_constant_override("line_spacing", -6)
-		_botao_preco(c, p, Rect2(50, 660, 365, 120), 64)
-	_nota(1340)
-
-# ------------------------------------------------------------
 # Peças
 # ------------------------------------------------------------
 ## Ação da caneta pelo estado: EM USO (verde, sem toque), EQUIPAR (contorno),
 ## COMPRAR (azul riscado com a moeda em branco) ou falta (riscado clarinho).
-func _acao_caneta(pai: Control, it: Dictionary, r: Rect2, largo := false) -> void:
+func _acao_caneta(pai: Control, it: Dictionary, r: Rect2) -> void:
 	var id: String = it["id"]
 	match it["estado"]:
 		"uso":
@@ -213,14 +174,14 @@ func _acao_caneta(pai: Control, it: Dictionary, r: Rect2, largo := false) -> voi
 			selo.size = r.size
 			selo.mouse_filter = Control.MOUSE_FILTER_IGNORE
 			pai.add_child(selo)
-			var l := _txt(selo, "EM USO ✓", 50 if largo else 40, Color.WHITE, 4, r.size.y, FONTE, 0, r.size.x)
+			var l := _txt(selo, "EM USO ✓", 40, Color.WHITE, 4, r.size.y, FONTE, 0, r.size.x)
 			l.add_theme_color_override("font_outline_color", Color(VERDE, 0.6))
 			l.add_theme_constant_override("outline_size", 6)
 		"equipar":
 			var b := _botao_contorno(r)
 			b.reparent(pai, false)
 			b.position = r.position
-			var l := _lbl("EQUIPAR", FONTE, 52 if largo else 46, AZUL)
+			var l := _lbl("EQUIPAR", FONTE, 46, AZUL)
 			l.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 			_linha_anuncio.add_child(l)
 			b.pressed.connect(func(): caneta.emit(id))
@@ -237,27 +198,27 @@ func _acao_caneta(pai: Control, it: Dictionary, r: Rect2, largo := false) -> voi
 				b.add_theme_stylebox_override("pressed", st_p)
 			b.reparent(pai, false)
 			b.position = r.position
-			var cont: BoxContainer = HBoxContainer.new() if largo else VBoxContainer.new()
+			var cont := VBoxContainer.new()
 			cont.alignment = BoxContainer.ALIGNMENT_CENTER
-			cont.add_theme_constant_override("separation", 22 if largo else -8)
+			cont.add_theme_constant_override("separation", -8)
 			cont.set_anchors_preset(Control.PRESET_FULL_RECT)
 			cont.offset_top = 4.0
 			cont.mouse_filter = Control.MOUSE_FILTER_IGNORE
 			b.add_child(cont)
 			if pode:
-				var l := _lbl("COMPRAR", FONTE, 52 if largo else 40, Color.WHITE)
+				var l := _lbl("COMPRAR", FONTE, 40, Color.WHITE)
 				l.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 				cont.add_child(l)
-			cont.add_child(_preco_moeda(it, pode, largo))
+			cont.add_child(_preco_moeda(it, pode))
 			if not pode:
-				var f := _lbl("faltam %s" % _milhar(int(it["falta"])), NUM, 46 if largo else 42, AZUL_ESCURO)
+				var f := _lbl("faltam %s" % _milhar(int(it["falta"])), NUM, 42, AZUL_ESCURO)
 				f.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 				cont.add_child(f)
 			b.pressed.connect(func(): caneta.emit(id))
 			_btns.append(b)
 
 ## Moeda + custo; no azul a moeda vai em caneta branca.
-func _preco_moeda(it: Dictionary, pode: bool, largo: bool) -> HBoxContainer:
+func _preco_moeda(it: Dictionary, pode: bool) -> HBoxContainer:
 	var h := HBoxContainer.new()
 	h.alignment = BoxContainer.ALIGNMENT_CENTER
 	h.add_theme_constant_override("separation", 8)
@@ -268,11 +229,11 @@ func _preco_moeda(it: Dictionary, pode: bool, largo: bool) -> HBoxContainer:
 		caminho = GOTA_BRANCA if tinta else CLIPE_BRANCO
 	else:
 		caminho = "res://assets/ink.svg" if tinta else "res://assets/clip.svg"
-	var ic := _icone(caminho, 54 if largo else 48)
+	var ic := _icone(caminho, 48)
 	if not pode:
 		ic.modulate = Color(1, 1, 1, 0.5)
 	h.add_child(ic)
-	h.add_child(_lbl(_milhar(int(it["custo"])), NUM, 60 if largo else 52,
+	h.add_child(_lbl(_milhar(int(it["custo"])), NUM, 52,
 		Color.WHITE if pode else Color(AZUL_ESCURO, 0.5)))
 	return h
 
@@ -284,6 +245,8 @@ func _botao_preco(pai: Control, p: Dictionary, r: Rect2, tam: int) -> void:
 	b.reparent(pai, false)
 	b.position = r.position
 	b.disabled = not p["disponivel"]
+	if b.disabled:
+		b.modulate = Color(1, 1, 1, 0.5)
 	var chave: String = p["chave"]
 	b.pressed.connect(func(): pacote.emit(chave))
 	_btns.append(b)
@@ -291,18 +254,6 @@ func _botao_preco(pai: Control, p: Dictionary, r: Rect2, tam: int) -> void:
 func _nota(y: float) -> void:
 	var n := _txt(_bloco, "Pagamento pela Google Play.\nOs itens entram na hora.", 40, Color(AZUL_ESCURO, 0.7), y, y + 110)
 	n.add_theme_constant_override("line_spacing", -6)
-
-## Véu azul clarinho da escolhida/em uso (como a carta tocada da roleta).
-func _veu(c: Control) -> void:
-	var v := Control.new()
-	v.size = c.size
-	v.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	v.draw.connect(func():
-		var sb := StyleBoxFlat.new()
-		sb.bg_color = Color(VEU, 0.75)
-		sb.set_corner_radius_all(28)
-		v.draw_style_box(sb, Rect2(Vector2(14, 12), c.size - Vector2(36, 40))))
-	c.add_child(v)
 
 ## Desenho da caneta (os SVGs vêm deitados): um pouco inclinado, como na mesa.
 func _icone_inclinado(pai: Control, caminho: String, r: Rect2) -> TextureRect:
@@ -314,7 +265,7 @@ func _icone_inclinado(pai: Control, caminho: String, r: Rect2) -> TextureRect:
 	return ic
 
 ## Efeito da caneta: bônus em azul, penalidade em vermelho, números em Caveat.
-func _efeito_rico(pai: Control, texto: String, r: Rect2, tam: int, centro: bool) -> void:
+func _efeito_rico(pai: Control, texto: String, r: Rect2, tam: int) -> void:
 	var rt := RichTextLabel.new()
 	rt.bbcode_enabled = true
 	rt.scroll_active = false
@@ -342,6 +293,5 @@ func _efeito_rico(pai: Control, texto: String, r: Rect2, tam: int, centro: bool)
 			pos = m.get_end()
 		s += l.substr(pos)
 		linhas.append("[color=#%s]%s[/color]" % [cor.to_html(false), s])
-	var corpo := "\n".join(linhas)
-	rt.text = "[center]%s[/center]" % corpo if centro else corpo
+	rt.text = "\n".join(linhas)
 	pai.add_child(rt)
