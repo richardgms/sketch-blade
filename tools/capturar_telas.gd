@@ -203,8 +203,29 @@ func _rodar() -> void:
 		await create_timer(0.2).timeout
 		mp.tela_vitoria._finalizar_animacao(); await create_timer(0.1).timeout
 		await _foto("vitoria-cap3-pulada"); await _fechar()
-	if _quer("revive"):
+	if _quer("revive-fluxo"):
+		# Desistir leva à página arruinada; continuar (anúncio simulado) volta com 3 corações
 		var m = await _combate()
-		m.menu_revive.visible = true; await create_timer(0.5).timeout
-		await _foto("revive"); await _fechar()
+		m.wave_manager.pagina_atual = 6
+		m._on_player_morreu(); await create_timer(1.5).timeout
+		m.tela_reviver.voltar_pressionado.emit(); await create_timer(1.0).timeout
+		print("[capturar_telas] desistir -> derrota visivel: ", m.menu_game_over.visible)
+		await _foto("revive-desistir"); await _fechar()
+		root.get_node("AdsManager").revive_usado_na_run = false
+		var m2 = await _combate()
+		m2.wave_manager.pagina_atual = 6
+		m2._on_player_morreu(); await create_timer(1.5).timeout
+		m2.tela_reviver._btn_anuncio.pressed.emit(); await create_timer(4.0).timeout
+		print("[capturar_telas] continuar -> menu visivel: ", m2.menu_revive.visible, " vidas: ", m2.player.vidas, " pausado: ", paused)
+		await _foto("revive-continuar"); await _fechar()
+	if _quer("revive"):
+		# A caneta perde o último coração na página 6 (versões A e B)
+		for versao in ["a", "b"]:
+			var m = await _combate()
+			m.wave_manager.pagina_atual = 6
+			m.tela_reviver.anuncio_principal = versao == "a"
+			m._on_player_morreu()
+			if versao == "a":
+				await create_timer(0.3).timeout; await _foto("revive-a-animando")
+			await create_timer(1.3).timeout; await _foto("revive-" + versao); await _fechar()
 	quit()

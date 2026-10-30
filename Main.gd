@@ -521,6 +521,8 @@ func _on_player_morreu() -> void:
 	if not AdsManager.revive_usado_na_run:
 		get_tree().paused = true
 		menu_revive.visible = true
+		tela_reviver.mostrar({"cap": capitulo_atual, "pagina": max(1, wave_manager.pagina_atual),
+			"total_paginas": GameData.PAGINAS.size()})
 		return
 
 	_finalizar_derrota()
@@ -537,75 +539,27 @@ func _finalizar_derrota() -> void:
 # ============================================================
 # REWARDED ADS — revive e dobrar tinta
 # ============================================================
+## Menu de reviver ("Segunda chance?"): TelaReviver.gd, no estilo das telas
+## de fim. Continuar = anúncio recompensado (1x por partida); desistir =
+## página arruinada.
+var tela_reviver: Control
 func _criar_menu_revive() -> void:
 	menu_revive = Control.new()
 	menu_revive.process_mode = Node.PROCESS_MODE_ALWAYS
 	menu_revive.visible = false
 	menu_revive.set_anchors_preset(Control.PRESET_FULL_RECT)
 	$HUD.add_child(menu_revive)
-
-	var fundo = ColorRect.new()
-	fundo.color = Color(0.98, 0.965, 0.93, 0.95)
-	fundo.set_anchors_preset(Control.PRESET_FULL_RECT)
-	menu_revive.add_child(fundo)
-
-	var titulo = Label.new()
-	titulo.text = "✏️ SEGUNDA CHANCE?"
-	titulo.add_theme_font_override("font", load("res://assets/fonts/ArchitectsDaughter-Regular.ttf"))
-	titulo.add_theme_font_size_override("font_size", 64)
-	titulo.add_theme_color_override("font_color", Color("002867"))
-	titulo.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	titulo.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	titulo.position = Vector2(0, 560)
-	titulo.size = Vector2(1080, 120)
-	menu_revive.add_child(titulo)
-
-	var sub = Label.new()
-	sub.text = "Apague os erros da página e continue\nde onde parou com 3 corações!"
-	sub.add_theme_font_override("font", load("res://assets/fonts/ArchitectsDaughter-Regular.ttf"))
-	sub.add_theme_font_size_override("font_size", 36)
-	sub.add_theme_color_override("font_color", Color(0.4, 0.4, 0.45))
-	sub.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	sub.position = Vector2(0, 700)
-	sub.size = Vector2(1080, 120)
-	menu_revive.add_child(sub)
-
-	var btn_continuar = Button.new()
-	btn_continuar.name = "BotaoContinuar"
-	btn_continuar.text = "[ CONTINUAR ]"
-	btn_continuar.icon = load("res://assets/ads.svg")
-	btn_continuar.add_theme_constant_override("icon_max_width", 44)
-	btn_continuar.add_theme_font_override("font", load("res://assets/fonts/ArchitectsDaughter-Regular.ttf"))
-	btn_continuar.add_theme_font_size_override("font_size", 52)
-	btn_continuar.add_theme_color_override("font_color", Color("2e7d32"))
-	btn_continuar.add_theme_color_override("font_hover_color", Color("43a047"))
-	btn_continuar.flat = true
-	btn_continuar.position = Vector2(290, 900)
-	btn_continuar.size = Vector2(500, 90)
-	menu_revive.add_child(btn_continuar)
-	btn_continuar.pressed.connect(func():
-		btn_continuar.disabled = true
-		btn_continuar.text = "[ Carregando... ]"
+	tela_reviver = Control.new()
+	tela_reviver.set_script(preload("res://TelaReviver.gd"))
+	menu_revive.add_child(tela_reviver)
+	tela_reviver.anuncio_pressionado.connect(func():
 		AdsManager.revive_usado_na_run = true
-		AdsManager.mostrar_rewarded("revive")
-	)
-
-	var btn_desistir = Button.new()
-	btn_desistir.text = "[ DESISTIR ]"
-	btn_desistir.add_theme_font_override("font", load("res://assets/fonts/ArchitectsDaughter-Regular.ttf"))
-	btn_desistir.add_theme_font_size_override("font_size", 36)
-	btn_desistir.add_theme_color_override("font_color", Color(0.6, 0.15, 0.15))
-	btn_desistir.add_theme_color_override("font_hover_color", Color(0.85, 0.1, 0.1))
-	btn_desistir.flat = true
-	btn_desistir.position = Vector2(340, 1050)
-	btn_desistir.size = Vector2(400, 80)
-	menu_revive.add_child(btn_desistir)
-	btn_desistir.pressed.connect(func():
+		AdsManager.mostrar_rewarded("revive"))
+	tela_reviver.voltar_pressionado.connect(func():
 		AdsManager.revive_usado_na_run = true
 		menu_revive.visible = false
 		get_tree().paused = false
-		_finalizar_derrota()
-	)
+		_finalizar_derrota())
 
 func _on_recompensa_ad(placement: String) -> void:
 	match placement:
@@ -618,10 +572,8 @@ func _on_anuncio_falhou(placement: String) -> void:
 	_tocar_som(audio_dano)
 	match placement:
 		"revive":
-			var btn_rev = menu_revive.get_node_or_null("BotaoContinuar") if menu_revive else null
-			if btn_rev:
-				btn_rev.disabled = false
-				btn_rev.text = "[ CONTINUAR ]"
+			if tela_reviver:
+				tela_reviver.anuncio_falhou()
 			AdsManager.revive_usado_na_run = false
 			_spawn_feedback("SEM CONEXÃO!", "miss", player.global_position if player else Vector2(540, 960))
 		"dobrar_tinta":
@@ -633,8 +585,6 @@ func _on_anuncio_falhou(placement: String) -> void:
 
 func _executar_revive() -> void:
 	menu_revive.visible = false
-	menu_revive.get_node("BotaoContinuar").disabled = false
-	menu_revive.get_node("BotaoContinuar").text = "[ CONTINUAR ]"
 
 	# Cancela a declaração de fim de jogo para permitir novas jogadas
 	fim_de_jogo_declarado = false
