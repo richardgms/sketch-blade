@@ -363,3 +363,14 @@ func _risco(pai: Control, x0: float, x1: float, y: float) -> void:
 			pts.append(Vector2(lerp(x0, x1, i / 12.0), y + sin(i * 1.3) * 2.0 - i * 0.4))
 		t.draw_polyline(pts, Color(VERDE, 0.85), 5.0, true))
 	pai.add_child(t)
+
+## Ícone SVG preto na cor pedida: modulate não tinge (multiplica o preto),
+## então pinta pela forma (alfa) do desenho.
+func _pintar(n: CanvasItem, cor: Color) -> void:
+	var m := ShaderMaterial.new()
+	m.shader = Shader.new()
+	m.shader.code = "shader_type canvas_item;
+uniform vec4 cor : source_color;
+" 		+ "void fragment() { COLOR = vec4(cor.rgb, texture(TEXTURE, UV).a * cor.a); }"
+	m.set_shader_parameter("cor", cor)
+	n.material = m

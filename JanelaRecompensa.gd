@@ -60,14 +60,7 @@ func _janela_semana(d: Dictionary) -> void:
 	titulo.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	c.add_child(titulo)
 	var pres := _icone(PRESENTE, 76)
-	# O SVG é preto: modulate não tinge (multiplica o preto); pinta pela forma
-	var tinta := ShaderMaterial.new()
-	tinta.shader = Shader.new()
-	tinta.shader.code = "shader_type canvas_item;
-uniform vec4 cor : source_color;
-" 		+ "void fragment() { COLOR = vec4(cor.rgb, texture(TEXTURE, UV).a * cor.a); }"
-	tinta.set_shader_parameter("cor", AZUL_ESCURO)
-	pres.material = tinta
+	_pintar(pres, AZUL_ESCURO)
 	titulo.add_child(pres)
 	titulo.add_child(_lbl("RECOMPENSA DIÁRIA", FONTE, 66, AZUL_ESCURO))
 	_traco(c, 150, 830, 188, Color(AZUL_ESCURO, 0.85), 5.0)
