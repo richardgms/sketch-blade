@@ -153,10 +153,11 @@ func _pacotes_fichas(pacotes: Array) -> void:
 		var c := _carta(Rect2(50, y, 980, 330))
 		_etiqueta(c)
 		_icone_em(c, p["icone"], Rect2(92, 60, 190, 190))
-		_txt(c, p["nome"], 50, AZUL_ESCURO, 34, 104, FONTE, 300, 960, HORIZONTAL_ALIGNMENT_LEFT)
-		var desc := _txt(c, p["desc"], 42, AZUL, 112, 230, FONTE, 300, 700, HORIZONTAL_ALIGNMENT_LEFT)
+		_txt(c, p["nome"], 50, AZUL_ESCURO, 46, 116, FONTE, 300, 960, HORIZONTAL_ALIGNMENT_LEFT)
+		var desc := _txt(c, p["desc"], 42, AZUL, 124, 242, FONTE, 300, 700, HORIZONTAL_ALIGNMENT_LEFT)
 		desc.add_theme_constant_override("line_spacing", -6)
-		_botao_preco(c, p, Rect2(704, 120, 236, 132), 56)
+		# Botão no meio da descrição (o nome passa por cima dele)
+		_botao_preco(c, p, Rect2(704, 118, 236, 132), 56)
 		y += 370.0
 	_nota(1300)
 

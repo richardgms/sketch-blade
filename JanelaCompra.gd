@@ -45,22 +45,34 @@ func mostrar(d: Dictionary) -> void:
 	var x0 := CARD.position.x
 	var y0 := CARD.position.y
 	var oferta: bool = int(d.get("falta", 0)) > 0
+	# Posições pela tinta das letras (medidas nos prints): mesmo espaço (66)
+	# entre título, desenho, nome + nota e botões, e o bloco centrado no card.
+	var topo: float # topo da tinta do desenho
 	if oferta:
-		_txt(_bloco, "Faltam %s %s" % [_milhar(int(d["falta"])), d["moeda"]], 58, AZUL_ESCURO, y0 + 60, y0 + 150)
-		_traco(_bloco, 250, 830, y0 + 160, Color(AZUL_ESCURO, 0.85), 5.0)
-		_txt(_bloco, "Quer o pacote?", 46, AZUL, y0 + 185, y0 + 245)
+		_txt(_bloco, "Faltam %s %s" % [_milhar(int(d["falta"])), d["moeda"]], 58, AZUL_ESCURO, y0 + 51, y0 + 141)
+		_traco(_bloco, 250, 830, y0 + 151, Color(AZUL_ESCURO, 0.85), 5.0)
+		_txt(_bloco, "Quer o pacote?", 46, AZUL, y0 + 176, y0 + 236)
+		topo = y0 + 287
 	else:
-		_txt(_bloco, "PACOTE", 66, AZUL_ESCURO, y0 + 70, y0 + 160)
-		_traco(_bloco, 360, 720, y0 + 170, Color(AZUL_ESCURO, 0.85), 5.0)
+		_txt(_bloco, "PACOTE", 66, AZUL_ESCURO, y0 + 80, y0 + 170)
+		_traco(_bloco, 360, 720, y0 + 180, Color(AZUL_ESCURO, 0.85), 5.0)
+		topo = y0 + 249
+	# Desenho recortado na parte usada (o pote tem sobra em volta, o clipe
+	# não): assim os dois ocupam a mesma altura e os espaços ficam iguais.
+	var tex: Texture2D = load(d["icone"])
+	var recorte := AtlasTexture.new()
+	recorte.atlas = tex
+	recorte.region = _area_visivel(tex.get_image())
 	var ic := TextureRect.new()
-	ic.texture = load(d["icone"])
+	ic.texture = recorte
 	ic.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	ic.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-	ic.position = Vector2(390, y0 + 265)
-	ic.size = Vector2(300, 300)
+	var larg: float = 220.0 * recorte.region.size.x / recorte.region.size.y
+	ic.position = Vector2(540.0 - larg / 2.0, topo)
+	ic.size = Vector2(larg, 220)
 	ic.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_bloco.add_child(ic)
-	_txt(_bloco, d["nome"], 56, AZUL_ESCURO, y0 + 585, y0 + 665)
+	_txt(_bloco, d["nome"], 56, AZUL_ESCURO, topo + 271, topo + 351)
 	var estado: String = d.get("estado", "")
 	var nota := "Pagamento pela Google Play."
 	var cor_nota := Color(AZUL_ESCURO, 0.7)
@@ -72,15 +84,15 @@ func mostrar(d: Dictionary) -> void:
 	elif estado != "":
 		nota = estado
 		cor_nota = VERMELHO
-	var n := _txt(_bloco, nota, 42, cor_nota, y0 + 670, y0 + 770)
+	var n := _txt(_bloco, nota, 42, cor_nota, topo + 325, topo + 425)
 	n.add_theme_constant_override("line_spacing", -6)
 	var texto_ok: String = "COMPRAR · %s" % d["preco"] if d["disponivel"] else "COMPRAR"
-	_btn_ok = _botao_cheio(texto_ok, Rect2(x0 + 90, y0 + 790, 760, 125))
+	_btn_ok = _botao_cheio(texto_ok, Rect2(x0 + 90, topo + 468, 760, 125))
 	_btn_ok.disabled = not d["disponivel"] or estado == "abrindo"
 	if _btn_ok.disabled:
 		_btn_ok.modulate = Color(1, 1, 1, 0.5)
 	_btn_ok.pressed.connect(func(): confirmar.emit())
-	_btn_nao = _botao_contorno(Rect2(x0 + 140, y0 + 945, 660, 100))
+	_btn_nao = _botao_contorno(Rect2(x0 + 140, topo + 623, 660, 100))
 	var l := Label.new()
 	l.text = "Agora não"
 	l.add_theme_font_override("font", FONTE)
@@ -98,6 +110,22 @@ func mostrar(d: Dictionary) -> void:
 			for b in [_btn_ok, _btn_nao]:
 				if is_instance_valid(b):
 					b.mouse_filter = Control.MOUSE_FILTER_STOP)
+
+## Parte do desenho com tinta de verdade (alfa > 0,5): get_used_rect conta
+## também a sombra quase transparente do pote, que deixava o desenho menor.
+static func _area_visivel(img: Image) -> Rect2:
+	var x0 := img.get_width()
+	var y0 := img.get_height()
+	var x1 := 0
+	var y1 := 0
+	for y in range(0, img.get_height(), 2):
+		for x in range(0, img.get_width(), 2):
+			if img.get_pixel(x, y).a > 0.5:
+				x0 = min(x0, x)
+				y0 = min(y0, y)
+				x1 = max(x1, x)
+				y1 = max(y1, y)
+	return Rect2(x0, y0, x1 - x0 + 2, y1 - y0 + 2)
 
 ## Moldura do cartão: o card da roleta (caneta + papel).
 func _cartao() -> void:

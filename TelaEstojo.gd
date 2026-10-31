@@ -110,14 +110,19 @@ func _fichas(itens: Array) -> Array:
 		var dx := 22.0
 		_icone_em(c, it["icone"], Rect2(84, 70, 170, 170))
 		# Nome e "Nv. 4" na mesma linha
-		var linha := _linha(c, Vector2(255 + dx, 28), 560, 76, BoxContainer.ALIGNMENT_BEGIN)
+		var linha := _linha(c, Vector2(255 + dx, 36), 560, 76, BoxContainer.ALIGNMENT_BEGIN)
 		linha.add_child(_lbl(it["nome"], FONTE, 52, AZUL_ESCURO))
 		linha.add_child(_lbl("  Nv. %d" % int(it["nivel"]), NUM, 52, AZUL))
-		_tracinhos(c, Vector2(265 + dx, 140), int(it["nivel"]), it["chave"] == _dados.get("comprado", ""))
+		_tracinhos(c, Vector2(265 + dx, 148), int(it["nivel"]), it["chave"] == _dados.get("comprado", ""))
 		# Resultado da compra
-		var ef := _linha(c, Vector2(255 + dx, 178), 420, 76, BoxContainer.ALIGNMENT_BEGIN)
+		var ef := _linha(c, Vector2(255 + dx, 186), 420, 76, BoxContainer.ALIGNMENT_BEGIN)
 		_efeito(ef, it, 58)
-		_zona_compra(c, it, Rect2(688, 112, 252, 140))
+		# Botão no meio da ficha, na altura do desenho e dos textos (~150,
+		# medido nos prints); se o nome + nível chega até a coluna do botão,
+		# ele desce para o meio dos tracinhos e do resultado.
+		var fim_nome: float = 255 + dx + FONTE.get_string_size(it["nome"], HORIZONTAL_ALIGNMENT_LEFT, -1, 52).x \
+			+ NUM.get_string_size("  Nv. %d" % int(it["nivel"]), HORIZONTAL_ALIGNMENT_LEFT, -1, 52).x
+		_zona_compra(c, it, Rect2(688, 80 if fim_nome < 680.0 else 112, 252, 140))
 		y += alt + 34.0
 	return cartas
 
