@@ -70,6 +70,7 @@ Tiro do jogador em cometa de tinta; respingo no impacto (`ImpactoTinta.gd`); fla
 - Tiros ignoravam a invencibilidade da caneta: agora `Player.receber_dano` checa `invencivel` e `protegido_fim_de_fase`.
 - Círculo de acerto único não cobre chefe largo ou que gira: `raio` por ficha + áreas extras.
 - Pedaços com relógios próprios se sobrepõem: usar um relógio só (o do comportamento).
+- Balanço `540 + sin(t) * A` com relógio que já andou (descida, fase anterior) teleporta o chefe: a Mancha pulava 325 px do meio para a direita ao terminar a descida e o Avião 168 px ao voltar ao topo (corrigido em 31/10). Balanço com relógio próprio que só anda no balanço; ao voltar de outra fase, retomar a partir do x atual (`asin`), como na Pena.
 - Escrever texto com `\n` via script Python pode gerar quebra de linha real dentro de string do GDScript: conferir a linha depois.
 
 ## Fluxo da partida (capítulo)
