@@ -51,6 +51,11 @@ Guia geral (não é regra fixa: cada tela é um caso). Tirado do que o Richard a
 - Centralização conferida **medindo a tinta nos prints** (script de medição: faixa de pixels escuros por coluna): desenho, textos e botão de cada ficha na mesma altura; o botão sobe para o meio da ficha quando nenhum texto passa por cima dele (Corações), senão fica no meio das linhas de baixo. Janela com espaços iguais entre título, desenho, nome + nota e botões, e desenhos recortados na parte visível para ocuparem a mesma altura.
 - Janela de compra: card da roleta sobre o hub escurecido, o preço dentro do botão principal ("COMPRAR · R$ 4,90") e "Agora não" com contorno; nunca colchetes.
 
+## Missões
+- Janela sobre o Hub escurecido numa **folha arrancada do caderno** (picotes, pingo de tinta, ponta dobrada), não no card da roleta.
+- Lista de tarefas: caixinha desenhada (vazia / ✓), tarefa paga **riscada à caneta**, progresso na mesma barra da XP do Hub.
+- Aqui ele pediu botões **mais simples** que os riscados (azul liso, verde liso, rótulo tracejado para o que não é botão, "Fechar" com uma borda só): numa tela cheia de peças, o riscado pesado fica exagerado.
+
 ## Texto
 - Architects Daughter para palavras; Caveat para números (com espaço extra depois do número, senão gruda: "página 6  de 8").
 - **Legibilidade no celular manda:** textos azuis de informação em 42/40 (`TAM_TEXTO_AZUL`), rótulos nunca abaixo de ~40. Toda vez que algo ficou pequeno (34, 36, letras do selo), ele pediu para aumentar.
