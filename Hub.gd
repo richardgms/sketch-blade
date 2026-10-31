@@ -1685,130 +1685,17 @@ func _criar_botao_config() -> void:
 
 func _abrir_painel_config() -> void:
 	_tocar_som(audio_click_sucesso)
-
-	var overlay = Control.new()
-	overlay.set_anchors_preset(Control.PRESET_FULL_RECT)
-	overlay.z_index = 100
-	$HUD.add_child(overlay)
-
-	var fundo = ColorRect.new()
-	fundo.color = Color(0.1, 0.1, 0.15, 0.55)
-	fundo.set_anchors_preset(Control.PRESET_FULL_RECT)
-	overlay.add_child(fundo)
-
-	var papel = ColorRect.new()
-	papel.color = Color(0.98, 0.965, 0.93)
-	papel.size = Vector2(800, 640)
-	papel.set_anchors_preset(Control.PRESET_CENTER)
-	papel.position = -papel.size / 2.0
-	overlay.add_child(papel)
-
-	var fonte = load("res://assets/fonts/ArchitectsDaughter-Regular.ttf")
-	var tex_config2 = load("res://assets/config2.svg")
-	var tex_volume  = load("res://assets/volume.svg")
-	var tex_vibrate = load("res://assets/vibrate.svg")
-
-	var vbox = VBoxContainer.new()
-	vbox.set_anchors_preset(Control.PRESET_FULL_RECT)
-	vbox.offset_left = 40
-	vbox.offset_top = 60
-	vbox.offset_right = -40
-	vbox.offset_bottom = -60
-	vbox.add_theme_constant_override("separation", 35)
-	vbox.alignment = BoxContainer.ALIGNMENT_CENTER
-	papel.add_child(vbox)
-
-	# Header (HBoxContainer) com Ícone + Título
-	var header = HBoxContainer.new()
-	header.alignment = BoxContainer.ALIGNMENT_CENTER
-	header.add_theme_constant_override("separation", 20)
-	vbox.add_child(header)
-
-	var icone_titulo = TextureRect.new()
-	icone_titulo.texture = tex_config2
-	icone_titulo.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-	icone_titulo.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-	icone_titulo.custom_minimum_size = Vector2(72, 72)
-	header.add_child(icone_titulo)
-
-	var titulo = Label.new()
-	titulo.text = "CONFIGURAÇÕES"
-	titulo.add_theme_font_override("font", fonte)
-	titulo.add_theme_font_size_override("font_size", 52)
-	titulo.add_theme_color_override("font_color", Color("002867"))
-	header.add_child(titulo)
-
-	# Botão de Som
-	var btn_som = Button.new()
-	btn_som.icon = tex_volume
-	btn_som.add_theme_font_override("font", fonte)
-	btn_som.add_theme_font_size_override("font_size", 40)
-	btn_som.add_theme_color_override("font_color", Color("002867"))
-	btn_som.add_theme_color_override("font_hover_color", Color("0047ab"))
-	btn_som.add_theme_constant_override("icon_max_width", 52)
-	btn_som.flat = true
-	btn_som.custom_minimum_size = Vector2(500, 80)
-	btn_som.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
-	vbox.add_child(btn_som)
-
-	# Botão de Vibração
-	var btn_vibracao = Button.new()
-	btn_vibracao.icon = tex_vibrate
-	btn_vibracao.add_theme_font_override("font", fonte)
-	btn_vibracao.add_theme_font_size_override("font_size", 40)
-	btn_vibracao.add_theme_color_override("font_color", Color("002867"))
-	btn_vibracao.add_theme_color_override("font_hover_color", Color("0047ab"))
-	btn_vibracao.add_theme_constant_override("icon_max_width", 52)
-	btn_vibracao.flat = true
-	btn_vibracao.custom_minimum_size = Vector2(500, 80)
-	btn_vibracao.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
-	vbox.add_child(btn_vibracao)
-
-	var atualizar_textos = func():
-		btn_som.text = "[ SOM: %s ]" % ("LIGADO" if dados_save.get("som_ativo", true) else "DESLIGADO")
-		btn_vibracao.text = "[ VIBRAÇÃO: %s ]" % ("LIGADA" if dados_save.get("vibracao_ativa", true) else "DESLIGADA")
-	atualizar_textos.call()
-
-	btn_som.pressed.connect(func():
-		dados_save["som_ativo"] = not dados_save.get("som_ativo", true)
+	var janela := Control.new()
+	janela.set_script(preload("res://JanelaConfig.gd"))
+	$HUD.add_child(janela)
+	janela.alterar.connect(func(chave: String, ligado: bool):
+		dados_save[chave] = ligado
 		_salvar_dados()
-		_tocar_som(audio_click_sucesso)
-		atualizar_textos.call()
-	)
-
-	btn_vibracao.pressed.connect(func():
-		dados_save["vibracao_ativa"] = not dados_save.get("vibracao_ativa", true)
-		_salvar_dados()
-		_tocar_som(audio_click_sucesso)
-		atualizar_textos.call()
-	)
-
-	# Botão Stats de Teste (telemetria de baseline — testadores tiram print)
-	var btn_stats = Button.new()
-	btn_stats.text = "[ STATS DE TESTE ]"
-	btn_stats.add_theme_font_override("font", fonte)
-	btn_stats.add_theme_font_size_override("font_size", 40)
-	btn_stats.add_theme_color_override("font_color", Color("002867"))
-	btn_stats.add_theme_color_override("font_hover_color", Color("0047ab"))
-	btn_stats.flat = true
-	btn_stats.custom_minimum_size = Vector2(500, 80)
-	btn_stats.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
-	vbox.add_child(btn_stats)
-	btn_stats.pressed.connect(_abrir_painel_stats)
-	btn_stats.visible = GameData.MODO_TESTE
-
-	# Botão Fechar
-	var btn_fechar = Button.new()
-	btn_fechar.text = "[ FECHAR ]"
-	btn_fechar.add_theme_font_override("font", fonte)
-	btn_fechar.add_theme_font_size_override("font_size", 40)
-	btn_fechar.add_theme_color_override("font_color", Color(0.6, 0.15, 0.15))
-	btn_fechar.add_theme_color_override("font_hover_color", Color(0.85, 0.1, 0.1))
-	btn_fechar.flat = true
-	btn_fechar.custom_minimum_size = Vector2(300, 80)
-	btn_fechar.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
-	vbox.add_child(btn_fechar)
-	btn_fechar.pressed.connect(overlay.queue_free)
+		_tocar_som(audio_click_sucesso))
+	janela.abrir_stats.connect(_abrir_painel_stats)
+	janela.fechar.connect(janela.queue_free)
+	janela.mostrar({"som": dados_save.get("som_ativo", true), "vibracao": dados_save.get("vibracao_ativa", true),
+		"teste": GameData.MODO_TESTE, "nova": true})
 
 ## Painel de telemetria de baseline (P0). Read-only, pensado para o testador
 ## tirar um print e enviar. O botão ZERAR limpa apenas os contadores de

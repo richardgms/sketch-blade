@@ -3,7 +3,7 @@ extends SceneTree
 ##
 ## Uso (precisa de janela, não roda com --headless):
 ##   Godot --path . -s tools/capturar_telas.gd -- <pasta_de_saida> [tela1,tela2,...]
-## Sem lista, captura todas. Telas: hub, hub-cap5-recorde, hub-cap5-chefe, hub-cap5-primeira, hub-cap1/3/4-concluido, retomar, retomar-revive-usado, retomar-confirmar, estojo, estojo-estados, estojo-fluxo, loja, loja-pacotes, loja-fluxo, missoes, missoes-fluxo, config, recompensa, recompensa-dia7, recompensa-fluxo, compra, oferta,
+## Sem lista, captura todas. Telas: hub, hub-cap5-recorde, hub-cap5-chefe, hub-cap5-primeira, hub-cap1/3/4-concluido, retomar, retomar-revive-usado, retomar-confirmar, estojo, estojo-estados, estojo-fluxo, loja, loja-pacotes, loja-fluxo, missoes, missoes-fluxo, config, config-mudo, config-fluxo, recompensa, recompensa-dia7, recompensa-fluxo, compra, oferta,
 ## stats, dica-gotas, canetas, hud-vida, hud, roleta, roleta-fluxo, pausa, pausa-fluxo, descanso, descanso-fluxo, derrota, vitoria, revive.
 ##
 ## Usa um save fictício, mas alguns eventos gravam o save do PC
@@ -121,6 +121,11 @@ func _rodar() -> void:
 	if _quer("missoes-fluxo"):
 		await _fluxo_missoes()
 	await _hub("config", func(h): h._abrir_painel_config())
+	await _hub("config-mudo", func(h):
+		SaveManager_dados()["som_ativo"] = false
+		h._abrir_painel_config())
+	if _quer("config-fluxo"):
+		await _fluxo_config()
 	# Painel "Stats de teste" com vitórias/derrotas e páginas em que perdeu
 	await _hub("stats", func(h):
 		var st: Dictionary = SaveManager_dados()["stats"]
@@ -424,6 +429,47 @@ func _fluxo_missoes() -> void:
 	print("[capturar_telas] missoes fechou=", h.painel_missoes == null, " (esperado true)")
 	await create_timer(0.6).timeout
 	await _foto("missoes-fluxo-3-fechada")
+	await _fechar()
+
+func _janela_config(h: Node) -> Control:
+	for c in h.get_node("HUD").get_children():
+		if c.has_signal("abrir_stats"):
+			return c
+	return null
+
+func _fluxo_config() -> void:
+	# Toque real: travado ao abrir, desliga o som (risca), liga de novo, Fechar
+	_save(1)
+	var d := SaveManager_dados()
+	d["som_ativo"] = true; d["vibracao_ativa"] = true
+	var h = _abrir("res://hub.tscn"); await create_timer(1.5).timeout
+	await _tocar(h.get_node("HUD").get_children().filter(func(c): return c is Button and c.has_signal("pressed") 		and c.pressed.is_connected(h._abrir_painel_config))[0])
+	await process_frame
+	var j := _janela_config(h)
+	await _tocar(j._btns[0])
+	print("[capturar_telas] config toque travado: som=", d["som_ativo"], " (esperado true)")
+	await create_timer(0.5).timeout
+	await _tocar(j._btns[0])
+	print("[capturar_telas] config desligou: som=", d["som_ativo"], " (esperado false)")
+	await create_timer(0.1).timeout
+	await _foto("config-fluxo-1-riscando")
+	await create_timer(0.4).timeout
+	await _foto("config-fluxo-2-mudo")
+	await _tocar(j._btns[1])
+	print("[capturar_telas] config vibracao: ", d["vibracao_ativa"], " (esperado false)")
+	await create_timer(0.4).timeout
+	await _foto("config-fluxo-3-tudo-desligado")
+	await _tocar(j._btns[0]); await _tocar(j._btns[1])
+	print("[capturar_telas] config religou: som=", d["som_ativo"], " vib=", d["vibracao_ativa"], " (esperado true true)")
+	await _tocar(j._btns[2])
+	await create_timer(0.3).timeout
+	print("[capturar_telas] config stats aberto=", h.get_node("HUD").get_children().any(func(c): return c.z_index == 101), " (esperado true)")
+	await _fechar()
+	_save(1)
+	h = _abrir("res://hub.tscn"); await create_timer(1.5).timeout
+	h._abrir_painel_config(); await create_timer(0.5).timeout
+	await _tocar(_janela_config(h)._btn_fechar); await process_frame; await process_frame
+	print("[capturar_telas] config fechou=", _janela_config(h) == null, " (esperado true)")
 	await _fechar()
 
 func _janela_recompensa(h: Node) -> Control:
