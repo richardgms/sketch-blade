@@ -54,7 +54,8 @@ Guia geral (não é regra fixa: cada tela é um caso). Tirado do que o Richard a
 ## Missões
 - Janela sobre o Hub escurecido numa **folha arrancada do caderno** (picotes, pingo de tinta, ponta dobrada), não no card da roleta.
 - Lista de tarefas: caixinha desenhada (vazia / ✓), tarefa paga **riscada à caneta**, progresso na mesma barra da XP do Hub.
-- Aqui ele pediu botões **mais simples** que os riscados (azul liso, verde liso, rótulo tracejado para o que não é botão, "Fechar" com uma borda só): numa tela cheia de peças, o riscado pesado fica exagerado.
+- Peças de estado (COLETAR, prêmio, RECEBIDO) em **giz de cera**: preenchimento imperfeito com falhas transparentes, contorno duplo como o JOGAR; o liso chapado ficou "preenchido demais". Rótulo clarinho e tracejado para o que não é botão; "Fechar" com uma borda só.
+- Imagem gerada sai mais comprida que o pedido: recortar na altura usada e deixar o 9-partes encolher só o miolo (cantos intactos).
 
 ## Texto
 - Architects Daughter para palavras; Caveat para números (com espaço extra depois do número, senão gruda: "página 6  de 8").

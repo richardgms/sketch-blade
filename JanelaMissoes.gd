@@ -284,34 +284,34 @@ func _acao(pai: Control, m: Dictionary, i: int, r: Rect2) -> void:
 	premio.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	if m["coletada"]:
 		var selo := Panel.new()
-		selo.add_theme_stylebox_override("panel", _estilo_peca(BTN_RECEBIDO, 50, 50))
+		selo.add_theme_stylebox_override("panel", _estilo_peca(BTN_RECEBIDO, 36, 36))
 		selo.position = r.position
 		selo.size = r.size
 		selo.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		pai.add_child(selo)
 		selo.add_child(col)
-		var t1 := _lbl("RECEBIDO", FONTE, 40, Color.WHITE)
+		var t1 := _contorno(_lbl("RECEBIDO", FONTE, 40, Color.WHITE), VERDE)
 		t1.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 		col.add_child(t1)
-		var t2 := _lbl("✓", FONTE, 48, Color.WHITE)
+		var t2 := _contorno(_lbl("✓", FONTE, 48, Color.WHITE), VERDE)
 		t2.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 		col.add_child(t2)
 		return
 	if m["completa"]:
-		var b := _botao_peca(pai, BTN_COLETAR, 44, 40, r)
+		var b := _botao_peca(pai, BTN_COLETAR, 36, 36, r)
 		b.add_child(col)
-		var l := _lbl("COLETAR", FONTE, 42, Color.WHITE)
+		var l := _contorno(_lbl("COLETAR", FONTE, 42, Color.WHITE), AZUL_ESCURO)
 		l.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 		col.add_child(l)
 		premio.add_child(_icone(CLIPE_BRANCO if clipes else GOTA_BRANCA, 48))
-		premio.add_child(_lbl("+" + _milhar(valor), NUM, 54, Color.WHITE))
+		premio.add_child(_contorno(_lbl("+" + _milhar(valor), NUM, 54, Color.WHITE), AZUL_ESCURO))
 		col.add_child(premio)
 		b.pressed.connect(func(): coletar.emit(i))
 		_btns.append(b)
 		return
 	# Em andamento: só mostra o prêmio
 	var rotulo := Panel.new()
-	rotulo.add_theme_stylebox_override("panel", _estilo_peca(BTN_PREMIO, 56, 56))
+	rotulo.add_theme_stylebox_override("panel", _estilo_peca(BTN_PREMIO, 36, 36))
 	rotulo.position = r.position
 	rotulo.size = r.size
 	rotulo.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -323,6 +323,13 @@ func _acao(pai: Control, m: Dictionary, i: int, r: Rect2) -> void:
 	premio.add_child(_icone("res://assets/clip.svg" if clipes else "res://assets/ink.svg", 52))
 	premio.add_child(_lbl("+" + _milhar(valor), NUM, 60, AZUL))
 	col.add_child(premio)
+
+## Letra branca em cima do giz: contorno da cor do botão para ler por
+## cima das falhas do giz (como no botão JOGAR).
+func _contorno(l: Label, cor: Color) -> Label:
+	l.add_theme_color_override("font_outline_color", Color(cor, 0.85))
+	l.add_theme_constant_override("outline_size", 8)
+	return l
 
 ## Linha tracejada clarinha entre as tarefas.
 func _tracejado(pai: Control, x0: float, x1: float, y: float) -> void:
