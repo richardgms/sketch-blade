@@ -72,6 +72,9 @@ Guia geral (não é regra fixa: cada tela é um caso). Tirado do que o Richard a
 - A folha das janelas do Hub (9 partes) colada sobre a página da partida, com véu de papel; a caneta fica à vista embaixo, com a dica de controle.
 - Na Caveat (inclinada), a tinta de números grandes cai ~24 px à direita do centro do Label: compensar ao centralizar dentro de um desenho.
 
+## Virada de página
+- A folha do caderno vira pelo canto e descola na diagonal; nunca encolher/esticar a folha com texto (a letra deforma). O verso aparece mais claro, com a pauta espelhada apagada.
+
 ## Texto
 - Architects Daughter para palavras; Caveat para números (com espaço extra depois do número, senão gruda: "página 6  de 8").
 - **Legibilidade no celular manda:** textos azuis de informação em 42/40 (`TAM_TEXTO_AZUL`), rótulos nunca abaixo de ~40. Toda vez que algo ficou pequeno (34, 36, letras do selo), ele pediu para aumentar.
