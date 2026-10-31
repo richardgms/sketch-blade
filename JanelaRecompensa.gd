@@ -54,7 +54,7 @@ func _janela_semana(d: Dictionary) -> void:
 	# Presente na mesma linha do título (sozinho em cima ficava solto)
 	var titulo := HBoxContainer.new()
 	titulo.alignment = BoxContainer.ALIGNMENT_CENTER
-	titulo.add_theme_constant_override("separation", 18)
+	titulo.add_theme_constant_override("separation", 34)
 	titulo.position = Vector2(0, 86)
 	titulo.size = Vector2(card.size.x, 90)
 	titulo.mouse_filter = Control.MOUSE_FILTER_IGNORE
