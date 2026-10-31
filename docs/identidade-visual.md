@@ -63,6 +63,11 @@ Guia geral (não é regra fixa: cada tela é um caso). Tirado do que o Richard a
 - Sequência de dias em caixinhas: pagos marcados e apagados, hoje contornado à caneta, os próximos com o prêmio visível.
 - Anúncio na pílula de uma borda ("Dobrar" + valor), abaixo do botão principal em giz.
 
+## Configurações
+- Mesma folha, encurtada em 9 partes (só o papel liso do meio encolhe).
+- Liga/desliga = caixinha das Missões; desligado também apaga o ícone e risca com "/" vermelho suave (60%), animado como caneta.
+- Ícone SVG preto em outra cor: `_pintar` (shader pela forma); `modulate` não tinge preto.
+
 ## Texto
 - Architects Daughter para palavras; Caveat para números (com espaço extra depois do número, senão gruda: "página 6  de 8").
 - **Legibilidade no celular manda:** textos azuis de informação em 42/40 (`TAM_TEXTO_AZUL`), rótulos nunca abaixo de ~40. Toda vez que algo ficou pequeno (34, 36, letras do selo), ele pediu para aumentar.
