@@ -58,6 +58,11 @@ Guia geral (não é regra fixa: cada tela é um caso). Tirado do que o Richard a
 - Palavra curta em botão pequeno (COLETAR, PRÊMIO, RECEBIDO): maiúscula e **negrito** (`FontVariation.variation_embolden` 0,9; a Architects Daughter não tem negrito).
 - Imagem gerada sai mais comprida que o pedido: recortar na altura usada e deixar o 9-partes encolher só o miolo (cantos intactos).
 
+## Recompensa diária
+- Mesma folha arrancada das Missões (janelas do Hub são irmãs); ícone junto do título, nunca sozinho numa linha.
+- Sequência de dias em caixinhas: pagos marcados e apagados, hoje contornado à caneta, os próximos com o prêmio visível.
+- Anúncio na pílula de uma borda ("Dobrar" + valor), abaixo do botão principal em giz.
+
 ## Texto
 - Architects Daughter para palavras; Caveat para números (com espaço extra depois do número, senão gruda: "página 6  de 8").
 - **Legibilidade no celular manda:** textos azuis de informação em 42/40 (`TAM_TEXTO_AZUL`), rótulos nunca abaixo de ~40. Toda vez que algo ficou pequeno (34, 36, letras do selo), ele pediu para aumentar.

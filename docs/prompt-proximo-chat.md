@@ -12,18 +12,18 @@ Continuação do Sketch Blade (Godot 4.7, pasta atual). Leia primeiro:
 Onde estamos (31/10): todo o visual de DENTRO da partida está no estilo "caderno à caneta":
 hub (3 telas), vitória, derrota, reviver, HUD, chefe legível, sons, roleta (TelaRoleta.gd),
 descanso (TelaDescanso.gd) e pausa (TelaPausa.gd). Fora da partida, o Estojo (TelaEstojo.gd) e a
-Loja (TelaLoja.gd, abas Canetas | Pacotes, + JanelaCompra.gd) e as Missões (JanelaMissoes.gd,
-folha arrancada sobre o Hub) também: fichas de etiqueta,
+Loja (TelaLoja.gd, abas Canetas | Pacotes, + JanelaCompra.gd) as Missões (JanelaMissoes.gd,
+folha arrancada sobre o Hub) e a Recompensa diária (JanelaRecompensa.gd, mesma folha) também: fichas de etiqueta,
 tracinhos e botões riscados por estado (azul / falta / máximo ou EM USO). As telas novas usam a
 base TelaFim.gd (papel da fase, _botao_cheio riscado, _botao_contorno, _txt, _traco) e o card
 desenhado assets/ui/card_roleta.png (caneta + papel, nine-patch 40/40/55/55); botões:
 assets/ui/botao_riscado.png, botao_falta.png, botao_maximo.png, botao_equipar.png; ícones brancos em cima do azul:
 gota_branca.png e clipe_branco.png (tools/gerar_gota_branca.gd).
 A 1.7.0 (código 10) está no Teste fechado; a 1.7.1 (código 11, descanso + pausa) foi gerada e
-pode já ter sido enviada: me pergunte antes de gerar outra. Estojo, Loja e Missões novos ainda sem build.
+pode já ter sido enviada: me pergunte antes de gerar outra. Estojo, Loja, Missões e Recompensa diária novos ainda sem build.
 
-Próximo: a definir comigo. Telas antigas que sobram fora da partida: configurações e
-recompensa diária (painéis do Hub.gd). Compras e anúncios: só o visual; push que envolva
+Próximo: a definir comigo. Tela antiga que sobra fora da partida: configurações
+(painel do Hub.gd). Compras e anúncios: só o visual; push que envolva
 pagamento ou anúncio: me pergunte antes.
 
 Como trabalhamos (o mesmo processo da roleta, do descanso e da pausa):
