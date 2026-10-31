@@ -2,7 +2,7 @@
 
 Fonte única da lista de melhorias depois da 1.5.0. Antes/depois para aprovar: https://claude.ai/artifact/VdK88T7PA2HgKCCBubEKrg Decisão: conselho de LLMs de 29/10/2026, rodado sobre prints do jogo atual (`tools/capturar_prints.gd` + `tools/capturar_telas.sh`). Uma rodada anterior usou a revisão visual de 27/10, já desatualizada (monstros e chefes já têm arte), e foi descartada.
 
-**Próximo:** 1.7.0 (código 10) no Teste fechado desde 30/10 (sem o descanso novo). Descanso e pausa novos na 1.7.1 (código 11, gerada em 30/10). Estojo novo no jogo desde 30/10 (sem build). Loja nova no jogo desde 30/10; Missões, Recompensa diária e Configurações novas desde 31/10 (sem build). Todas as telas de jogador fora da partida estão no estilo caderno (só o painel "Stats de teste", de testador, segue o antigo).
+**Próximo:** 1.7.0 (código 10) no Teste fechado desde 30/10 (sem o descanso novo). Descanso e pausa novos na 1.7.1 (código 11, gerada em 30/10). Estojo novo no jogo desde 30/10 (sem build). Loja nova no jogo desde 30/10; Missões, Recompensa diária e Configurações novas desde 31/10; tudo isso na 1.7.2 (código 12, gerada em 31/10, falta enviar). Todas as telas de jogador fora da partida estão no estilo caderno (só o painel "Stats de teste", de testador, segue o antigo).
 
 ## Conselho de 29/10 (noite, depois da 1.6.0): som, outra tela ou outra coisa?
 - **Consenso (4 de 5 + todas as revisões):** o gargalo não é qualidade, são os **12 testadores ativos por 14 dias** (hoje 4). Nada de som ou tela move esse número. Também: o fluxo novo (hub, vitória, derrota) nunca foi jogado num aparelho real.

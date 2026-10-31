@@ -7,7 +7,7 @@ Continuação do Sketch Blade (Godot 4.7, pasta atual). Leia primeiro:
 - CLAUDE.md
 - docs/identidade-visual.md (a pegada visual aprovada: base para tudo, inclusive a seção "Cartas")
 - docs/proximas-melhorias.md (topo: "Próximo" e as entradas de 29–30/10: roleta, descanso, pausa, Estojo)
-- docs/plano-publicacao.md (fim: builds 1.7.0 e 1.7.1)
+- docs/plano-publicacao.md (fim: builds 1.7.0, 1.7.1 e 1.7.2)
 
 Onde estamos (31/10): todo o visual de DENTRO da partida está no estilo "caderno à caneta":
 hub (3 telas), vitória, derrota, reviver, HUD, chefe legível, sons, roleta (TelaRoleta.gd),
@@ -19,8 +19,9 @@ base TelaFim.gd (papel da fase, _botao_cheio riscado, _botao_contorno, _txt, _tr
 desenhado assets/ui/card_roleta.png (caneta + papel, nine-patch 40/40/55/55); botões:
 assets/ui/botao_riscado.png, botao_falta.png, botao_maximo.png, botao_equipar.png; ícones brancos em cima do azul:
 gota_branca.png e clipe_branco.png (tools/gerar_gota_branca.gd).
-A 1.7.0 (código 10) está no Teste fechado; a 1.7.1 (código 11, descanso + pausa) foi gerada e
-pode já ter sido enviada: me pergunte antes de gerar outra. Estojo, Loja, Missões, Recompensa diária e Configurações novos ainda sem build.
+A 1.7.0 (código 10) está no Teste fechado; a 1.7.1 (código 11, descanso + pausa) e a 1.7.2
+(código 12, gerada em 31/10: Estojo, Loja, Missões, Recompensa diária e Configurações novos)
+podem já ter sido enviadas: me pergunte antes de gerar outra.
 
 Próximo: a definir comigo. Todas as telas de jogador já estão no estilo novo (só o painel
 "Stats de teste", de testador, segue o antigo). Compras e anúncios: só o visual; push que envolva
