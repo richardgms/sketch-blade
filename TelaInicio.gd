@@ -104,32 +104,11 @@ func _arte(pai: Control, caminho: String, r: Rect2) -> void:
 	a.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	pai.add_child(a)
 
-## 8 casas: as já alcançadas em azul, a última maior com "?" (o chefe).
+## Trilha das páginas: as já alcançadas em azul, a 1 com anel verde.
 func _trilha(pai: Control, y: float, recorde: int, total: int) -> void:
-	var c := Control.new()
-	c.size = Vector2(1080, 140)
-	c.position = Vector2(0, y)
-	c.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	var passo := 108.0
-	var x0: float = 540.0 - passo * (total - 1) / 2.0
-	c.draw.connect(func():
-		for i in range(total - 1):
-			var a := Vector2(x0 + passo * i + 30, 50)
-			var b := Vector2(x0 + passo * (i + 1) - 30 - (12 if i == total - 2 else 0), 50)
-			c.draw_dashed_line(a, b, Color(AZUL_ESCURO, 0.5), 3.0, 8.0)
-		for i in range(total):
-			var p := Vector2(x0 + passo * i, 50)
-			var ultimo: bool = i == total - 1
-			var r: float = 40.0 if ultimo else 26.0
-			if i < recorde:
-				c.draw_circle(p, r, Color(AZUL, 0.85))
-			else:
-				c.draw_circle(p, r, Color.WHITE)
-			c.draw_arc(p, r, 0, TAU, 32, AZUL_ESCURO, 3.5, true)
-			if ultimo:
-				c.draw_string(FONTE, p + Vector2(-13, 17), "?", HORIZONTAL_ALIGNMENT_LEFT, -1, 48,
-					Color.WHITE if i < recorde else AZUL_ESCURO)
-			# Página 1: onde a partida começa
-			if i == 0:
-				c.draw_arc(p, r + 9, 0, TAU, 32, Color("6fd877"), 6.0, true))
-	pai.add_child(c)
+	var t: Control = preload("res://TrilhaPaginas.gd").new()
+	t.total = total
+	t.cheias = recorde
+	t.atual = 0
+	t.position = Vector2(0, y)
+	pai.add_child(t)

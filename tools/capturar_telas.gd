@@ -182,6 +182,21 @@ func _rodar() -> void:
 		print("[capturar_telas] inicio COMECAR: jogo_iniciado=", m.jogo_iniciado, " menu visivel=", m.menu_iniciar.visible, " (esperado true false)")
 		await create_timer(2.5).timeout
 		await _foto("inicio-fluxo"); await _fechar()
+	if _quer("virada"):
+		# Virada de página real (página 2 do cap. 5): título no meio, folha
+		# dobrando, depois a página livre; e a página 4 (descanso por cima)
+		_save(5)
+		var m = _abrir("res://main.tscn"); await create_timer(1.0).timeout
+		m.player.invencivel = true
+		m._on_botao_jogar_pressed()
+		m.wave_manager.iniciar_fase_na_pagina(5, 2)
+		await create_timer(0.7).timeout; await _foto("virada-titulo")
+		await create_timer(0.45).timeout; await _foto("virada-dobrando")
+		await create_timer(0.8).timeout
+		print("[capturar_telas] virada: folhas restantes=", m.get_node("HUD").get_child(0).get_script() == load("res://VirarPagina.gd"), " (esperado false)")
+		await _foto("virada-fim")
+		m.wave_manager.iniciar_fase_na_pagina(5, 4); await create_timer(0.6).timeout
+		await _foto("virada-descanso"); await _fechar()
 	if _quer("hud-vida"):
 		# Barra de vida riscada com 3 de 8 e com 1 de 8
 		var m = await _combate()

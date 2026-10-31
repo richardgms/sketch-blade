@@ -1420,44 +1420,16 @@ func _criar_label_pagina() -> void:
 	label_pagina.size = Vector2(1080, 54)
 	$HUD.add_child(label_pagina)
 
-## Animação de virada de página: uma folha desliza cobrindo e revelando a tela
+## Virada de página (VirarPagina.gd): a folha entra com "Página N" e a trilha
+## e descola pelo canto. Fica por baixo do HUD e dos menus (índice 0).
 func _animar_virada_pagina(numero: int) -> void:
-	# A folha cobre a altura REAL da tela (viewports mais altos que 1920)
-	var altura_tela: float = get_viewport_rect().size.y
-
-	var folha = ColorRect.new()
-	folha.color = Color(0.98, 0.965, 0.93)
-	folha.size = Vector2(1180, altura_tela)
-	folha.position = Vector2(1080, 0)
-	folha.z_index = 90
-	add_child(folha)
-
-	# Sombra da dobra na borda esquerda da folha
-	var sombra = ColorRect.new()
-	sombra.color = Color(0.2, 0.2, 0.25, 0.25)
-	sombra.size = Vector2(24, altura_tela)
-	sombra.position = Vector2(-24, 0)
-	folha.add_child(sombra)
-
-	var lbl = Label.new()
-	lbl.text = "Página %d" % numero
-	lbl.add_theme_font_override("font", FONTE_NUMEROS)
-	lbl.add_theme_font_size_override("font_size", 80)
-	lbl.add_theme_color_override("font_color", Color("002867"))
-	lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	lbl.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	lbl.position = Vector2(0, altura_tela / 2.0 - 150.0)
-	lbl.size = Vector2(1080, 300)
-	folha.add_child(lbl)
-
-	# Som de folhear
-	_tocar_som(SONS["pagina"])
-
-	var tween = create_tween()
-	tween.tween_property(folha, "position:x", 0.0, 0.3).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
-	tween.tween_interval(0.45)
-	tween.tween_property(folha, "position:x", -1180.0, 0.3).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
-	tween.finished.connect(folha.queue_free)
+	var vp := Control.new()
+	vp.set_script(preload("res://VirarPagina.gd"))
+	$HUD.add_child(vp)
+	$HUD.move_child(vp, 0)
+	vp.virando.connect(func(): _tocar_som(SONS["pagina"]))
+	vp.iniciar({"cap": capitulo_atual, "nome": preload("res://TelaPausa.gd").NOMES_CAPITULOS[capitulo_atual],
+		"numero": numero, "total": GameData.PAGINAS.size()})
 
 ## Evento de Descanso (página 4): escolher entre curar ou ganhar tinta
 func _criar_menu_descanso() -> void:
