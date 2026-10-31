@@ -25,10 +25,15 @@ const MOLDURA_XP_RECORTE := Rect2(215, 87, 385, 71)
 const RABISCO_XP := "res://assets/texture_progress.svg"
 
 var _escuro: ColorRect
+# Architects Daughter não tem negrito: engrossa o traço da própria fonte
+var _negrito: FontVariation
 var _btn_fechar: Button
 
 func _montar_fixo() -> void:
 	super._montar_fixo()
+	_negrito = FontVariation.new()
+	_negrito.base_font = FONTE
+	_negrito.variation_embolden = 0.9
 	mouse_filter = Control.MOUSE_FILTER_STOP
 	z_index = 100 # por cima do cabeçalho e da barra de abas do Hub
 	_escuro = ColorRect.new()
@@ -290,7 +295,7 @@ func _acao(pai: Control, m: Dictionary, i: int, r: Rect2) -> void:
 		selo.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		pai.add_child(selo)
 		selo.add_child(col)
-		var t1 := _contorno(_lbl("RECEBIDO", FONTE, 40, Color.WHITE), VERDE)
+		var t1 := _contorno(_lbl("RECEBIDO", _negrito, 40, Color.WHITE), VERDE)
 		t1.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 		col.add_child(t1)
 		var t2 := _contorno(_lbl("✓", FONTE, 48, Color.WHITE), VERDE)
@@ -300,7 +305,7 @@ func _acao(pai: Control, m: Dictionary, i: int, r: Rect2) -> void:
 	if m["completa"]:
 		var b := _botao_peca(pai, BTN_COLETAR, 36, 36, r)
 		b.add_child(col)
-		var l := _contorno(_lbl("COLETAR", FONTE, 42, Color.WHITE), AZUL_ESCURO)
+		var l := _contorno(_lbl("COLETAR", _negrito, 42, Color.WHITE), AZUL_ESCURO)
 		l.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 		col.add_child(l)
 		premio.add_child(_icone(CLIPE_BRANCO if clipes else GOTA_BRANCA, 48))
@@ -317,7 +322,7 @@ func _acao(pai: Control, m: Dictionary, i: int, r: Rect2) -> void:
 	rotulo.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	pai.add_child(rotulo)
 	rotulo.add_child(col)
-	var p := _lbl("prêmio", FONTE, 40, Color(AZUL_ESCURO, 0.7))
+	var p := _lbl("PRÊMIO", _negrito, 40, Color(AZUL_ESCURO, 0.8))
 	p.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	col.add_child(p)
 	premio.add_child(_icone("res://assets/clip.svg" if clipes else "res://assets/ink.svg", 52))
