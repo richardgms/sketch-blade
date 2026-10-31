@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://cfm2q1e3wwsl7"
-path="res://.godot/imported/card-missoes.svg-75fcfed7415a7ad98214e263ce1d60ff.ctex"
+uid="uid://g0nxyw11ggjo"
+path="res://.godot/imported/missao_recebido.png-3c802cb8bece8b3c50d379f863a8f5b2.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/card-missoes.svg"
-dest_files=["res://.godot/imported/card-missoes.svg-75fcfed7415a7ad98214e263ce1d60ff.ctex"]
+source_file="res://assets/ui/missao_recebido.png"
+dest_files=["res://.godot/imported/missao_recebido.png-3c802cb8bece8b3c50d379f863a8f5b2.ctex"]
 
 [params]
 
@@ -38,6 +38,3 @@ process/hdr_as_srgb=false
 process/hdr_clamp_exposure=false
 process/size_limit=0
 detect_3d/compress_to=1
-svg/scale=1.0
-editor/scale_with_editor_scale=false
-editor/convert_colors_with_editor_theme=false

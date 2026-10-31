@@ -3,7 +3,7 @@ extends SceneTree
 ##
 ## Uso (precisa de janela, não roda com --headless):
 ##   Godot --path . -s tools/capturar_telas.gd -- <pasta_de_saida> [tela1,tela2,...]
-## Sem lista, captura todas. Telas: hub, hub-cap5-recorde, hub-cap5-chefe, hub-cap5-primeira, hub-cap1/3/4-concluido, retomar, retomar-revive-usado, retomar-confirmar, estojo, estojo-estados, estojo-fluxo, loja, loja-pacotes, loja-fluxo, missoes, config, recompensa, compra, oferta,
+## Sem lista, captura todas. Telas: hub, hub-cap5-recorde, hub-cap5-chefe, hub-cap5-primeira, hub-cap1/3/4-concluido, retomar, retomar-revive-usado, retomar-confirmar, estojo, estojo-estados, estojo-fluxo, loja, loja-pacotes, loja-fluxo, missoes, missoes-fluxo, config, recompensa, compra, oferta,
 ## stats, dica-gotas, canetas, hud-vida, hud, roleta, roleta-fluxo, pausa, pausa-fluxo, descanso, descanso-fluxo, derrota, vitoria, revive.
 ##
 ## Usa um save fictício, mas alguns eventos gravam o save do PC
@@ -118,6 +118,8 @@ func _rodar() -> void:
 	if _quer("loja-fluxo"):
 		await _fluxo_loja()
 	await _hub("missoes", func(h): h._abrir_painel_missoes())
+	if _quer("missoes-fluxo"):
+		await _fluxo_missoes()
 	await _hub("config", func(h): h._abrir_painel_config())
 	# Painel "Stats de teste" com vitórias/derrotas e páginas em que perdeu
 	await _hub("stats", func(h):
@@ -396,6 +398,31 @@ func _fluxo_loja() -> void:
 	await _fechar()
 
 ## Botão da ficha de uma caneta (a em uso não tem botão).
+## Missões: abre pelo ícone do topo (toque real), toque travado nos 0,4 s
+## iniciais, COLETAR paga a tinta e vira RECEBIDO, Fechar some com a janela.
+func _fluxo_missoes() -> void:
+	_save(1)
+	var d := SaveManager_dados()
+	var h = _abrir("res://hub.tscn"); await create_timer(1.5).timeout
+	await _tocar(h.botao_missoes); await process_frame
+	var j = h.painel_missoes
+	print("[capturar_telas] missoes aberta=", j != null, " coletar=", j._btns.size(), " (esperado true e 1)")
+	await _tocar(j._btns[0])
+	print("[capturar_telas] missoes toque travado: tinta=", d["tinta"], " (esperado 640)")
+	await create_timer(0.5).timeout
+	await _tocar(j._btns[0])
+	print("[capturar_telas] missoes coletou: tinta=", d["tinta"], " coletada=", d["missoes_dia"][0]["coletada"],
+		" badge=", h.badge_missoes.visible, " (esperado 690, true, false)")
+	await create_timer(0.08).timeout
+	await _foto("missoes-fluxo-1-coletando")
+	await create_timer(0.6).timeout
+	await _foto("missoes-fluxo-2-recebido")
+	await _tocar(j._btn_fechar); await process_frame
+	print("[capturar_telas] missoes fechou=", h.painel_missoes == null, " (esperado true)")
+	await create_timer(0.6).timeout
+	await _foto("missoes-fluxo-3-fechada")
+	await _fechar()
+
 func _btn_caneta(l: Control, id: String) -> Button:
 	var ficha: Control = l._fichas_atuais[l._ids.find(id)]
 	for c in ficha.get_children():

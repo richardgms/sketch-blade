@@ -1741,278 +1741,27 @@ func _desenhar_badge_missoes(ctrl: Control) -> void:
 	ctrl.draw_circle(centro, raio, Color("a33d3d"))
 	ctrl.draw_arc(centro, raio, 0, TAU, 24, Color("1a1a2e", 0.85), 2.0, true)
 
-## Retângulo com tremido de caneta contornando as barras de progresso das
-## missões. Gera pontos ao longo dos 4 lados diretamente (sem superelipse),
-## resultando em cantos retos. Jitter determinístico (sin/cos por índice)
-## evita o "formigamento" que randf causaria a cada redraw.
-func _desenhar_moldura_manuscrita(ctrl: Control) -> void:
-	var cor := Color("1a1a2e", 0.8)
-	var w: float = ctrl.size.x
-	var h: float = ctrl.size.y
-	var m: float = 3.0
-	var jitter: float = 1.3
-	var pontos: PackedVector2Array = []
-	var n_h: int = 24
-	var n_v: int = 10
-	var idx: int = 0
-
-	for i in range(n_h): # Topo: esq → dir
-		var t: float = float(i) / (n_h - 1)
-		pontos.append(Vector2(
-			m + t * (w - 2.0 * m) + sin(idx * 7.31) * jitter,
-			m + cos(idx * 5.17) * jitter))
-		idx += 1
-
-	for i in range(n_v): # Direita: cima → baixo
-		var t: float = float(i) / (n_v - 1)
-		pontos.append(Vector2(
-			w - m + sin(idx * 7.31) * jitter,
-			m + t * (h - 2.0 * m) + cos(idx * 5.17) * jitter))
-		idx += 1
-
-	for i in range(n_h): # Base: dir → esq
-		var t: float = float(i) / (n_h - 1)
-		pontos.append(Vector2(
-			(w - m) - t * (w - 2.0 * m) + sin(idx * 7.31) * jitter,
-			h - m + cos(idx * 5.17) * jitter))
-		idx += 1
-
-	for i in range(n_v): # Esquerda: baixo → cima
-		var t: float = float(i) / (n_v - 1)
-		pontos.append(Vector2(
-			m + sin(idx * 7.31) * jitter,
-			(h - m) - t * (h - 2.0 * m) + cos(idx * 5.17) * jitter))
-		idx += 1
-
-	pontos.append(pontos[0])
-	ctrl.draw_polyline(pontos, cor, 3.5, true)
-
-## Círculo de caneta azul em volta do número da missão. Dá uma volta e um
-## pouco mais (1.12 × TAU) com raio levemente variável, imitando o gesto de
-## circular um número à mão — jitter determinístico como nas outras molduras.
-func _desenhar_circulo_numero(ctrl: Control) -> void:
-	var cor := Color("0047ab", 0.9)
-	var centro: Vector2 = ctrl.size / 2.0
-	var raio_base: float = centro.x - 4.0
-	var pontos: PackedVector2Array = []
-	var n: int = 40
-
-	for i in range(n + 1):
-		var t: float = float(i) / n * TAU * 1.12 - 0.4
-		var raio: float = raio_base + sin(i * 7.31) * 1.2 + float(i) / n * 1.5
-		pontos.append(centro + Vector2(cos(t), sin(t)) * raio)
-
-	ctrl.draw_polyline(pontos, cor, 3.0, true)
-
+## Janela de missões no estilo caderno (JanelaMissoes.gd, aprovada em
+## 31/10/2026): folha arrancada sobre o Hub escurecido. Coletar paga aqui e
+## redesenha a janela com a linha que acabou de ser paga pulsando.
 func _abrir_painel_missoes() -> void:
 	_tocar_som(audio_click_sucesso)
-
-	if painel_missoes:
-		painel_missoes.queue_free()
-
-	painel_missoes = Control.new()
-	painel_missoes.set_anchors_preset(Control.PRESET_FULL_RECT)
-	painel_missoes.z_index = 100
-	$HUD.add_child(painel_missoes)
-
-	var fundo = ColorRect.new()
-	fundo.color = Color(0.1, 0.1, 0.15, 0.55)
-	fundo.set_anchors_preset(Control.PRESET_FULL_RECT)
-	painel_missoes.add_child(fundo)
-
-	# Card geral da aba, no lugar do retângulo branco liso. Tamanho ajustado
-	# para bater com a proporção nativa do SVG (538.5×662.25 ≈ 0,813:1) sem
-	# distorcer o desenho — por isso não é preciso alterar o arquivo.
-	var papel = TextureRect.new()
-	papel.texture = load("res://assets/background-missoes.svg")
-	papel.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-	papel.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-	papel.position = Vector2(90, 387)
-	papel.size = Vector2(900, 1107)
-	painel_missoes.add_child(papel)
-
-	var titulo = Label.new()
-	titulo.text = "📋 MISSÕES DE HOJE"
-	titulo.add_theme_font_override("font", load("res://assets/fonts/ArchitectsDaughter-Regular.ttf"))
-	titulo.add_theme_font_size_override("font_size", 52)
-	titulo.add_theme_color_override("font_color", Color("002867"))
-	titulo.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	titulo.position = Vector2(90, 490)
-	titulo.size = Vector2(900, 80)
-	painel_missoes.add_child(titulo)
-
-	# Linhas das 3 missões
-	for i in range(dados_save["missoes_dia"].size()):
-		var missao: Dictionary = dados_save["missoes_dia"][i]
-		var def: Dictionary = GameData.get_missao(missao["id"])
-		if def.is_empty():
-			continue
-
-		var y_base = 630 + i * 230
-
-		# Card de fundo desenhado à mão, um por missão, atrás de todo o
-		# conteúdo da linha — ver nota de proporção ideal do SVG no final
-		# da implementação (proporção nativa não bate com o card 820×210).
-		var card_fundo = TextureRect.new()
-		card_fundo.texture = load("res://assets/card-missoes.svg")
-		card_fundo.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-		card_fundo.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-		card_fundo.position = Vector2(130, y_base - 25)
-		card_fundo.size = Vector2(820, 210)
-		card_fundo.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		painel_missoes.add_child(card_fundo)
-
-		# Círculo numerado à mão no canto esquerdo do card, identificando a
-		# missão (1, 2, 3) — mesmo traço azul de caneta do resto da UI.
-		var circulo_num = Control.new()
-		circulo_num.position = Vector2(160, y_base - 5)
-		circulo_num.size = Vector2(60, 60)
-		circulo_num.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		circulo_num.draw.connect(func(): _desenhar_circulo_numero(circulo_num))
-		painel_missoes.add_child(circulo_num)
-
-		var lbl_num = Label.new()
-		lbl_num.text = str(i + 1)
-		lbl_num.add_theme_font_override("font", FONTE_NUMEROS)
-		lbl_num.add_theme_font_size_override("font_size", 34)
-		lbl_num.add_theme_color_override("font_color", Color("0047ab"))
-		lbl_num.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-		lbl_num.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-		# Nudge à direita: os algarismos da Caveat têm bearing esquerdo largo
-		# que desloca o glifo do centro óptico do círculo.
-		lbl_num.position = circulo_num.position + Vector2(-4, 0)
-		lbl_num.size = circulo_num.size
-		painel_missoes.add_child(lbl_num)
-
-		_montar_card_missao(i, missao, def, y_base, card_fundo)
-
-	# Botão fechar
-	var btn_fechar = Button.new()
-	btn_fechar.text = "[ FECHAR ]"
-	btn_fechar.add_theme_font_override("font", load("res://assets/fonts/ArchitectsDaughter-Regular.ttf"))
-	btn_fechar.add_theme_font_size_override("font_size", 40)
-	btn_fechar.add_theme_color_override("font_color", Color(0.6, 0.15, 0.15))
-	btn_fechar.add_theme_color_override("font_hover_color", Color(0.85, 0.1, 0.1))
-	btn_fechar.flat = true
-	btn_fechar.position = Vector2(340, 1330)
-	btn_fechar.size = Vector2(400, 80)
-	painel_missoes.add_child(btn_fechar)
-	btn_fechar.pressed.connect(func():
-		painel_missoes.queue_free()
-		painel_missoes = null
-	)
-
-## Monta o conteúdo de um card de missão (layout "limpo", escolhido em 27/10):
-## em andamento mostra título, barra e recompensa; completa vira título +
-## botão verde (o card inteiro também resgata); recebida mostra só o título e
-## um selo vazado. O card de fundo e o número já foram criados.
-func _montar_card_missao(i: int, missao: Dictionary, def: Dictionary, y_base: float, card_fundo: Control) -> void:
-	var progresso: int = _progresso_missao(missao)
-	var completa: bool = progresso >= def["alvo"]
-	var coletada: bool = missao["coletada"]
-	var recompensa_txt := ""
-	if def["tinta"] > 0:
-		recompensa_txt = "+%d tinta" % def["tinta"]
-	if def["clipes"] > 0:
-		recompensa_txt += (" " if recompensa_txt != "" else "") + "+%d clipes" % def["clipes"]
-
-	var lbl_desc = RichTextLabel.new()
-	lbl_desc.bbcode_enabled = true
-	lbl_desc.scroll_active = false
-	lbl_desc.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	lbl_desc.add_theme_font_override("normal_font", load("res://assets/fonts/ArchitectsDaughter-Regular.ttf"))
-	lbl_desc.add_theme_font_size_override("normal_font_size", 36)
-	lbl_desc.add_theme_color_override("default_color", Color(0.2, 0.2, 0.25))
-	lbl_desc.text = "[center]" + _bbcode_numeros(def["desc"]) + "[/center]"
-	lbl_desc.position = Vector2(150, y_base)
-	lbl_desc.size = Vector2(780, 50)
-	painel_missoes.add_child(lbl_desc)
-
-	# Barra + contador só enquanto a missão está em andamento. Grupo de 580 px
-	# (barra 500 + contador) centrado no card.
-	if not completa:
-		var moldura = Control.new()
-		moldura.position = Vector2(242, y_base + 52)
-		moldura.size = Vector2(516, 46)
-		moldura.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		moldura.draw.connect(func(): _desenhar_moldura_manuscrita(moldura))
-		painel_missoes.add_child(moldura)
-		var barra = TextureProgressBar.new()
-		barra.texture_under = load("res://assets/texture_progress.svg")
-		barra.texture_progress = load("res://assets/texture_progress.svg")
-		barra.tint_under = Color(0.63, 0.63, 0.66, 0.5)
-		barra.tint_progress = Color("0047ab")
-		barra.nine_patch_stretch = true
-		barra.max_value = def["alvo"]
-		barra.value = progresso
-		barra.position = Vector2(250, y_base + 60)
-		barra.size = Vector2(500, 30)
-		barra.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		painel_missoes.add_child(barra)
-		var lbl_prog = Label.new()
-		lbl_prog.text = "%d / %d" % [progresso, def["alvo"]]
-		lbl_prog.add_theme_font_override("font", FONTE_NUMEROS)
-		lbl_prog.add_theme_font_size_override("font_size", 34)
-		lbl_prog.add_theme_color_override("font_color", Color(0.4, 0.4, 0.45))
-		lbl_prog.position = Vector2(766, y_base + 52)
-		lbl_prog.size = Vector2(110, 44)
-		painel_missoes.add_child(lbl_prog)
-
-	var btn = Button.new()
-	btn.focus_mode = Control.FOCUS_NONE
-	btn.add_theme_font_override("font", FONTE_NUMEROS)
-	var cor_fundo := Color(0, 0, 0, 0)
-	var cor_borda := Color(0, 0, 0, 0)
-	var borda: int = 3
-	if coletada:
-		# Selo vazado: só o traço, fundo transparente, mais estreito que o botão
-		btn.text = "✓ RECEBIDO"
-		btn.disabled = true
-		btn.add_theme_font_size_override("font_size", 34)
-		btn.add_theme_color_override("font_disabled_color", Color(0.42, 0.42, 0.46))
-		btn.position = Vector2(390, y_base + 66)
-		btn.size = Vector2(300, 60)
-		cor_borda = Color(0.42, 0.42, 0.46, 0.8)
-		borda = 2
-	elif completa:
-		btn.text = "✓  COLETAR " + recompensa_txt
-		btn.add_theme_font_size_override("font_size", 38)
-		for c in ["font_color", "font_hover_color", "font_pressed_color"]:
-			btn.add_theme_color_override(c, Color.WHITE)
-		btn.position = Vector2(250, y_base + 62)
-		btn.size = Vector2(580, 72)
-		cor_fundo = Color("2e7d32")
-		cor_borda = Color("1a1a2e", 0.6)
-		var indice = i
-		btn.pressed.connect(func(): _coletar_missao(indice))
-		var card_toque = Button.new()
-		card_toque.flat = true
-		card_toque.focus_mode = Control.FOCUS_NONE
-		card_toque.position = card_fundo.position
-		card_toque.size = card_fundo.size
-		card_toque.pressed.connect(func(): _coletar_missao(indice))
-		painel_missoes.add_child(card_toque)
-		painel_missoes.move_child(card_toque, card_fundo.get_index() + 1)
-	else:
-		btn.text = "Recompensa: " + recompensa_txt
-		btn.disabled = true
-		btn.add_theme_font_size_override("font_size", 40)
-		btn.add_theme_color_override("font_disabled_color", Color(0.48, 0.42, 0.26))
-		btn.position = Vector2(250, y_base + 100)
-		btn.size = Vector2(580, 58)
-	for estado in ["normal", "hover", "pressed", "disabled", "focus"]:
-		var estilo := StyleBoxFlat.new()
-		estilo.bg_color = cor_fundo.darkened(0.15) if estado == "pressed" else cor_fundo
-		estilo.border_color = cor_borda
-		estilo.set_border_width_all(borda)
-		estilo.set_corner_radius_all(16)
-		btn.add_theme_stylebox_override(estado, estilo)
-	painel_missoes.add_child(btn)
+	if not painel_missoes:
+		painel_missoes = Control.new()
+		painel_missoes.set_script(preload("res://JanelaMissoes.gd"))
+		$HUD.add_child(painel_missoes)
+		painel_missoes.coletar.connect(_coletar_missao)
+		painel_missoes.fechar.connect(func():
+			painel_missoes.queue_free()
+			painel_missoes = null)
+	var d: Dictionary = painel_missoes.montar_dados(dados_save)
+	d["nova"] = true
+	painel_missoes.mostrar(d)
 
 func _coletar_missao(indice: int) -> void:
 	var missao: Dictionary = dados_save["missoes_dia"][indice]
 	var def: Dictionary = GameData.get_missao(missao["id"])
-	if def.is_empty() or missao["coletada"]:
+	if def.is_empty() or missao["coletada"] or _progresso_missao(missao) < def["alvo"]:
 		return
 
 	dados_save["tinta"] += def["tinta"]
@@ -2021,7 +1770,13 @@ func _coletar_missao(indice: int) -> void:
 	_salvar_dados()
 	_tocar_som(audio_click_sucesso)
 	_atualizar_badge_missoes()
-	_abrir_painel_missoes() # Reconstrói o painel atualizado
+	# Estojo e Loja mudam com o saldo novo (botões de falta)
+	_atualizar_ui_upgrades()
+	_atualizar_loja()
+	if painel_missoes:
+		var d: Dictionary = painel_missoes.montar_dados(dados_save)
+		d["coletada"] = indice
+		painel_missoes.mostrar(d)
 
 # ============================================================
 # CONFIGURAÇÕES (som / vibração)
