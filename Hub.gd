@@ -570,23 +570,25 @@ func _montar_tela_capitulo() -> void:
 	boss_icon.anchor_bottom = 1.0
 	boss_icon.offset_bottom = 1160.0 - 1920.0
 
-	# Selo redondo da vitória, pequeno no canto inferior direito do desenho
-	# (só no capítulo vencido). Desenhado em 360 px e reduzido por escala.
+	# Selo redondo da vitória (só no capítulo vencido) no mesmo lugar da tela
+	# de vitória: sobre a metade de baixo do monstro, à direita (centro em
+	# ~79% x 70% do desenho quadrado), não no canto embaixo. Desenhado em
+	# 360 px e reduzido por escala; o desenho tem 488 px de lado aqui.
 	selo_hub = Control.new()
 	selo_hub.set_script(preload("res://SeloDerrotado.gd"))
 	selo_hub.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	selo_hub.size = Vector2(360, 360)
-	selo_hub.pivot_offset = Vector2(360, 360)
-	selo_hub.scale = Vector2(0.52, 0.52)
-	selo_hub.rotation_degrees = -12.0
-	selo_hub.anchor_left = 1.0
-	selo_hub.anchor_right = 1.0
-	selo_hub.anchor_top = 1.0
-	selo_hub.anchor_bottom = 1.0
-	selo_hub.offset_left = -360.0 + 60.0
-	selo_hub.offset_right = 60.0
-	selo_hub.offset_top = -360.0 - 34.0
-	selo_hub.offset_bottom = -34.0
+	selo_hub.pivot_offset = Vector2(180, 180)
+	selo_hub.scale = Vector2(0.62, 0.62)
+	selo_hub.rotation_degrees = -14.0
+	selo_hub.anchor_left = 0.5
+	selo_hub.anchor_right = 0.5
+	selo_hub.anchor_top = 0.5
+	selo_hub.anchor_bottom = 0.5
+	selo_hub.offset_left = 142.0 - 180.0
+	selo_hub.offset_right = 142.0 + 180.0
+	selo_hub.offset_top = 98.0 - 180.0
+	selo_hub.offset_bottom = 98.0 + 180.0
 	selo_hub.visible = false
 	boss_icon.add_child(selo_hub)
 
