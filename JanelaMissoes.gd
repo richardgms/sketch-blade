@@ -294,6 +294,9 @@ func _acao(pai: Control, m: Dictionary, i: int, r: Rect2) -> void:
 		selo.size = r.size
 		selo.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		pai.add_child(selo)
+		# Contorno duplo mais grosso que o do COLETAR: desce o texto para a
+		# folga do topo parecer a mesma
+		col.offset_top = 14.0
 		selo.add_child(col)
 		var t1 := _contorno(_lbl("RECEBIDO", _negrito, 40, Color.WHITE), VERDE)
 		t1.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
@@ -321,6 +324,7 @@ func _acao(pai: Control, m: Dictionary, i: int, r: Rect2) -> void:
 	rotulo.size = r.size
 	rotulo.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	pai.add_child(rotulo)
+	col.offset_top = 14.0
 	rotulo.add_child(col)
 	var p := _lbl("PRÊMIO", _negrito, 40, Color(AZUL_ESCURO, 0.8))
 	p.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
