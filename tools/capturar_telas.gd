@@ -159,6 +159,29 @@ func _rodar() -> void:
 			m.jogo_iniciado = true; m.menu_iniciar.visible = false
 			await create_timer(0.6).timeout
 			await _foto("caneta-" + id); await _fechar()
+	for c in [1, 5, 9]:
+		# Tela antes da partida (TelaInicio), como aparece ao entrar
+		if _quer("inicio-cap%d" % c):
+			_save(c)
+			SaveManager_dados()["stats"]["melhor_pagina"] = {"5": 6, "9": 8}
+			var m = _abrir("res://main.tscn"); await create_timer(1.2).timeout
+			await _foto("inicio-cap%d" % c); await _fechar()
+	if _quer("inicio-fluxo"):
+		# Toque cedo é ignorado; depois da entrada, COMEÇAR inicia a partida
+		_save(1)
+		var m = _abrir("res://main.tscn"); await process_frame; await process_frame
+		var tela: Control = m.menu_iniciar.get_child(m.menu_iniciar.get_child_count() - 1)
+		var b: Button = null
+		for f in tela._conteudo.get_children():
+			if f is Button:
+				b = f
+		_tocar(b); await create_timer(0.3).timeout
+		print("[capturar_telas] inicio toque cedo: jogo_iniciado=", m.jogo_iniciado, " (esperado false)")
+		await create_timer(0.8).timeout
+		_tocar(b); await create_timer(0.6).timeout
+		print("[capturar_telas] inicio COMECAR: jogo_iniciado=", m.jogo_iniciado, " menu visivel=", m.menu_iniciar.visible, " (esperado true false)")
+		await create_timer(2.5).timeout
+		await _foto("inicio-fluxo"); await _fechar()
 	if _quer("hud-vida"):
 		# Barra de vida riscada com 3 de 8 e com 1 de 8
 		var m = await _combate()

@@ -131,10 +131,8 @@ func _ready() -> void:
 	if has_node("Paper"):
 		$Paper.configurar_para_capitulo(capitulo_atual)
 		
-	# Título do Capítulo no botão de iniciar do combate
-	if menu_iniciar.has_node("Titulo"):
-		menu_iniciar.get_node("Titulo").text = "Capítulo " + str(capitulo_atual)
-	
+	_criar_tela_inicio()
+
 	_aplicar_upgrades_rpg()
 	
 	# Sons gravados (assets/sons, CC0; créditos em docs/sons.md). O bipe
@@ -240,6 +238,26 @@ func _unhandled_input(event: InputEvent) -> void:
 	
 	if arrastando and (moveu_mouse or moveu_toque):
 		player.mover_para(event.position)
+
+## Tela antes da partida no estilo caderno (TelaInicio.gd) dentro do
+## MenuIniciar: esconder o menu esconde a tela junto. Os nós antigos do .tscn
+## (fundo, título e [ JOGAR ]) ficam escondidos.
+func _criar_tela_inicio() -> void:
+	for n in menu_iniciar.get_children():
+		n.visible = false
+	# Mesmo desenho do Hub (SVG quando existe)
+	var arte := "res://assets/images/stage%d.svg" % capitulo_atual
+	if not ResourceLoader.exists(arte):
+		arte = "res://assets/images/stage%d.png" % capitulo_atual
+	var tela := Control.new()
+	tela.set_script(preload("res://TelaInicio.gd"))
+	menu_iniciar.add_child(tela)
+	tela.mostrar({"cap": capitulo_atual,
+		"nome": preload("res://TelaPausa.gd").NOMES_CAPITULOS[capitulo_atual],
+		"arte": arte,
+		"recorde": SaveManager.get_melhor_pagina(capitulo_atual),
+		"total": GameData.PAGINAS.size()})
+	tela.comecar.connect(_on_botao_jogar_pressed)
 
 func _on_botao_jogar_pressed() -> void:
 	# Run nova: descarta qualquer snapshot antigo pendente.
@@ -457,9 +475,6 @@ func _retomar_run_do_snapshot() -> void:
 	capitulo_atual = int(snap.get("capitulo", capitulo_atual))
 	if has_node("Paper"):
 		$Paper.configurar_para_capitulo(capitulo_atual)
-	if menu_iniciar.has_node("Titulo"):
-		menu_iniciar.get_node("Titulo").text = "Capítulo " + str(capitulo_atual)
-
 	tinta_partida = int(snap.get("tinta_partida", 0))
 	monstros_derrotados_partida = int(snap.get("monstros_derrotados", 0))
 	boss_derrotado_partida = bool(snap.get("boss_derrotado", false))
