@@ -48,6 +48,7 @@ Guia geral (não é regra fixa: cada tela é um caso). Tirado do que o Richard a
 ## Loja
 - Mesma ficha de etiqueta do Estojo, uma por caneta (5 em lista, sem rolagem); as abas viram o título da tela ("CANETAS | PACOTES").
 - Estado da caneta no botão, cada um com o fundo riscado dele: EM USO verde, EQUIPAR contorno de caneta com miolo branco (`botao_equipar.png`), COMPRAR azul com a moeda em caneta branca, falta de saldo em papel riscado clarinho. Nada de cadeado nem cartão cinzento.
+- Centralização conferida **medindo a tinta nos prints** (script de medição: faixa de pixels escuros por coluna): desenho, textos e botão de cada ficha na mesma altura; o botão sobe para o meio da ficha quando nenhum texto passa por cima dele (Corações), senão fica no meio das linhas de baixo. Janela com espaços iguais entre título, desenho, nome + nota e botões, e desenhos recortados na parte visível para ocuparem a mesma altura.
 - Janela de compra: card da roleta sobre o hub escurecido, o preço dentro do botão principal ("COMPRAR · R$ 4,90") e "Agora não" com contorno; nunca colchetes.
 
 ## Texto
