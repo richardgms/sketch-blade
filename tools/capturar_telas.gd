@@ -3,7 +3,7 @@ extends SceneTree
 ##
 ## Uso (precisa de janela, não roda com --headless):
 ##   Godot --path . -s tools/capturar_telas.gd -- <pasta_de_saida> [tela1,tela2,...]
-## Sem lista, captura todas. Telas: hub, hub-cap5-recorde, hub-cap5-chefe, hub-cap5-primeira, hub-cap1/3/4-concluido, retomar, retomar-revive-usado, retomar-confirmar, estojo, estojo-estados, estojo-fluxo, loja, loja-pacotes, loja-fluxo, missoes, missoes-fluxo, config, recompensa, compra, oferta,
+## Sem lista, captura todas. Telas: hub, hub-cap5-recorde, hub-cap5-chefe, hub-cap5-primeira, hub-cap1/3/4-concluido, retomar, retomar-revive-usado, retomar-confirmar, estojo, estojo-estados, estojo-fluxo, loja, loja-pacotes, loja-fluxo, missoes, missoes-fluxo, config, recompensa, recompensa-dia7, recompensa-fluxo, compra, oferta,
 ## stats, dica-gotas, canetas, hud-vida, hud, roleta, roleta-fluxo, pausa, pausa-fluxo, descanso, descanso-fluxo, derrota, vitoria, revive.
 ##
 ## Usa um save fictício, mas alguns eventos gravam o save do PC
@@ -128,6 +128,9 @@ func _rodar() -> void:
 		st["mortes_pagina"] = {"1": {"5": 1}, "2": {"3": 1, "6": 2, "8": 1}, "3": {"4": 5, "8": 2}}
 		h._abrir_painel_stats())
 	await _hub("recompensa", func(h): h._mostrar_popup_recompensa_diaria(3))
+	await _hub("recompensa-dia7", func(h): h._mostrar_popup_recompensa_diaria(7))
+	if _quer("recompensa-fluxo"):
+		await _fluxo_recompensa()
 	await _hub("compra", func(h): h._abrir_popup_compra("clipes"))
 	# Oferta quando falta tinta (Estojo ou caneta sem saldo)
 	await _hub("oferta", func(h): h._oferecer_pacote("tinta", 130))
@@ -421,6 +424,46 @@ func _fluxo_missoes() -> void:
 	print("[capturar_telas] missoes fechou=", h.painel_missoes == null, " (esperado true)")
 	await create_timer(0.6).timeout
 	await _foto("missoes-fluxo-3-fechada")
+	await _fechar()
+
+func _janela_recompensa(h: Node) -> Control:
+	for c in h.get_node("HUD").get_children():
+		if c.has_signal("dobrar"):
+			return c
+	return null
+
+func _fluxo_recompensa() -> void:
+	# COLETAR: toque travado logo ao abrir, depois paga +100 e a janela some
+	_save(1)
+	var d := SaveManager_dados()
+	var h = _abrir("res://hub.tscn"); await create_timer(1.5).timeout
+	h._mostrar_popup_recompensa_diaria(3); await process_frame
+	var j := _janela_recompensa(h)
+	await _tocar(j._btn_coletar)
+	print("[capturar_telas] recompensa toque travado: tinta=", d["tinta"], " (esperado 640)")
+	await create_timer(0.5).timeout
+	await _tocar(j._btn_coletar)
+	print("[capturar_telas] recompensa coletou: tinta=", d["tinta"], " (esperado 740)")
+	await create_timer(0.1).timeout
+	await _foto("recompensa-fluxo-1-marcando")
+	await create_timer(0.9).timeout
+	print("[capturar_telas] recompensa fechou=", _janela_recompensa(h) == null, " (esperado true)")
+	await _foto("recompensa-fluxo-2-fechada")
+	await _fechar()
+	# Dobrar: anúncio simulado (1 s) paga o dobro
+	_save(1)
+	d = SaveManager_dados()
+	h = _abrir("res://hub.tscn"); await create_timer(1.5).timeout
+	h._mostrar_popup_recompensa_diaria(3); await process_frame
+	await create_timer(0.5).timeout
+	await _tocar(_janela_recompensa(h)._btn_dobro)
+	await create_timer(0.2).timeout
+	await _foto("recompensa-fluxo-3-carregando")
+	print("[capturar_telas] recompensa carregando: tinta=", d["tinta"], " (esperado 640)")
+	await create_timer(1.5).timeout
+	print("[capturar_telas] recompensa dobro: tinta=", d["tinta"], " (esperado 840)")
+	await create_timer(1.0).timeout
+	print("[capturar_telas] recompensa fechou=", _janela_recompensa(h) == null, " (esperado true)")
 	await _fechar()
 
 func _btn_caneta(l: Control, id: String) -> Button:

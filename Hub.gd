@@ -1486,139 +1486,27 @@ func _verificar_recompensa_diaria() -> void:
 
 func _mostrar_popup_recompensa_diaria(dia: int) -> void:
 	var recompensa: Dictionary = GameData.RECOMPENSAS_DIARIAS[dia - 1]
+	var janela := Control.new()
+	janela.set_script(preload("res://JanelaRecompensa.gd"))
+	$HUD.add_child(janela)
+	var d := {"dia": dia, "recompensas": GameData.RECOMPENSAS_DIARIAS, "anuncio": "oferta", "nova": true}
+	janela.mostrar(d)
 
-	var overlay = Control.new()
-	overlay.set_anchors_preset(Control.PRESET_FULL_RECT)
-	overlay.z_index = 100
-	$HUD.add_child(overlay)
-
-	var fundo = ColorRect.new()
-	fundo.color = Color(0.1, 0.1, 0.15, 0.55)
-	fundo.set_anchors_preset(Control.PRESET_FULL_RECT)
-	overlay.add_child(fundo)
-
-	var papel = ColorRect.new()
-	papel.color = Color(0.98, 0.965, 0.93)
-	papel.position = Vector2(140, 560)
-	papel.size = Vector2(800, 720)
-	overlay.add_child(papel)
-
-	var hbox_titulo = HBoxContainer.new()
-	hbox_titulo.alignment = BoxContainer.ALIGNMENT_CENTER
-	hbox_titulo.add_theme_constant_override("separation", 16)
-	hbox_titulo.position = Vector2(140, 610)
-	hbox_titulo.size = Vector2(800, 80)
-	overlay.add_child(hbox_titulo)
-
-	var icone_gift = TextureRect.new()
-	icone_gift.texture = load("res://assets/gift-box.svg")
-	icone_gift.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-	icone_gift.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-	icone_gift.custom_minimum_size = Vector2(52, 52)
-	icone_gift.size_flags_vertical = Control.SIZE_SHRINK_CENTER
-	icone_gift.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	hbox_titulo.add_child(icone_gift)
-
-	var titulo = Label.new()
-	titulo.text = "RECOMPENSA DIÁRIA"
-	titulo.add_theme_font_override("font", load("res://assets/fonts/ArchitectsDaughter-Regular.ttf"))
-	titulo.add_theme_font_size_override("font_size", 52)
-	titulo.add_theme_color_override("font_color", Color("002867"))
-	titulo.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	hbox_titulo.add_child(titulo)
-
-	var lbl_dia = Label.new()
-	lbl_dia.text = "Dia %d de 7 da sequência" % dia
-	lbl_dia.add_theme_font_override("font", FONTE_NUMEROS)
-	lbl_dia.add_theme_font_size_override("font_size", 32)
-	lbl_dia.add_theme_color_override("font_color", Color(0.4, 0.4, 0.45))
-	lbl_dia.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	lbl_dia.position = Vector2(140, 700)
-	lbl_dia.size = Vector2(800, 50)
-	overlay.add_child(lbl_dia)
-
-	var hbox_premio = HBoxContainer.new()
-	hbox_premio.alignment = BoxContainer.ALIGNMENT_CENTER
-	hbox_premio.add_theme_constant_override("separation", 20)
-	hbox_premio.position = Vector2(140, 800)
-	hbox_premio.size = Vector2(800, 200)
-	overlay.add_child(hbox_premio)
-
-	if recompensa["tinta"] > 0:
-		var lbl_tinta = Label.new()
-		lbl_tinta.text = "+%d" % recompensa["tinta"]
-		lbl_tinta.add_theme_font_override("font", FONTE_NUMEROS)
-		lbl_tinta.add_theme_font_size_override("font_size", 90)
-		lbl_tinta.add_theme_color_override("font_color", Color("f39c12"))
-		lbl_tinta.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-		lbl_tinta.size_flags_vertical = Control.SIZE_SHRINK_CENTER
-		hbox_premio.add_child(lbl_tinta)
-
-		var icone_tinta = TextureRect.new()
-		icone_tinta.texture = load("res://assets/ink.svg")
-		icone_tinta.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-		icone_tinta.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-		icone_tinta.custom_minimum_size = Vector2(80, 80)
-		icone_tinta.size_flags_vertical = Control.SIZE_SHRINK_CENTER
-		icone_tinta.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		hbox_premio.add_child(icone_tinta)
-
-	if recompensa["clipes"] > 0:
-		var lbl_clipes = Label.new()
-		lbl_clipes.text = "+%d" % recompensa["clipes"]
-		lbl_clipes.add_theme_font_override("font", FONTE_NUMEROS)
-		lbl_clipes.add_theme_font_size_override("font_size", 90)
-		lbl_clipes.add_theme_color_override("font_color", Color("f39c12"))
-		lbl_clipes.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-		lbl_clipes.size_flags_vertical = Control.SIZE_SHRINK_CENTER
-		hbox_premio.add_child(lbl_clipes)
-
-		var icone_clipes = TextureRect.new()
-		icone_clipes.texture = load("res://assets/clip.svg")
-		icone_clipes.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-		icone_clipes.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-		icone_clipes.custom_minimum_size = Vector2(80, 80)
-		icone_clipes.size_flags_vertical = Control.SIZE_SHRINK_CENTER
-		icone_clipes.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		hbox_premio.add_child(icone_clipes)
-
-	var btn_coletar = Button.new()
-	btn_coletar.text = "[ COLETAR ]"
-	btn_coletar.add_theme_font_override("font", load("res://assets/fonts/ArchitectsDaughter-Regular.ttf"))
-	btn_coletar.add_theme_font_size_override("font_size", 44)
-	btn_coletar.add_theme_color_override("font_color", Color("002867"))
-	btn_coletar.add_theme_color_override("font_hover_color", Color("0047ab"))
-	btn_coletar.flat = true
-	btn_coletar.position = Vector2(340, 1030)
-	btn_coletar.size = Vector2(400, 80)
-	overlay.add_child(btn_coletar)
-
-	# Rewarded ad: coletar o dobro assistindo um anúncio
-	var btn_dobro = Button.new()
-	btn_dobro.text = "[ COLETAR EM DOBRO ]"
-	btn_dobro.icon = load("res://assets/ads.svg")
-	btn_dobro.add_theme_constant_override("icon_max_width", 40)
-	btn_dobro.add_theme_font_override("font", load("res://assets/fonts/ArchitectsDaughter-Regular.ttf"))
-	btn_dobro.add_theme_font_size_override("font_size", 40)
-	btn_dobro.add_theme_color_override("font_color", Color("2e7d32"))
-	btn_dobro.add_theme_color_override("font_hover_color", Color("43a047"))
-	btn_dobro.flat = true
-	btn_dobro.position = Vector2(240, 1130)
-	btn_dobro.size = Vector2(600, 80)
-	overlay.add_child(btn_dobro)
-
-	btn_coletar.pressed.connect(func():
-		dados_save["tinta"] += recompensa["tinta"]
-		dados_save["clipes_ouro"] += recompensa["clipes"]
+	var pagar := func(mult: int):
+		dados_save["tinta"] += recompensa["tinta"] * mult
+		dados_save["clipes_ouro"] += recompensa["clipes"] * mult
 		_salvar_dados()
 		_tocar_som(audio_click_sucesso)
-		overlay.queue_free()
-	)
+		_atualizar_ui_upgrades()
+		_atualizar_loja()
+		janela.marcar_e_fechar()
 
-	btn_dobro.pressed.connect(func():
-		btn_coletar.disabled = true
-		btn_dobro.disabled = true
-		btn_dobro.text = "[ Carregando... ]"
+	janela.receber.connect(func(): pagar.call(1))
+
+	janela.dobrar.connect(func():
+		d["anuncio"] = "carregando"
+		d["nova"] = false
+		janela.mostrar(d)
 		# Dicionário: lambdas copiam variáveis locais, mas compartilham o dicionário
 		var cb := {}
 		cb["ganhar"] = func(placement: String):
@@ -1626,21 +1514,16 @@ func _mostrar_popup_recompensa_diaria(dia: int) -> void:
 				return
 			AdsManager.recompensa_concedida.disconnect(cb["ganhar"])
 			AdsManager.anuncio_falhou.disconnect(cb["falhar"])
-			dados_save["tinta"] += recompensa["tinta"] * 2
-			dados_save["clipes_ouro"] += recompensa["clipes"] * 2
-			_salvar_dados()
-			_tocar_som(audio_click_sucesso)
-			overlay.queue_free()
+			pagar.call(2)
 		cb["falhar"] = func(placement: String):
 			if placement != "diaria_dobro":
 				return
 			AdsManager.recompensa_concedida.disconnect(cb["ganhar"])
 			AdsManager.anuncio_falhou.disconnect(cb["falhar"])
-			# Sem anúncio (rede/sem estoque): libera os botões de novo
+			# Sem anúncio (rede/sem estoque): COLETAR volta a funcionar
 			_tocar_som(audio_click_erro)
-			btn_coletar.disabled = false
-			btn_dobro.disabled = false
-			btn_dobro.text = "[ SEM ANÚNCIO, TENTE DEPOIS ]"
+			d["anuncio"] = "falhou"
+			janela.mostrar(d)
 		AdsManager.recompensa_concedida.connect(cb["ganhar"])
 		AdsManager.anuncio_falhou.connect(cb["falhar"])
 		AdsManager.mostrar_rewarded("diaria_dobro")
