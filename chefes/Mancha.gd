@@ -15,6 +15,9 @@ const COR := Color("3b1d6e")
 var boss: Node2D
 var _entrou: bool = false
 var _t: float = 0.0
+# Balanço conta só depois da descida: com o _t da entrada o chefe pulava
+# do meio para a direita ao chegar
+var _t_balanco: float = 0.0
 var _tiro_t: float = 0.0
 var _avisou: bool = false
 var _leques: int = 0
@@ -43,7 +46,8 @@ func processar(delta: float) -> void:
 		_dividir_inicial()
 		return
 
-	boss.position.x = 540.0 + sin(_t * 0.9) * 330.0
+	_t_balanco += delta
+	boss.position.x = 540.0 + sin(_t_balanco * 0.9) * 330.0
 	_tiro_t += delta
 	if not _avisou and _tiro_t >= 1.4 - boss.TEMPO_AVISO:
 		_avisou = true

@@ -28,6 +28,9 @@ const VEL_BOMBA: float = 360.0
 var boss: Node2D
 var fase: Fase = Fase.ENTRADA
 var _t: float = 0.0
+# Balanço do topo: retoma de onde o avião está (voltando do mergulho ou da
+# esquadrilha), sem pular para o meio
+var _t_balanco: float = 0.0
 var _tiro_t: float = 0.0
 var _avisou: bool = false
 var _dir: float = 1.0 # sentido do movimento horizontal
@@ -100,6 +103,8 @@ func processar(delta: float) -> void:
 				_ir(Fase.TOPO)
 
 func _ir(nova: Fase) -> void:
+	if nova == Fase.TOPO:
+		_t_balanco = asin(clampf((boss.position.x - 540.0) / 300.0, -1.0, 1.0)) / 1.4
 	fase = nova
 	_t = 0.0
 	_tiro_t = 0.0
@@ -107,7 +112,8 @@ func _ir(nova: Fase) -> void:
 
 ## No topo: balança de lado e atira o leque (com aviso), como o Borrão.
 func _processar_topo(delta: float) -> void:
-	boss.position.x = 540.0 + sin(_t * 1.4) * 300.0
+	_t_balanco += delta
+	boss.position.x = 540.0 + sin(_t_balanco * 1.4) * 300.0
 	_virar(0.0, delta)
 	_tiro_t += delta
 	if not _avisou and _tiro_t >= 1.2 - boss.TEMPO_AVISO:
