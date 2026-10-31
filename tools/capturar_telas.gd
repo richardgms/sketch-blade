@@ -4,7 +4,7 @@ extends SceneTree
 ## Uso (precisa de janela, não roda com --headless):
 ##   Godot --path . -s tools/capturar_telas.gd -- <pasta_de_saida> [tela1,tela2,...]
 ## Sem lista, captura todas. Telas: hub, hub-cap5-recorde, hub-cap5-chefe, hub-cap5-primeira, hub-cap1/3/4-concluido, retomar, retomar-revive-usado, retomar-confirmar, estojo, estojo-estados, estojo-fluxo, loja, loja-pacotes, loja-fluxo, missoes, missoes-fluxo, config, config-mudo, config-fluxo, recompensa, recompensa-dia7, recompensa-fluxo, compra, oferta,
-## stats, dica-gotas, canetas, hud-vida, hud, roleta, roleta-fluxo, pausa, pausa-fluxo, descanso, descanso-fluxo, derrota, vitoria, revive.
+## stats, dica-gotas, canetas, hud-vida, hud, hud-escala-1/1.3/1.5, hud-chefe-pausa, roleta, roleta-fluxo, pausa, pausa-fluxo, descanso, descanso-fluxo, derrota, vitoria, revive.
 ##
 ## Usa um save fictício, mas alguns eventos gravam o save do PC
 ## (%APPDATA%\Godot\app_userdata\SketchBlade\save_data.json): faça backup antes.
@@ -166,6 +166,28 @@ func _rodar() -> void:
 			m.player.vidas = v; m._atualizar_hud(); await create_timer(0.3).timeout
 			await _foto("hud-vida-%d" % v)
 		await _fechar()
+	if _quer("hud-chefe-pausa"):
+		# Na Mancha: pausar e voltar não pode trazer o "Página 8 / 8" de volta
+		var m = await _combate()
+		m.wave_manager.iniciar_fase_na_pagina(3, root.get_node("GameData").PAGINAS.size())
+		await create_timer(4.0).timeout
+		m._on_botao_pausa_pressed(); await create_timer(0.3).timeout
+		m._on_retomar_pausa_pressed(); await create_timer(3.5).timeout
+		print("[capturar_telas] chefe pausa: pagina visivel=", m.label_pagina.visible, " barra chefe=", m.boss_hp_bar.visible, " (esperado false true)")
+		await _foto("hud-chefe-pausa"); await _fechar()
+	for e in [1.0, 1.3, 1.5]:
+		# Topo da partida em escalas diferentes, com números longos e o chefe
+		if _quer("hud-escala-%s" % e):
+			var m = await _combate()
+			m.player.vidas_max = 13; m.player.vidas = 9; m.tinta_partida = 1234
+			m._posicionar_hud(e); m._atualizar_hud()
+			m.player.attack_timer.start()
+			m.wave_manager.iniciar_fase_na_pagina(1, 3); await create_timer(4.0).timeout
+			await _foto("hud-escala-%s" % e)
+			m.wave_manager.iniciar_fase_na_pagina(1, root.get_node("GameData").PAGINAS.size())
+			await create_timer(4.0).timeout
+			m.player.vidas = 9; m.tinta_partida = 1234; m._atualizar_hud(); await create_timer(0.2).timeout
+			await _foto("hud-escala-%s-chefe" % e); await _fechar()
 	if _quer("hud"):
 		var m = await _combate()
 		for id in ["tiro_duplo", "leque"]: m.player.aplicar_upgrade(id)

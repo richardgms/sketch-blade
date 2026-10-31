@@ -84,6 +84,11 @@ var menu_upgrades: Control
 var tela_roleta: Control
 var menu_pausa: Control
 var botao_pausa_hud: Button
+var coracao: TextureRect
+var icone_tinta_hud: TextureRect
+## Tamanho do topo da partida (1 = antes de 31/10; +30% aprovado em 31/10)
+const ESCALA_HUD := 1.3
+var _escala_hud: float = ESCALA_HUD
 # Pausa no estilo caderno (TelaPausa.gd, filho de menu_pausa)
 var tela_pausa: Control
 var label_contagem: Label
@@ -150,27 +155,18 @@ func _ready() -> void:
 	_criar_menu_revive()
 
 	# Ícone de tinta inline no HUD (à direita do número, ancora na borda direita)
-	var icone_tinta_hud = TextureRect.new()
+	icone_tinta_hud = TextureRect.new()
 	icone_tinta_hud.texture = load("res://assets/ink.svg")
 	icone_tinta_hud.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	icone_tinta_hud.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 	icone_tinta_hud.anchor_left = 1.0
 	icone_tinta_hud.anchor_right = 1.0
-	# Recuado para a esquerda do botão de pause (que fica na borda direita)
-	icone_tinta_hud.offset_left = -118.0
-	icone_tinta_hud.offset_right = -80.0
-	icone_tinta_hud.offset_top = 30.0
-	icone_tinta_hud.offset_bottom = 76.0
 	icone_tinta_hud.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	$HUD.add_child(icone_tinta_hud)
 	# Atrás dos menus, junto do número da tinta, para escurecer com o overlay
 	$HUD.move_child(icone_tinta_hud, menu_iniciar.get_index())
-	# Número da tinta: com respiro antes da gota e centrado na altura dela
-	# (antes ficava mais baixo e colado no ícone)
-	tinta_label.offset_right = -134.0
-	tinta_label.offset_top = 21.0
-	tinta_label.offset_bottom = 85.0
 	tinta_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	_posicionar_hud(ESCALA_HUD)
 
 	# Handler central de recompensas de anúncio
 	AdsManager.recompensa_concedida.connect(_on_recompensa_ad)
@@ -630,8 +626,7 @@ func _on_boss_surgiu(boss_node: Node2D) -> void:
 	# mais fina: libera a faixa de cima para a cabeça do chefe.
 	if label_pagina:
 		label_pagina.visible = false
-	boss_hp_bar.offset_top = 100.0
-	boss_hp_bar.offset_bottom = 128.0
+	_posicionar_barra_chefe()
 	boss_hp_bar.max_value = boss_node.hp_max
 	boss_hp_bar.value = boss_node.hp
 	boss_hp_bar.visible = true
@@ -826,27 +821,62 @@ func _criar_tela_derrota() -> void:
 ## HUD mais legível no celular: coração ao lado da vida, números maiores e a
 ## barra do chefe abaixo de "Página X/8" (antes os dois se sobrepunham).
 func _ajustar_hud_combate() -> void:
-	var coracao := TextureRect.new()
+	coracao = TextureRect.new()
 	coracao.texture = load("res://assets/ui/icone_coracao.png") # o mesmo da "Partida em andamento"
 	coracao.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	coracao.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-	coracao.position = Vector2(30, 28) # centrado na altura da barra (35–75)
-	coracao.size = Vector2(54, 54)
 	coracao.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	$HUD.add_child(coracao)
 	$HUD.move_child(coracao, hp_bar.get_index())
-	hp_bar.offset_left = 96.0
-	hp_bar.offset_right = 356.0
 	_estilizar_barra_vida()
-	hp_texto_label.offset_left = 372.0
-	hp_texto_label.offset_right = 560.0
-	hp_texto_label.offset_top = 22.0
-	hp_texto_label.offset_bottom = 86.0
-	hp_texto_label.add_theme_font_size_override("font_size", 46)
 	hp_texto_label.add_theme_color_override("font_color", Color("1a1a2e"))
-	tinta_label.add_theme_font_size_override("font_size", 56)
-	boss_hp_bar.offset_top = 150.0
-	boss_hp_bar.offset_bottom = 190.0
+	# Contorno cor de papel: os números continuam legíveis com monstro atrás
+	for l in [hp_texto_label, tinta_label]:
+		l.add_theme_color_override("font_outline_color", Color(0.98, 0.96, 0.92, 0.95))
+		l.add_theme_constant_override("outline_size", 10)
+
+## Topo da partida (vida, tinta, pausa, "Página X/8" e barra do chefe) numa
+## escala só (e = 1 é o tamanho de antes de 31/10). Alturas e letras crescem
+## por igual; a barra de vida alarga menos para "13 / 13" não encostar na tinta.
+func _posicionar_hud(e: float) -> void:
+	var y0: float = 22.0 * e
+	var alt: float = 68.0 * e
+	var meio: float = y0 + alt / 2.0
+	coracao.size = Vector2(54, 54) * e
+	coracao.position = Vector2(30, meio - coracao.size.y / 2.0)
+	var x: float = 30.0 + coracao.size.x + 12.0
+	hp_bar.offset_left = x
+	hp_bar.offset_right = x + 260.0 * minf(e, 1.2)
+	hp_bar.offset_top = meio - 20.0 * e
+	hp_bar.offset_bottom = meio + 20.0 * e
+	hp_texto_label.offset_left = hp_bar.offset_right + 16.0
+	hp_texto_label.offset_right = hp_texto_label.offset_left + 188.0 * e
+	hp_texto_label.offset_top = y0
+	hp_texto_label.offset_bottom = y0 + alt
+	hp_texto_label.add_theme_font_size_override("font_size", roundi(46 * e))
+	# Da borda direita para dentro: pausa, gota e número
+	botao_pausa_hud.offset_right = -16.0
+	botao_pausa_hud.offset_left = -16.0 - 56.0 * e
+	botao_pausa_hud.offset_top = y0
+	botao_pausa_hud.offset_bottom = y0 + alt
+	botao_pausa_hud.add_theme_constant_override("icon_max_width", roundi(48 * e))
+	icone_tinta_hud.offset_right = botao_pausa_hud.offset_left - 8.0 * e
+	icone_tinta_hud.offset_left = icone_tinta_hud.offset_right - 38.0 * e
+	icone_tinta_hud.offset_top = meio - 23.0 * e
+	icone_tinta_hud.offset_bottom = meio + 23.0 * e
+	tinta_label.offset_right = icone_tinta_hud.offset_left - 16.0 * e
+	tinta_label.offset_left = tinta_label.offset_right - 266.0 * e
+	tinta_label.offset_top = y0
+	tinta_label.offset_bottom = y0 + alt
+	tinta_label.add_theme_font_size_override("font_size", roundi(56 * e))
+	label_pagina.position = Vector2(0, 92.0 * e)
+	_escala_hud = e
+	_posicionar_barra_chefe()
+
+## Barra do chefe logo abaixo da linha da vida/tinta (no lugar do "Página 8 / 8").
+func _posicionar_barra_chefe() -> void:
+	boss_hp_bar.offset_top = 100.0 * _escala_hud
+	boss_hp_bar.offset_bottom = boss_hp_bar.offset_top + 28.0
 
 func get_xp_necessario_para_nivel(nivel: int) -> int:
 	if nivel == 1:
@@ -1358,6 +1388,12 @@ func _on_descanso_iniciado() -> void:
 		"ganho_tinta": GameData.tinta_descanso(capitulo_atual)})
 	_tocar_som(audio_vitoria)
 
+## "Página X / 8" volta depois de menus, menos com o chefe vivo: a barra
+## dele ocupa esse lugar (voltar da pausa na Mancha mostrava os dois).
+func _mostrar_label_pagina() -> void:
+	if label_pagina:
+		label_pagina.visible = not boss_hp_bar.visible
+
 func _criar_label_pagina() -> void:
 	label_pagina = Label.new()
 	label_pagina.text = ""
@@ -1440,8 +1476,7 @@ func _on_descanso_escolhido(id: String) -> void:
 	tinta_label.visible = true
 	if botao_pausa_hud:
 		botao_pausa_hud.visible = true
-	if label_pagina:
-		label_pagina.visible = true
+	_mostrar_label_pagina()
 
 	_atualizar_hud()
 	menu_descanso.visible = false
@@ -1490,8 +1525,7 @@ func _aplicar_upgrade(id: String, _index_escolhido: int) -> void:
 	_tocar_som(som_sel)
 
 	menu_upgrades.visible = false
-	if label_pagina:
-		label_pagina.visible = true
+	_mostrar_label_pagina()
 	get_tree().paused = false
 	
 	# Aplica modificadores no Player
@@ -1597,8 +1631,7 @@ func _criar_label_contagem() -> void:
 
 func _on_retomar_pausa_pressed() -> void:
 	menu_pausa.visible = false
-	if label_pagina:
-		label_pagina.visible = true
+	_mostrar_label_pagina()
 	
 	# Som de clique
 	_tocar_som(SONS["clique"])
