@@ -75,6 +75,10 @@ Guia geral (não é regra fixa: cada tela é um caso). Tirado do que o Richard a
 ## Virada de página
 - A folha do caderno vira pelo canto e descola na diagonal; nunca encolher/esticar a folha com texto (a letra deforma). O verso aparece mais claro, com a pauta espelhada apagada.
 
+## Mancha de tinta
+- Morte = respingo de tinta na cor do monstro (desenho do ChatGPT em branco com alfa, tingido); estoura e assenta clarinho (30%) na página até ela virar.
+- Imagem gerada para tingir: pedir tinta preta em fundo branco e converter alfa = 1 − luminância, RGB branco.
+
 ## Texto
 - Architects Daughter para palavras; Caveat para números (com espaço extra depois do número, senão gruda: "página 6  de 8").
 - **Legibilidade no celular manda:** textos azuis de informação em 42/40 (`TAM_TEXTO_AZUL`), rótulos nunca abaixo de ~40. Toda vez que algo ficou pequeno (34, 36, letras do selo), ele pediu para aumentar.
