@@ -66,6 +66,7 @@ Regras:
 - **Script novo carregado por `set_script(preload(...))`:** o `.uid` só aparece depois de `--headless --path . --import`; rode antes do commit.
 - **Imagem nova em `assets/`:** também precisa do `--import` antes dos prints.
 - **Export do AAB:** o arquivo sai, mas o Godot não fecha; rode com `timeout 540` e confira o AAB com `zipfile` (íntegro, `META-INF/UPLOAD.RSA`, versão no manifest, telas novas dentro, sem `.jpg`).
+- **Imagem do jogo nunca em `.jpg`:** o `exclude_filter` do export tira `*.jpg` (para não levar fotos); um `preload` de JPG funciona no PC e quebra no celular. Use PNG; textura com grão fino (papel) importa sem perda (`compress/mode=0`), o WebP com perda apaga a fibra.
 - **Testes de fluxo:** a contagem 3-2-1 da pausa leva ~4 s; na pausa, `_btns` = [som, vibração, CONTINUAR, Abandonar].
 - **Edições por script Python:** cuidado com `\n` dentro de heredoc (virou quebra de linha literal dentro de uma string GDScript) e com substituições que não acham o texto: confira com `assert`.
 - **Card gerado no ChatGPT:** gerar 2–3 opções passando o botão riscado e um print do jogo como referência; recortar o fundo branco de fora (flood fill), reduzir para a altura de uso e esticar como nine-patch. Juntar duas imagens (contorno de uma + textura de outra) por multiplicação funcionou melhor que pedir de novo.
