@@ -18,6 +18,10 @@ var tipo_pauta: String = "pautado"
 const PAPEL_LIMPO := preload("res://assets/ui/papel_limpo.jpg")
 const PAPEL_USADO := preload("res://assets/ui/papel_usado.jpg")
 var textura_papel: Texture2D = PAPEL_LIMPO
+## Linha até onde a caneta pode ir: tracejado à caneta com a setinha ">",
+## desenhado no ChatGPT (branco com alfa, pintado de azul-caneta).
+const LINHA_LIMITE := preload("res://assets/ui/linha_limite.png")
+const COR_LIMITE := Color("002867", 0.7)
 
 ## Faz o papel preencher a tela inteira em runtime, independente do tipo do nó
 ## pai (a raiz das cenas é Node2D, onde âncoras full-rect não resolvem). As
@@ -99,10 +103,8 @@ func _draw() -> void:
 	# 1. Desenha as linhas horizontais da pauta
 	var y = espacamento_linhas
 	while y < size.y:
-		# Se desenhar_margem for ativo e for a linha limite, desenha tracejada (picotada do caderno)
-		if desenhar_margem and abs(y - limite_y) < 1.0:
-			draw_dashed_line(Vector2(0, y), Vector2(size.x, y), Color("444444", 0.7) if color.v > 0.5 else Color("cccccc", 0.7), espessura_linha * 2.5, 12.0)
-		else:
+		# A linha-limite (com margem ligada) é desenhada no passo 3
+		if not (desenhar_margem and abs(y - limite_y) < 1.0):
 			draw_line(Vector2(0, y), Vector2(size.x, y), cor_da_linha, espessura_linha)
 		y += espacamento_linhas
 
@@ -133,16 +135,14 @@ func _draw() -> void:
 				draw_line(Vector2(sx, 0), Vector2(sx, size.y), cor_sub_linha, 1.0)
 			sx += sub_passo
 
-	# 3. Desenha a linha vertical da margem e os marcadores apenas se desenhar_margem for ativo
+	# 3. Margem vermelha e linha-limite da caneta, só se desenhar_margem for ativo
 	if desenhar_margem:
 		if tipo_pauta != "quadriculado" and tipo_pauta != "milimetrado":
 			draw_line(Vector2(margem_esquerda, 0), Vector2(margem_esquerda, size.y), cor_da_margem, espessura_linha * 1.5)
 		
 		if abs(limite_y) > 0:
-			var cor_marcador = Color("444444", 0.7) if color.v > 0.5 else Color("cccccc", 0.7)
-			# Pequeno marcador (> e <) indicando a barreira de movimento na margem
-			draw_line(Vector2(margem_esquerda - 25, limite_y - 12), Vector2(margem_esquerda - 10, limite_y), cor_marcador, 2.0)
-			draw_line(Vector2(margem_esquerda - 25, limite_y + 12), Vector2(margem_esquerda - 10, limite_y), cor_marcador, 2.0)
+			var h: float = size.x * LINHA_LIMITE.get_height() / LINHA_LIMITE.get_width()
+			draw_texture_rect(LINHA_LIMITE, Rect2(0, limite_y - h / 2.0, size.x, h), false, COR_LIMITE)
 
 	# 4. Manchas de tinta das batalhas (respingos na cor do monstro)
 	for m in manchas:
