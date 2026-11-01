@@ -15,8 +15,8 @@ var tipo_pauta: String = "pautado"
 ## Textura do papel gerada no ChatGPT (em cinza, tingida pela cor do
 ## capítulo): a limpa em todas as folhas; a usada (vincos, cantos gastos) nos
 ## cadernos quadriculados, milimetrado e amarelados.
-const PAPEL_LIMPO := preload("res://assets/ui/papel_limpo.jpg")
-const PAPEL_USADO := preload("res://assets/ui/papel_usado.jpg")
+const PAPEL_LIMPO := preload("res://assets/ui/papel_limpo.png")
+const PAPEL_USADO := preload("res://assets/ui/papel_usado.png")
 var textura_papel: Texture2D = PAPEL_LIMPO
 ## Linha até onde a caneta pode ir: tracejado à caneta com a setinha ">",
 ## desenhado no ChatGPT (branco com alfa, pintado de azul-caneta).

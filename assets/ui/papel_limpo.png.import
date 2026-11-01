@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://hipcdv5sd0q1"
-path="res://.godot/imported/papel_usado.jpg-dc42bbafa53723dc3184e1f6f9f1e237.ctex"
+uid="uid://bf8itv4q2xhby"
+path="res://.godot/imported/papel_limpo.png-1bce318e85ed9024f09034bf88d16771.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/ui/papel_usado.jpg"
-dest_files=["res://.godot/imported/papel_usado.jpg-dc42bbafa53723dc3184e1f6f9f1e237.ctex"]
+source_file="res://assets/ui/papel_limpo.png"
+dest_files=["res://.godot/imported/papel_limpo.png-1bce318e85ed9024f09034bf88d16771.ctex"]
 
 [params]
 
