@@ -12,6 +12,13 @@ extends ColorRect
 
 var tipo_pauta: String = "pautado"
 
+## Textura do papel gerada no ChatGPT (em cinza, tingida pela cor do
+## capítulo): a limpa em todas as folhas; a usada (vincos, cantos gastos) nos
+## cadernos quadriculados, milimetrado e amarelados.
+const PAPEL_LIMPO := preload("res://assets/ui/papel_limpo.jpg")
+const PAPEL_USADO := preload("res://assets/ui/papel_usado.jpg")
+var textura_papel: Texture2D = PAPEL_LIMPO
+
 ## Faz o papel preencher a tela inteira em runtime, independente do tipo do nó
 ## pai (a raiz das cenas é Node2D, onde âncoras full-rect não resolvem). As
 ## pautas são desenhadas até size.x/size.y, então basta manter o size = viewport.
@@ -47,6 +54,7 @@ func limpar_manchas() -> void:
 
 func configurar_para_capitulo(capitulo: int) -> void:
 	# Define cores e estilos procedurais com base no capítulo
+	textura_papel = PAPEL_LIMPO
 	if capitulo >= 1 and capitulo <= 3:
 		# Caderno de Rascunhos Comum
 		color = Color("faf6ee")
@@ -59,6 +67,7 @@ func configurar_para_capitulo(capitulo: int) -> void:
 		cor_da_linha = Color("92a8d1", 0.35)
 		cor_da_margem = Color("ff6b6b", 0.4)
 		tipo_pauta = "quadriculado"
+		textura_papel = PAPEL_USADO
 	elif capitulo >= 6 and capitulo <= 7:
 		# Papel Bege / Pardo Rústico
 		color = Color("e5dcc6")
@@ -71,17 +80,22 @@ func configurar_para_capitulo(capitulo: int) -> void:
 		cor_da_linha = Color("30303e", 0.22)
 		cor_da_margem = Color("7e2424", 0.4)
 		tipo_pauta = "pautado"
+		textura_papel = PAPEL_USADO
 	elif capitulo == 10:
 		# Papel Milimetrado de Desenho Técnico (Clímax!)
 		color = Color("fdfaf4")
 		cor_da_linha = Color("e07a5f", 0.5) # Laranja técnico principal
 		cor_da_margem = Color("e07a5f", 0.6)
 		tipo_pauta = "milimetrado"
+		textura_papel = PAPEL_USADO
 	queue_redraw()
 
 func _draw() -> void:
 	var limite_y = pauta_limite_y if pauta_limite_y != null else 1440.0
 	
+	if textura_papel:
+		draw_texture_rect(textura_papel, Rect2(Vector2.ZERO, size), false, color)
+
 	# 1. Desenha as linhas horizontais da pauta
 	var y = espacamento_linhas
 	while y < size.y:
