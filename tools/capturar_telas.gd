@@ -3,7 +3,7 @@ extends SceneTree
 ##
 ## Uso (precisa de janela, não roda com --headless):
 ##   Godot --path . -s tools/capturar_telas.gd -- <pasta_de_saida> [tela1,tela2,...]
-## Sem lista, captura todas. Telas: hub, hub-cap5-recorde, hub-cap5-chefe, hub-cap5-primeira, hub-cap1/3/4-concluido, retomar, retomar-revive-usado, retomar-confirmar, estojo, estojo-estados, estojo-fluxo, loja, loja-pacotes, loja-fluxo, missoes, missoes-fluxo, config, config-mudo, config-fluxo, recompensa, recompensa-dia7, recompensa-fluxo, compra, oferta,
+## Sem lista, captura todas. Telas: hub, hub-cap5-recorde, hub-cap5-chefe, hub-cap5-primeira, hub-cap1/3/4-concluido, retomar, retomar-revive-usado, retomar-confirmar, estojo, estojo-estados, estojo-fluxo, loja, loja-pacotes, loja-fluxo, missoes, missoes-fluxo, config, config-mudo, config-fluxo, recompensa, atualizacao, atualizacao-fluxo, recompensa-dia7, recompensa-fluxo, compra, oferta,
 ## stats, dica-gotas, canetas, hud-vida, hud, hud-escala-1/1.3/1.5, hud-chefe-pausa, roleta, roleta-fluxo, pausa, pausa-fluxo, descanso, descanso-fluxo, derrota, vitoria, revive.
 ##
 ## Usa um save fictício, mas alguns eventos gravam o save do PC
@@ -133,6 +133,9 @@ func _rodar() -> void:
 		st["mortes_pagina"] = {"1": {"5": 1}, "2": {"3": 1, "6": 2, "8": 1}, "3": {"4": 5, "8": 2}}
 		h._abrir_painel_stats())
 	await _hub("recompensa", func(h): h._mostrar_popup_recompensa_diaria(3))
+	await _hub("atualizacao", func(h): h._tratar_versao(_VERSAO_TESTE))
+	if _quer("atualizacao-fluxo"):
+		await _fluxo_atualizacao()
 	await _hub("recompensa-dia7", func(h): h._mostrar_popup_recompensa_diaria(7))
 	if _quer("recompensa-fluxo"):
 		await _fluxo_recompensa()
@@ -387,6 +390,52 @@ func _tocar(c: Control) -> void:
 		ev.global_position = pos
 		_sv.push_input(ev)
 		await process_frame
+
+const _VERSAO_TESTE := '{"codigo": 99, "versao": "1.7.4", "novidades": ["Partida com cara de caderno: papel, linha à caneta e manchas de tinta.", "A página vira pelo canto.", "Coração, tinta e pausa maiores.", "Quarta novidade (não aparece)."]}'
+
+func _avisos(h: Node) -> Array:
+	var s: Script = load("res://JanelaAtualizacao.gd")
+	return h.get_node("HUD").get_children().filter(func(c): return c.get_script() == s)
+
+## Aviso de versão nova: arquivo ruim ou versão igual não mostram nada; versão
+## maior espera a recompensa diária fechar; "Agora não" fecha e não volta;
+## e a busca de verdade no GitHub (arquivo atual, sem aviso).
+func _fluxo_atualizacao() -> void:
+	_save(1)
+	var h = _abrir("res://hub.tscn"); await create_timer(1.5).timeout
+	h._aviso_atualizacao_visto = false
+	for t in ["", "{}", "[1]", '{"codigo": "x", "versao": "1.7.4"}', '{"codigo": 13, "versao": "1.7.3"}']:
+		h._tratar_versao(t)
+	await process_frame
+	print("[capturar_telas] atualizacao ruim/igual: avisos=", _avisos(h).size(), " (esperado 0)")
+	h._mostrar_popup_recompensa_diaria(3); await create_timer(0.3).timeout
+	h._tratar_versao(_VERSAO_TESTE); await create_timer(0.3).timeout
+	print("[capturar_telas] atualizacao com recompensa aberta: avisos=", _avisos(h).size(), " (esperado 0)")
+	await _foto("atualizacao-fluxo-1-recompensa")
+	h._janela_recompensa.queue_free(); await create_timer(0.1).timeout
+	var j: Array = _avisos(h)
+	print("[capturar_telas] atualizacao depois da recompensa: avisos=", j.size(), " (esperado 1) itens=",
+		j[0]._dados["novidades"].size() if j.size() > 0 else -1, " (esperado 3)")
+	await _tocar(j[0]._btn_fechar)
+	print("[capturar_telas] atualizacao toque travado: avisos=", _avisos(h).size(), " (esperado 1)")
+	await create_timer(0.5).timeout
+	await _foto("atualizacao-fluxo-2-aviso")
+	await _tocar(j[0]._btn_fechar); await create_timer(0.1).timeout
+	print("[capturar_telas] atualizacao agora nao: avisos=", _avisos(h).size(), " (esperado 0)")
+	h._tratar_versao(_VERSAO_TESTE); await create_timer(0.2).timeout
+	print("[capturar_telas] atualizacao de novo na mesma abertura: avisos=", _avisos(h).size(), " (esperado 0)")
+	h._aviso_atualizacao_visto = false
+	h._buscar_versao(); await create_timer(6.0).timeout
+	print("[capturar_telas] atualizacao GitHub (codigo 13): avisos=", _avisos(h).size(), " (esperado 0)")
+	# O arquivo publicado chega inteiro e é lido pelo Godot (HTTPS)
+	var http := HTTPRequest.new(); h.add_child(http)
+	http.request(h.URL_VERSAO)
+	var r: Array = await http.request_completed
+	var info = JSON.parse_string(r[3].get_string_from_utf8()) if r[1] == 200 else null
+	print("[capturar_telas] atualizacao GitHub: http=", r[1], " codigo=", info["codigo"] if info is Dictionary else "?",
+		" (esperado 200 e o do versao.json)")
+	h._aviso_atualizacao_visto = false
+	await _fechar()
 
 ## Estojo: compra com tinta (nível sobe, tinta desce, traço novo animando),
 ## toque travado logo depois da compra, toque sem tinta (ficha treme e abre a

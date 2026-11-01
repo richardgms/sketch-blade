@@ -126,6 +126,10 @@ const UPGRADES: Array = [
 ## Configurações (testadores tiram print). Desligar antes da produção.
 const MODO_TESTE: bool = true
 
+## Código desta versão: subir junto com version/code do export_presets.cfg.
+## O aviso de atualização compara com o codigo de atualizacao/versao.json.
+const VERSAO_CODIGO: int = 13
+
 const RAIO_EXPLOSAO: float = 160.0
 const DURACAO_DOT: float = 2.0
 const ANGULO_LEQUE_GRAUS: float = 18.0
