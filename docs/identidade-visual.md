@@ -82,6 +82,9 @@ Guia geral (não é regra fixa: cada tela é um caso). Tirado do que o Richard a
 ## Fundo da página
 - Papel com fibra (textura do ChatGPT em cinza, tingida pela cor do capítulo) e as linhas desenhadas pelo jogo por cima. Limpo em geral; usado (vincos, cantos gastos) só nos cadernos quadriculado, milimetrado e amarelado.
 
+## Linha-limite da caneta
+- Tracejado à caneta com setinha ">" (desenho do ChatGPT), azul-escuro a 70%, sobre a linha da pauta.
+
 ## Texto
 - Architects Daughter para palavras; Caveat para números (com espaço extra depois do número, senão gruda: "página 6  de 8").
 - **Legibilidade no celular manda:** textos azuis de informação em 42/40 (`TAM_TEXTO_AZUL`), rótulos nunca abaixo de ~40. Toda vez que algo ficou pequeno (34, 36, letras do selo), ele pediu para aumentar.
