@@ -326,9 +326,9 @@ func _on_enemy_morreu(pos: Vector2, cor: Color, textura: String) -> void:
 	_spawn_drops_de_tinta(pos, 2, 4, textura)
 	_tocar_som(audio_kill, randf_range(0.9, 1.15))
 	_hitstop(0.04)
-	# O monstro derrotado deixa uma mancha permanente na página
+	# O monstro derrotado deixa uma mancha de tinta na página (até virar)
 	if has_node("Paper"):
-		$Paper.adicionar_mancha(pos, cor)
+		_spawn_mancha(pos, cor)
 	monstros_derrotados_partida += 1
 	SaveManager.incrementar_stat("monstros_derrotados")
 
@@ -655,8 +655,8 @@ func _on_boss_surgiu(boss_node: Node2D) -> void:
 		for i in range(4):
 			var offset = Vector2(randf_range(-40, 40), randf_range(-40, 40))
 			_spawn_particles(Color.BLACK, boss_node.global_position + offset)
-			if has_node("Paper"):
-				$Paper.adicionar_mancha(boss_node.global_position + offset, Color.BLACK, 34.0)
+		if has_node("Paper"):
+			_spawn_mancha(boss_node.global_position, Color.BLACK, 340.0)
 		_spawn_drops_de_tinta(boss_node.global_position, 10, 8, "res://assets/ink-red.svg")
 		_spawn_feedback("BOSS DERROTADO!", "perfect", boss_node.global_position)
 		_tocar_som(audio_kill, 0.8)
@@ -1162,6 +1162,9 @@ func obter_particulas() -> CPUParticles2D:
 		part.visible = true
 	else:
 		part = ink_particles_scene.instantiate()
+		part.texture = _gota_redonda()
+		part.scale_amount_min = 0.5
+		part.scale_amount_max = 1.1
 		part.finished.connect(func(): devolver_particulas(part))
 	return part
 
@@ -1170,6 +1173,35 @@ func devolver_particulas(part: CPUParticles2D) -> void:
 	part.emitting = false
 	if not part in _pool_partculas:
 		_pool_partculas.append(part)
+
+## Mancha de tinta na morte (MorteTinta.gd): um dos 4 respingos do ChatGPT,
+## na cor do monstro, girado ao acaso.
+const MANCHAS := [preload("res://assets/ui/mancha_respingo_1.png"), preload("res://assets/ui/mancha_respingo_2.png"),
+	preload("res://assets/ui/mancha_respingo_3.png"), preload("res://assets/ui/mancha_respingo_4.png")]
+
+func _spawn_mancha(pos: Vector2, cor: Color, tam: float = 150.0) -> void:
+	var fx := Node2D.new()
+	fx.set_script(preload("res://MorteTinta.gd"))
+	fx.tex = MANCHAS.pick_random()
+	fx.cor = Color(cor, 1.0)
+	fx.tam = tam
+	fx.paper = $Paper
+	fx.position = pos
+	add_child(fx)
+	# Logo acima do papel: por baixo dos monstros, da caneta e da tinta
+	move_child(fx, $Paper.get_index() + 1)
+
+## Gota redonda para as partículas (sem textura elas saem quadradas).
+var _textura_gota: ImageTexture
+func _gota_redonda() -> ImageTexture:
+	if _textura_gota == null:
+		var img := Image.create(16, 16, false, Image.FORMAT_RGBA8)
+		for y in range(16):
+			for x in range(16):
+				var d := Vector2(x + 0.5, y + 0.5).distance_to(Vector2(8, 8))
+				img.set_pixel(x, y, Color(1, 1, 1, clampf(7.5 - d, 0.0, 1.0)))
+		_textura_gota = ImageTexture.create_from_image(img)
+	return _textura_gota
 
 func _spawn_particles(cor: Color, pos: Vector2) -> void:
 	var particles = obter_particulas()

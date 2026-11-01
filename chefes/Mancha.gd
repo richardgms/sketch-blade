@@ -102,8 +102,8 @@ func pedaco_morreu(p) -> void:
 	var main = boss.get_parent()
 	if main.has_method("_spawn_particles"):
 		main._spawn_particles(COR, p.global_position)
-	if main.has_node("Paper"):
-		main.get_node("Paper").adicionar_mancha(p.global_position, COR, 26.0)
+	if main.has_method("_spawn_mancha"):
+		main._spawn_mancha(p.global_position, COR, 190.0)
 	_reindexar()
 	if _pedacos.is_empty():
 		boss.position = p.global_position # efeitos de vitória onde o último caiu

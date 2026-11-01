@@ -31,14 +31,11 @@ func _ajustar_ao_viewport() -> void:
 const MAX_MANCHAS: int = 120
 var manchas: Array = []
 
-## Registra um respingo permanente de tinta na posição (global) da morte.
-func adicionar_mancha(pos_global: Vector2, cor: Color, raio_base: float = 20.0) -> void:
-	var pos_local = get_global_transform().affine_inverse() * pos_global
+## Mancha desenhada (textura branca com alfa, tingida pela cor do monstro).
+func adicionar_mancha_textura(pos_global: Vector2, cor: Color, tex: Texture2D, tam: float, rot: float) -> void:
 	manchas.append({
-		"pos": pos_local,
-		"cor": Color(cor.r, cor.g, cor.b, 0.16),
-		"raio": raio_base * randf_range(0.7, 1.3),
-		"seed": randi(),
+		"pos": get_global_transform().affine_inverse() * pos_global,
+		"cor": cor, "tex": tex, "tam": tam, "rot": rot,
 	})
 	if manchas.size() > MAX_MANCHAS:
 		manchas.pop_front()
@@ -133,11 +130,9 @@ func _draw() -> void:
 			draw_line(Vector2(margem_esquerda - 25, limite_y - 12), Vector2(margem_esquerda - 10, limite_y), cor_marcador, 2.0)
 			draw_line(Vector2(margem_esquerda - 25, limite_y + 12), Vector2(margem_esquerda - 10, limite_y), cor_marcador, 2.0)
 
-	# 4. Manchas de tinta das batalhas (seed fixa por mancha: redraw estável)
+	# 4. Manchas de tinta das batalhas (respingos na cor do monstro)
 	for m in manchas:
-		var rng = RandomNumberGenerator.new()
-		rng.seed = m["seed"]
-		draw_circle(m["pos"], m["raio"], m["cor"])
-		for i in range(4):
-			var offset = Vector2(rng.randf_range(-m["raio"], m["raio"]), rng.randf_range(-m["raio"], m["raio"]))
-			draw_circle(m["pos"] + offset, m["raio"] * rng.randf_range(0.25, 0.5), m["cor"])
+		draw_set_transform(m["pos"], m["rot"], Vector2.ONE)
+		var t: float = m["tam"]
+		draw_texture_rect(m["tex"], Rect2(-t / 2.0, -t / 2.0, t, t), false, m["cor"])
+	draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
