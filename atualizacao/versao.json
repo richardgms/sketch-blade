@@ -1,9 +1,8 @@
 {
-  "codigo": 13,
-  "versao": "1.7.3",
+  "codigo": 15,
+  "versao": "1.8.0",
   "novidades": [
-    "Partida com cara de caderno: papel, linha à caneta e manchas de tinta.",
-    "A página vira pelo canto.",
-    "Coração, tinta e pausa maiores."
+    "Nova trilha sonora que acompanha a intensidade das partidas e das batalhas contra os chefes.",
+    "Novos efeitos sonoros deixam o combate e a navegação mais envolventes."
   ]
 }
