@@ -230,7 +230,7 @@ func _ready() -> void:
 
 	# Sons procedurais
 	audio_click_sucesso = preload("res://assets/sons/clique.ogg")
-	audio_click_erro = _gerar_som_procedural(150.0, 0.25, "square")
+	audio_click_erro = preload("res://assets/sons/erro.ogg")
 	
 	_criar_loja()
 	_atualizar_texto_saldo()
@@ -395,7 +395,7 @@ func _duracao_xp(delta: float, xp_req: int) -> float:
 ## nível — mesma cor (#f39c12) usada no selo "MÁX" do Estojo, reaproveitando
 ## a linguagem de "conquista" do jogo em vez de inventar uma nova.
 func _celebrar_level_up(novo_nivel: int) -> void:
-	_tocar_som(audio_click_sucesso)
+	_tocar_som(preload("res://assets/sons/carta.ogg"))
 	nivel_label.pivot_offset = nivel_label.size / 2.0
 	nivel_label.scale = Vector2.ONE
 	nivel_label.add_theme_color_override("font_color", Color(0.1, 0.1, 0.15, 1))
@@ -817,8 +817,8 @@ func _mudar_capitulo(direcao: int) -> void:
 		_salvar_dados()
 		_atualizar_ui_capitulo()
 		
-		# Folhear páginas (mesmo som da página concluída)
-		_tocar_som(preload("res://assets/sons/pagina.ogg"))
+		# Folhear o caderno para outro capítulo
+		_tocar_som(preload("res://assets/sons/folha.ogg"))
 
 func _alterar_aba(nova_aba: String) -> void:
 	aba_ativa = nova_aba
@@ -841,7 +841,8 @@ func _alterar_aba(nova_aba: String) -> void:
 	_estilizar_botao_aba(botao_aba_lutar, nova_aba == "lutar", "LUTAR")
 	_estilizar_botao_aba(botao_aba_loja, nova_aba == "loja", "LOJA")
 	
-	_tocar_som(audio_click_sucesso)
+	# Abrir o estojo é abrir o zíper
+	_tocar_som(preload("res://assets/sons/ziper.ogg") if nova_aba == "estojo" else audio_click_sucesso)
 
 func _estilizar_botao_aba(botao: Button, ativo: bool, texto_padrao: String) -> void:
 	var cor_azul  = Color("0047ab")        # Azul cobalto — ativo (igual ao [LUTAR])
@@ -928,7 +929,7 @@ func _on_confirmar_compra_pressed() -> void:
 	BillingManager.comprar(item_sendo_comprado)
 
 func _on_compra_concluida(_chave: String) -> void:
-	_tocar_som(audio_click_sucesso)
+	_tocar_som(preload("res://assets/sons/compra.ogg"))
 	_atualizar_ui_upgrades() # Tinta nova pode liberar botões do Estojo
 	_atualizar_loja()
 	popup_compra.visible = false
@@ -958,7 +959,7 @@ func _on_upar(chave: String) -> void:
 		dados_save[chave] += 1
 		_salvar_dados()
 		_atualizar_ui_upgrades(chave)
-		_tocar_som(audio_click_sucesso)
+		_tocar_som(preload("res://assets/sons/compra.ogg"))
 	else:
 		_tocar_som(audio_click_erro)
 		estojo.negar(chave)
@@ -1440,7 +1441,7 @@ func _on_caneta_pressed(caneta: Dictionary) -> void:
 		dados_save["canetas_possuidas"].append(id)
 		dados_save["caneta_equipada"] = id
 		_salvar_dados()
-		_tocar_som(audio_click_sucesso)
+		_tocar_som(preload("res://assets/sons/compra.ogg"))
 		_atualizar_loja(id)
 	else:
 		_tocar_som(audio_click_erro)
@@ -1500,7 +1501,7 @@ func _mostrar_popup_recompensa_diaria(dia: int) -> void:
 		dados_save["tinta"] += recompensa["tinta"] * mult
 		dados_save["clipes_ouro"] += recompensa["clipes"] * mult
 		_salvar_dados()
-		_tocar_som(audio_click_sucesso)
+		_tocar_som(preload("res://assets/sons/check.ogg"))
 		_atualizar_ui_upgrades()
 		_atualizar_loja()
 		janela.marcar_e_fechar()
@@ -1586,6 +1587,7 @@ func _tratar_versao(texto: String) -> void:
 	var janela := Control.new()
 	janela.set_script(preload("res://JanelaAtualizacao.gd"))
 	$HUD.add_child(janela)
+	_tocar_som(preload("res://assets/sons/aviso.ogg"))
 	janela.atualizar.connect(func():
 		_tocar_som(audio_click_sucesso)
 		OS.shell_open(LOJA_APP if OS.has_feature("android") else LOJA_WEB)
@@ -1715,7 +1717,7 @@ func _coletar_missao(indice: int) -> void:
 	dados_save["clipes_ouro"] += def["clipes"]
 	missao["coletada"] = true
 	_salvar_dados()
-	_tocar_som(audio_click_sucesso)
+	_tocar_som(preload("res://assets/sons/check.ogg"))
 	_atualizar_badge_missoes()
 	# Estojo e Loja mudam com o saldo novo (botões de falta)
 	_atualizar_ui_upgrades()

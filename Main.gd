@@ -73,9 +73,6 @@ var _pool_partculas: Array = []
 # Atributos por nível do Estojo agora vivem em GameData (10 níveis)
 
 # Áudio procedural
-var audio_hit: AudioStream
-var audio_kill: AudioStream
-var audio_dano: AudioStream
 var audio_vitoria: AudioStream
 
 # Sistema de Upgrades Roguelite
@@ -135,12 +132,14 @@ func _ready() -> void:
 
 	_aplicar_upgrades_rpg()
 	
-	# Sons gravados (assets/sons, CC0; créditos em docs/sons.md). O bipe
-	# de "vitória" continua nos momentos menores (descanso, roleta, bônus).
-	audio_kill = SONS["morte"]
-	audio_hit = SONS["gota"] # coleta da gota de tinta
-	audio_dano = SONS["dano"]
+	# Sons gravados (assets/sons; fontes e licenças em docs/sons.md).
+	# Gota, morte e dano são sorteados entre variações (VARIACOES).
 	audio_vitoria = _gerar_som_procedural(600.0, 0.6, "sin")
+	var cor_lento: AudioStreamOggVorbis = SONS["coracao_lento"]
+	cor_lento.loop = true
+	_coracao_player.stream = cor_lento
+	_coracao_player.volume_db = -2.0
+	add_child(_coracao_player)
 	
 	_atualizar_hud()
 	
@@ -324,7 +323,7 @@ func _on_enemy_morreu(pos: Vector2, cor: Color, textura: String) -> void:
 	_spawn_particles(cor, pos)
 	_spawn_feedback("MORREU!", "perfect", pos)
 	_spawn_drops_de_tinta(pos, 2, 4, textura)
-	_tocar_som(audio_kill, randf_range(0.9, 1.15))
+	_tocar_som(_sortear("morte"), randf_range(0.9, 1.15))
 	_hitstop(0.04)
 	# O monstro derrotado deixa uma mancha de tinta na página (até virar)
 	if has_node("Paper"):
@@ -351,7 +350,7 @@ func _on_enemy_escapou() -> void:
 func _on_player_dano(vidas_restantes: int) -> void:
 	dano_sofrido_na_pagina = true
 	_atualizar_hud()
-	_tocar_som(audio_dano)
+	_tocar_som(_sortear("dano"))
 	_shake_tela(10.0)
 	if SaveManager.dados.get("vibracao_ativa", true):
 		Input.vibrate_handheld(100)
@@ -526,6 +525,7 @@ func _on_player_morreu() -> void:
 
 	jogo_iniciado = false
 	player.attack_timer.stop()
+	_atualizar_coracao()
 
 	# Oferece o revive por anúncio (1x por run) antes do game over
 	if not AdsManager.revive_usado_na_run:
@@ -541,6 +541,7 @@ func _on_player_morreu() -> void:
 func _finalizar_derrota() -> void:
 	fim_de_jogo_declarado = true
 	Musica.parar(0.5)
+	_atualizar_coracao()
 	SaveManager.limpar_run_snapshot() # Run encerrada: nada a retomar
 	boss_hp_bar.visible = false
 	_processar_fim_de_jogo(false)
@@ -581,7 +582,7 @@ func _on_recompensa_ad(placement: String) -> void:
 			_executar_dobro_tinta()
 
 func _on_anuncio_falhou(placement: String) -> void:
-	_tocar_som(audio_dano)
+	_tocar_som(SONS["erro"])
 	match placement:
 		"revive":
 			if tela_reviver:
@@ -637,7 +638,7 @@ func _executar_dobro_tinta() -> void:
 	if tela_derrota and menu_game_over.visible:
 		tela_derrota.bonus_recebido()
 
-	_tocar_som(audio_vitoria)
+	_tocar_som(SONS["bonus"])
 
 func _on_boss_surgiu(boss_node: Node2D) -> void:
 	_estilizar_barra_chefe()
@@ -663,7 +664,7 @@ func _on_boss_surgiu(boss_node: Node2D) -> void:
 			_spawn_mancha(boss_node.global_position, Color.BLACK, 340.0)
 		_spawn_drops_de_tinta(boss_node.global_position, 10, 8, "res://assets/ink-red.svg")
 		_spawn_feedback("BOSS DERROTADO!", "perfect", boss_node.global_position)
-		_tocar_som(audio_kill, 0.8)
+		_tocar_som(SONS["morte"], 0.8)
 		_shake_tela(22.0)
 		_hitstop(0.12)
 		boss_derrotado_partida = true
@@ -677,6 +678,7 @@ func _on_fase_concluida() -> void:
 	# Decreta o fim da partida com vitória
 	fim_de_jogo_declarado = true
 	Musica.parar(1.0) # desce antes do jingle de vitória
+	_atualizar_coracao()
 	SaveManager.limpar_run_snapshot() # Run vencida: nada a retomar
 	jogo_iniciado = false
 	player.attack_timer.stop()
@@ -1014,7 +1016,7 @@ func _on_ink_drop_coletada(valor: int) -> void:
 	tinta_partida += valor
 	SaveManager.incrementar_stat("gotas_coletadas")
 	_atualizar_hud()
-	_tocar_som(audio_hit, randf_range(0.95, 1.1))
+	_tocar_som(_sortear("gota"), randf_range(0.95, 1.1))
 
 	# Pulso no contador do HUD confirmando a coleta
 	if _tween_pulso_tinta and _tween_pulso_tinta.is_valid():
@@ -1026,6 +1028,7 @@ func _on_ink_drop_coletada(valor: int) -> void:
 	_tween_pulso_tinta.tween_property(tinta_label, "scale", Vector2.ONE, 0.1)
 
 func _atualizar_hud() -> void:
+	_atualizar_coracao()
 	if hp_bar:
 		hp_bar.max_value = player.vidas_max
 		hp_bar.value = player.vidas
@@ -1220,7 +1223,6 @@ func _spawn_particles(cor: Color, pos: Vector2) -> void:
 const SONS: Dictionary = {
 	"gota": preload("res://assets/sons/gota.ogg"),
 	"morte": preload("res://assets/sons/morte.ogg"),
-	"dano": preload("res://assets/sons/dano.ogg"),
 	"pagina": preload("res://assets/sons/pagina.ogg"),
 	"clique": preload("res://assets/sons/clique.ogg"),
 	"chefe_surge": preload("res://assets/sons/chefe_surge.ogg"),
@@ -1228,7 +1230,64 @@ const SONS: Dictionary = {
 	"vitoria": preload("res://assets/sons/vitoria.ogg"),
 	"derrota": preload("res://assets/sons/derrota.ogg"),
 	"acerto": preload("res://assets/sons/acerto.ogg"),
+	"folha": preload("res://assets/sons/folha.ogg"),
+	"erro": preload("res://assets/sons/erro.ogg"),
+	"rasante": preload("res://assets/sons/rasante.ogg"),
+	"asas": preload("res://assets/sons/asas.ogg"),
+	"cuspe": preload("res://assets/sons/cuspe.ogg"),
+	"krw": preload("res://assets/sons/krw.ogg"),
+	"roleta": preload("res://assets/sons/roleta.ogg"),
+	"cura": preload("res://assets/sons/cura.ogg"),
+	"bonus": preload("res://assets/sons/bonus.ogg"),
+	"carta": preload("res://assets/sons/carta.ogg"),
+	"pausa": preload("res://assets/sons/pausa.ogg"),
+	"retomar": preload("res://assets/sons/retomar.ogg"),
+	"contagem_bipe": preload("res://assets/sons/contagem_bipe.ogg"),
+	"contagem_ja": preload("res://assets/sons/contagem_ja.ogg"),
+	"coracao_rapido": preload("res://assets/sons/coracao_rapido.ogg"),
+	"coracao_lento": preload("res://assets/sons/coracao_lento.ogg"),
 }
+## Sons que tocam muito: sorteados entre variações para não cansar.
+const VARIACOES: Dictionary = {
+	"gota": [preload("res://assets/sons/gota.ogg"), preload("res://assets/sons/gota_2.ogg"),
+		preload("res://assets/sons/gota_3.ogg"), preload("res://assets/sons/gota_4.ogg")],
+	"morte": [preload("res://assets/sons/morte.ogg"), preload("res://assets/sons/morte_2.ogg"),
+		preload("res://assets/sons/morte_3.ogg"), preload("res://assets/sons/morte_4.ogg"),
+		preload("res://assets/sons/morte_5.ogg"), preload("res://assets/sons/morte_6.ogg"),
+		preload("res://assets/sons/morte_7.ogg"), preload("res://assets/sons/morte_8.ogg")],
+	"dano": [preload("res://assets/sons/dano_1.ogg"), preload("res://assets/sons/dano_2.ogg"),
+		preload("res://assets/sons/dano_3.ogg")],
+}
+var _ultima_variacao: Dictionary = {}
+
+## Sorteia uma variação sem repetir a última.
+func _sortear(nome: String) -> AudioStream:
+	var lista: Array = VARIACOES[nome]
+	var i := randi() % lista.size()
+	if lista.size() > 1 and i == _ultima_variacao.get(nome, -1):
+		i = (i + 1) % lista.size()
+	_ultima_variacao[nome] = i
+	return lista[i]
+
+## Coração lento em loop enquanto a caneta está com 1 coração (para quando
+## a vida sobe, a partida acaba ou o som está desligado).
+var _coracao_player := AudioStreamPlayer.new()
+func _atualizar_coracao() -> void:
+	var tocar: bool = jogo_iniciado and not fim_de_jogo_declarado and player != null \
+		and player.vidas == 1 and SaveManager.dados.get("som_ativo", true)
+	if tocar and not _coracao_player.playing:
+		_coracao_player.play()
+	elif not tocar and _coracao_player.playing:
+		_coracao_player.stop()
+
+## Tiro dos chefes: cuspe curto, no máximo 1 a cada 0,12 s, com tom variando.
+var _ultimo_tiro_chefe_ms: int = -10000
+func tocar_tiro_chefe() -> void:
+	var agora := Time.get_ticks_msec()
+	if agora - _ultimo_tiro_chefe_ms < 120:
+		return
+	_ultimo_tiro_chefe_ms = agora
+	_tocar_som(SONS["cuspe"], randf_range(0.9, 1.15))
 
 ## "Tup" do tiro que acerta um monstro: toca muito, então é baixinho, varia
 ## o tom e não passa de ~12 por segundo (o crítico sai um pouco mais grave).
@@ -1243,12 +1302,15 @@ func tocar_acerto(critico: bool = false) -> void:
 ## Rosnado do chefe ao descer para atacar (rasante e mergulho). Espaçado
 ## para não repetir em ataques seguidos.
 var _ultimo_rosnado_ms: int = -10000
-func tocar_rosnado_ataque() -> void:
+func tocar_rosnado_ataque(asas: bool = false) -> void:
 	var agora := Time.get_ticks_msec()
 	if agora - _ultimo_rosnado_ms < 1500:
 		return
 	_ultimo_rosnado_ms = agora
 	_tocar_som(SONS["chefe_ataque"], randf_range(0.95, 1.05))
+	_tocar_som(SONS["rasante"], randf_range(0.95, 1.05))
+	if asas:
+		_tocar_som(SONS["asas"], randf_range(0.95, 1.05))
 
 func _tocar_som(stream: AudioStream, pitch: float = 1.0) -> void:
 	if stream == null or not SaveManager.dados.get("som_ativo", true):
@@ -1439,7 +1501,7 @@ func _on_descanso_iniciado() -> void:
 		"total_paginas": GameData.PAGINAS.size(), "vidas": player.vidas, "vidas_max": player.vidas_max,
 		"cura": GameData.DESCANSO_CURA, "tinta_partida": tinta_partida,
 		"ganho_tinta": GameData.tinta_descanso(capitulo_atual)})
-	_tocar_som(audio_vitoria)
+	_tocar_som(SONS["folha"])
 
 ## "Página X / 8" volta depois de menus, menos com o chefe vivo: a barra
 ## dele ocupa esse lugar (voltar da pausa na Mancha mostrava os dois).
@@ -1485,7 +1547,7 @@ func _criar_menu_descanso() -> void:
 
 func _on_descanso_escolhido(id: String) -> void:
 	SaveManager.incrementar_stat("descansos_usados")
-	_tocar_som(_gerar_som_procedural(880.0, 0.08, "sin"))
+	_tocar_som(SONS["cura"] if id == "curar" else SONS["bonus"])
 
 	if id == "curar":
 		player.vidas = min(player.vidas + GameData.DESCANSO_CURA, player.vidas_max)
@@ -1536,18 +1598,16 @@ func _abrir_roleta_upgrades() -> void:
 	# menus, fica por cima) sai enquanto a roleta está aberta
 	if label_pagina:
 		label_pagina.visible = false
-	_tocar_som(audio_vitoria)
+	_tocar_som(SONS["roleta"])
 	tela_roleta.mostrar(tela_roleta.montar_dados(opcoes, player, capitulo_atual,
 		max(1, wave_manager.pagina_atual), GameData.PAGINAS.size()))
 
 func _tocar_som_clunk() -> void:
-	var som = _gerar_som_procedural(250.0, 0.08, "square")
-	_tocar_som(som)
+	_tocar_som(SONS["erro"])
 
 func _aplicar_upgrade(id: String, _index_escolhido: int) -> void:
 	# Som de seleção (a animação da carta escolhida fica na TelaRoleta)
-	var som_sel = _gerar_som_procedural(880.0, 0.08, "sin")
-	_tocar_som(som_sel)
+	_tocar_som(SONS["carta"])
 
 	menu_upgrades.visible = false
 	_mostrar_label_pagina()
@@ -1620,6 +1680,7 @@ func _on_botao_pausa_pressed() -> void:
 		"som": SaveManager.dados.get("som_ativo", true), "vibracao": SaveManager.dados.get("vibracao_ativa", true)})
 	get_tree().paused = true
 	Musica.pausar(true)
+	_tocar_som(SONS["pausa"])
 
 func _criar_menu_pausa() -> void:
 	menu_pausa = Control.new()
@@ -1661,8 +1722,7 @@ func _on_retomar_pausa_pressed() -> void:
 	menu_pausa.visible = false
 	_mostrar_label_pagina()
 	
-	# Som de clique
-	_tocar_som(SONS["clique"])
+	_tocar_som(SONS["retomar"])
 	
 	label_contagem.visible = true
 	
@@ -1681,8 +1741,7 @@ func _on_retomar_pausa_pressed() -> void:
 		tween.tween_callback(func():
 			label_contagem.text = etapa["texto"]
 			label_contagem.scale = Vector2.ZERO
-			var bipe = _gerar_som_procedural(etapa["freq"], 0.12, "sin")
-			_tocar_som(bipe)
+			_tocar_som(SONS["contagem_ja"] if etapa["texto"] == "JÁ!" else SONS["contagem_bipe"])
 		)
 		tween.tween_property(label_contagem, "scale", Vector2(1.3, 1.3), 0.25).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
 		tween.tween_property(label_contagem, "scale", Vector2.ZERO, 0.25).set_delay(0.4)

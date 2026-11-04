@@ -271,8 +271,7 @@ func _processar_patrulha(delta: float) -> void:
 		# Som de telegrafia
 		var main_node = get_parent()
 		if main_node and main_node.has_method("_tocar_som"):
-			var som = main_node._gerar_som_procedural(400.0, 0.2, "square")
-			main_node._tocar_som(som)
+			main_node._tocar_som(main_node.SONS["krw"])
 
 func _processar_telegrafo(delta: float) -> void:
 	timer_telegrafo -= delta
@@ -377,7 +376,7 @@ func _entrar_raiva() -> void:
 	if main and main.has_method("_shake_tela"):
 		main._shake_tela(14.0)
 	if main and main.has_method("_tocar_som"):
-		main._tocar_som(main._gerar_som_procedural(140.0, 0.35, "square"))
+		main._tocar_som(main.SONS["coracao_rapido"])
 	var tw := create_tween()
 	tw.tween_property(self, "_pulso", 0.22, 0.15)
 	tw.tween_property(self, "_pulso", 0.0, 0.5)
@@ -392,11 +391,6 @@ func _disparar_leque() -> void:
 	for dir in _direcoes_leque():
 		atirar(global_position + dir * 50.0, dir, 500.0, 12.0, "chefe")
 
-	# Som de tiro rápido senoidal
-	var main_node = get_parent()
-	if main_node and main_node.has_method("_tocar_som"):
-		var som = main_node._gerar_som_procedural(650.0, 0.06, "sin")
-		main_node._tocar_som(som)
 
 ## Dispara um tiro inimigo reaproveitando o "pool" do Main.
 func atirar(pos: Vector2, dir: Vector2, vel: float, raio: float, estilo: String) -> void:
@@ -406,6 +400,8 @@ func atirar(pos: Vector2, dir: Vector2, vel: float, raio: float, estilo: String)
 	proj.setup(dir, vel, raio, estilo)
 	if not proj.is_inside_tree():
 		main.add_child(proj)
+	if main.has_method("tocar_tiro_chefe"):
+		main.tocar_tiro_chefe() # cuspe curto, limitado a 1 a cada 0,12 s
 
 ## Direção da caneta a partir de um ponto (para baixo se não houver caneta).
 func mira(de: Vector2) -> Vector2:
