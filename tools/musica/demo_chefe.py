@@ -35,30 +35,41 @@ seg=part[p_saida:]
 fc=np.full(len(seg),500.0); zz=p_fim-p_saida
 fc[:zz]=np.exp(np.log(18000)+(np.log(500)-np.log(18000))*ss(np.arange(zz)/zz))
 part[p_saida:]=passa_baixa_variavel(seg,fc)
-g=np.ones(len(part)); d=zz; g[p_saida:p_fim]=1+(10**(-3/20)-1)*ss(np.arange(d)/d); g[p_fim:]=10**(-3/20)
-g[p_fim:]*=1-ss(np.arange(len(part)-p_fim)/(len(part)-p_fim))
+PRE = "--sem-pre" not in sys.argv  # pre-entrada: o chefe comeca 1 compasso antes, por baixo
+g=np.ones(len(part)); d=zz
+if PRE:  # partida desce ate -6 dB no compasso do rugido e some em 150 ms depois do "1"
+    g[p_saida:p_fim]=1+(10**(-6/20)-1)*ss(np.arange(d)/d); g[p_fim:]=10**(-6/20)
+    z=min(int(0.15*SR),len(part)-p_fim); g[p_fim:p_fim+z]*=1-ss(np.arange(z)/z); g[p_fim+z:]=0
+else:
+    g[p_saida:p_fim]=1+(10**(-3/20)-1)*ss(np.arange(d)/d); g[p_fim:]=10**(-3/20)
+    g[p_fim:]*=1-ss(np.arange(len(part)-p_fim)/(len(part)-p_fim))
 part=(part*g[:,None]).astype(np.float32)
-# chefe: entra no fim da saida; normal 16 compassos, raiva em 1 compasso, mais 16, vitoria
+# chefe: normal 16 compassos, raiva em 1 compasso, mais 16, vitoria
 RAIVA=16; FIM=34
 T=babs(BC,NC,FIM)
+LEAD=(p_fim-p_saida) if PRE else 0   # pre-entrada = 1 compasso da partida antes do "1" do chefe
 def ganhos(k):
-    g=np.zeros(T,np.float32); a=babs(BC,NC,RAIVA); z=babs(BC,NC,RAIVA+1)-a; r=ss(np.arange(z)/z)
+    g=np.zeros(LEAD+T,np.float32); a=LEAD+babs(BC,NC,RAIVA); z=babs(BC,NC,RAIVA+1)-babs(BC,NC,RAIVA); r=ss(np.arange(z)/z)
     normal={"baixo":1,"metronomo":1,"bateria":1,"guitarras_leve":1,"guitarras":0,"alien":0.5}[k]
     raiva={"baixo":1,"metronomo":1,"bateria":1,"guitarras_leve":0,"guitarras":1,"alien":1}[k]
-    g[:a]=normal; g[a:a+z]=normal+(raiva-normal)*r; g[a+z:]=raiva; return g
-reps=int(np.ceil(T/NC))+1
+    g[LEAD:a]=normal; g[a:a+z]=normal+(raiva-normal)*r; g[a+z:]=raiva
+    if LEAD:  # na pre-entrada: guitarra abafada sobe no compasso todo, baixo so na metade final, sem bateria/metronomo
+        if k=="guitarras_leve": g[:LEAD]=ss(np.arange(LEAD)/LEAD)
+        if k=="baixo": h=LEAD//2; g[h:LEAD]=ss(np.arange(LEAD-h)/(LEAD-h))
+    return g
 GANHO_CHEFE=10**(2.5/20)  # chefe normal fica no volume da partida nivel 3
-chef=sum(np.tile(x,(reps,1))[:T]*ganhos(k)[:,None] for k,x in CL.items()).copy()*GANHO_CHEFE
+idx=(np.arange(LEAD+T)-LEAD)%NC   # a pre-entrada toca o fim do loop, que emenda no "1"
+chef=sum(x[idx]*ganhos(k)[:,None] for k,x in CL.items()).astype(np.float32)*GANHO_CHEFE
 fo=int(1.0*SR); chef[-fo:]*=(1-ss(np.arange(fo)/fo))[:,None]
 surge=load(os.path.join(SONS,"chefe_surge.ogg")); vit=load(os.path.join(SONS,"vitoria.ogg"))
 tot=p_fim+T+len(vit)+SR
 mix=np.zeros((tot,2),np.float32)
 mix[:len(part)]+=part
 mix[p_saida:p_saida+len(surge)]+=surge*0.9
-mix[p_fim:p_fim+T]+=chef
+mix[p_fim-LEAD:p_fim+T]+=chef
 mix[p_fim+T-int(0.3*SR):p_fim+T-int(0.3*SR)+len(vit)]+=vit
 pk=np.abs(mix).max(); mix*=min(1,0.95/pk)
-p=OUT+"/TESTE partida - chefe - raiva - vitoria.ogg"
+p=OUT+("/TESTE partida - chefe - raiva - vitoria (pre-entrada).ogg" if PRE else "/TESTE partida - chefe - raiva - vitoria.ogg")
 subprocess.run(["ffmpeg","-v","error","-y","-f","f32le","-ar",str(SR),"-ac","2","-i","-","-c:a","libvorbis","-q:a","8",p],input=mix.tobytes())
 marcas={"chefe surge (rugido)":p_saida/SR,"musica do chefe entra":p_fim/SR,"raiva":(p_fim+babs(BC,NC,RAIVA))/SR,"vitoria":(p_fim+T)/SR}
 print("duracao %.1f s"%(tot/SR),{k:round(v,1) for k,v in marcas.items()})
