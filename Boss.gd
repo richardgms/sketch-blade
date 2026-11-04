@@ -135,6 +135,10 @@ func _avisar_leque() -> void:
 	var tw := create_tween()
 	tw.tween_property(self, "_pulso", 0.12, TEMPO_AVISO * 0.8).set_trans(Tween.TRANS_SINE)
 	tw.tween_property(self, "_pulso", 0.0, TEMPO_AVISO * 0.2)
+	# Som do inchar: "krw" de quem puxa o cuspe antes de cuspir (o tiro sai com o cuspe)
+	var main = get_parent()
+	if main and main.has_method("_tocar_som"):
+		main._tocar_som(main.SONS["krw"])
 
 func _preparar_arte() -> void:
 	material = ShaderMaterial.new()
@@ -271,7 +275,8 @@ func _processar_patrulha(delta: float) -> void:
 		# Som de telegrafia
 		var main_node = get_parent()
 		if main_node and main_node.has_method("_tocar_som"):
-			main_node._tocar_som(main_node.SONS["krw"])
+			var som = main_node._gerar_som_procedural(400.0, 0.2, "square")
+			main_node._tocar_som(som)
 
 func _processar_telegrafo(delta: float) -> void:
 	timer_telegrafo -= delta

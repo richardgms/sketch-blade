@@ -76,8 +76,9 @@ def sons():
     # gota de tinta: atual (Kenney drop_002) + 3 variacoes do mesmo pacote (CC0)
     for i, f in zip((2, 3, 4), ("drop_001", "drop_003", "drop_004")):
         q[f"gota_{i}"] = nivelar(cortar(carregar(S + f"01 gota de tinta/kenney interface sounds (CC0)/{f}.ogg")), -12.1)
-    # monstro morre: atual (squish_02) + 7 variacoes do mesmo pacote (EZduzziteh, CC0)
-    for i, f in enumerate(("squish_01_0", "squish_03", "squish_04", "squish_05", "squish_06", "squishpop", "squishsplat_impact"), start=2):
+    # monstro morre: atual (squish_02) + 5 variacoes do mesmo pacote (EZduzziteh, CC0);
+    # squishpop e squishsplat_impact sairam a pedido do Richard (04/11)
+    for i, f in enumerate(("squish_01_0", "squish_03", "squish_04", "squish_05", "squish_06"), start=2):
         q[f"morte_{i}"] = nivelar(cortar(carregar(S + f"02 monstro morre/opengameart squish (CC0, EZduzziteh)/{f}.mp3"), fade=0.05), -19.9)
     # caneta toma dano: 3 quedas de caneta do mesmo arquivo (krb21, CC0)
     pen = carregar(S + "03 caneta toma dano/tossing-pen-down.wav")
@@ -99,8 +100,7 @@ def sons():
     q["krw"] = nivelar(cortar(carregar(S + "11 tiros dos chefes/pre-split-vocal-creepy-krw.wav"), fade=0.02), -19.0)
     q["vitoria"] = nivelar(cortar(carregar(S + "12 vitoria/suno - vitoria stinger guitarra.wav"), 0.0, 2.0, fade=0.5), -16.6)
     der = carregar(S + "13 derrota/suno - derrota stinger guitarra.wav")
-    q["derrota"] = nivelar(cortar(der, 0.0, 2.05, fade=0.3), -17.3)
-    q["derrota_b"] = nivelar(cortar(der, 2.35, 3.6, fade=0.4), -17.3)
+    q["derrota"] = nivelar(cortar(der, fade=0.4), -17.3)  # o arquivo inteiro (os dois sons juntos), a pedido do Richard
     q["roleta"] = nivelar(cortar(carregar(S + "15 roleta/roulette-wheel-spin-loop.wav"), 0.0, 1.0, fade=0.4), -20.0)
     q["cura"] = nivelar(cortar(carregar(S + "16 descanso/suno - cura power-up blip.wav"), 0.0, 1.35, fade=0.25), -17.0)
     q["bonus"] = nivelar(cortar(carregar(S + "17 bonus do anuncio/bling.wav"), 0.0, 1.3, fade=0.2), -17.0)

@@ -1253,8 +1253,7 @@ const VARIACOES: Dictionary = {
 		preload("res://assets/sons/gota_3.ogg"), preload("res://assets/sons/gota_4.ogg")],
 	"morte": [preload("res://assets/sons/morte.ogg"), preload("res://assets/sons/morte_2.ogg"),
 		preload("res://assets/sons/morte_3.ogg"), preload("res://assets/sons/morte_4.ogg"),
-		preload("res://assets/sons/morte_5.ogg"), preload("res://assets/sons/morte_6.ogg"),
-		preload("res://assets/sons/morte_7.ogg"), preload("res://assets/sons/morte_8.ogg")],
+		preload("res://assets/sons/morte_5.ogg"), preload("res://assets/sons/morte_6.ogg")],
 	"dano": [preload("res://assets/sons/dano_1.ogg"), preload("res://assets/sons/dano_2.ogg"),
 		preload("res://assets/sons/dano_3.ogg")],
 }
