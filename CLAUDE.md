@@ -8,6 +8,7 @@ Jogo mobile (Android, retrato) em **Godot 4.7** (GL Compatibility), GDScript. Ro
 - Prints da loja (1080x1920): `-s tools/capturar_prints.gd -- <pasta> [LxA]` — faça backup do save do PC antes.
 - Imagem nova em `assets/` ou script novo: rode `--headless --path . --import` antes dos prints e do commit (sem isso `ResourceLoader.exists` dá falso e o `.uid` não existe).
 - Economia: `python tools/sim_economia.py`.
+- Música adaptativa: `Musica.gd` (chave `ATIVA`, volume `VOLUME_DB`); teste sem tela `--headless --path . -s tools/teste_musica.gd`; camadas refeitas por `tools/musica/` (ver `docs/plano-musica-adaptativa.md`).
 - Equilíbrio dos chefes (robô joga sem tela): ver `docs/equilibrio-chefes.md`.
 - Prints das telas: `bash tools/capturar_telas.sh <pasta> <telas>` (faz backup e restaura o save do PC; flags de autoload passam de uma partida de teste para a outra). Se o Godot de teste travar, encerre só esse processo pelo PID (`Get-CimInstance Win32_Process`): o editor aberto também se chama Godot.
 - Imagens geradas no ChatGPT: original em `Documentos\Sketch Blade - design\<tela>\gerados\`, versão de uso em `assets/ui/`.

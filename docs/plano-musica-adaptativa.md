@@ -1,6 +1,6 @@
 # Plano de música adaptativa
 
-Fonte única sobre a música da partida (efeitos e jingles continuam em `sons.md`). **Situação (04/11/2026): abordagem aprovada pelo Richard (leve = stem da cheia tratado). Etapa 0 ok (cheia gerada em plano pago da Suno). Etapa 1 aprovada de ouvido ("3 voltas perfeito"). Etapa 2 feita. Etapa 3 aprovada de ouvido ("gostei"). Página de escuta: https://claude.ai/artifact/W3KYzjySNFX9UeH3dwtUwS. Chefe terá música própria (seção abaixo). Código do jogo ainda não mexido.** Saiu de um /brainstorming e de um /llm-council (5 conselheiros + revisão anônima).
+Fonte única sobre a música da partida (efeitos e jingles continuam em `sons.md`). **Situação (04/11/2026): abordagem aprovada pelo Richard (leve = stem da cheia tratado). Etapa 0 ok (cheia gerada em plano pago da Suno). Etapa 1 aprovada de ouvido ("3 voltas perfeito"). Etapa 2 feita. Etapa 3 aprovada de ouvido ("gostei"). Página de escuta: https://claude.ai/artifact/W3KYzjySNFX9UeH3dwtUwS. Chefe com música própria aprovada (seção abaixo). **Etapa 4 feita e testada no PC (04/11); falta o teste no celular (etapa 5).** Saiu de um /brainstorming e de um /llm-council (5 conselheiros + revisão anônima).
 
 ## O que queremos
 - A música da partida fica mais forte conforme a partida pesa, **sem troca de faixa perceptível** (hoje a pesada recomeça do começo e dá para ouvir).
@@ -124,13 +124,24 @@ São 7 sub-streams, **3,16 MB medidos** (q4, loop de 48 s). O Godot guarda o OGG
 | 1 | Código + Richard | Achar na cheia um trecho que emende (corte no ataque, cauda dobrada); gerar o loop de teste e ouvir 3 voltas. **Feito: 24 compassos; falta o ouvido** | Richard aprova que não "pula" |
 | 2 | Código | Cortar os stems com o mesmo intervalo de amostras; metrônomo no loop novo; guitarra e bateria leves; OGG q4 (mono onde der); grade de batidas. **Feito** | Medição: mesma duração em todos, sem clique |
 | 3 | Código + Richard | Mixagem de teste offline dos níveis e das passagens (arquivo único para ouvir). **Gerado (níveis 1–3; o 4 depende da fonte do chefe); falta o ouvido** | Richard aprova níveis e passagens |
-| 4 | Código | `Musica.gd` (autoload): `AudioStreamSynchronized`, níveis por página, fades no compasso, pausa, vitória/derrota; atrás de constante liga/desliga | Partida de teste no PC sem erro; prints/log de nível por página |
+| 4 | Código | `Musica.gd` (autoload): `AudioStreamSynchronized`, níveis por página, fades no compasso, pausa, vitória/derrota; atrás de constante liga/desliga. **Feito (com chefe, raiva e pré-entrada)** | `tools/teste_musica.gd` 0 falhas; bateria de chefes 1, 3 e 10 sem erro |
 | 5 | Richard | Build de teste no celular (10 min, pausa, segundo plano) | Sem dessincronia, sem travar |
 | 6 | Código | Registrar em `sons.md` (fonte, licença, tratamento) e tamanho no AAB | Build conferido |
 | C1 | Richard | Gerar a música do chefe na Suno (pedido acima) e separar no Moises (zip na pasta 26 musica). **Feito** | Arquivos na pasta |
 | C2 | Código + Richard | Medir, achar o loop, camadas normal/raiva e demonstração normal→raiva (mesmos scripts de `tools/musica/`, com `MUSICA=chefe`). **Aprovado (entrada com pré-entrada)** | Richard aprova de ouvido |
-| C3 | Código | Ligar a música do chefe e a raiva no `Musica.gd` | Teste de chefe no PC e no celular |
+| C3 | Código | Ligar a música do chefe e a raiva no `Musica.gd`. **Feito junto com a etapa 4** | Teste de chefe no PC (ok) e no celular |
 | Depois | — | Gatilhos por vida/monstros, opção "Música" nas configurações, Cover da Suno se a leve tratada ficar pobre | Decidir com o jogo rodando |
+
+## Como ficou no jogo (etapa 4, 04/11)
+- `Musica.gd` (autoload `Musica`): duas `Faixa` (partida e chefe), cada uma com um `AudioStreamPlayer` tocando um `AudioStreamSynchronized` montado em código a partir de `assets/musica/partida/*.ogg` (7 camadas, 3,2 MB) e `assets/musica/chefe/*.ogg` (6, 2,5 MB). Carrega só na primeira partida. Barramentos `MusicaPartida` (com `AudioEffectLowPassFilter`, ligado só na saída para o chefe) e `MusicaChefe`.
+- Chave `ATIVA` (false = jogo como antes), `VOLUME_DB = -6` (medido: sem isso o nível 3 fica a −16,9 LUFS, acima dos efeitos), `GANHO_CHEFE_DB = 2,5`, `LOG` (linhas `[Musica]` no console).
+- Duração e compassos de cada loop vão como constantes no próprio script (gerados por `camadas_jogo.py`; se refizer as camadas, atualizar `DURACAO_*` e `COMPASSOS_*`).
+- Volumes por camada com rampas em tempo real (curva suave, ganho igual), agendadas para o próximo compasso pela posição do player + `AudioServer.get_time_since_last_mix()`.
+- Quem avisa: `Main._on_pagina_iniciada` (começa no nível da página, com entrada de 2 s; também na partida retomada), `WaveManager._preparar_boss` (rugido → `entrar_chefe`), `Boss._entrar_raiva`, `Mancha._efeito_divisao` e `Estojo._trocar_fase` (fase 2) → `raiva_chefe`, pausa (`pausar`, volta quando acaba o 3-2-1), "Segunda chance?" (`abafar`, −10 dB), derrota (`parar(0.5)`), vitória (`parar(1.0)` antes dos 1,5 s do jingle), saída da cena (`Main._exit_tree` → `parar`), som ligado/desligado na pausa (`atualizar_som`).
+- Teste de chefe e partida retomada na página 8: o chefe entra direto (sem partida tocando), com 1 s de entrada.
+- Verificado no Godot 4.7 (teste): `AudioStreamPlayer.play(posição)` funciona com `AudioStreamSynchronized` (a pré-entrada começa em 45,25 s e está em 0,45 s logo depois do "1"); player com `stream_paused` responde `playing = false`, por isso a `Faixa` guarda o próprio `tocando`.
+- Precisão: o player do chefe começa no próximo bloco de mixagem, então o "1" pode cair até ~10 ms atrasado em relação ao compasso da partida (menor que a variação natural da bateria, ±35 ms).
+- Segundo plano (Android) e anúncio: não tratados de propósito; conferir no teste do celular.
 
 ## Registro de decisões
 | Decisão | Alternativas | Por quê |

@@ -57,6 +57,7 @@ Regras:
 ```
 
 ## Lições técnicas dos chats de 29–30/10
+- **Música em camadas (04/11):** loop só fecha onde a música repete um trecho (achar por semelhança batida a batida, `tools/musica/achar_emenda.py`); metrônomo do Moises escorrega ou atrasa (medir os ataques da própria bateria); duas gerações da Suno não são a mesma composição (Sol# contra Sol); `play(posição)` funciona com `AudioStreamSynchronized`; player pausado responde `playing = false`.
 - **Conferir centralização:** medir nos prints a faixa vertical de pixels de tinta (escuros ou azul forte) por coluna (desenho, texto, botão) e comparar com o centro da moldura; ignorar a hachura de sombra da base do card. Ícones com sobra transparente diferente (pote x clipe): recortar pela parte com alfa > 0,5 (`JanelaCompra._area_visivel`); `get_used_rect` conta a sombra quase transparente.
 - **Fundo riscado (StyleBoxTexture) em botão com texto:** sem `set_content_margin` a margem da textura (48) vira margem do texto e o botão alarga além do `size` (aconteceu no EQUIPAR); `TelaEstojo._estilo_riscado` já põe 6.
 - **Botão do ChatGPT com borda fina:** recorte por flood fill nos cantos, abertura (MinFilter 5 + MaxFilter 5) para tirar os pontinhos da hachura e MaxFilter para engrossar o contorno antes de reduzir para 720 (script em `Documentos\Sketch Blade - design\loja-nova\gerados\`).
