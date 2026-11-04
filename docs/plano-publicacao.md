@@ -135,3 +135,13 @@ Fonte única: `docs/chefes.md` (regras de design, situação de cada chefe, arqu
 **Build 1.7.2 (código 12) gerado em 31/10**: `Documentos\Sketch Blade - builds\sketchblade-1.7.2-vc12.aab` (60,2 MB). Novidades desde a 1.7.1: Estojo, Loja (Canetas | Pacotes), Missões, Recompensa diária e Configurações no estilo caderno (`docs/proximas-melhorias.md`); compras, preços, prêmios e anúncios iguais. Conferido: zip íntegro, assinado (UPLOAD), versão 1.7.2 no manifesto, telas novas dentro, sem fotos e sem `store/`; maiores arquivos = motor, código Android, ícone, splash e a folha das janelas (`fundo_missoes`, 1,5 MB). Ainda com `MODO_TESTE = true` e anúncios de teste. Falta: enviar ao Teste fechado (se a 1.7.1 não foi enviada, basta a 1.7.2: o código 11 pode ser pulado).
 
 **Build 1.7.3 (código 13) gerado em 31/10**: `Documentos\Sketch Blade - builds\sketchblade-1.7.3-vc13.aab` (62,1 MB). Novidades desde a 1.7.2: topo da partida 30% maior, chefes sem teleporte no balanço (Mancha e Avião), selo DERROTADO do Hub no lugar da vitória, tela antes da partida (ficha colada), virada de página pelo canto, respingo de tinta na morte, papel com textura (limpo; usado nos quadriculados e amarelados) e linha-limite tracejada à mão (`docs/proximas-melhorias.md`); economia, compras e anúncios iguais. Conferido: zip íntegro, assinado (UPLOAD), versão 1.7.3 no manifesto, scripts e imagens novos dentro, sem `.jpg`, `store/` ou rascunhos; maiores arquivos = motor, código Android, ícone e splash. Na 1ª exportação as texturas de papel eram `.jpg` e ficaram de fora (o export exclui `*.jpg`): trocadas por PNG antes do build final. Ainda com `MODO_TESTE = true` e anúncios de teste. Falta: enviar ao Teste fechado (pode pular os códigos 11 e 12 se não foram enviados).
+
+## Build 1.8.2 (17) — 04/11/2026
+AAB gerado em `Documentos/Sketch Blade - builds/sketchblade-1.8.2-vc17.aab`
+(68.722.773 bytes). Inclui mixagem clara, mortes tratadas, vinheta com alfa,
+aviso de raiva, dano junto do chefe e clique com zíper. ZIP íntegro, assinatura
+UPLOAD verificada pelo jarsigner, versão 1.8.2 no manifesto e arte nova incluída.
+Maiores arquivos: motor ARM64, DEX, ícone e splash; sem JPG, store ou referências.
+JDK 25 emite avisos de certificado autoassinado e leitura JarInputStream, mas
+retorna `jar verified` e código 0. Mantidas configurações do teste fechado.
+Pronto para envio manual; JSON de atualização só muda após publicação na Play.

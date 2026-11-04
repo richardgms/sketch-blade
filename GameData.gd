@@ -128,7 +128,7 @@ const MODO_TESTE: bool = true
 
 ## Código desta versão: subir junto com version/code do export_presets.cfg.
 ## O aviso de atualização compara com o codigo de atualizacao/versao.json.
-const VERSAO_CODIGO: int = 16
+const VERSAO_CODIGO: int = 17
 
 const RAIO_EXPLOSAO: float = 160.0
 const DURACAO_DOT: float = 2.0
