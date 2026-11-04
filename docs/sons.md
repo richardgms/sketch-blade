@@ -1,6 +1,6 @@
 # Sons do jogo
 
-Fonte única dos sons gravados (`assets/sons/`). Lote 1 escolhido pelo Richard em 29/10/2026 (página https://claude.ai/artifact/YUAvgQ6UbbRQ3YMqvN3db4); lote 2 em 04/11/2026 (página https://claude.ai/artifact/PtD7fRSm5DoAnKG76TunLb, **aguardando o ouvido do Richard**). **Só CC0 ou gerado por nós** (Suno no plano pago do Richard, ou código): nada que peça crédito. Originais ficam fora do repositório, em `C:\Users\joalh\Videos\sons sketch blade\` (pastas numeradas; os pacotes baixados têm `_licenca.txt`).
+Fonte única dos sons gravados (`assets/sons/`). Lote 1 escolhido pelo Richard em 29/10/2026 (página https://claude.ai/artifact/YUAvgQ6UbbRQ3YMqvN3db4); lote 2 em 04/11/2026 (página https://claude.ai/artifact/PtD7fRSm5DoAnKG76TunLb, **aprovado pelo Richard em 04/11, com os ajustes abaixo**). **Só CC0 ou gerado por nós** (Suno no plano pago do Richard, ou código): nada que peça crédito. Originais ficam fora do repositório, em `C:\Users\joalh\Videos\sons sketch blade\` (pastas numeradas; os pacotes baixados têm `_licenca.txt`).
 
 ## Partida
 | Arquivo | Momento | Origem | Licença |
@@ -11,7 +11,7 @@ Fonte única dos sons gravados (`assets/sons/`). Lote 1 escolhido pelo Richard e
 | `coracao_lento.ogg` | loop enquanto a caneta está com 1 coração | gerado por `tools/sons_lote2.py` | nosso |
 | `acerto.ogg` | tiro da caneta acerta | gerado por código ("tup" 460→140 Hz) | nosso |
 | `pagina.ogg` | página concluída | Beussa, *Page turned* (Freesound 749880) | CC0 |
-| `contagem_bipe.ogg`, `contagem_ja.ogg` | 3-2-1-JÁ na volta da pausa | steel2008, *Race Start Ready go* (Freesound 231277) | CC0 |
+| `contagem_bipe.ogg`, `contagem_ja.ogg` | 3-2-1-JÁ na volta da pausa; marimba aprovada em 04/11 | GAMEDRIX974, *marimba f1*, original `marimba tick.wav`; JÁ com oitava + quinta + nota original | CC0 |
 | `pausa.ogg`, `retomar.ogg` | abrir a pausa / CONTINUAR | crisstanza, *pause*/*unpause* (Freesound 167127/167126) | CC0 |
 | `roleta.ogg` | roleta abre | Joao_Janz, *Roulette Wheel Spin Loop* (Freesound 482663) | CC0 |
 | `carta.ogg` | escolher carta; subir de nível no hub | Kenney, Interface Sounds, `confirmation_002` | CC0 |
@@ -46,14 +46,14 @@ Música: `assets/musica/` (ver `plano-musica-adaptativa.md`).
 ## Regras
 - **Disparo da caneta: sem som** (atira sozinha várias vezes por segundo).
 - Ainda com bipe gerado por código: ataques e tiros próprios de cada chefe (`_som` em `chefes/*.gd`), zonas de bomba/grade, troca de fase do Estojo.
-- Tratamento (`tools/sons_lote2.py`): corta o silêncio do começo, fade no fim, nivela pelo volume médio da parte com som (mesmas referências do lote 1: gota −12, morte −20, dano −16, página −17,6, clique −16, chefe −15/−18,7, jingles −16,6/−17,3) com limitador de picos; OGG Vorbis q4, mono, 44,1 kHz. Os 40 arquivos atuais somam 367.196 bytes (~359 KiB).
+- Tratamento (`tools/sons_lote2.py`): corta o silêncio do começo, fade no fim, nivela pelo volume médio da parte com som (mesmas referências do lote 1: gota −12, morte −20, dano −16, página −17,6, clique −16, chefe −15/−18,7, jingles −16,6/−17,3) com limitador de picos; OGG Vorbis q4, mono, 44,1 kHz. Os 40 arquivos atuais somam 357.183 bytes (~349 KiB).
 - Licença: conferida na página de cada som (Freesound/OpenGameArt). Ficaram de fora por pedirem crédito (CC-BY): airplane flyby, heartbeat fast, completed, fail jingle, magic healing, coins, soft notification, level-up (reenvio de rhodesmas) e cash register (mistura uma moeda CC-BY). Ficaram de fora por falta de link: bubble pop, splat, heartbeat e wet-splat.
 - Suno, modo **Sounds**: cada download gasta 1 dos 20 do mês (plano Pro, não acumula). Gerar e ouvir no site é grátis: baixar só o melhor. Palavras que encurtam: *ultra short, instant, UI sound, one-shot stinger, ends abruptly, no reverb tail*.
 - Sons que tocam muito: variações sorteadas sem repetir a última (`Main.VARIACOES`) e tom variando.
 
 ## Comparação da contagem (04/11)
 - A mesma página do lote 2 já foi atualizada pelo Claude em 04/11 às 03:32: https://claude.ai/artifact/PtD7fRSm5DoAnKG76TunLb (publicação confirmada no histórico, versão `1793773943-052e`). Inclui as seis mortes, o novo momento do krw, a derrota inteira e a comparação de contagens.
-- Marimba: GAMEDRIX974, *marimba f1* (CC0), original `01 gota de tinta/marimba tick.wav`. Demonstração com 1 s por número e um JÁ mais agudo (oitava + quinta). **Só opção para ouvir; ainda não substitui a contagem no jogo.**
+- Marimba: GAMEDRIX974, *marimba f1* (CC0), original `01 gota de tinta/marimba tick.wav`. Demonstração com 1 s por número e um JÁ mais agudo (oitava + quinta). **Aprovada e ligada no jogo para o build 1.8.0 (15)**, preservando exatamente os arquivos ouvidos (cópia sem recodificação). O gerador passou a usar a mesma receita em `contagem_marimba()`; os dois OGG regenerados foram decodificados e comparados com os aprovados, com diferença zero entre amostras. O som anterior de steel2008 saiu da contagem.
 - Os 39 áudios referenciados na cópia local da página foram conferidos: nenhum ausente; morte 7/8 e derrota separada não são referenciados.
 
 ## Validação da retomada (04/11)

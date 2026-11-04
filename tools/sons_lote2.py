@@ -71,6 +71,19 @@ def coracao(batidas, intervalo, forca=1.0):
         baque(t + 0.16, 0.6 * forca, 65.0)
     return y
 
+def contagem_marimba():
+    """Contagem aprovada em 04/11: nota original no 3-2-1, acorde agudo no JA."""
+    mar = cortar(carregar(S + "01 gota de tinta/marimba tick.wav"), fade=0.02)
+    bipe = nivelar(mar, -15.0)
+    ja = np.zeros(len(mar) + 10)
+    for semitons, ganho in ((12, 1.0), (7, 0.7), (0, 0.5)):
+        passo = 2 ** (semitons / 12)
+        indices = np.arange(0, len(mar) - 1, passo)
+        nota = np.interp(indices, np.arange(len(mar)), mar)
+        ja[:len(nota)] += ganho * nota
+    ja = nivelar(cortar(ja, fade=0.03, aparar=False), -15.0)
+    return {"contagem_bipe": bipe, "contagem_ja": ja}
+
 def sons():
     q = {}
     # gota de tinta: atual (Kenney drop_002) + 3 variacoes do mesmo pacote (CC0)
@@ -111,9 +124,7 @@ def sons():
     q["pausa"] = nivelar(cortar(carregar(S + "22 pausa e retomar/pause.mp3"), 0.0, 0.3, fade=0.05), -15.0)
     q["retomar"] = nivelar(cortar(carregar(S + "22 pausa e retomar/unpause.mp3"), 0.0, 0.3, fade=0.05), -15.0)
     q["aviso"] = nivelar(cortar(carregar(S + "23 aviso de atualizacao/kenney interface sounds (CC0)/glass_001.ogg")), -15.0)
-    race = carregar(S + "24 contagem inicial/race-start-ready-go.wav")
-    q["contagem_bipe"] = nivelar(cortar(race, 0.0, 0.55, fade=0.08), -15.0)
-    q["contagem_ja"] = nivelar(cortar(race, 1.89, 2.6, fade=0.15), -15.0)
+    q.update(contagem_marimba())
     q["coracao_rapido"] = nivelar(coracao(4, 60 / 118), -15.0)       # raiva do chefe: 4 batidas no andamento da musica do chefe
     lento = coracao(1, 0.9)[:int(0.9 * SR)]                            # vida baixa: 1 batida a cada 0,9 s, em loop
     q["coracao_lento"] = nivelar(lento, -22.0)
