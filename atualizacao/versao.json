@@ -1,8 +1,7 @@
 {
-  "codigo": 15,
-  "versao": "1.8.0",
+  "codigo": 16,
+  "versao": "1.8.1",
   "novidades": [
-    "Nova trilha sonora que acompanha a intensidade das partidas e das batalhas contra os chefes.",
-    "Novos efeitos sonoros deixam o combate e a navegação mais envolventes."
+    "Ajustes na trilha sonora para uma experiência mais agradável durante as partidas."
   ]
 }
