@@ -15,6 +15,7 @@ func _initialize() -> void:
 
 func _rodar() -> void:
 	var sm = root.get_node("SaveManager")
+	sm.dados["som_ativo"] = true
 	sm.dados["tutorial_visto"] = true
 	sm.dados["run_snapshot"] = {"ativa": false}
 	var m = load("res://main.tscn").instantiate()
@@ -35,6 +36,26 @@ func _rodar() -> void:
 	# variações sem repetir a última
 	var a = m._sortear("morte"); var b = m._sortear("morte")
 	_ok("sorteio não repete a última", a != b)
+	_ok("morte ficou com 6 variações", m.VARIACOES["morte"].size() == 6)
+	# O krw acompanha o inchar antes do tiro; o mergulho mantém seu bipe.
+	var chefe = load("res://boss.tscn").instantiate()
+	m.add_child(chefe)
+	chefe.set_process(false)
+	chefe.entrada_concluida = true
+	var sons_chefe: Array = []
+	var observar_som := func(no: Node):
+		if no is AudioStreamPlayer:
+			sons_chefe.append(no.stream)
+	m.child_entered_tree.connect(observar_som)
+	chefe._avisar_leque()
+	_ok("krw toca ao inchar antes do tiro", sons_chefe.count(m.SONS["krw"]) == 1)
+	sons_chefe.clear()
+	chefe.timer_tiro = 0.0
+	chefe.timer_acao = chefe.intervalo_mergulho
+	chefe._processar_patrulha(0.0)
+	_ok("mergulho avisa sem usar krw", sons_chefe.size() == 1 and not sons_chefe.has(m.SONS["krw"]))
+	m.child_entered_tree.disconnect(observar_som)
+	chefe.queue_free()
 	# momentos (só não podem dar erro)
 	m._on_ink_drop_coletada(1)
 	m._tocar_som(m._sortear("dano"))

@@ -6,7 +6,7 @@ Fonte única dos sons gravados (`assets/sons/`). Lote 1 escolhido pelo Richard e
 | Arquivo | Momento | Origem | Licença |
 |---|---|---|---|
 | `gota.ogg`, `gota_2..4.ogg` | pegar gota (sorteia) | Kenney, Interface Sounds, `drop_002/001/003/004` | CC0 |
-| `morte.ogg`, `morte_2..8.ogg` | monstro morre (sorteia; chefe usa `morte` grave) | EZduzziteh, Squish Sounds Effects (8 arquivos) | CC0 |
+| `morte.ogg`, `morte_2..6.ogg` | monstro morre (sorteia; chefe usa `morte` grave) | EZduzziteh, Squish Sounds Effects (6 arquivos; 7 e 8 removidos a pedido do Richard em 04/11) | CC0 |
 | `dano_1..3.ogg` | caneta toma dano (sorteia) | krb21, *tossing pen down* (Freesound 118618), 3 quedas | CC0 |
 | `coracao_lento.ogg` | loop enquanto a caneta está com 1 coração | gerado por `tools/sons_lote2.py` | nosso |
 | `acerto.ogg` | tiro da caneta acerta | gerado por código ("tup" 460→140 Hz) | nosso |
@@ -19,7 +19,7 @@ Fonte única dos sons gravados (`assets/sons/`). Lote 1 escolhido pelo Richard e
 | `cura.ogg` | descanso: escolher cura | Suno (Sounds, v6), plano pago do Richard | nosso |
 | `bonus.ogg` | descanso: escolher tinta; bônus do anúncio | MSH443PL8, *BLING* (Freesound 796125) | CC0 |
 | `vitoria.ogg` | capítulo concluído | Suno (Sounds, v6), plano pago | nosso |
-| `derrota.ogg` | página arruinada | Suno (Sounds, v6), plano pago (1º som do arquivo; o 2º ficou como opção na página) | nosso |
+| `derrota.ogg` | página arruinada | Suno (Sounds, v6), plano pago; arquivo inteiro, com os dois trechos juntos (3,57 s), conforme pedido do Richard | nosso |
 
 ## Chefe
 | Arquivo | Momento | Origem | Licença |
@@ -27,7 +27,7 @@ Fonte única dos sons gravados (`assets/sons/`). Lote 1 escolhido pelo Richard e
 | `chefe_surge.ogg` | CUIDADO: BOSS! | noahpardo *Deep Growl 1* (345733) + uzerx *SUB A#* (63138), mistura | CC0 |
 | `chefe_ataque.ogg` + `rasante.ogg` | rasante e mergulhos (rosnado + vento; no máx. 1 a cada 1,5 s, `Main.tocar_rosnado_ataque`) | AuDRoger *snarl 2* (471208) + D4XX *Swoosh 3* (607250) | CC0 |
 | `asas.ogg` | junto do rasante do Tsuru e da Pena | Godowan *wings2* (240469) | CC0 |
-| `krw.ogg` | aviso antes do mergulho do chefe-base | RutgerMuller *Vocal Creepy krw* (50923) | CC0 |
+| `krw.ogg` | chefe incha antes de atirar o leque (`Boss._avisar_leque`); o mergulho do chefe-base mantém o bipe procedural | RutgerMuller *Vocal Creepy krw* (50923) | CC0 |
 | `cuspe.ogg` | todo tiro de chefe (`Boss.atirar`; no máx. 1 a cada 0,12 s, tom 0,9–1,15) | Breviceps *Spitting a watermelon seed* (477782) | CC0 |
 | `coracao_rapido.ogg` | chefe com raiva (4 batidas no andamento da música do chefe) | gerado por `tools/sons_lote2.py` | nosso |
 
@@ -46,7 +46,19 @@ Música: `assets/musica/` (ver `plano-musica-adaptativa.md`).
 ## Regras
 - **Disparo da caneta: sem som** (atira sozinha várias vezes por segundo).
 - Ainda com bipe gerado por código: ataques e tiros próprios de cada chefe (`_som` em `chefes/*.gd`), zonas de bomba/grade, troca de fase do Estojo.
-- Tratamento (`tools/sons_lote2.py`): corta o silêncio do começo, fade no fim, nivela pelo volume médio da parte com som (mesmas referências do lote 1: gota −12, morte −20, dano −16, página −17,6, clique −16, chefe −15/−18,7, jingles −16,6/−17,3) com limitador de picos; OGG Vorbis q4, mono, 44,1 kHz. Os 43 arquivos somam ~470 KB.
+- Tratamento (`tools/sons_lote2.py`): corta o silêncio do começo, fade no fim, nivela pelo volume médio da parte com som (mesmas referências do lote 1: gota −12, morte −20, dano −16, página −17,6, clique −16, chefe −15/−18,7, jingles −16,6/−17,3) com limitador de picos; OGG Vorbis q4, mono, 44,1 kHz. Os 40 arquivos atuais somam 367.196 bytes (~359 KiB).
 - Licença: conferida na página de cada som (Freesound/OpenGameArt). Ficaram de fora por pedirem crédito (CC-BY): airplane flyby, heartbeat fast, completed, fail jingle, magic healing, coins, soft notification, level-up (reenvio de rhodesmas) e cash register (mistura uma moeda CC-BY). Ficaram de fora por falta de link: bubble pop, splat, heartbeat e wet-splat.
 - Suno, modo **Sounds**: cada download gasta 1 dos 20 do mês (plano Pro, não acumula). Gerar e ouvir no site é grátis: baixar só o melhor. Palavras que encurtam: *ultra short, instant, UI sound, one-shot stinger, ends abruptly, no reverb tail*.
 - Sons que tocam muito: variações sorteadas sem repetir a última (`Main.VARIACOES`) e tom variando.
+
+## Comparação da contagem (04/11)
+- A mesma página do lote 2 já foi atualizada pelo Claude em 04/11 às 03:32: https://claude.ai/artifact/PtD7fRSm5DoAnKG76TunLb (publicação confirmada no histórico, versão `1793773943-052e`). Inclui as seis mortes, o novo momento do krw, a derrota inteira e a comparação de contagens.
+- Marimba: GAMEDRIX974, *marimba f1* (CC0), original `01 gota de tinta/marimba tick.wav`. Demonstração com 1 s por número e um JÁ mais agudo (oitava + quinta). **Só opção para ouvir; ainda não substitui a contagem no jogo.**
+- Os 39 áudios referenciados na cópia local da página foram conferidos: nenhum ausente; morte 7/8 e derrota separada não são referenciados.
+
+## Validação da retomada (04/11)
+- `tools/teste_sons_partida.gd`: 7 verificações passaram, incluindo krw no inchar, bipe do mergulho sem krw, seis mortes, coração, sorteio e pausa/contagem.
+- `tools/bateria_chefes.gd`: capítulos 1, 4 e 7, robô `esquiva`, uma seed, cenário `vitoria`: três lutas concluídas, código de saída 0, sem erros de script. Testes sem tela não validam a qualidade ou a mixagem de ouvido.
+- Backup do save feito antes; restauração no `finally` com bytes/hash conferidos. Logs e backup em `%TEMP%/sketch-blade-continuacao-ixm1wnmj/`.
+- O Godot 4.7 emitiu avisos de recursos ao encerrar os testes. A primeira importação saiu com código 0; uma repetição encerrou nativamente com `0xC0000005`, sem erro de script reportado. Os testes acima foram executados depois, usando a importação concluída. Causa da falha nativa não investigada nesta revisão de sons.
+- Commits desta revisão ficam locais: a branch já contém mudanças anteriores no `Hub.gd` que trata compras, e o push segue aguardando autorização conforme as regras do projeto.
