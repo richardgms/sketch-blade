@@ -145,3 +145,20 @@ Maiores arquivos: motor ARM64, DEX, ícone e splash; sem JPG, store ou referênc
 JDK 25 emite avisos de certificado autoassinado e leitura JarInputStream, mas
 retorna `jar verified` e código 0. Mantidas configurações do teste fechado.
 Pronto para envio manual; JSON de atualização só muda após publicação na Play.
+
+## Aviso da 1.8.2 publicado — 04/11/2026
+Usuário confirmou atualização disponível na Play. JSON público ainda estava
+em 1.8.1 (16); publicado apenas `atualizacao/versao.json` com 1.8.2 (17),
+commit remoto `4413b27`, em checkout separado dos commits locais.
+Primeiro teste HTTP respondeu 200 com conteúdo antigo em cache e falhou na
+comparação; não representa aprovação do teste completo. Save restaurado por hash.
+A rotina atual depende de atualizar o JSON após a disponibilidade na Play;
+gerar o AAB sozinho não aciona o aviso. Automação ainda não implementada.
+
+Conferência posterior: `refs/heads/main` remoto aponta para `4413b278`, e o
+JSON pelo SHA responde HTTP 200 com código 17. Endereço `main` ainda retornava
+16 por cache no momento da conferência, inclusive com query de verificação.
+Automação recomendada para avaliação: Play In-App Updates consultando a
+ disponibilidade para a conta instalada; exige integração Android e novo build.
+Fonte: https://developer.android.com/guide/playcore/in-app-updates/kotlin-java
+Checkout temporário de publicação preservado em `%TEMP%/sketch-blade-aviso-v17`.
