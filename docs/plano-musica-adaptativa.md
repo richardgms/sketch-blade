@@ -6,7 +6,7 @@ Fonte única sobre a música da partida (efeitos e jingles continuam em `sons.md
 - Richard pediu retirar o metrônomo por soar esquisito. A camada saiu da partida e do chefe, inclusive da raiva, do gerador e das demonstrações futuras. Os cliques e seus imports saíram dos assets; as outras camadas e a grade de compassos permanecem iguais.
 - Estado atual: **6 camadas na partida (3.203.812 bytes) e 5 no chefe (2.412.888 bytes)**, duas decodificações a menos e 226.786 bytes de áudio removidos. A sincronia usa a posição dos loops e a grade medida, sem depender do clique audível.
 - Validação: `tools/teste_musica.gd` passou nas 17 verificações, sem erros; save restaurado e conferido. Logs em `%TEMP%/sketch-blade-continuacao-31v497ag/`. Sintaxe dos três scripts Python alterados também conferida, sem regenerar os áudios originais.
-- **O AAB 1.8.1 (16) foi gerado sem metrônomo e conferido**, com 11 camadas, assinatura e manifesto validados; aguarda envio ao teste fechado. O AAB anterior 1.8.0 (15), preservado, ainda contém o metrônomo. Detalhes e relatório em `plano-publicacao.md`.
+- **O AAB 1.8.1 (16) foi gerado sem metrônomo e conferido**, com 11 camadas, assinatura e manifesto validados; já disponível no teste fechado. O aviso de atualização foi confirmado no celular, mas a aprovação do áudio sem metrônomo ainda está pendente. O AAB anterior 1.8.0 (15), preservado, ainda contém o metrônomo. Detalhes e relatório em `plano-publicacao.md`.
 
 ## O que queremos
 - A música da partida fica mais forte conforme a partida pesa, **sem troca de faixa perceptível** (hoje a pesada recomeça do começo e dá para ouvir).

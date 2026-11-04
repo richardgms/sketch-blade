@@ -1,62 +1,46 @@
 # Prompt para o próximo chat
 
-Copie o bloco abaixo num chat novo do Claude Code, nesta pasta. Atualize este arquivo no fim de cada chat (ele substitui o antigo `prompt-roleta.md`).
+Resumo atualizado em 04/11/2026. Pode ser usado no Codex ou Claude Code; os detalhes ficam nas fontes indicadas.
 
-```
-Continuação do Sketch Blade (Godot 4.7, pasta atual). Leia primeiro:
-- CLAUDE.md
-- docs/identidade-visual.md (a pegada visual aprovada: base para tudo, inclusive a seção "Cartas")
-- docs/proximas-melhorias.md (topo: "Próximo" e as entradas de 29/10 a 01/11)
-- docs/plano-publicacao.md (build 1.8.1 e a seção "Aviso de atualização")
-- docs/plano-musica-adaptativa.md e docs/sons.md (música e sons aprovados em 04/11)
+```text
+Continuação do Sketch Blade, Godot 4.7, nesta pasta. Leia:
+- CLAUDE.md (comandos e regras do projeto).
+- docs/plano-publicacao.md (build atual e aviso de atualização).
+- docs/plano-musica-adaptativa.md (trilha e teste pendente no celular).
+- docs/sons.md (efeitos aprovados e suas origens).
+- Para mexer em telas: docs/identidade-visual.md; próximos assuntos em docs/proximas-melhorias.md.
 
-Onde estamos (31/10): todo o visual de DENTRO da partida está no estilo "caderno à caneta":
-hub (3 telas), vitória, derrota, reviver, HUD, chefe legível, sons, roleta (TelaRoleta.gd),
-descanso (TelaDescanso.gd) e pausa (TelaPausa.gd). Fora da partida, o Estojo (TelaEstojo.gd) e a
-Loja (TelaLoja.gd, abas Canetas | Pacotes, + JanelaCompra.gd) as Missões (JanelaMissoes.gd,
-folha arrancada sobre o Hub) a Recompensa diária (JanelaRecompensa.gd) e as Configurações (JanelaConfig.gd), na mesma folha, também: fichas de etiqueta,
-tracinhos e botões riscados por estado (azul / falta / máximo ou EM USO). As telas novas usam a
-base TelaFim.gd (papel da fase, _botao_cheio riscado, _botao_contorno, _txt, _traco) e o card
-desenhado assets/ui/card_roleta.png (caneta + papel, nine-patch 40/40/55/55); botões:
-assets/ui/botao_riscado.png, botao_falta.png, botao_maximo.png, botao_equipar.png; ícones brancos em cima do azul:
-gota_branca.png e clipe_branco.png (tools/gerar_gota_branca.gd).
-Em 31/10–01/11 a partida também ficou no estilo caderno: tela antes da partida (TelaInicio.gd),
-virada de página pelo canto (VirarPagina.gd), respingo de tinta na morte (MorteTinta.gd), papel com
-textura e linha-limite à caneta (Paper.gd), HUD +30%, selo DERROTADO no Hub. E o Hub ganhou o aviso
-de versão nova (JanelaAtualizacao.gd + atualizacao/versao.json no GitHub).
-Build 1.8.1 (código 16, 04/11) gerado, assinado e conferido para o teste fechado, com música
-adaptativa sem metrônomo, música de chefe/raiva, sons aprovados e marimba na contagem. Richard
-confirmou que a Play já exibe ATUALIZAR para a 1.8.1; o JSON público foi atualizado para 16 e o
-aviso passou nos 7 testes, inclusive leitura HTTP real. Falta concluir o teste de áudio no celular.
-Ainda com MODO_TESTE = true e anúncios de teste. Em aberto: papel usado também no pardo (cap. 6-7)?
-O cap. 10 continua com o usado?
+Estado atual:
+- AAB 1.8.1, código 16, gerado, assinado e conferido. Está disponível no teste fechado da Play.
+  Arquivo: Documentos/Sketch Blade - builds/sketchblade-1.8.1-vc16.aab.
+  Relatório de validação ao lado do AAB; detalhes em plano-publicacao.md.
+- Música adaptativa e música própria dos chefes/raiva. Metrônomo removido da partida,
+  dos chefes, dos assets e dos geradores/demonstrações: 6 camadas na partida e 5 no chefe.
+- Sons aprovados: seis variações de morte (7 e 8 removidas), krw ao inchar antes do tiro,
+  derrota inteira e marimba na contagem. Fontes/licenças em sons.md.
+- Testes no PC passaram: 17 de música, 7 de sons, hub e 7 do aviso de atualização.
+  Saves dos testes restaurados e conferidos; isso não equivale a aprovação do áudio no celular.
+- O JSON público atualizacao/versao.json já anuncia 1.8.1 (16).
+  Richard confirmou no celular que o aviso funcionou após essa correção.
+  O jogo consulta ao iniciar: fechar completamente e abrir com internet força nova consulta.
+- MODO_TESTE = true e anúncios de teste mantidos para a faixa fechada.
 
-Próximo: concluir o teste de áudio da 1.8.1 no celular. O aviso online já anuncia 16.
-Todas as telas de jogador já estão no estilo novo (só o painel
-"Stats de teste", de testador, segue o antigo). Compras e anúncios: só o visual; push que envolva
-pagamento ou anúncio: me pergunte antes.
+Próximo:
+- Receber o relato do áudio da 1.8.1 no celular: música por 10 min, chefe/raiva, pausa,
+  retomada e segundo plano. Não marcar esse teste como concluído pelo “funcionou” do aviso.
+- Notas de versão para jogadores devem descrever a melhoria geral, evitando detalhes como
+  “marimba” ou “derrota inteira”; texto aprovado de cada versão em plano-publicacao.md.
+- Não gerar novo build sem pedido. Em nova publicação, subir juntos o código no preset
+  e GameData.VERSAO_CODIGO; atualizar/publicar o JSON do aviso somente após a Play liberar.
 
-Como trabalhamos (o mesmo processo da roleta, do descanso e da pausa):
-1. Print real da tela atual (tools/capturar_telas.sh <pasta> loja,compra; faz backup e restaura o
-   save do PC). Prints e originais em Documentos\Sketch Blade - design\<tela>\.
-2. Me traga 2 versões (e mais 2 de ângulos diferentes se eu pedir) como protótipo num script
-   novo (ex.: TelaEstojo.gd) + tools/prototipo_<tela>.gd, prints 1080x1920.
-3. Publique antes/depois na página "Melhorias visuais"
-   (https://claude.ai/artifact/VdK88T7PA2HgKCCBubEKrg) numa seção nova no topo, lendo a página
-   antes; imagens em arquivos separados (img/...), nunca base64. Se ela não abrir (no perfil do
-   Orca a lista de artifacts vem vazia), crie uma página nova da tela, fundo escuro de caderno à
-   noite, como a do Estojo (https://claude.ai/artifact/8RoURc1XDar9rXL972U5ed), e me avise. Atualize a página a cada
-   rodada de ajuste (versão nova em cima, as antigas embaixo, na mesma seção).
-4. Espere minha escolha/ajustes; depois ligue no jogo, teste com caso de fluxo no
-   capturar_telas.gd + robô (tools/bateria_chefes.gd), commit por item, docs e push.
-5. Página de acompanhamento geral: https://claude.ai/artifact/XvFoxxh9Kpb1AynTtDaumW
-
-Regras:
-- nada novo no save; não mudar economia, preços nem upgrades (só o visual);
-- textos nunca abaixo de ~40; um azul só (#0047ab), #002867 em contornos e títulos;
-- ação destrutiva sempre com confirmação; botões/cartas só aceitam toque depois da animação;
-- não gerar build sem eu pedir;
-- se eu disser que mandei uma imagem e ela não aparecer, procure em %TEMP%\orca-paste-*.png.
+Git e cuidados:
+- Só os JSON de aviso das versões 15 e 16 foram publicados em pushes isolados.
+  Os demais commits de áudio/build/documentação continuam locais; verificar antes de push.
+  Há mudança de som no Hub.gd que trata compras: manter a confirmação para publicar esse código.
+- Pendências preexistentes preservadas: .serena/project.yml, docs/guia-busca-sons.md,
+  imports de store/ e tools/__pycache__/. Conferir git status e não apagar/incluir por rotina.
+- Builds, originais e referências grandes ficam fora do repo, nos caminhos documentados.
+- Aplicar as instruções globais da sessão. Nada de economia/save/compras/anúncios fora do escopo.
 ```
 
 ## Lições técnicas dos chats de 29–30/10

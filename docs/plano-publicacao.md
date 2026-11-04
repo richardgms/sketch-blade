@@ -1,6 +1,6 @@
 # Plano de publicação — Sketch Blade (Play Store)
 
-Atualizado em 2026-10-24. Fonte única do plano; marque cada item ao concluir.
+Atualizado em 2026-11-04. Fonte única do plano; marque cada item ao concluir.
 
 ## Build 1.8.1 (código 16) — teste fechado (04/11/2026)
 - Pedido do Richard: novo build para testar a trilha sem o metrônomo na partida e nos chefes.
@@ -13,6 +13,7 @@ Atualizado em 2026-10-24. Fonte única do plano; marque cada item ao concluir.
 - [x] Aviso público atualizado para **1.8.1 (16)** após essa confirmação: antes ainda anunciava 15, por isso o app 1.8.0 não mostrava atualização. Push isolado do JSON, commit `c27193c`; nenhum outro código foi publicado.
 - Validação do aviso: `tools/teste_aviso_atualizacao.gd` passou nas **7 verificações**, incluindo HTTP 200 no endereço real e correspondência com o JSON local, código maior abrindo a janela e versão igual sem aviso. Save restaurado e conferido. Logs em `%TEMP%/sketch-blade-continuacao-juh7dyfz/`. O teste agora compara com o JSON do projeto, sem fixar um número de versão no script.
 - O app busca o aviso ao abrir o hub na inicialização; fechar completamente e abrir com internet força a nova consulta. Quem já estiver na 1.8.1 não verá aviso dessa mesma versão.
+- [x] **Confirmado no celular pelo Richard: “funcionou”**, após a publicação do aviso da 1.8.1 (16). Isso confirma o fluxo do aviso; o teste completo do áudio continua pendente.
 - SHA-256: `b4282e5d134a6fce1d15771f164457363f00e0bcab3b8540cd762f31be518e29`. Relatório: `sketchblade-1.8.1-vc16.validacao.json`, ao lado do AAB.
 - Maiores arquivos (descomprimidos): motor Godot 71,15 MB; DEX 10,18 / 7,49 / 3,53 MB; ícone 2,37 MB; splash 2,32 MB; texturas seguintes até 1,81 MB.
 - Notas para a Play: “Ajustes na trilha sonora para uma experiência mais agradável durante as partidas.”
