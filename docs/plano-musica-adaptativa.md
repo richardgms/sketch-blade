@@ -1,6 +1,6 @@
 # Plano de música adaptativa
 
-Fonte única sobre a música da partida (efeitos e jingles continuam em `sons.md`). **Situação (04/11/2026): abordagem aprovada pelo Richard (leve = stem da cheia tratado). Etapa 0 ok (cheia gerada em plano pago da Suno). Etapa 1 aprovada de ouvido ("3 voltas perfeito"). Etapa 2 feita. Etapa 3 aguardando ouvido (página de escuta: https://claude.ai/artifact/W3KYzjySNFX9UeH3dwtUwS). Código do jogo ainda não mexido.** Saiu de um /brainstorming e de um /llm-council (5 conselheiros + revisão anônima).
+Fonte única sobre a música da partida (efeitos e jingles continuam em `sons.md`). **Situação (04/11/2026): abordagem aprovada pelo Richard (leve = stem da cheia tratado). Etapa 0 ok (cheia gerada em plano pago da Suno). Etapa 1 aprovada de ouvido ("3 voltas perfeito"). Etapa 2 feita. Etapa 3 aprovada de ouvido ("gostei"). Página de escuta: https://claude.ai/artifact/W3KYzjySNFX9UeH3dwtUwS. Chefe terá música própria (seção abaixo). Código do jogo ainda não mexido.** Saiu de um /brainstorming e de um /llm-council (5 conselheiros + revisão anônima).
 
 ## O que queremos
 - A música da partida fica mais forte conforme a partida pesa, **sem troca de faixa perceptível** (hoje a pesada recomeça do começo e dá para ouvir).
@@ -70,12 +70,21 @@ São 7 sub-streams, **3,16 MB medidos** (q4, loop de 48 s). O Godot guarda o OGG
 | 1 Calmo | páginas 1–2 e 4 (descanso) | baixo + metrônomo + guitarra leve |
 | 2 Andando | páginas 3 e 5 | + bateria leve; guitarra leve → pesada |
 | 3 Pesado | páginas 6 (elite) e 7 (horda) | bateria leve → pesada + outros |
-| 4 Chefe | página 8 | tudo + cordas |
+| Chefe | página 8 | música própria do chefe (ver "Música do chefe") |
 
 - Subir: no próximo início de compasso (4 batidas ≈ 2 s), camada entrando em 1 compasso. Cruzamento leve↔pesada: as duas ao mesmo tempo por 1 compasso, com ganho igual (curvas somando 1; ver etapa 2).
 - Descer (descanso, morte do chefe): em 2 compassos.
 - Histerese: com gatilho por página não há vai-e-volta. Se um dia usarmos monstros vivos ou vida baixa, subir na hora (no compasso) e só descer depois de ~8 s abaixo do limite.
 - Compasso calculado pela posição real de reprodução e pela grade medida de batidas (lista em arquivo), não por 0,5 s fixo (o andamento varia ±35 ms).
+
+## Música do chefe (decidido em 04/11)
+- **Uma música só para o chefe**, gerada à parte na Suno, com o mesmo método da partida: uma geração só, stems do Moises, versões leves por tratamento, tudo num `AudioStreamSynchronized` próprio.
+- **Dois níveis:** chefe normal e **chefe com raiva**. A raiva intensifica do mesmo jeito que a partida (no próximo compasso, 1 compasso de passagem, leve→pesada e camadas extras), sem trocar de faixa.
+- Gatilho da raiva: `Boss._entrar_raiva()` (metade da vida). Mancha (cap. 3) e Estojo (cap. 10) não usam essa raiva: anunciam fases próprias; ligar a intensificação na fase deles (ver no código na hora).
+- Entrada do chefe: no "CUIDADO: BOSS!" a música da partida sai em 1 compasso e a do chefe entra no começo de um compasso; o rugido `chefe_surge.ogg` cobre a passagem (aqui a troca de faixa é proposital: é um evento). Dois players, cada um com seu `AudioStreamSynchronized`; não precisam estar em sincronia entre si.
+- Morte do chefe: música desce em ~1 s e entra `vitoria.ogg`, como no fim de capítulo.
+- **Pedido para a Suno** (o Richard gera): partir do mesmo estilo da "Sala sci-fi" (mesma família de som, percussão de material escolar) e acrescentar algo como "boss battle, intense, driving drums, darker, instrumental, E minor, 120 BPM". Tom e andamento iguais ajudam a entrada no compasso, mas a Suno não garante: medimos depois. **Pedir 2 min ou mais**, porque o loop só existe onde a música repete um trecho (foi assim na cheia: o trecho dos 26 s se repete aos 74 s).
+- Tamanho: mais ~3 MB (total da música ≈ 6,3 MB).
 
 ## Início, pausa e fim
 - **Início da partida:** toca o nível 1 desde a posição 0 com subida de volume de ~2 s (a entrada suave que o Richard gostou). Sem trecho de introdução no v1; se quiser, depois dá para pôr uma introdução no começo do arquivo e usar `loop_offset`.
@@ -100,7 +109,10 @@ São 7 sub-streams, **3,16 MB medidos** (q4, loop de 48 s). O Godot guarda o OGG
 | 4 | Código | `Musica.gd` (autoload): `AudioStreamSynchronized`, níveis por página, fades no compasso, pausa, vitória/derrota; atrás de constante liga/desliga | Partida de teste no PC sem erro; prints/log de nível por página |
 | 5 | Richard | Build de teste no celular (10 min, pausa, segundo plano) | Sem dessincronia, sem travar |
 | 6 | Código | Registrar em `sons.md` (fonte, licença, tratamento) e tamanho no AAB | Build conferido |
-| Depois | — | Música do chefe separada (`AudioStreamInteractive`), gatilhos por vida/monstros, opção "Música" nas configurações, Cover da Suno se a leve tratada ficar pobre | Decidir com o jogo rodando |
+| C1 | Richard | Gerar a música do chefe na Suno (pedido acima) e separar no Moises (zip na pasta 26 musica) | Arquivos na pasta |
+| C2 | Código + Richard | Medir, achar o loop, camadas normal/raiva e demonstração normal→raiva (mesmos scripts de `tools/musica/`) | Richard aprova de ouvido |
+| C3 | Código | Ligar a música do chefe e a raiva no `Musica.gd` | Teste de chefe no PC e no celular |
+| Depois | — | Gatilhos por vida/monstros, opção "Música" nas configurações, Cover da Suno se a leve tratada ficar pobre | Decidir com o jogo rodando |
 
 ## Registro de decisões
 | Decisão | Alternativas | Por quê |
