@@ -31,6 +31,7 @@ SaveManager="*res://SaveManager.gd"
 GameData="*res://GameData.gd"
 AdsManager="*res://AdsManager.gd"
 BillingManager="*res://BillingManager.gd"
+Musica="*res://Musica.gd"
 
 [display]
 
