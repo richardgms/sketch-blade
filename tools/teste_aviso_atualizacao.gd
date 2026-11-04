@@ -38,8 +38,9 @@ func _rodar() -> void:
 	_ok("JSON público responde HTTP 200", resposta[0] == HTTPRequest.RESULT_SUCCESS and resposta[1] == 200)
 	var corpo: String = resposta[3].get_string_from_utf8()
 	var info = JSON.parse_string(corpo)
-	var valido: bool = info is Dictionary and int(info.get("codigo", 0)) == 15 and info.get("versao") == "1.8.0"
-	_ok("arquivo público anuncia 1.8.0 (15)", valido)
+	var esperada = JSON.parse_string(FileAccess.get_file_as_string("res://atualizacao/versao.json"))
+	var valido: bool = info is Dictionary and esperada is Dictionary and info == esperada
+	_ok("arquivo público corresponde à versão anunciada no projeto", valido)
 	if not valido:
 		quit(1)
 		return

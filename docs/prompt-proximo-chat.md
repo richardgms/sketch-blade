@@ -25,13 +25,13 @@ virada de página pelo canto (VirarPagina.gd), respingo de tinta na morte (Morte
 textura e linha-limite à caneta (Paper.gd), HUD +30%, selo DERROTADO no Hub. E o Hub ganhou o aviso
 de versão nova (JanelaAtualizacao.gd + atualizacao/versao.json no GitHub).
 Build 1.8.1 (código 16, 04/11) gerado, assinado e conferido para o teste fechado, com música
-adaptativa sem metrônomo, música de chefe/raiva, sons aprovados e marimba na contagem. Aguarda envio
-à Play e teste no celular. Richard já instalou a 1.8.0 (15); o JSON público anuncia 15, corrigido
-após o relato do aviso ausente. Só passar esse JSON para 16 quando a Play disponibilizar a 1.8.1.
+adaptativa sem metrônomo, música de chefe/raiva, sons aprovados e marimba na contagem. Richard
+confirmou que a Play já exibe ATUALIZAR para a 1.8.1; o JSON público foi atualizado para 16 e o
+aviso passou nos 7 testes, inclusive leitura HTTP real. Falta concluir o teste de áudio no celular.
 Ainda com MODO_TESTE = true e anúncios de teste. Em aberto: papel usado também no pardo (cap. 6-7)?
 O cap. 10 continua com o usado?
 
-Próximo: enviar o AAB 1.8.1 (16) ao teste fechado, atualizar o aviso online após ficar disponível e testar o áudio no celular.
+Próximo: concluir o teste de áudio da 1.8.1 no celular. O aviso online já anuncia 16.
 Todas as telas de jogador já estão no estilo novo (só o painel
 "Stats de teste", de testador, segue o antigo). Compras e anúncios: só o visual; push que envolva
 pagamento ou anúncio: me pergunte antes.

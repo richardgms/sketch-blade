@@ -8,8 +8,11 @@ Atualizado em 2026-10-24. Fonte única do plano; marque cada item ao concluir.
 - [x] Importar e testar música, sons e hub: 7 verificações de sons, 17 de música sem metrônomo e abertura/navegação do hub passaram, código de saída 0. Save restaurado e bytes/hash conferidos. Logs em `%TEMP%/sketchblade-181-kwy0qbb6/`.
 - [x] Exportar AAB de release assinado em `Documentos/Sketch Blade - builds/sketchblade-1.8.1-vc16.aab`: **68.029.850 bytes (68,0 MB)**. O processo deste export foi encerrado após o pacote assinado ficar íntegro e estável por 15 s, como no build anterior.
 - [x] Conferir assinatura, manifesto, 11 camadas de música, ausência do metrônomo e maiores arquivos: ZIP íntegro; assinatura validada por `jarsigner`, mesmo certificado de upload dos builds anteriores; manifesto com versão **1.8.1 (16)**. Os **40 sons + 11 camadas** correspondem aos importados locais. Nenhum arquivo do metrônomo, foto, rascunho ou credencial no pacote.
-- [ ] Enviar ao teste fechado e testar no celular.
-- O aviso público permanece na versão 1.8.0 (15) até a Play disponibilizar a 1.8.1. Depois, publicar somente o JSON com código 16.
+- [x] Disponível no teste fechado: Richard confirmou que o link da Play exibe ATUALIZAR.
+- [ ] Concluir o teste de áudio no celular.
+- [x] Aviso público atualizado para **1.8.1 (16)** após essa confirmação: antes ainda anunciava 15, por isso o app 1.8.0 não mostrava atualização. Push isolado do JSON, commit `c27193c`; nenhum outro código foi publicado.
+- Validação do aviso: `tools/teste_aviso_atualizacao.gd` passou nas **7 verificações**, incluindo HTTP 200 no endereço real e correspondência com o JSON local, código maior abrindo a janela e versão igual sem aviso. Save restaurado e conferido. Logs em `%TEMP%/sketch-blade-continuacao-juh7dyfz/`. O teste agora compara com o JSON do projeto, sem fixar um número de versão no script.
+- O app busca o aviso ao abrir o hub na inicialização; fechar completamente e abrir com internet força a nova consulta. Quem já estiver na 1.8.1 não verá aviso dessa mesma versão.
 - SHA-256: `b4282e5d134a6fce1d15771f164457363f00e0bcab3b8540cd762f31be518e29`. Relatório: `sketchblade-1.8.1-vc16.validacao.json`, ao lado do AAB.
 - Maiores arquivos (descomprimidos): motor Godot 71,15 MB; DEX 10,18 / 7,49 / 3,53 MB; ícone 2,37 MB; splash 2,32 MB; texturas seguintes até 1,81 MB.
 - Notas para a Play: “Ajustes na trilha sonora para uma experiência mais agradável durante as partidas.”
