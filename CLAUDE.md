@@ -17,7 +17,7 @@ Jogo mobile (Android, retrato) em **Godot 4.7** (GL Compatibility), GDScript. Ro
 ## Regras que importam
 - **Nenhum arquivo que não seja do jogo dentro desta pasta** (fotos, PSD, prints de cliente): o export leva tudo para o APK/AAB. Antes de enviar um build, listar os maiores arquivos do AAB.
 - Rascunhos e referências do jogo vão em `referencias/` (tem `.gdignore`: o Godot não importa nem exporta).
-- Subir o `version/code` em `export_presets.cfg` **e** `GameData.VERSAO_CODIGO` a cada envio para a Play Store; depois que a Play publicar, atualizar `atualizacao/versao.json` (aviso de versão nova; ver `docs/plano-publicacao.md`).
+- Subir o `version/code` em `export_presets.cfg` **e** `GameData.VERSAO_CODIGO` a cada envio para a Play Store; desde a 1.8.3, a Play detecta atualização automaticamente (`docs/plano-atualizacao-play.md`). Depois da publicação, `atualizacao/versao.json` serve para novidades e compatibilidade com versões antigas; não controla a detecção nas novas.
 - Compras: `BillingManager.gd` (simulado fora do Android). Anúncios: `AdsManager.gd` + plugin `addons/admob` (poing-studios 5.1.0; simulado fora do Android; `USAR_BLOCOS_TESTE = true` até a produção).
 - Push que envolva pagamento ou anúncios: perguntar antes.
 

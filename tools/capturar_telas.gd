@@ -133,7 +133,7 @@ func _rodar() -> void:
 		st["mortes_pagina"] = {"1": {"5": 1}, "2": {"3": 1, "6": 2, "8": 1}, "3": {"4": 5, "8": 2}}
 		h._abrir_painel_stats())
 	await _hub("recompensa", func(h): h._mostrar_popup_recompensa_diaria(3))
-	await _hub("atualizacao", func(h): h._tratar_versao(_VERSAO_TESTE))
+	await _hub("atualizacao", func(h): h._codigo_atualizacao_loja = 99; h._tratar_versao(_VERSAO_TESTE))
 	if _quer("atualizacao-fluxo"):
 		await _fluxo_atualizacao()
 	await _hub("recompensa-dia7", func(h): h._mostrar_popup_recompensa_diaria(7))
@@ -408,6 +408,7 @@ func _fluxo_atualizacao() -> void:
 		h._tratar_versao(t)
 	await process_frame
 	print("[capturar_telas] atualizacao ruim/igual: avisos=", _avisos(h).size(), " (esperado 0)")
+	h._codigo_atualizacao_loja = 99
 	h._mostrar_popup_recompensa_diaria(3); await create_timer(0.3).timeout
 	h._tratar_versao(_VERSAO_TESTE); await create_timer(0.3).timeout
 	print("[capturar_telas] atualizacao com recompensa aberta: avisos=", _avisos(h).size(), " (esperado 0)")
@@ -425,6 +426,7 @@ func _fluxo_atualizacao() -> void:
 	h._tratar_versao(_VERSAO_TESTE); await create_timer(0.2).timeout
 	print("[capturar_telas] atualizacao de novo na mesma abertura: avisos=", _avisos(h).size(), " (esperado 0)")
 	h._aviso_atualizacao_visto = false
+	h._codigo_atualizacao_loja = 0
 	h._buscar_versao(); await create_timer(6.0).timeout
 	print("[capturar_telas] atualizacao GitHub (codigo 13): avisos=", _avisos(h).size(), " (esperado 0)")
 	# O arquivo publicado chega inteiro e é lido pelo Godot (HTTPS)
@@ -592,6 +594,7 @@ func _fluxo_recompensa() -> void:
 	_save(1)
 	var d := SaveManager_dados()
 	var h = _abrir("res://hub.tscn"); await create_timer(1.5).timeout
+	h._codigo_atualizacao_loja = 99
 	h._mostrar_popup_recompensa_diaria(3); await process_frame
 	var j := _janela_recompensa(h)
 	await _tocar(j._btn_coletar)
@@ -609,6 +612,7 @@ func _fluxo_recompensa() -> void:
 	_save(1)
 	d = SaveManager_dados()
 	h = _abrir("res://hub.tscn"); await create_timer(1.5).timeout
+	h._codigo_atualizacao_loja = 99
 	h._mostrar_popup_recompensa_diaria(3); await process_frame
 	await create_timer(0.5).timeout
 	await _tocar(_janela_recompensa(h)._btn_dobro)

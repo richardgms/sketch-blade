@@ -42,7 +42,9 @@ func _folha_nova(d: Dictionary) -> void:
 	var c := _folha_curta(card)
 	_txt(c, "PÁGINA NOVA!", 70, AZUL_ESCURO, 86, 180, FONTE, 0, card.size.x)
 	_traco(c, 200, 780, 192, Color(AZUL_ESCURO, 0.85), 5.0)
-	_txt(c, "Saiu a versão %s do Sketch Blade." % d.get("versao", ""), 42, AZUL, 210, 270, FONTE, 0, card.size.x)
+	var versao: String = d.get("versao", "")
+	var mensagem := "Saiu a versão %s do Sketch Blade." % versao if not versao.is_empty() else "Há uma atualização do Sketch Blade."
+	_txt(c, mensagem, 42, AZUL, 210, 270, FONTE, 0, card.size.x)
 	var y := 300.0
 	_txt(c, "O que mudou:", 46, AZUL_ESCURO, y, y + 64, FONTE, 110, 900, HORIZONTAL_ALIGNMENT_LEFT)
 	y += 74.0

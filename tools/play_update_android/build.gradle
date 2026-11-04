@@ -1,0 +1,21 @@
+plugins { id 'com.android.library' version '8.6.1' }
+
+android {
+    namespace 'com.richardgms.sketchblade.update'
+    compileSdk 36
+    defaultConfig { minSdk 24 }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+}
+dependencies {
+    compileOnly files('../../android/build/libs/release/godot-lib.template_release.aar')
+    implementation 'com.google.android.play:app-update:2.1.0'
+}
+tasks.register('installPlugin', Copy) {
+    dependsOn 'assembleRelease'
+    from layout.buildDirectory.file('outputs/aar/SketchBladePlayUpdate-release.aar')
+    into '../../addons/play_update/bin'
+    rename { 'play-update.aar' }
+}

@@ -1539,7 +1539,7 @@ func _mostrar_popup_recompensa_diaria(dia: int) -> void:
 # ------------------------------------------------------------
 # Aviso de versão nova (docs/plano-publicacao.md → Aviso de atualização)
 # ------------------------------------------------------------
-## Arquivo público no GitHub com a última versão publicada na Play Store.
+## Textos opcionais da versão; disponibilidade é confirmada pela Play Store.
 const URL_VERSAO := "https://raw.githubusercontent.com/richardgms/sketch-blade/main/atualizacao/versao.json"
 const LOJA_APP := "market://details?id=com.richardgms.sketchblade"
 const LOJA_WEB := "https://play.google.com/store/apps/details?id=com.richardgms.sketchblade"
@@ -1547,39 +1547,53 @@ const LOJA_WEB := "https://play.google.com/store/apps/details?id=com.richardgms.
 ## Uma vez por abertura do jogo ("Agora não" vale até fechar o app).
 static var _aviso_atualizacao_visto := false
 var _janela_recompensa: Control
+var _codigo_atualizacao_loja := 0
 
 func _verificar_atualizacao() -> void:
 	if _aviso_atualizacao_visto or not OS.has_feature("android"):
 		return
-	_buscar_versao()
+	var consulta := preload("res://AtualizacaoLoja.gd").new()
+	add_child(consulta)
+	consulta.consultada.connect(func(codigo: int):
+		consulta.queue_free()
+		if codigo > GameData.VERSAO_CODIGO:
+			_codigo_atualizacao_loja = codigo
+			_buscar_versao())
+	consulta.consultar()
 
 func _buscar_versao() -> void:
 	var http := HTTPRequest.new()
-	http.timeout = 8.0
+	http.timeout = 3.0
 	add_child(http)
 	http.request_completed.connect(func(resultado: int, codigo: int, _h, corpo: PackedByteArray):
 		http.queue_free()
 		if resultado == HTTPRequest.RESULT_SUCCESS and codigo == 200:
-			_tratar_versao(corpo.get_string_from_utf8()))
+			_tratar_versao(corpo.get_string_from_utf8())
+		else:
+			_tratar_versao("{}"))
 	if http.request(URL_VERSAO) != OK:
 		http.queue_free()
+		_tratar_versao("{}")
 
-## Mostra o aviso se o arquivo trouxer código maior que o desta versão.
-## Arquivo ruim ou incompleto: não mostra nada.
+## A Play confirmou a atualização. JSON só fornece notas do mesmo código;
+## arquivo ruim ou atrasado usa o aviso genérico.
 func _tratar_versao(texto: String) -> void:
+	if _codigo_atualizacao_loja <= GameData.VERSAO_CODIGO or _aviso_atualizacao_visto:
+		return
 	var json := JSON.new()
-	if json.parse(texto) != OK:
-		return
-	var info = json.data
-	if not info is Dictionary or not info.get("codigo") is float or not info.get("versao") is String:
-		return
-	if int(info["codigo"]) <= GameData.VERSAO_CODIGO or _aviso_atualizacao_visto:
-		return
+	var info = json.data if json.parse(texto) == OK else null
+	var metadados_validos: bool = info is Dictionary and (info.get("codigo") is float or info.get("codigo") is int) \
+		and int(info.get("codigo", 0)) == _codigo_atualizacao_loja and info.get("versao") is String
+	if not metadados_validos:
+		info = {}
 	var novidades: Array = []
 	if info.get("novidades") is Array:
 		for n in info["novidades"]:
 			if n is String and novidades.size() < 3:
 				novidades.append(n)
+	if novidades.is_empty():
+		novidades = ["Confira as novidades na Play Store."]
+	_aviso_atualizacao_visto = true # trava antes de esperar a recompensa fechar
 	# Não empilha em cima da recompensa diária: espera ela fechar
 	if is_instance_valid(_janela_recompensa):
 		await _janela_recompensa.tree_exited
@@ -1595,7 +1609,7 @@ func _tratar_versao(texto: String) -> void:
 		OS.shell_open(LOJA_APP if OS.has_feature("android") else LOJA_WEB)
 		janela.queue_free())
 	janela.fechar.connect(janela.queue_free)
-	janela.mostrar({"versao": info["versao"], "novidades": novidades, "nova": true})
+	janela.mostrar({"versao": info.get("versao", ""), "novidades": novidades, "nova": true})
 
 func _verificar_missoes_diarias() -> void:
 	var hoje = _data_de_hoje()
