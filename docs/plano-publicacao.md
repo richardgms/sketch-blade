@@ -162,3 +162,19 @@ Automação recomendada para avaliação: Play In-App Updates consultando a
  disponibilidade para a conta instalada; exige integração Android e novo build.
 Fonte: https://developer.android.com/guide/playcore/in-app-updates/kotlin-java
 Checkout temporário de publicação preservado em `%TEMP%/sketch-blade-aviso-v17`.
+
+## Atualização automática e build 1.8.3 (18) — 04/11/2026
+Usuário aprovou manter a notinha, com detecção pela Play. Implementação,
+recompilação e teste real pendente em `docs/plano-atualizacao-play.md` (fonte única).
+A partir desta versão, publicar JSON deixa de ser necessário para detectar novas
+versões; continua útil para os textos e os jogos antigos já instalados.
+
+AAB: `Documentos/Sketch Blade - builds/sketchblade-1.8.3-vc18.aab`,
+68.746.548 bytes. Exportação concluída; pacote ZIP íntegro, manifesto 1.8.3,
+registro do plugin v2, classe do plugin e biblioteca AppUpdate presentes nos DEX.
+Sem JPG ou store; fontes Java/Gradle do plugin excluídas por `.gdignore`.
+Scripts de diagnóstico em tools/ continuam no pacote, como nos builds anteriores.
+Maiores arquivos: motor, DEX, ícone e splash. Assinatura UPLOAD verificada
+pelo jarsigner (retorno 0, `jar verified`).
+16 testes de lógica passaram; confirmação em aparelho via Play ainda pendente.
+Não publicar anúncio JSON desta versão antes da disponibilidade na Play.
