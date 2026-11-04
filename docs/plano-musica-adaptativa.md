@@ -1,6 +1,6 @@
 # Plano de música adaptativa
 
-Fonte única sobre a música da partida (efeitos e jingles continuam em `sons.md`). **Situação (04/11/2026): abordagem aprovada pelo Richard (leve = stem da cheia tratado). Etapa 0 ok (cheia gerada em plano pago da Suno). Etapa 1 feita, aguardando ouvido do Richard (página https://claude.ai/artifact/W3KYzjySNFX9UeH3dwtUwS). Código do jogo ainda não mexido.** Saiu de um /brainstorming e de um /llm-council (5 conselheiros + revisão anônima).
+Fonte única sobre a música da partida (efeitos e jingles continuam em `sons.md`). **Situação (04/11/2026): abordagem aprovada pelo Richard (leve = stem da cheia tratado). Etapa 0 ok (cheia gerada em plano pago da Suno). Etapa 1 aprovada de ouvido ("3 voltas perfeito"). Etapa 2 feita. Etapa 3 aguardando ouvido (página de escuta: https://claude.ai/artifact/W3KYzjySNFX9UeH3dwtUwS). Código do jogo ainda não mexido.** Saiu de um /brainstorming e de um /llm-council (5 conselheiros + revisão anônima).
 
 ## O que queremos
 - A música da partida fica mais forte conforme a partida pesa, **sem troca de faixa perceptível** (hoje a pesada recomeça do começo e dá para ouvir).
@@ -42,6 +42,14 @@ Fonte única sobre a música da partida (efeitos e jingles continuam em `sons.md
 - Loop = 2.305.556 amostras a 48 kHz = 48,032 s = 96 batidas (~119,92 BPM). Todas as camadas com o mesmo número de amostras.
 - **Cordas quase ausentes no trecho (−54 dB RMS):** o nível do chefe precisa de outra fonte (decidir na etapa 3 ou depois).
 - Estimativa de tamanho cai para ~3–4 MB (loop de 48 s).
+
+## Resultado da etapa 2 (04/11)
+- `tools/musica/camadas_jogo.py` gera as 7 camadas do jogo em `etapa 2 - camadas do jogo\` (WAV 24 bits + OGG q4 48 kHz + `musica_partida.json` com bpm 119,92, `beat_count` 96, `bar_beats` 4 e o ataque de cada batida).
+- Metrônomo refeito: o clique do arquivo do Richard (1 por batida, mesmo volume) colocado no ataque real da bateria de cada batida do loop novo, de forma circular (o clique que passa do fim continua no começo).
+- Versões leves: passa-baixa sem defasagem (FFT do loop inteiro, circular, então a emenda continua perfeita). Guitarra leve: corte em 900 Hz, −6 dB. Bateria leve: 1500 Hz, −4 dB. Valores iniciais, ajustáveis de ouvido.
+- Cruzamento leve↔pesada **com ganho igual** (as curvas somam 1), não potência igual: as duas versões são o mesmo som, então potência igual daria um "inchaço" de +3 dB no meio.
+- Medido: todas as OGG decodificam com exatamente 2.305.556 amostras; total **3,16 MB** (baixo 210 KB e metrônomo 111 KB em mono; bateria 707, bateria leve 521, guitarras 605, guitarra leve 365, outros 721 KB em estéreo). A bateria leve é quase mono (correlação E/D 0,98): dá para economizar ~200 KB se precisar.
+- Etapa 3: `tools/musica/demo_niveis.py` gera `etapa 3 - niveis\TESTE niveis 1-2-3-1.ogg` (112 s: nível 2 aos 0:24, nível 3 aos 0:56, volta ao 1 aos 1:28). Volume médio: nível 1 −19,9 dB, nível 2 −17,6, nível 3 −16,9 (o degrau 2→3 é mais de brilho que de volume).
 - Arquivos (fora do repo): `Videos\sons sketch blade\26 musica\01 Sala sci-fi (escolhida)\etapa 1 - loop 24 compassos\` (camadas WAV 24 bits, `corte.json`, `grade_batidas.json`, testes OGG q8). Scripts: `tools/musica/` (`grade_batidas.py`, `achar_emenda.py`, `cortar_loop.py`; rodar com uma pasta de trabalho fora do repo como argumento).
 
 ## Camadas (todas cortadas do mesmo trecho da cheia, mesma duração exata)
@@ -49,12 +57,12 @@ Fonte única sobre a música da partida (efeitos e jingles continuam em `sons.md
 |---|---|---|
 | baixo | única | mono |
 | metrônomo suave (feito pelo Richard da bateria) | única | percussão leve do começo; mono |
-| bateria (material escolar) | leve + pesada | leve = passa-baixa e ataques mais baixos; pesada = stem cheio |
-| guitarras | leve + pesada | leve = passa-baixa forte e −6 dB; pesada = stem cheio |
+| bateria (material escolar) | leve + pesada | leve = passa-baixa 1500 Hz e −4 dB; pesada = stem cheio |
+| guitarras | leve + pesada | leve = passa-baixa 900 Hz e −6 dB; pesada = stem cheio |
 | outros (efeitos alienígenas) | única | acentos; entra no fim |
-| cordas | única | na cheia aparecem pouco: reservadas ao chefe; se fizer falta, avaliar música de chefe separada (fase 2) |
+| cordas | — | quase ausentes no loop (−54 dB): fora das camadas; o chefe precisa de outra fonte |
 
-São 8 sub-streams. Estimativa a q4 com loop de ~80 s: 4 mono (~0,5 MB) + 4 estéreo (~0,95 MB) ≈ **5–6 MB** no AAB; loop de 32 compassos (~64 s) ≈ 4–5 MB; q3 reduz mais ~10%. O Godot guarda o OGG comprimido e decodifica tocando: memória ≈ tamanho do arquivo; CPU = 8 decodificações Vorbis ao mesmo tempo (**não medido**; testar no celular mais fraco disponível; se pesar, juntar baixo+metrônomo e deixar 6).
+São 7 sub-streams, **3,16 MB medidos** (q4, loop de 48 s). O Godot guarda o OGG comprimido e decodifica tocando: memória ≈ tamanho do arquivo; CPU = 7 decodificações Vorbis ao mesmo tempo (**não medido**; testar no celular mais fraco disponível; se pesar, juntar baixo+metrônomo).
 
 ## Níveis de intensidade (v1: só por página; nada de oscilar)
 | Nível | Quando | O que toca |
@@ -64,7 +72,7 @@ São 8 sub-streams. Estimativa a q4 com loop de ~80 s: 4 mono (~0,5 MB) + 4 est�
 | 3 Pesado | páginas 6 (elite) e 7 (horda) | bateria leve → pesada + outros |
 | 4 Chefe | página 8 | tudo + cordas |
 
-- Subir: no próximo início de compasso (4 batidas ≈ 2 s), camada entrando em 1 compasso. Cruzamento leve↔pesada: as duas ao mesmo tempo por 1 compasso, curva de potência igual (volumes lineares somando potência ~1, para não dar "buraco").
+- Subir: no próximo início de compasso (4 batidas ≈ 2 s), camada entrando em 1 compasso. Cruzamento leve↔pesada: as duas ao mesmo tempo por 1 compasso, com ganho igual (curvas somando 1; ver etapa 2).
 - Descer (descanso, morte do chefe): em 2 compassos.
 - Histerese: com gatilho por página não há vai-e-volta. Se um dia usarmos monstros vivos ou vida baixa, subir na hora (no compasso) e só descer depois de ~8 s abaixo do limite.
 - Compasso calculado pela posição real de reprodução e pela grade medida de batidas (lista em arquivo), não por 0,5 s fixo (o andamento varia ±35 ms).
@@ -87,8 +95,8 @@ São 8 sub-streams. Estimativa a q4 com loop de ~80 s: 4 mono (~0,5 MB) + 4 est�
 |---|---|---|---|
 | 0 | Richard | Conferir que a cheia foi gerada em plano pago da Suno (uso comercial) | Confirmado |
 | 1 | Código + Richard | Achar na cheia um trecho que emende (corte no ataque, cauda dobrada); gerar o loop de teste e ouvir 3 voltas. **Feito: 24 compassos; falta o ouvido** | Richard aprova que não "pula" |
-| 2 | Código | Cortar os 6 stems do Moises (WAV 48 kHz) com o mesmo intervalo de amostras; gerar guitarra leve e bateria leve por ffmpeg; converter OGG q4 (mono onde der); arquivo com a grade de batidas | Medição: mesma duração em todos, sem clique |
-| 3 | Código + Richard | Mixagem de teste offline dos 4 níveis e das passagens (arquivo único para ouvir) | Richard aprova níveis e passagens |
+| 2 | Código | Cortar os stems com o mesmo intervalo de amostras; metrônomo no loop novo; guitarra e bateria leves; OGG q4 (mono onde der); grade de batidas. **Feito** | Medição: mesma duração em todos, sem clique |
+| 3 | Código + Richard | Mixagem de teste offline dos níveis e das passagens (arquivo único para ouvir). **Gerado (níveis 1–3; o 4 depende da fonte do chefe); falta o ouvido** | Richard aprova níveis e passagens |
 | 4 | Código | `Musica.gd` (autoload): `AudioStreamSynchronized`, níveis por página, fades no compasso, pausa, vitória/derrota; atrás de constante liga/desliga | Partida de teste no PC sem erro; prints/log de nível por página |
 | 5 | Richard | Build de teste no celular (10 min, pausa, segundo plano) | Sem dessincronia, sem travar |
 | 6 | Código | Registrar em `sons.md` (fonte, licença, tratamento) e tamanho no AAB | Build conferido |
