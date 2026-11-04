@@ -106,6 +106,11 @@ func _ready() -> void:
 	_criar_tela_derrota()
 
 	_ajustar_hud_combate()
+	var alerta := preload("res://AlertaVida.gd").new()
+	alerta.name = "AlertaVida"
+	alerta.partida = self
+	$HUD.add_child(alerta)
+	$HUD.move_child(alerta, 0)
 
 	botao_jogar.pressed.connect(_on_botao_jogar_pressed)
 	botao_recomecar.pressed.connect(_on_botao_recomecar_pressed)
@@ -434,6 +439,7 @@ func _tratar_voltar() -> void:
 ## True enquanto há uma partida realmente em andamento (inclui menus de pausa/
 ## roleta/descanso que fazem parte da run), e False em fim de jogo ou tela inicial.
 func _process(delta: float) -> void:
+	_atualizar_posicao_dano_chefe()
 	# Telemetria: o SceneTree pausado (menus) ou app em background congela
 	# este _process, então só o combate real acumula.
 	if jogo_iniciado and _run_em_andamento():
@@ -1094,22 +1100,26 @@ func _limpar_tela_vitoria() -> void:
 
 ## Aviso curto no alto da tela (abaixo da barra de vida), longe da área de
 ## desvio: aparece, segura um instante e some, sem se mexer.
-func aviso_topo(texto: String, cor: Color = Color("c0392b")) -> void:
+func aviso_raiva() -> void:
+	aviso_topo("CHEFE COM RAIVA!", Color("c62828"), true)
+
+func aviso_topo(texto: String, cor: Color = Color("c0392b"), destaque: bool = false) -> void:
 	var lbl := Label.new()
 	lbl.text = texto
 	lbl.add_theme_font_override("font", load("res://assets/fonts/ArchitectsDaughter-Regular.ttf"))
-	lbl.add_theme_font_size_override("font_size", 40)
+	lbl.add_theme_font_size_override("font_size", 54 if destaque else 40)
 	lbl.add_theme_color_override("font_color", cor)
 	lbl.add_theme_color_override("font_outline_color", Color(1, 1, 1, 0.9))
 	lbl.add_theme_constant_override("outline_size", 8)
 	lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	lbl.size = Vector2(1080, 60)
-	lbl.position = Vector2(0, 198) # logo abaixo da barra de vida do chefe
+	lbl.position = Vector2(0, 285 if destaque else 198)
+	lbl.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	lbl.modulate.a = 0.0
 	$HUD.add_child(lbl) # camada da interface: fica por cima do jogo
 	var tw := create_tween()
 	tw.tween_property(lbl, "modulate:a", 1.0, 0.15)
-	tw.tween_interval(1.1)
+	tw.tween_interval(2.2 if destaque else 1.1)
 	tw.tween_property(lbl, "modulate:a", 0.0, 0.35)
 	tw.tween_callback(lbl.queue_free)
 
@@ -1311,15 +1321,46 @@ func tocar_rosnado_ataque(asas: bool = false) -> void:
 	if asas:
 		_tocar_som(SONS["asas"], randf_range(0.95, 1.05))
 
+var _ultima_morte_som_ms := -10000
 func _tocar_som(stream: AudioStream, pitch: float = 1.0) -> void:
 	if stream == null or not SaveManager.dados.get("som_ativo", true):
 		return
+	if stream in VARIACOES["morte"]:
+		var agora := Time.get_ticks_msec()
+		if agora - _ultima_morte_som_ms < 80:
+			return # mortes simultâneas não empilham picos de volume
+		_ultima_morte_som_ms = agora
 	var p = AudioStreamPlayer.new()
 	p.stream = stream
 	p.pitch_scale = pitch
+	if stream in VARIACOES["morte"]:
+		_garantir_bus_mortes()
+		p.bus = "MortesMonstros"
+		p.volume_db = -7.0
+		p.pitch_scale = clampf(pitch, 0.88, 1.02)
 	add_child(p)
 	p.play()
 	p.finished.connect(p.queue_free)
+
+func _garantir_bus_mortes() -> void:
+	if AudioServer.get_bus_index("MortesMonstros") >= 0:
+		return
+	var idx := AudioServer.bus_count
+	AudioServer.add_bus(idx)
+	AudioServer.set_bus_name(idx, "MortesMonstros")
+	AudioServer.set_bus_send(idx, "Master")
+	var eq := AudioEffectEQ6.new()
+	# Reduz sopro grave e formantes vocais; mantém o ataque da tinta.
+	for i in 6:
+		eq.set_band_gain_db(i, [-12.0, -4.0, -1.0, -4.5, -3.0, -2.0][i])
+	AudioServer.add_bus_effect(idx, eq)
+	var compressor := AudioEffectCompressor.new()
+	compressor.threshold = -24.0
+	compressor.ratio = 3.0
+	compressor.attack_us = 6000.0
+	compressor.release_ms = 100.0
+	compressor.gain = 0.0
+	AudioServer.add_bus_effect(idx, compressor)
 
 # Popup flutuante de número de dano (crítico = dourado e maior)
 const IMPACTO_TINTA = preload("res://ImpactoTinta.gd")
@@ -1336,29 +1377,30 @@ func spawn_impacto(pos: Vector2, cor: Color, critico: bool) -> void:
 		_ultimo_tremor_critico = Time.get_ticks_msec()
 		_shake_tela(5.0)
 
-## Dano no chefe: um número só, logo abaixo da barra de vida (à direita),
+## Dano no chefe: um número só, acompanhando o desenho sem cobri-lo,
 ## somando os acertos seguidos; some 0,8 s depois do último. O crítico pisca
 ## em dourado. Assim nada cobre o desenho do chefe.
 var _lbl_dano_chefe: Label
 var _soma_dano_chefe: int = 0
 var _ultimo_dano_chefe_ms: int = -10000
 var _tween_dano_chefe: Tween
-func spawn_dano_chefe(quantidade: int, critico: bool) -> void:
+var _alvo_dano_chefe: Node2D
+var _pos_dano_chefe := Vector2.ZERO
+func spawn_dano_chefe(quantidade: int, critico: bool, alvo: Node2D = null, pos := Vector2.ZERO) -> void:
+	_alvo_dano_chefe = alvo
+	_pos_dano_chefe = pos
 	if _lbl_dano_chefe == null:
 		_lbl_dano_chefe = Label.new()
 		_lbl_dano_chefe.add_theme_font_override("font", FONTE_NUMEROS)
 		_lbl_dano_chefe.add_theme_font_size_override("font_size", 46)
 		_lbl_dano_chefe.add_theme_color_override("font_outline_color", Color("1a1a2e"))
 		_lbl_dano_chefe.add_theme_constant_override("outline_size", 10)
-		_lbl_dano_chefe.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
-		# Encostado na ponta direita da barra (ela é ancorada no centro: usar
-		# a posição real, não os offsets)
-		_lbl_dano_chefe.position = Vector2(boss_hp_bar.position.x + boss_hp_bar.size.x - 300.0,
-			boss_hp_bar.position.y + boss_hp_bar.size.y + 2.0)
+		_lbl_dano_chefe.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 		_lbl_dano_chefe.size = Vector2(300, 56)
-		_lbl_dano_chefe.pivot_offset = Vector2(300, 28)
+		_lbl_dano_chefe.pivot_offset = Vector2(150, 28)
 		_lbl_dano_chefe.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		$HUD.add_child(_lbl_dano_chefe)
+	_atualizar_posicao_dano_chefe()
 	var agora := Time.get_ticks_msec()
 	if agora - _ultimo_dano_chefe_ms > 800:
 		_soma_dano_chefe = 0
@@ -1376,6 +1418,31 @@ func spawn_dano_chefe(quantidade: int, critico: bool) -> void:
 	_tween_dano_chefe.tween_callback(func(): _lbl_dano_chefe.add_theme_color_override("font_color", Color.WHITE))
 	_tween_dano_chefe.tween_interval(0.55)
 	_tween_dano_chefe.tween_property(_lbl_dano_chefe, "modulate:a", 0.0, 0.3)
+
+func _atualizar_posicao_dano_chefe() -> void:
+	if not is_instance_valid(_lbl_dano_chefe):
+		return
+	var centro := get_canvas_transform() * _pos_dano_chefe
+	var topo := centro.y - 85.0
+	var fundo := centro.y + 85.0
+	if is_instance_valid(_alvo_dano_chefe):
+		if not _alvo_dano_chefe.is_visible_in_tree():
+			_lbl_dano_chefe.modulate.a = 0.0
+			return
+		centro = _alvo_dano_chefe.get_global_transform_with_canvas().origin
+		var arte = _alvo_dano_chefe.get("_arte")
+		if is_instance_valid(arte):
+			var rect: Rect2 = arte.get_rect()
+			var transformacao: Transform2D = arte.get_global_transform_with_canvas()
+			topo = INF
+			fundo = -INF
+			for canto in [rect.position, Vector2(rect.end.x, rect.position.y), rect.end, Vector2(rect.position.x, rect.end.y)]:
+				var ponto: Vector2 = transformacao * canto
+				topo = minf(topo, ponto.y)
+				fundo = maxf(fundo, ponto.y)
+	var tamanho := get_viewport_rect().size
+	var y := topo - 78.0 if topo > 340.0 else fundo + 20.0
+	_lbl_dano_chefe.position = Vector2(clampf(centro.x - 150.0, 20.0, tamanho.x - 320.0), clampf(y, 260.0, tamanho.y - 180.0))
 
 func spawn_damage_number(quantidade: int, pos: Vector2, eh_jogador: bool, critico: bool = false) -> void:
 	var lbl = Label.new()

@@ -62,3 +62,14 @@ Música: `assets/musica/` (ver `plano-musica-adaptativa.md`).
 - Backup do save feito antes; restauração no `finally` com bytes/hash conferidos. Logs e backup em `%TEMP%/sketch-blade-continuacao-ixm1wnmj/`.
 - O Godot 4.7 emitiu avisos de recursos ao encerrar os testes. A primeira importação saiu com código 0; uma repetição encerrou nativamente com `0xC0000005`, sem erro de script reportado. Os testes acima foram executados depois, usando a importação concluída. Causa da falha nativa não investigada nesta revisão de sons.
 - Commits desta revisão ficam locais: a branch já contém mudanças anteriores no `Hub.gd` que trata compras, e o push segue aguardando autorização conforme as regras do projeto.
+
+## Mixagem de mortes e Estojo — 04/11/2026
+- Mortes comuns e do chefe passam pelo bus `MortesMonstros`: −7 dB por player,
+  EQ6 com ganhos −12/−4/−1/−4,5/−3/−2 dB (32/100/320/1000/3200/10000 Hz),
+  compressor limiar −24 dB, razão 3:1, ataque 6 ms, release 100 ms, sem makeup.
+  Reduz sopro e caráter vocal; pitch limitado a 0,88–1,02 e intervalo mínimo
+  de 80 ms evita empilhar mortes simultâneas. Assets originais preservados.
+- Estojo soma `clique.ogg` ao `ziper.ogg`; outras abas mantêm clique.
+- Teste de roteamento, ganho, antissobreposição e cliques: zero falhas.
+  Qualidade subjetiva ainda depende da escuta no celular.
+- Referência de bandas: [AudioEffectEQ6 oficial](https://docs.godotengine.org/en/stable/classes/class_audioeffecteq6.html).

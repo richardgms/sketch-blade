@@ -842,7 +842,9 @@ func _alterar_aba(nova_aba: String) -> void:
 	_estilizar_botao_aba(botao_aba_loja, nova_aba == "loja", "LOJA")
 	
 	# Abrir o estojo é abrir o zíper
-	_tocar_som(preload("res://assets/sons/ziper.ogg") if nova_aba == "estojo" else audio_click_sucesso)
+	_tocar_som(audio_click_sucesso)
+	if nova_aba == "estojo":
+		_tocar_som(preload("res://assets/sons/ziper.ogg"))
 
 func _estilizar_botao_aba(botao: Button, ativo: bool, texto_padrao: String) -> void:
 	var cor_azul  = Color("0047ab")        # Azul cobalto — ativo (igual ao [LUTAR])

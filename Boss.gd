@@ -354,7 +354,7 @@ func _aplicar_dano(quantidade: int, critico: bool, pos_numero: Vector2, piscar: 
 	if hp > 0:
 		var main_node = get_parent()
 		if main_node and main_node.has_method("spawn_dano_chefe"):
-			main_node.spawn_dano_chefe(quantidade, critico)
+			main_node.spawn_dano_chefe(quantidade, critico, self if piscar else null, pos_numero)
 	if not piscar:
 		if hp <= 0:
 			morrer()
@@ -377,7 +377,7 @@ func _entrar_raiva() -> void:
 	Musica.raiva_chefe()
 	var main = get_parent()
 	if main and main.has_method("aviso_topo"):
-		main.aviso_topo("COM RAIVA!")
+		main.aviso_raiva()
 	if main and main.has_method("_shake_tela"):
 		main._shake_tela(14.0)
 	if main and main.has_method("_tocar_som"):

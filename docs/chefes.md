@@ -81,3 +81,16 @@ Confirmado no código em 29/10/2026 (`Main.gd`, `Hub.gd`).
 - **Vitória**: tinta + bônus de vidas (10% por coração) + bônus do capítulo; XP; desbloqueia o próximo capítulo (só na 1ª vez).
 - **Sair pelo menu de pausa**: abandona a partida (sem tinta, sem retomar).
 - **App fechado ou em segundo plano** (home, ligação, Android mata o app): a partida fica salva no início de cada página (`run_snapshot`). Ao abrir o hub aparece "Partida em andamento": volta no **começo da mesma página**, com capítulo, corações, tinta, upgrades da roleta e o revive usado ou não. só "Abandonar partida" apaga a partida salva; tocar em **LUTAR** com partida salva reabre esse aviso (desde 29/10).
+
+## Clareza do combate — 04/11/2026
+- Dano agregado acompanha a arte do chefe: acima do contorno, ou abaixo quando
+  falta espaço no topo, com margens da tela. Pedaços da Mancha usam a posição
+  atingida; crítico continua dourado. Sem números fixados junto da barra.
+- Raiva real anuncia `CHEFE COM RAIVA!` em 54 px durante 2,2 s. Mancha e Estojo
+  preservam avisos de suas fases próprias.
+- `AlertaVida.gd`: arte RGBA original (941×1672) em `assets/ui/vida_baixa_vinheta.png`,
+  atrás do HUD e sem bloquear toque. Surge com até 30% da vida (mínimo 2 corações),
+  pulsa suavemente e intensifica com 1; some ao curar, pausar ou terminar.
+- Teste: `tools/teste_feedback_combate.gd`, 13 verificações sem falha, também
+  executado com renderização OpenGL. Save restaurado e hash conferido.
+- Arte e prévia real: `Documentos/Sketch Blade - design/feedback-combate/`.
