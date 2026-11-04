@@ -25,13 +25,13 @@ virada de página pelo canto (VirarPagina.gd), respingo de tinta na morte (Morte
 textura e linha-limite à caneta (Paper.gd), HUD +30%, selo DERROTADO no Hub. E o Hub ganhou o aviso
 de versão nova (JanelaAtualizacao.gd + atualizacao/versao.json no GitHub).
 Build 1.8.0 (código 15, 04/11) gerado, assinado e conferido para o teste fechado, com música
-adaptativa, música de chefe/raiva, sons aprovados e marimba na contagem. Envio e teste no celular
-ainda pendentes (detalhes e caminho do AAB em plano-publicacao.md). Só atualizar
-atualizacao/versao.json para código 15 depois de confirmar que a Play disponibilizou a versão.
+adaptativa, música de chefe/raiva, sons aprovados e marimba na contagem. Richard já atualizou pela
+Play; o JSON público foi corrigido para 15 depois do relato do aviso ausente (plano-publicacao.md).
+A remoção do metrônomo foi implementada e testada depois dessa escuta, mas ainda precisa de novo build.
 Ainda com MODO_TESTE = true e anúncios de teste. Em aberto: papel usado também no pardo (cap. 6-7)?
 O cap. 10 continua com o usado?
 
-Próximo: enviar o AAB ao teste fechado e validar música, sons, pausa e segundo plano no celular.
+Próximo: gerar novo build com a retirada do metrônomo quando solicitado e concluir os testes de áudio no celular.
 Todas as telas de jogador já estão no estilo novo (só o painel
 "Stats de teste", de testador, segue o antigo). Compras e anúncios: só o visual; push que envolva
 pagamento ou anúncio: me pergunte antes.
