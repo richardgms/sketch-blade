@@ -16,17 +16,28 @@ def barras(d):
 PL={k:load(f"{P}/{k}.wav") for k in ["baixo","metronomo","bateria","guitarras","outros"]}; NP=len(PL["baixo"]); BP=barras(P)
 CL={k:load(f"{C}/{k}.wav") for k in ["baixo","metronomo","bateria","guitarras_leve","guitarras","alien"]}; NC=len(CL["baixo"]); BC=barras(C)
 def babs(B,N,b): return (b//len(B))*N+B[b%len(B)]
-# partida nivel 3: 8 compassos; no 9o o chefe surge (rugido) e a partida desce 6 dB por baixo dele;
-# sai por baixo da entrada e a musica do chefe entra no "1" do compasso seguinte, com a bateria no tempo
+# partida nivel 3: 8 compassos. No 9o o chefe surge (rugido): a partida vai abafando (passa-baixa fechando
+# de 18 kHz para 500 Hz no compasso) e desce 3 dB; a musica do chefe entra no "1" do compasso seguinte e a
+# partida (ja abafada) some em 1 batida por baixo dela.
 p_saida=babs(BP,NP,8); p_fim=babs(BP,NP,9)
-ultima=p_fim  # a partida so comeca a sair no "1" do chefe
-SOBRA=int(0.15*SR)  # e some em 150 ms por baixo dele: sem buraco
-part=sum(np.tile(x,(2,1))[:p_fim+SOBRA] for x in PL.values()).copy()
+BATIDA=int(np.load(P+"/_ataques.npy")[37]-np.load(P+"/_ataques.npy")[36])
+SOBRA=BATIDA
+part=sum(np.tile(x,(2,1))[:p_fim+SOBRA] for x in PL.values()).astype(np.float64)
 fi=int(1.0*SR); part[:fi]*=ss(np.arange(fi)/fi)[:,None]
-d=int(0.25*SR); g=np.ones(len(part),np.float32); duck=10**(-6/20)
-g[p_saida:p_saida+d]=1+(duck-1)*ss(np.arange(d)/d); g[p_saida+d:]=duck
-z=len(part)-ultima; g[ultima:]*=1-ss(np.arange(z)/z)
-part*=g[:,None]
+def passa_baixa_variavel(x,fc):  # biquad (RBJ) com corte por amostra
+    y=np.zeros_like(x); z1=np.zeros(x.shape[1]); z2=np.zeros(x.shape[1]); q=0.707
+    for i in range(len(x)):
+        w=2*np.pi*fc[i]/SR; al=np.sin(w)/(2*q); cw=np.cos(w); a0=1+al
+        b0=(1-cw)/2/a0; b1=(1-cw)/a0; b2=b0; a1=-2*cw/a0; a2=(1-al)/a0
+        xi=x[i]; yi=b0*xi+z1; z1=b1*xi-a1*yi+z2; z2=b2*xi-a2*yi; y[i]=yi
+    return y
+seg=part[p_saida:]
+fc=np.full(len(seg),500.0); zz=p_fim-p_saida
+fc[:zz]=np.exp(np.log(18000)+(np.log(500)-np.log(18000))*ss(np.arange(zz)/zz))
+part[p_saida:]=passa_baixa_variavel(seg,fc)
+g=np.ones(len(part)); d=zz; g[p_saida:p_fim]=1+(10**(-3/20)-1)*ss(np.arange(d)/d); g[p_fim:]=10**(-3/20)
+g[p_fim:]*=1-ss(np.arange(len(part)-p_fim)/(len(part)-p_fim))
+part=(part*g[:,None]).astype(np.float32)
 # chefe: entra no fim da saida; normal 16 compassos, raiva em 1 compasso, mais 16, vitoria
 RAIVA=16; FIM=34
 T=babs(BC,NC,FIM)

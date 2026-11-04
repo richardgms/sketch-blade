@@ -23,6 +23,13 @@ def ataque(t):
     env=np.array([np.sqrt((dm[i:i+win]**2).mean()) for i in range(a,b,hop)])
     return a+int(np.diff(env).argmax())*hop+win//2
 ataques=[ataque(t) for t in grade]
+# chefe: o loop comeca no compasso 6 (comeco de frase, baixo em Mi, alien entrando); o loop e circular,
+# entao girar todas as camadas pelo mesmo tanto mantem a emenda perfeita
+ROT=0
+if NOME=="chefe":
+    ROT=ataques[6*4]-int(0.05*SR)
+    L={k:np.roll(v,-ROT,axis=0) for k,v in L.items()}
+    ataques=sorted(((a-ROT)%N) for a in ataques)
 # metronomo: o clique do Richard (1o clique do arquivo dele) em cada ataque, circular
 met=None
 if True:  # o mesmo clique do Richard nas duas musicas
@@ -55,5 +62,5 @@ for k,x in camadas.items():
 print("N esperado",N,"| total OGG %.2f MB"%(sum(r["kb"] for r in rel.values())/1024))
 bpm=60*len(grade)/(N/SR)
 json.dump({"amostras":N,"sr":SR,"duracao_s":N/SR,"bpm":round(bpm,4),"beat_count":len(grade),"bar_beats":4,
-           "batidas_s":[round(a/SR,4) for a in ataques],"camadas":rel},open(OUT+f"/musica_{NOME}.json","w"),indent=1)
+           "batidas_s":[round(a/SR,4) for a in ataques],"rotacao_amostras":int(ROT),"camadas":rel},open(OUT+f"/musica_{NOME}.json","w"),indent=1)
 np.save(OUT+"/_ataques.npy",np.array(ataques))
