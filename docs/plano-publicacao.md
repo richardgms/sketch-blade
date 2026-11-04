@@ -2,6 +2,19 @@
 
 Atualizado em 2026-10-24. Fonte única do plano; marque cada item ao concluir.
 
+## Build 1.8.0 (código 15) — teste fechado (04/11/2026)
+- Destino confirmado pelo Richard: teste fechado da Play Console. Música e sons aprovados; marimba aprovada para a contagem.
+- [x] Atualizar `version/code` e `GameData.VERSAO_CODIGO` para 15, versão 1.8.0.
+- [x] Ligar a marimba aprovada no 3-2-1-JÁ e manter o tratamento reproduzível em `tools/sons_lote2.py`.
+- [x] Importar e validar música, sons e hub no PC, preservando o save: 7 verificações de sons, 17 de música e hub passaram; save restaurado e conferido. Logs em `%TEMP%/sketchblade-180-frtbq_pj/`.
+- [x] Exportar AAB de release assinado para `Documentos/Sketch Blade - builds/sketchblade-1.8.0-vc15.aab`: **68.196.260 bytes (68,2 MB)**. O Godot permaneceu aberto depois de gravar o pacote; só o processo deste export foi encerrado após o ZIP assinado ficar íntegro e estável por 15 s.
+- [x] Conferir integridade, assinatura, versão, áudios novos e maiores arquivos do AAB: ZIP íntegro; `jarsigner -verify` confirmou a assinatura; certificado de upload igual ao AAB 1.7.4. Manifesto protobuf conferido com as classes do `aapt2-proto` já instalado: pacote `com.richardgms.sketchblade`, versão 1.8.0, código 15. **40 sons + 13 camadas de música** coincidem byte a byte com os recursos importados locais. Sem JPG/JPEG/PSD, `store/`, rascunhos, credenciais, saves ou morte 7/8.
+- [ ] Enviar à faixa fechada e testar no celular: música por 10 min, pausa/retomada, segundo plano, chefe/raiva, sons e contagem.
+- Manter `MODO_TESTE = true` e anúncios de teste para esta faixa. Atualizar `atualizacao/versao.json` somente depois de a Play disponibilizar esta versão.
+- SHA-256: `4a24895c7b6991adf092ff035c1f5952cac2a8f0d301ac7e949deeb6adfaaac0`. Relatório ao lado do AAB: `sketchblade-1.8.0-vc15.validacao.json`.
+- Maiores arquivos (tamanho descomprimido): motor Godot 71,15 MB; três DEX 10,18 / 7,49 / 3,53 MB; ícone 2,37 MB; splash 2,32 MB; demais maiores são texturas do jogo (até 1,81 MB).
+- Notas para a Play: “Música que acompanha a intensidade da partida e as fases dos chefes. Novos sons de combate e interface. Contagem com marimba e som de derrota completo.”
+
 ## Estado encontrado (investigação)
 | Item | Estado |
 |---|---|

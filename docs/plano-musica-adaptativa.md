@@ -1,6 +1,6 @@
 # Plano de música adaptativa
 
-Fonte única sobre a música da partida (efeitos e jingles continuam em `sons.md`). **Situação (04/11/2026): abordagem aprovada pelo Richard (leve = stem da cheia tratado). Etapa 0 ok (cheia gerada em plano pago da Suno). Etapa 1 aprovada de ouvido ("3 voltas perfeito"). Etapa 2 feita. Etapa 3 aprovada de ouvido ("gostei"). Página de escuta: https://claude.ai/artifact/W3KYzjySNFX9UeH3dwtUwS. Chefe com música própria aprovada (seção abaixo). **Etapa 4 feita e testada no PC (04/11); falta o teste no celular (etapa 5).** Saiu de um /brainstorming e de um /llm-council (5 conselheiros + revisão anônima).
+Fonte única sobre a música da partida (efeitos e jingles continuam em `sons.md`). **Situação (04/11/2026): abordagem aprovada pelo Richard (leve = stem da cheia tratado). Etapa 0 ok (cheia gerada em plano pago da Suno). Etapa 1 aprovada de ouvido ("3 voltas perfeito"). Etapa 2 feita. Etapa 3 aprovada de ouvido ("gostei"). Página de escuta: https://claude.ai/artifact/W3KYzjySNFX9UeH3dwtUwS. Chefe com música própria aprovada (seção abaixo). **Etapa 4 feita e testada no PC (04/11); AAB 1.8.0 (15) gerado e conferido para o teste fechado (ver `plano-publicacao.md`). Falta o teste no celular (etapa 5).** Saiu de um /brainstorming e de um /llm-council (5 conselheiros + revisão anônima).
 
 ## O que queremos
 - A música da partida fica mais forte conforme a partida pesa, **sem troca de faixa perceptível** (hoje a pesada recomeça do começo e dá para ouvir).
