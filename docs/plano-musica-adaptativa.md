@@ -1,6 +1,6 @@
 # Plano de música adaptativa
 
-Fonte única sobre a música da partida (efeitos e jingles continuam em `sons.md`). **Situação: proposta de 04/11/2026, aguardando o ok do Richard. Nada implementado.** Saiu de um /brainstorming e de um /llm-council (5 conselheiros + revisão anônima).
+Fonte única sobre a música da partida (efeitos e jingles continuam em `sons.md`). **Situação (04/11/2026): abordagem aprovada pelo Richard (leve = stem da cheia tratado). Nada implementado; próximo passo = etapas 0 e 1.** Saiu de um /brainstorming e de um /llm-council (5 conselheiros + revisão anônima).
 
 ## O que queremos
 - A música da partida fica mais forte conforme a partida pesa, **sem troca de faixa perceptível** (hoje a pesada recomeça do começo e dá para ouvir).
@@ -89,7 +89,7 @@ São 8 sub-streams. Estimativa a q4 com loop de ~80 s: 4 mono (~0,5 MB) + 4 est�
 | Decisão | Alternativas | Por quê |
 |---|---|---|
 | Uma geração só (cheia) | limpa; misturar as duas | Cheia tem mais material para emendas; misturar dá choque harmônico (medido) |
-| Leve = stem tratado, arquivo próprio | Cover Suno; compor; filtro em tempo real | Mesma harmonia e duração por construção; filtro em tempo real pegaria todas as camadas do mesmo player |
+| Leve = stem tratado, arquivo próprio (**aprovado pelo Richard em 04/11**) | Cover Suno; compor; filtro em tempo real | Mesma harmonia e duração por construção; filtro em tempo real pegaria todas as camadas do mesmo player |
 | `AudioStreamSynchronized` | vários players; `AudioStreamInteractive` | Sincronia por construção; Interactive troca clipes inteiros |
 | Gatilho por página no v1 | vida, monstros, combo | Sem oscilação, fácil de testar; o resto depois |
 | Jingle depois da música sair | ducking por cima | Tom dos jingles não conferido |
