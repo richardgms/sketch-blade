@@ -13,7 +13,7 @@ Atualizado em 2026-10-24. Fonte única do plano; marque cada item ao concluir.
 - Manter `MODO_TESTE = true` e anúncios de teste para esta faixa. Atualizar `atualizacao/versao.json` somente depois de a Play disponibilizar esta versão.
 - SHA-256: `4a24895c7b6991adf092ff035c1f5952cac2a8f0d301ac7e949deeb6adfaaac0`. Relatório ao lado do AAB: `sketchblade-1.8.0-vc15.validacao.json`.
 - Maiores arquivos (tamanho descomprimido): motor Godot 71,15 MB; três DEX 10,18 / 7,49 / 3,53 MB; ícone 2,37 MB; splash 2,32 MB; demais maiores são texturas do jogo (até 1,81 MB).
-- Notas para a Play: “Música que acompanha a intensidade da partida e as fases dos chefes. Novos sons de combate e interface. Contagem com marimba e som de derrota completo.”
+- Notas para a Play: “Nova trilha sonora que acompanha a intensidade das partidas e das batalhas contra os chefes. Novos efeitos sonoros deixam o combate e a navegação mais envolventes.”
 
 ## Estado encontrado (investigação)
 | Item | Estado |
