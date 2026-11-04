@@ -1,6 +1,6 @@
 # Plano de música adaptativa
 
-Fonte única sobre a música da partida (efeitos e jingles continuam em `sons.md`). **Situação (04/11/2026): abordagem aprovada pelo Richard (leve = stem da cheia tratado). Nada implementado; próximo passo = etapas 0 e 1.** Saiu de um /brainstorming e de um /llm-council (5 conselheiros + revisão anônima).
+Fonte única sobre a música da partida (efeitos e jingles continuam em `sons.md`). **Situação (04/11/2026): abordagem aprovada pelo Richard (leve = stem da cheia tratado). Etapa 0 ok (cheia gerada em plano pago da Suno). Etapa 1 feita, aguardando ouvido do Richard (página https://claude.ai/artifact/W3KYzjySNFX9UeH3dwtUwS). Código do jogo ainda não mexido.** Saiu de um /brainstorming e de um /llm-council (5 conselheiros + revisão anônima).
 
 ## O que queremos
 - A música da partida fica mais forte conforme a partida pesa, **sem troca de faixa perceptível** (hoje a pesada recomeça do começo e dá para ouvir).
@@ -34,6 +34,15 @@ Fonte única sobre a música da partida (efeitos e jingles continuam em `sons.md
 | Cover da cheia na Suno ("soft, sparse") + Moises | Créditos Suno + Moises; 1–2 h + aprovação | Médio/alto: o Cover não mantém duração nem harmonia exatas. Só entra se passar na medição (baixo por batida ≥ 85–90% e mesma contagem de batidas depois de alinhado) |
 | Alinhar/esticar limpa e cheia pela grade | Horas | **Descartado** pela medição (Sol# × Sol) |
 | Compor leve/pesada à mão (DAW/MIDI) | Dias a semanas, exige DAW | Baixo musicalmente, alto em tempo. Só se o jogo pedir guitarra pesada de verdade |
+
+## Resultado da etapa 1 (04/11)
+- Grade de batidas medida direto na bateria da cheia (Moises, WAV 48 kHz): 175 batidas, 0,4789–0,5224 s entre elas; o "1" do compasso cai na batida 0 (bumbo mais forte). O metrônomo do Moises e o da "receita CapCut" não servem de régua (escorregam ~0,003 s por batida em relação ao bumbo).
+- **Só existe emenda boa com 24 compassos:** batidas 52→148 (26,12 s → 74,15 s), o trecho dos 26 s se repete aos 74 s. Semelhança por instrumento 0,92–0,94 nas 16 batidas depois da emenda (par aleatório: 0,52–0,68). Com 32 ou 40 compassos nenhum ponto passou de 0,66 → descartados.
+- Corte: 50 ms antes do ataque do bumbo, alinhado por correlação da bateria (ajuste de −3 ms); o início recebe 45 ms da continuação natural do fim, com cruzamento seno/cosseno (as ondas nessa janela não se parecem, correlação ≈ 0,05, então potência igual). Salto na emenda abaixo do passo normal do áudio em todas as camadas (sem clique).
+- Loop = 2.305.556 amostras a 48 kHz = 48,032 s = 96 batidas (~119,92 BPM). Todas as camadas com o mesmo número de amostras.
+- **Cordas quase ausentes no trecho (−54 dB RMS):** o nível do chefe precisa de outra fonte (decidir na etapa 3 ou depois).
+- Estimativa de tamanho cai para ~3–4 MB (loop de 48 s).
+- Arquivos (fora do repo): `26 musica Sala sci-fi (escolhida)\etapa 1 - loop 24 compassos\` (camadas WAV 24 bits, `corte.json`, `grade_batidas.json`, testes OGG q8). Scripts: `tools/musica/` (`grade_batidas.py`, `achar_emenda.py`, `cortar_loop.py`; rodar com uma pasta de trabalho fora do repo como argumento).
 
 ## Camadas (todas cortadas do mesmo trecho da cheia, mesma duração exata)
 | Camada | Versões | Observação |
@@ -69,7 +78,7 @@ São 8 sub-streams. Estimativa a q4 com loop de ~80 s: 4 mono (~0,5 MB) + 4 est�
 
 ## Critério de aceite (medível antes do ouvido)
 - Todos os arquivos com o mesmo número de amostras.
-- Loop: corte no ataque real da bateria, número de batidas múltiplo de 4 (de preferência 128 ou 160), sem clique na emenda (cauda do fim somada ao começo, cruzamento de 5–10 ms).
+- Loop: corte no ataque real da bateria, número de batidas múltiplo de 4 (ficou 96 = 24 compassos), sem clique na emenda (cauda do fim somada ao começo, cruzamento de 5–10 ms).
 - No celular: nenhuma camada sai de sincronia depois de 10 min e de pausar/retomar e ir para segundo plano.
 - Aprovação de ouvido do Richard em cada etapa (arquivo de teste na pasta "testes para ouvir" e página de escuta).
 
@@ -77,7 +86,7 @@ São 8 sub-streams. Estimativa a q4 com loop de ~80 s: 4 mono (~0,5 MB) + 4 est�
 | # | Quem | O quê | Pronto quando |
 |---|---|---|---|
 | 0 | Richard | Conferir que a cheia foi gerada em plano pago da Suno (uso comercial) | Confirmado |
-| 1 | Código + Richard | Achar na cheia um trecho de 32 ou 40 compassos que emende (corte no ataque, cauda dobrada); gerar o loop de teste da música inteira e ouvir 3 voltas | Richard aprova que não "pula" |
+| 1 | Código + Richard | Achar na cheia um trecho que emende (corte no ataque, cauda dobrada); gerar o loop de teste e ouvir 3 voltas. **Feito: 24 compassos; falta o ouvido** | Richard aprova que não "pula" |
 | 2 | Código | Cortar os 6 stems do Moises (WAV 48 kHz) com o mesmo intervalo de amostras; gerar guitarra leve e bateria leve por ffmpeg; converter OGG q4 (mono onde der); arquivo com a grade de batidas | Medição: mesma duração em todos, sem clique |
 | 3 | Código + Richard | Mixagem de teste offline dos 4 níveis e das passagens (arquivo único para ouvir) | Richard aprova níveis e passagens |
 | 4 | Código | `Musica.gd` (autoload): `AudioStreamSynchronized`, níveis por página, fades no compasso, pausa, vitória/derrota; atrás de constante liga/desliga | Partida de teste no PC sem erro; prints/log de nível por página |
