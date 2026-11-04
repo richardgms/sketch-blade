@@ -2,6 +2,12 @@
 
 Fonte única sobre a música da partida (efeitos e jingles continuam em `sons.md`). **Situação (04/11/2026): abordagem aprovada pelo Richard (leve = stem da cheia tratado). Etapa 0 ok (cheia gerada em plano pago da Suno). Etapa 1 aprovada de ouvido ("3 voltas perfeito"). Etapa 2 feita. Etapa 3 aprovada de ouvido ("gostei"). Página de escuta: https://claude.ai/artifact/W3KYzjySNFX9UeH3dwtUwS. Chefe com música própria aprovada (seção abaixo). **Etapa 4 feita e testada no PC (04/11); AAB 1.8.0 (15) gerado e conferido para o teste fechado (ver `plano-publicacao.md`). Falta o teste no celular (etapa 5).** Saiu de um /brainstorming e de um /llm-council (5 conselheiros + revisão anônima).
 
+## Ajuste após a escuta (04/11)
+- Richard pediu retirar o metrônomo por soar esquisito. A camada saiu da partida e do chefe, inclusive da raiva, do gerador e das demonstrações futuras. Os cliques e seus imports saíram dos assets; as outras camadas e a grade de compassos permanecem iguais.
+- Estado atual: **6 camadas na partida (3.203.812 bytes) e 5 no chefe (2.412.888 bytes)**, duas decodificações a menos e 226.786 bytes de áudio removidos. A sincronia usa a posição dos loops e a grade medida, sem depender do clique audível.
+- Validação: `tools/teste_musica.gd` passou nas 17 verificações, sem erros; save restaurado e conferido. Logs em `%TEMP%/sketch-blade-continuacao-31v497ag/`. Sintaxe dos três scripts Python alterados também conferida, sem regenerar os áudios originais.
+- **O AAB 1.8.0 (15), já gerado, ainda contém o metrônomo.** Este ajuste precisa entrar em outro build; o arquivo anterior foi preservado.
+
 ## O que queremos
 - A música da partida fica mais forte conforme a partida pesa, **sem troca de faixa perceptível** (hoje a pesada recomeça do começo e dá para ouvir).
 - Ideia do Richard (mantida na essência): cada instrumento em versão leve e pesada, tudo no mesmo tempo, e o código cruza leve↔pesado e libera instrumentos no tempo certo.
@@ -56,18 +62,17 @@ Fonte única sobre a música da partida (efeitos e jingles continuam em `sons.md
 | Camada | Versões | Observação |
 |---|---|---|
 | baixo | única | mono |
-| metrônomo suave (feito pelo Richard da bateria) | única | percussão leve do começo; mono |
 | bateria (material escolar) | leve + pesada | leve = passa-baixa 1500 Hz e −4 dB; pesada = stem cheio |
 | guitarras | leve + pesada | leve = passa-baixa 900 Hz e −6 dB; pesada = stem cheio |
 | outros (efeitos alienígenas) | única | acentos; entra no fim |
 | cordas | — | quase ausentes no loop (−54 dB): fora das camadas; o chefe precisa de outra fonte |
 
-São 7 sub-streams, **3,16 MB medidos** (q4, loop de 48 s). O Godot guarda o OGG comprimido e decodifica tocando: memória ≈ tamanho do arquivo; CPU = 7 decodificações Vorbis ao mesmo tempo (**não medido**; testar no celular mais fraco disponível; se pesar, juntar baixo+metrônomo).
+São 6 sub-streams, **3.203.812 bytes** (q4, loop de 48 s). O Godot guarda o OGG comprimido e decodifica tocando: memória ≈ tamanho do arquivo; CPU = 6 decodificações Vorbis ao mesmo tempo (**não medido**; testar no celular mais fraco disponível).
 
 ## Níveis de intensidade (v1: só por página; nada de oscilar)
 | Nível | Quando | O que toca |
 |---|---|---|
-| 1 Calmo | páginas 1–2 e 4 (descanso) | baixo + metrônomo + guitarra leve |
+| 1 Calmo | páginas 1–2 e 4 (descanso) | baixo + guitarra leve |
 | 2 Andando | páginas 3 e 5 | + bateria leve; guitarra leve → pesada |
 | 3 Pesado | páginas 6 (elite) e 7 (horda) | bateria leve → pesada + outros |
 | Chefe | página 8 | música própria do chefe (ver "Música do chefe") |
@@ -98,9 +103,9 @@ São 7 sub-streams, **3,16 MB medidos** (q4, loop de 48 s). O Godot guarda o OGG
 - O loop do chefe foi **girado para começar no compasso 6 dele** (começo de frase: baixo em Mi, alien entrando forte). No compasso 0 original o baixo estava em Ré#, uma nota de passagem, e a entrada soava no meio da frase. Girar todas as camadas pelo mesmo tanto mantém a emenda (o loop é circular); o deslocamento fica em `rotacao_amostras` do `musica_chefe.json`. Frases do chefe começam nos compassos 2, 6, 10, 14 e 20 do loop original (quebra de bateria nos compassos 18–19).
 - Loop: batidas 56→152 (28,46 s → 77,07 s), 24 compassos, 2.333.563 amostras = 48,616 s (~118,48 BPM). Emenda menos perfeita que a da partida, mas cada camada fica tão parecida com a continuação natural quanto a própria música um compasso depois (bateria 0,76 contra 0,75; baixo 0,83/0,83; guitarra 0,89/0,82; alien 0,70/0,67; outros 0,87/0,84). Sem clique.
 - Cruzamento da emenda por camada: ganho igual onde os dois lados são parecidos (bateria 0,92 e baixo 0,75 de correlação), potência igual nas outras.
-- Camadas do jogo (`C2 - camadas do jogo\`, OGG q4, **2,41 MB**): baixo, metrônomo e bateria em mono (bateria quase mono, correlação 0,996), guitarras (guitarra + outros), guitarra leve (900 Hz, −6 dB), alien (teclado).
-- Metrônomo: o mesmo clique do Richard em cada ataque da bateria do chefe. O metrônomo do zip do Moises cai 21 a 113 ms atrasado em relação à bateria (medido): não serve.
-- Níveis: **normal** = bateria, baixo, metrônomo, guitarra leve, alien a −6 dB; **raiva** = guitarra leve→cheia e alien a 0 dB, em 1 compasso.
+- Camadas atuais do jogo (OGG q4, **2.412.888 bytes**): baixo e bateria em mono (bateria quase mono, correlação 0,996), guitarras (guitarra + outros), guitarra leve (900 Hz, −6 dB), alien (teclado).
+- Metrônomo removido após a escuta. Histórico: o clique era alinhado à bateria; o metrônomo do zip do Moises cai 21 a 113 ms atrasado (medido) e não foi usado como régua.
+- Níveis: **normal** = bateria, baixo, guitarra leve, alien a −6 dB; **raiva** = guitarra leve→cheia e alien a 0 dB, em 1 compasso.
 - Volume: a música do chefe toca **+2,5 dB** para o normal ficar no nível da partida 3 (partida n3 −16,9 dB; chefe normal −16,5; raiva −15,4). Sem isso a chegada do chefe soaria como queda.
 - Demonstração (`C2 - demonstracao\`, `tools/musica/demo_chefe.py`): partida n3 → rugido com a partida −6 dB por baixo → música do chefe entra no compasso seguinte, sem silêncio (medido: nada abaixo de −29 dB na passagem) → raiva → desce em 1 s e entra `vitoria.ogg`. Ajuste 2 aprovado no tempo ("o tempo tá bom"); ajuste 3 (filtro, entrada em começo de frase) aguardando ouvido.
 
@@ -122,7 +127,7 @@ São 7 sub-streams, **3,16 MB medidos** (q4, loop de 48 s). O Godot guarda o OGG
 |---|---|---|---|
 | 0 | Richard | Conferir que a cheia foi gerada em plano pago da Suno (uso comercial) | Confirmado |
 | 1 | Código + Richard | Achar na cheia um trecho que emende (corte no ataque, cauda dobrada); gerar o loop de teste e ouvir 3 voltas. **Feito: 24 compassos; falta o ouvido** | Richard aprova que não "pula" |
-| 2 | Código | Cortar os stems com o mesmo intervalo de amostras; metrônomo no loop novo; guitarra e bateria leves; OGG q4 (mono onde der); grade de batidas. **Feito** | Medição: mesma duração em todos, sem clique |
+| 2 | Código | Cortar os stems com o mesmo intervalo de amostras; guitarra e bateria leves; OGG q4 (mono onde der); grade de batidas. **Feito** | Medição: mesma duração em todos, sem clique |
 | 3 | Código + Richard | Mixagem de teste offline dos níveis e das passagens (arquivo único para ouvir). **Gerado (níveis 1–3; o 4 depende da fonte do chefe); falta o ouvido** | Richard aprova níveis e passagens |
 | 4 | Código | `Musica.gd` (autoload): `AudioStreamSynchronized`, níveis por página, fades no compasso, pausa, vitória/derrota; atrás de constante liga/desliga. **Feito (com chefe, raiva e pré-entrada)** | `tools/teste_musica.gd` 0 falhas; bateria de chefes 1, 3 e 10 sem erro |
 | 5 | Richard | Build de teste no celular (10 min, pausa, segundo plano) | Sem dessincronia, sem travar |
@@ -133,7 +138,7 @@ São 7 sub-streams, **3,16 MB medidos** (q4, loop de 48 s). O Godot guarda o OGG
 | Depois | — | Gatilhos por vida/monstros, opção "Música" nas configurações, Cover da Suno se a leve tratada ficar pobre | Decidir com o jogo rodando |
 
 ## Como ficou no jogo (etapa 4, 04/11)
-- `Musica.gd` (autoload `Musica`): duas `Faixa` (partida e chefe), cada uma com um `AudioStreamPlayer` tocando um `AudioStreamSynchronized` montado em código a partir de `assets/musica/partida/*.ogg` (7 camadas, 3,2 MB) e `assets/musica/chefe/*.ogg` (6, 2,5 MB). Carrega só na primeira partida. Barramentos `MusicaPartida` (com `AudioEffectLowPassFilter`, ligado só na saída para o chefe) e `MusicaChefe`.
+- `Musica.gd` (autoload `Musica`): duas `Faixa` (partida e chefe), cada uma com um `AudioStreamPlayer` tocando um `AudioStreamSynchronized` montado em código a partir de `assets/musica/partida/*.ogg` (6 camadas) e `assets/musica/chefe/*.ogg` (5 camadas), já sem metrônomo após a escuta. Carrega só na primeira partida. Barramentos `MusicaPartida` (com `AudioEffectLowPassFilter`, ligado só na saída para o chefe) e `MusicaChefe`.
 - Chave `ATIVA` (false = jogo como antes), `VOLUME_DB = -6` (medido: sem isso o nível 3 fica a −16,9 LUFS, acima dos efeitos), `GANHO_CHEFE_DB = 2,5`, `LOG` (linhas `[Musica]` no console).
 - Duração e compassos de cada loop vão como constantes no próprio script (gerados por `camadas_jogo.py`; se refizer as camadas, atualizar `DURACAO_*` e `COMPASSOS_*`).
 - Volumes por camada com rampas em tempo real (curva suave, ganho igual), agendadas para o próximo compasso pela posição do player + `AudioServer.get_time_since_last_mix()`.

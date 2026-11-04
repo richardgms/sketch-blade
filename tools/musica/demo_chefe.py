@@ -13,8 +13,8 @@ def load(f):
 def ss(t): t=np.clip(t,0,1); return t*t*(3-2*t)
 def barras(d):
     at=np.load(d+"/_ataques.npy"); return [int(a)-int(0.05*SR) for a in at[::4]]
-PL={k:load(f"{P}/{k}.wav") for k in ["baixo","metronomo","bateria","guitarras","outros"]}; NP=len(PL["baixo"]); BP=barras(P)
-CL={k:load(f"{C}/{k}.wav") for k in ["baixo","metronomo","bateria","guitarras_leve","guitarras","alien"]}; NC=len(CL["baixo"]); BC=barras(C)
+PL={k:load(f"{P}/{k}.wav") for k in ["baixo","bateria","guitarras","outros"]}; NP=len(PL["baixo"]); BP=barras(P)
+CL={k:load(f"{C}/{k}.wav") for k in ["baixo","bateria","guitarras_leve","guitarras","alien"]}; NC=len(CL["baixo"]); BC=barras(C)
 def babs(B,N,b): return (b//len(B))*N+B[b%len(B)]
 # partida nivel 3: 8 compassos. No 9o o chefe surge (rugido): a partida vai abafando (passa-baixa fechando
 # de 18 kHz para 500 Hz no compasso) e desce 3 dB; a musica do chefe entra no "1" do compasso seguinte e a
@@ -50,10 +50,10 @@ T=babs(BC,NC,FIM)
 LEAD=(p_fim-p_saida) if PRE else 0   # pre-entrada = 1 compasso da partida antes do "1" do chefe
 def ganhos(k):
     g=np.zeros(LEAD+T,np.float32); a=LEAD+babs(BC,NC,RAIVA); z=babs(BC,NC,RAIVA+1)-babs(BC,NC,RAIVA); r=ss(np.arange(z)/z)
-    normal={"baixo":1,"metronomo":1,"bateria":1,"guitarras_leve":1,"guitarras":0,"alien":0.5}[k]
-    raiva={"baixo":1,"metronomo":1,"bateria":1,"guitarras_leve":0,"guitarras":1,"alien":1}[k]
+    normal={"baixo":1,"bateria":1,"guitarras_leve":1,"guitarras":0,"alien":0.5}[k]
+    raiva={"baixo":1,"bateria":1,"guitarras_leve":0,"guitarras":1,"alien":1}[k]
     g[LEAD:a]=normal; g[a:a+z]=normal+(raiva-normal)*r; g[a+z:]=raiva
-    if LEAD:  # na pre-entrada: guitarra abafada sobe no compasso todo, baixo so na metade final, sem bateria/metronomo
+    if LEAD:  # na pre-entrada: guitarra abafada sobe no compasso todo, baixo so na metade final, sem bateria
         if k=="guitarras_leve": g[:LEAD]=ss(np.arange(LEAD)/LEAD)
         if k=="baixo": h=LEAD//2; g[h:LEAD]=ss(np.arange(LEAD-h)/(LEAD-h))
     return g

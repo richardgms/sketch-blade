@@ -7,13 +7,13 @@ SR=48000; E2=BASE+"/etapa 2 - camadas do jogo"; OUT=BASE+"/etapa 3 - niveis"; os
 def load(f):
     raw=subprocess.run(["ffmpeg","-v","error","-i",f,"-ac","2","-ar",str(SR),"-f","f32le","-"],capture_output=True).stdout
     return np.frombuffer(raw,np.float32).reshape(-1,2)
-CAM=["baixo","metronomo","bateria_leve","bateria","guitarras_leve","guitarras","outros"]
+CAM=["baixo","bateria_leve","bateria","guitarras_leve","guitarras","outros"]
 X={k:load(f"{E2}/{k}.wav") for k in CAM}; N=len(X["baixo"])
 at=np.load(E2+"/_ataques.npy"); barras=[int(at[i])-int(0.05*SR) for i in range(0,96,4)]  # 24 compassos por volta
 def barra_abs(b): return (b//24)*N+barras[b%24]
-NIVEIS={1:{"baixo","metronomo","guitarras_leve"},
-        2:{"baixo","metronomo","bateria_leve","guitarras"},
-        3:{"baixo","metronomo","bateria","guitarras","outros"}}
+NIVEIS={1:{"baixo","guitarras_leve"},
+        2:{"baixo","bateria_leve","guitarras"},
+        3:{"baixo","bateria","guitarras","outros"}}
 roteiro=[(0,1),(12,2),(28,3),(44,1)]   # (compasso, nivel)
 FIM=56; T=barra_abs(FIM)
 def ss(t): t=np.clip(t,0,1); return t*t*(3-2*t)

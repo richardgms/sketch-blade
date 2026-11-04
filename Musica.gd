@@ -18,8 +18,8 @@ const LOG := true
 
 const DIR_PARTIDA := "res://assets/musica/partida/"
 const DIR_CHEFE := "res://assets/musica/chefe/"
-const CAMADAS_PARTIDA := ["baixo", "metronomo", "bateria_leve", "bateria", "guitarras_leve", "guitarras", "outros"]
-const CAMADAS_CHEFE := ["baixo", "metronomo", "bateria", "guitarras_leve", "guitarras", "alien"]
+const CAMADAS_PARTIDA := ["baixo", "bateria_leve", "bateria", "guitarras_leve", "guitarras", "outros"]
+const CAMADAS_CHEFE := ["baixo", "bateria", "guitarras_leve", "guitarras", "alien"]
 
 ## Duração exata dos loops e início de cada compasso (50 ms antes do ataque da
 ## bateria), medidos por tools/musica/camadas_jogo.py.
@@ -30,13 +30,13 @@ const COMPASSOS_CHEFE := [0.0, 2.022, 4.0479, 6.0729, 8.0997, 10.1228, 12.1506, 
 
 ## Volume de cada camada por nível (o que não aparece fica em 0).
 const NIVEIS := {
-	1: {"baixo": 1.0, "metronomo": 1.0, "guitarras_leve": 1.0},
-	2: {"baixo": 1.0, "metronomo": 1.0, "bateria_leve": 1.0, "guitarras": 1.0},
-	3: {"baixo": 1.0, "metronomo": 1.0, "bateria": 1.0, "guitarras": 1.0, "outros": 1.0},
+	1: {"baixo": 1.0, "guitarras_leve": 1.0},
+	2: {"baixo": 1.0, "bateria_leve": 1.0, "guitarras": 1.0},
+	3: {"baixo": 1.0, "bateria": 1.0, "guitarras": 1.0, "outros": 1.0},
 }
 const NIVEL_POR_PAGINA := {1: 1, 2: 1, 3: 2, 4: 1, 5: 2, 6: 3, 7: 3}
-const CHEFE_NORMAL := {"baixo": 1.0, "metronomo": 1.0, "bateria": 1.0, "guitarras_leve": 1.0, "alien": 0.5}
-const CHEFE_RAIVA := {"baixo": 1.0, "metronomo": 1.0, "bateria": 1.0, "guitarras": 1.0, "alien": 1.0}
+const CHEFE_NORMAL := {"baixo": 1.0, "bateria": 1.0, "guitarras_leve": 1.0, "alien": 0.5}
+const CHEFE_RAIVA := {"baixo": 1.0, "bateria": 1.0, "guitarras": 1.0, "alien": 1.0}
 
 ## Uma música: o player, as camadas e as rampas de volume de cada camada.
 class Faixa extends RefCounted:
@@ -266,7 +266,7 @@ func entrar_chefe() -> void:
 	c.player.play(maxf(c.duracao - ate, 0.0)) # chega ao fim do loop (que emenda no "1") no compasso da partida
 	_rampa(c, "guitarras_leve", 1.0, pre, bp)
 	_rampa(c, "baixo", 1.0, pre + bp * 0.5, bp * 0.5)
-	for k in ["metronomo", "bateria", "alien"]:
+	for k in ["bateria", "alien"]:
 		_rampa(c, k, CHEFE_NORMAL[k], ate - 0.02, 0.02)
 	# Partida: abafa (18 kHz -> 500 Hz) e desce 6 dB na pré-entrada; some 150 ms depois do "1"
 	AudioServer.set_bus_effect_enabled(_bus_partida, 0, true)

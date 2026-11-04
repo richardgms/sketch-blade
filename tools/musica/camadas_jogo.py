@@ -1,13 +1,12 @@
-# Etapa 2 da musica adaptativa (docs/plano-musica-adaptativa.md): metronomo no loop novo,
+# Etapa 2 da musica adaptativa (docs/plano-musica-adaptativa.md):
 # versoes leves (passa-baixa sem defasagem, circular para nao estragar a emenda), OGG do jogo.
 # Uso: MUSICA=partida|chefe python tools/musica/camadas_jogo.py
 import sys, os, json, subprocess; sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import numpy as np
-from common import BASE, NOME, RAIZ
+from common import BASE, NOME
 SR=48000
 E1=BASE+("/etapa 1 - loop 24 compassos" if NOME=="partida" else "/C2 - loop 24 compassos")
 OUT=BASE+("/etapa 2 - camadas do jogo" if NOME=="partida" else "/C2 - camadas do jogo"); os.makedirs(OUT,exist_ok=True)
-MET=RAIZ+"/01 Sala sci-fi (escolhida)/receita CapCut - cheia/metronomo.ogg"
 def load(f,ch=2):
     raw=subprocess.run(["ffmpeg","-v","error","-i",f,"-ac",str(ch),"-ar",str(SR),"-f","f32le","-"],capture_output=True).stdout
     return np.frombuffer(raw,np.float32).reshape(-1,ch).copy()
@@ -30,27 +29,19 @@ if NOME=="chefe":
     ROT=ataques[6*4]-int(0.05*SR)
     L={k:np.roll(v,-ROT,axis=0) for k,v in L.items()}
     ataques=sorted(((a-ROT)%N) for a in ataques)
-# metronomo: o clique do Richard (1o clique do arquivo dele) em cada ataque, circular
-met=None
-if True:  # o mesmo clique do Richard nas duas musicas
-    m=load(MET); e=np.sqrt((m.mean(1)**2)); i0=int(np.argmax(e>e.max()*0.05))
-    clk=m[max(i0-int(0.004*SR),0):i0+int(0.12*SR)].copy(); fo=int(0.03*SR); clk[-fo:]*=np.linspace(1,0,fo)[:,None]
-    pre=int(0.004*SR); met=np.zeros((N,2),np.float32)
-    for a in ataques:
-        idx=(np.arange(len(clk))+a-pre)%N; met[idx]+=clk
 # passa-baixa sem defasagem e circular (FFT do loop inteiro)
 def passa_baixa(x,fc,ordem,ganho_db):
     X=np.fft.rfft(x,axis=0); f=np.fft.rfftfreq(len(x),1/SR)
     g=1/np.sqrt(1+(f/fc)**(2*ordem)); y=np.fft.irfft(X*g[:,None],n=len(x),axis=0)
     return (y*10**(ganho_db/20)).astype(np.float32)
 if NOME=="partida":
-    camadas={"baixo":L["baixo"],"metronomo":met,"bateria_leve":passa_baixa(L["bateria"],1500,3,-4),"bateria":L["bateria"],
+    camadas={"baixo":L["baixo"],"bateria_leve":passa_baixa(L["bateria"],1500,3,-4),"bateria":L["bateria"],
              "guitarras_leve":passa_baixa(L["guitarras"],900,3,-6),"guitarras":L["guitarras"],"outros":L["outros"]}
-    mono={"baixo","metronomo"}
+    mono={"baixo"}
 else:  # chefe: "outros" e a sobra da guitarra (vai junto); "teclado" e o efeito alienigena
     gt=L["guitarras"]+L["outros"]
-    camadas={"baixo":L["baixo"],"metronomo":met,"bateria":L["bateria"],"guitarras_leve":passa_baixa(gt,900,3,-6),"guitarras":gt,"alien":L["teclado"]}
-    mono={"baixo","metronomo","bateria"}
+    camadas={"baixo":L["baixo"],"bateria":L["bateria"],"guitarras_leve":passa_baixa(gt,900,3,-6),"guitarras":gt,"alien":L["teclado"]}
+    mono={"baixo","bateria"}
 rel={}
 for k,x in camadas.items():
     lr=float(np.corrcoef(x[:,0],x[:,1])[0,1])
