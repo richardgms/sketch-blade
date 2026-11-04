@@ -2,6 +2,23 @@
 
 Fonte única sobre a música da partida (efeitos e jingles continuam em `sons.md`). **Situação (04/11/2026): abordagem aprovada pelo Richard (leve = stem da cheia tratado). Etapa 0 ok (cheia gerada em plano pago da Suno). Etapa 1 aprovada de ouvido ("3 voltas perfeito"). Etapa 2 feita. Etapa 3 aprovada de ouvido ("gostei"). Página de escuta: https://claude.ai/artifact/W3KYzjySNFX9UeH3dwtUwS. Chefe com música própria aprovada (seção abaixo). **Etapa 4 feita e testada no PC (04/11); AAB 1.8.1 (16) sem metrônomo gerado e conferido para o teste fechado (ver `plano-publicacao.md`). Falta o teste no celular (etapa 5).** Saiu de um /brainstorming e de um /llm-council (5 conselheiros + revisão anônima).
 
+## Mixagem atual — revisão de clareza (04/11)
+O começo abafado foi rejeitado no jogo. A intensidade agora muda por ganho dos
+stems originais, preservando o brilho da guitarra e reduzindo acompanhamentos.
+Versões filtradas continuam nos assets para histórico, com ganho zero na partida
+normal e no chefe. Demos offline antigas documentam a proposta anterior.
+
+| Nível | Baixo | Bateria original | Guitarra original | Outros |
+|---|---:|---:|---:|---:|
+| 1 | 0,85 | 0,32 | 0,80 | 0,30 |
+| 2 | 0,95 | 0,65 | 0,95 | 0,60 |
+| 3 | 1 | 1 | 1 | 1 |
+
+Chefe normal: baixo 1, bateria 0,8, guitarra original 0,8, alien 0,5;
+raiva: todos 1. Pré-entrada usa guitarra original até 0,8. Mantidos os compassos,
+fade inicial de 2 s e filtro apenas na saída da partida para a chegada do chefe.
+`tools/teste_musica.gd`: zero falhas; escuta no celular ainda necessária.
+
 ## Ajuste após a escuta (04/11)
 - Richard pediu retirar o metrônomo por soar esquisito. A camada saiu da partida e do chefe, inclusive da raiva, do gerador e das demonstrações futuras. Os cliques e seus imports saíram dos assets; as outras camadas e a grade de compassos permanecem iguais.
 - Estado atual: **6 camadas na partida (3.203.812 bytes) e 5 no chefe (2.412.888 bytes)**, duas decodificações a menos e 226.786 bytes de áudio removidos. A sincronia usa a posição dos loops e a grade medida, sem depender do clique audível.
@@ -58,7 +75,7 @@ Fonte única sobre a música da partida (efeitos e jingles continuam em `sons.md
 - Etapa 3: `tools/musica/demo_niveis.py` gera `etapa 3 - niveis\TESTE niveis 1-2-3-1.ogg` (112 s: nível 2 aos 0:24, nível 3 aos 0:56, volta ao 1 aos 1:28). Volume médio: nível 1 −19,9 dB, nível 2 −17,6, nível 3 −16,9 (o degrau 2→3 é mais de brilho que de volume).
 - Arquivos (fora do repo): `Videos\sons sketch blade\26 musica\01 Sala sci-fi (escolhida)\etapa 1 - loop 24 compassos\` (camadas WAV 24 bits, `corte.json`, `grade_batidas.json`, testes OGG q8). Scripts: `tools/musica/` (`grade_batidas.py`, `achar_emenda.py`, `cortar_loop.py <pasta> <batida inicial> <batida final>`, `camadas_jogo.py`; escolher a música com `MUSICA=partida` ou `MUSICA=chefe`; pasta de trabalho fora do repo).
 
-## Camadas (todas cortadas do mesmo trecho da cheia, mesma duração exata)
+## Assets disponíveis (todas cortadas do mesmo trecho da cheia, mesma duração exata)
 | Camada | Versões | Observação |
 |---|---|---|
 | baixo | única | mono |
@@ -72,9 +89,9 @@ São 6 sub-streams, **3.203.812 bytes** (q4, loop de 48 s). O Godot guarda o OGG
 ## Níveis de intensidade (v1: só por página; nada de oscilar)
 | Nível | Quando | O que toca |
 |---|---|---|
-| 1 Calmo | páginas 1–2 e 4 (descanso) | baixo + guitarra leve |
-| 2 Andando | páginas 3 e 5 | + bateria leve; guitarra leve → pesada |
-| 3 Pesado | páginas 6 (elite) e 7 (horda) | bateria leve → pesada + outros |
+| 1 Calmo | páginas 1–2 e 4 (descanso) | stems originais nos ganhos do nível 1 acima |
+| 2 Andando | páginas 3 e 5 | stems originais nos ganhos do nível 2 acima |
+| 3 Pesado | páginas 6 (elite) e 7 (horda) | todos os stems originais no ganho 1 |
 | Chefe | página 8 | música própria do chefe (ver "Música do chefe") |
 
 - Subir: no próximo início de compasso (4 batidas ≈ 2 s), camada entrando em 1 compasso. Cruzamento leve↔pesada: as duas ao mesmo tempo por 1 compasso, com ganho igual (curvas somando 1; ver etapa 2).
@@ -84,10 +101,10 @@ São 6 sub-streams, **3.203.812 bytes** (q4, loop de 48 s). O Godot guarda o OGG
 
 ## Música do chefe (decidido em 04/11)
 - **Uma música só para o chefe**, gerada à parte na Suno, com o mesmo método da partida: uma geração só, stems do Moises, versões leves por tratamento, tudo num `AudioStreamSynchronized` próprio.
-- **Dois níveis:** chefe normal e **chefe com raiva**. A raiva intensifica do mesmo jeito que a partida (no próximo compasso, 1 compasso de passagem, leve→pesada e camadas extras), sem trocar de faixa.
+- **Dois níveis:** chefe normal e **chefe com raiva**. A raiva intensifica do mesmo jeito que a partida (no próximo compasso, 1 compasso de passagem, aumento dos ganhos dos stems originais), sem trocar de faixa.
 - Gatilho da raiva: `Boss._entrar_raiva()` (metade da vida). Mancha (cap. 3) e Estojo (cap. 10) não usam essa raiva: anunciam fases próprias; ligar a intensificação na fase deles (ver no código na hora).
 - Entrada do chefe (pente fino de 04/11): no "CUIDADO: BOSS!" toca o rugido `chefe_surge.ogg` no começo de um compasso; durante esse compasso a partida vai **abafando** (passa-baixa de 18 kHz a 500 Hz) e desce 3 dB; a música do chefe entra no "1" do compasso seguinte e a partida, já abafada, some em 1 batida por baixo dela. No jogo: cada música no seu barramento, com um `AudioEffectLowPassFilter` no da partida e o corte animado por tween. Histórico: sair em 1 compasso inteiro deixava silêncio; −6 dB e 150 ms ainda dava para perceber.
-- **Pré-entrada do chefe (escolhida e aprovada de ouvido pelo Richard em 04/11: "ficou melhor"):** o buraco era o rugido (1,6 s) acabar 0,4 s antes do "1" do chefe. Agora o player do chefe começa 1 compasso antes do "1", tocando o fim do loop (que emenda no "1"): guitarra abafada subindo no compasso todo, baixo só na metade final, sem bateria e sem metrônomo; a bateria cai no "1". A partida desce até −6 dB abafando e some em 150 ms depois do "1". Medido: o trecho de 0,4 s antes do "1" foi de −23/−31 dB para −18/−19 dB. O compasso antes da entrada não tem alien (−73 dB), por isso ele não entra na pré-entrada. No jogo: `play(from_position = duração do loop − duração de 1 compasso da partida)` no player do chefe, agendado pela posição da partida para o "1" cair no compasso dela; **confirmar na etapa 4 se o `AudioStreamSynchronized` aceita começar no meio**; se não aceitar, a pré-entrada vira um som avulso. (aqui a troca de faixa é proposital: é um evento). Dois players, cada um com seu `AudioStreamSynchronized`; não precisam estar em sincronia entre si.
+- **Pré-entrada do chefe (escolhida e aprovada de ouvido pelo Richard em 04/11: "ficou melhor"):** o buraco era o rugido (1,6 s) acabar 0,4 s antes do "1" do chefe. Agora o player do chefe começa 1 compasso antes do "1", tocando o fim do loop (que emenda no "1"): guitarra original subindo até 0,8 no compasso todo, baixo só na metade final, sem bateria e sem metrônomo; a bateria cai no "1". A partida desce até −6 dB abafando e some em 150 ms depois do "1". Medido: o trecho de 0,4 s antes do "1" foi de −23/−31 dB para −18/−19 dB. O compasso antes da entrada não tem alien (−73 dB), por isso ele não entra na pré-entrada. No jogo: `play(from_position = duração do loop − duração de 1 compasso da partida)` no player do chefe, agendado pela posição da partida para o "1" cair no compasso dela; **confirmar na etapa 4 se o `AudioStreamSynchronized` aceita começar no meio**; se não aceitar, a pré-entrada vira um som avulso. (aqui a troca de faixa é proposital: é um evento). Dois players, cada um com seu `AudioStreamSynchronized`; não precisam estar em sincronia entre si.
 - Morte do chefe: música desce em ~1 s e entra `vitoria.ogg`, como no fim de capítulo.
 - **Pedido para a Suno** (o Richard gera; versão de 04/11): mesmo mundo sonoro da cheia, mais escuro, com guitarra explícita e assobio alienígena em destaque.
   - Style: `Indie action roguelite boss battle music, instrumental, menacing and driving at 118 BPM in E minor, steady 4/4, same school-desk sound world: heavy desk-knock kick with low eraser thuds, rhythmic chalk scratches as hi-hats, sharp pencil-snap backbeat, hard ruler slaps on the desk as accents, dark muted electric guitar riff as the main hook (clean, not metal), clean deep sub-bass pulse, dark low synth pulse underneath, theremin-like warbling synth glides and descending UFO laser zaps as short sci-fi accents every couple of bars, in the background, never the lead, darker and heavier than a normal fight, immediate full-energy entry, repeating 8-bar sections, consistent groove, seamless loop`

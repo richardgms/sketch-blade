@@ -37,13 +37,13 @@ func _rodar() -> void:
 	await _esperar(2.5)
 	var pos1: float = p.player.get_playback_position()
 	_checar("partida tocando e posição andando", p.tocando and pos1 > 1.5, "pos %.2f" % pos1)
-	_checar("nível 1", _g(p, "guitarras_leve") > 0.99 and _g(p, "bateria") < 0.01 and _g(p, "baixo") > 0.99, _resumo(p))
+	_checar("nível 1", absf(_g(p, "guitarras") - 0.8) < 0.01 and absf(_g(p, "bateria") - 0.32) < 0.01 and _g(p, "guitarras_leve") < 0.01, _resumo(p))
 	_checar("entrada suave terminou no volume base", absf(p.player.volume_db - p.volume_base) < 0.5, "%.1f dB" % p.player.volume_db)
 
 	# Página 3: nível 2 no próximo compasso, 1 compasso de passagem
 	mu.pagina(3)
 	await _esperar(4.6)
-	_checar("nível 2", _g(p, "bateria_leve") > 0.99 and _g(p, "guitarras") > 0.99 and _g(p, "guitarras_leve") < 0.01, _resumo(p))
+	_checar("nível 2", absf(_g(p, "bateria") - 0.65) < 0.01 and absf(_g(p, "guitarras") - 0.95) < 0.01 and _g(p, "guitarras_leve") < 0.01, _resumo(p))
 
 	# Página 6: nível 3
 	mu.pagina(6)
@@ -53,7 +53,7 @@ func _rodar() -> void:
 	# Página 4 (descanso): volta ao nível 1 em 2 compassos
 	mu.pagina(4)
 	await _esperar(6.6)
-	_checar("descanso volta ao nível 1", _g(p, "guitarras_leve") > 0.99 and _g(p, "bateria") < 0.01, _resumo(p))
+	_checar("descanso volta ao nível 1", absf(_g(p, "guitarras") - 0.8) < 0.01 and absf(_g(p, "bateria") - 0.32) < 0.01, _resumo(p))
 	mu.pagina(7)
 	await _esperar(4.6)
 
@@ -66,11 +66,11 @@ func _rodar() -> void:
 	var r: Dictionary = c.rampas[c.camadas.find("bateria")]
 	var um: float = r.get("t0", t0) + 0.02 - t0
 	await _esperar(maxf(um - 0.6, 0.0))
-	_checar("antes do 1: guitarra abafada subindo, sem bateria", _g(c, "bateria") < 0.01 and _g(c, "guitarras_leve") > 0.3, _resumo(c))
+	_checar("antes do 1: guitarra original subindo, sem bateria", _g(c, "bateria") < 0.01 and _g(c, "guitarras") > 0.3, _resumo(c))
 	await _esperar(1.1)
 	var pos_um: float = c.player.get_playback_position()
 	_checar("depois do 1: chefe deu a volta no loop (posição pequena)", pos_um < 1.0, "pos %.2f" % pos_um)
-	_checar("chefe normal", _g(c, "bateria") > 0.99 and absf(_g(c, "alien") - 0.5) < 0.01 and _g(c, "guitarras_leve") > 0.99, _resumo(c))
+	_checar("chefe normal", absf(_g(c, "bateria") - 0.8) < 0.01 and absf(_g(c, "alien") - 0.5) < 0.01 and absf(_g(c, "guitarras") - 0.8) < 0.01, _resumo(c))
 	await _esperar(0.3)
 	_checar("partida parou", not p.player.playing and not p.tocando, "playing %s" % p.player.playing)
 	_checar("filtro da partida desligado de novo", not AudioServer.is_bus_effect_enabled(AudioServer.get_bus_index("MusicaPartida"), 0))

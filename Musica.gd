@@ -30,12 +30,12 @@ const COMPASSOS_CHEFE := [0.0, 2.022, 4.0479, 6.0729, 8.0997, 10.1228, 12.1506, 
 
 ## Volume de cada camada por nível (o que não aparece fica em 0).
 const NIVEIS := {
-	1: {"baixo": 1.0, "guitarras_leve": 1.0},
-	2: {"baixo": 1.0, "bateria_leve": 1.0, "guitarras": 1.0},
+	1: {"baixo": 0.85, "bateria": 0.32, "guitarras": 0.8, "outros": 0.3},
+	2: {"baixo": 0.95, "bateria": 0.65, "guitarras": 0.95, "outros": 0.6},
 	3: {"baixo": 1.0, "bateria": 1.0, "guitarras": 1.0, "outros": 1.0},
 }
 const NIVEL_POR_PAGINA := {1: 1, 2: 1, 3: 2, 4: 1, 5: 2, 6: 3, 7: 3}
-const CHEFE_NORMAL := {"baixo": 1.0, "bateria": 1.0, "guitarras_leve": 1.0, "alien": 0.5}
+const CHEFE_NORMAL := {"baixo": 1.0, "bateria": 0.8, "guitarras": 0.8, "alien": 0.5}
 const CHEFE_RAIVA := {"baixo": 1.0, "bateria": 1.0, "guitarras": 1.0, "alien": 1.0}
 
 ## Uma música: o player, as camadas e as rampas de volume de cada camada.
@@ -264,7 +264,7 @@ func entrar_chefe() -> void:
 	var pre := ate - bp                    # começo da pré-entrada (>= 0)
 	c.tocando = true
 	c.player.play(maxf(c.duracao - ate, 0.0)) # chega ao fim do loop (que emenda no "1") no compasso da partida
-	_rampa(c, "guitarras_leve", 1.0, pre, bp)
+	_rampa(c, "guitarras", 0.8, pre, bp)
 	_rampa(c, "baixo", 1.0, pre + bp * 0.5, bp * 0.5)
 	for k in ["bateria", "alien"]:
 		_rampa(c, k, CHEFE_NORMAL[k], ate - 0.02, 0.02)
