@@ -1,7 +1,9 @@
 {
-  "codigo": 16,
-  "versao": "1.8.1",
+  "codigo": 17,
+  "versao": "1.8.2",
   "novidades": [
-    "Ajustes na trilha sonora para uma experiência mais agradável durante as partidas."
+    "Trilha sonora mais clara e efeitos de morte equilibrados.",
+    "Alerta visual de vida baixa com bordas vermelhas e rachaduras.",
+    "Aviso de raiva e dano mais visível junto do chefe."
   ]
 }
