@@ -91,7 +91,7 @@ São 7 sub-streams, **3,16 MB medidos** (q4, loop de 48 s). O Godot guarda o OGG
 - Tamanho: mais ~3 MB (total da música ≈ 6,3 MB).
 
 ### Resultado C1/C2 (04/11)
-- Gerada "Boss Fight" (107,6 s, 48 kHz; Moises em 44,1 kHz com 6 camadas: bateria, baixo, guitarras, teclado, outros, metrônomo). Há também "boss sketch.wav" (109,6 s), não usada. Tudo em `26 musica Chefe\`.
+- Gerada "Boss Fight" (107,6 s, 48 kHz; Moises em 44,1 kHz com 6 camadas: bateria, baixo, guitarras, teclado, outros, metrônomo). Há também "boss sketch.wav" (109,6 s), não usada. Tudo em `Videos\sons sketch blade\26 musica\03 Chefe\`.
 - Ouvido do Richard: "outros" é sobra da guitarra (no jogo vai somado à guitarra) e "teclado" é o efeito alienígena.
 - Grade: 211 batidas, ~118,1 BPM (0,4847–0,5515 s; desacelera depois dos 97 s); o "1" cai na batida 0.
 - Loop: batidas 56→152 (28,46 s → 77,07 s), 24 compassos, 2.333.563 amostras = 48,616 s (~118,48 BPM). Emenda menos perfeita que a da partida, mas cada camada fica tão parecida com a continuação natural quanto a própria música um compasso depois (bateria 0,76 contra 0,75; baixo 0,83/0,83; guitarra 0,89/0,82; alien 0,70/0,67; outros 0,87/0,84). Sem clique.
