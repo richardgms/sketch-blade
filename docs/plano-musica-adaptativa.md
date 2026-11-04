@@ -50,7 +50,7 @@ Fonte única sobre a música da partida (efeitos e jingles continuam em `sons.md
 - Cruzamento leve↔pesada **com ganho igual** (as curvas somam 1), não potência igual: as duas versões são o mesmo som, então potência igual daria um "inchaço" de +3 dB no meio.
 - Medido: todas as OGG decodificam com exatamente 2.305.556 amostras; total **3,16 MB** (baixo 210 KB e metrônomo 111 KB em mono; bateria 707, bateria leve 521, guitarras 605, guitarra leve 365, outros 721 KB em estéreo). A bateria leve é quase mono (correlação E/D 0,98): dá para economizar ~200 KB se precisar.
 - Etapa 3: `tools/musica/demo_niveis.py` gera `etapa 3 - niveis\TESTE niveis 1-2-3-1.ogg` (112 s: nível 2 aos 0:24, nível 3 aos 0:56, volta ao 1 aos 1:28). Volume médio: nível 1 −19,9 dB, nível 2 −17,6, nível 3 −16,9 (o degrau 2→3 é mais de brilho que de volume).
-- Arquivos (fora do repo): `Videos\sons sketch blade\26 musica\01 Sala sci-fi (escolhida)\etapa 1 - loop 24 compassos\` (camadas WAV 24 bits, `corte.json`, `grade_batidas.json`, testes OGG q8). Scripts: `tools/musica/` (`grade_batidas.py`, `achar_emenda.py`, `cortar_loop.py`; rodar com uma pasta de trabalho fora do repo como argumento).
+- Arquivos (fora do repo): `Videos\sons sketch blade\26 musica\01 Sala sci-fi (escolhida)\etapa 1 - loop 24 compassos\` (camadas WAV 24 bits, `corte.json`, `grade_batidas.json`, testes OGG q8). Scripts: `tools/musica/` (`grade_batidas.py`, `achar_emenda.py`, `cortar_loop.py <pasta> <batida inicial> <batida final>`, `camadas_jogo.py`; escolher a música com `MUSICA=partida` ou `MUSICA=chefe`; pasta de trabalho fora do repo).
 
 ## Camadas (todas cortadas do mesmo trecho da cheia, mesma duração exata)
 | Camada | Versões | Observação |
@@ -90,6 +90,17 @@ São 7 sub-streams, **3,16 MB medidos** (q4, loop de 48 s). O Godot guarda o OGG
   - Aprendizado (Richard, 04/11): excluir guitarra não adianta, a Suno faz algo parecido com guitarra e o Moises divide em "guitarra" e "outros" de forma confusa. Pedir a guitarra às claras deixa ela inteira no stem de guitarra e manda o que é abstrato (assobio alienígena) para "outros"; por isso "guitar" saiu do exclude. "Whistle" no prompt virou assobio humano como instrumento principal: o som alienígena se pede como sintetizador tipo teremim com glissando ("theremin-like warbling synth glides", "UFO laser zaps"), marcado como acento de fundo, e assobio/flauta voltam ao exclude.
 - Tamanho: mais ~3 MB (total da música ≈ 6,3 MB).
 
+### Resultado C1/C2 (04/11)
+- Gerada "Boss Fight" (107,6 s, 48 kHz; Moises em 44,1 kHz com 6 camadas: bateria, baixo, guitarras, teclado, outros, metrônomo). Há também "boss sketch.wav" (109,6 s), não usada. Tudo em `26 musica Chefe\`.
+- Ouvido do Richard: "outros" é sobra da guitarra (no jogo vai somado à guitarra) e "teclado" é o efeito alienígena.
+- Grade: 211 batidas, ~118,1 BPM (0,4847–0,5515 s; desacelera depois dos 97 s); o "1" cai na batida 0.
+- Loop: batidas 56→152 (28,46 s → 77,07 s), 24 compassos, 2.333.563 amostras = 48,616 s (~118,48 BPM). Emenda menos perfeita que a da partida, mas cada camada fica tão parecida com a continuação natural quanto a própria música um compasso depois (bateria 0,76 contra 0,75; baixo 0,83/0,83; guitarra 0,89/0,82; alien 0,70/0,67; outros 0,87/0,84). Sem clique.
+- Cruzamento da emenda por camada: ganho igual onde os dois lados são parecidos (bateria 0,92 e baixo 0,75 de correlação), potência igual nas outras.
+- Camadas do jogo (`C2 - camadas do jogo\`, OGG q4, **2,30 MB**): baixo e bateria em mono (bateria quase mono, correlação 0,996), guitarras (guitarra + outros), guitarra leve (900 Hz, −6 dB), alien (teclado).
+- Níveis: **normal** = bateria, baixo, guitarra leve, alien a −6 dB; **raiva** = guitarra leve→cheia e alien a 0 dB, em 1 compasso.
+- Volume: a música do chefe toca **+2,5 dB** para o normal ficar no nível da partida 3 (partida n3 −16,9 dB; chefe normal −16,5; raiva −15,4). Sem isso a chegada do chefe soaria como queda.
+- Demonstração (`C2 - demonstracao\`, `tools/musica/demo_chefe.py`): partida n3 → rugido e partida sai em 1 compasso → música do chefe entra no fim da saída → raiva → desce em 1 s e entra `vitoria.ogg`. Aguardando ouvido.
+
 ## Início, pausa e fim
 - **Início da partida:** toca o nível 1 desde a posição 0 com subida de volume de ~2 s (a entrada suave que o Richard gostou). Sem trecho de introdução no v1; se quiser, depois dá para pôr uma introdução no começo do arquivo e usar `loop_offset`.
 - **Pausa, roleta, reviver:** `stream_paused` na música (retoma na mesma posição, todas as camadas juntas). Música em `PROCESS_MODE_ALWAYS` para os fades andarem com o jogo pausado.
@@ -113,8 +124,8 @@ São 7 sub-streams, **3,16 MB medidos** (q4, loop de 48 s). O Godot guarda o OGG
 | 4 | Código | `Musica.gd` (autoload): `AudioStreamSynchronized`, níveis por página, fades no compasso, pausa, vitória/derrota; atrás de constante liga/desliga | Partida de teste no PC sem erro; prints/log de nível por página |
 | 5 | Richard | Build de teste no celular (10 min, pausa, segundo plano) | Sem dessincronia, sem travar |
 | 6 | Código | Registrar em `sons.md` (fonte, licença, tratamento) e tamanho no AAB | Build conferido |
-| C1 | Richard | Gerar a música do chefe na Suno (pedido acima) e separar no Moises (zip na pasta 26 musica) | Arquivos na pasta |
-| C2 | Código + Richard | Medir, achar o loop, camadas normal/raiva e demonstração normal→raiva (mesmos scripts de `tools/musica/`) | Richard aprova de ouvido |
+| C1 | Richard | Gerar a música do chefe na Suno (pedido acima) e separar no Moises (zip na pasta 26 musica). **Feito** | Arquivos na pasta |
+| C2 | Código + Richard | Medir, achar o loop, camadas normal/raiva e demonstração normal→raiva (mesmos scripts de `tools/musica/`, com `MUSICA=chefe`). **Gerado; falta o ouvido** | Richard aprova de ouvido |
 | C3 | Código | Ligar a música do chefe e a raiva no `Musica.gd` | Teste de chefe no PC e no celular |
 | Depois | — | Gatilhos por vida/monstros, opção "Música" nas configurações, Cover da Suno se a leve tratada ficar pobre | Decidir com o jogo rodando |
 

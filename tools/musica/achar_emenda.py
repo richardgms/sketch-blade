@@ -1,9 +1,10 @@
-# Etapa 1 da musica adaptativa (docs/plano-musica-adaptativa.md). Uso: python tools/musica/achar_emenda.py <pasta de trabalho fora do repo>
+# Etapa 1 da musica adaptativa (docs/plano-musica-adaptativa.md). Uso: MUSICA=partida|chefe python tools/musica/achar_emenda.py <pasta de trabalho> (depois de grade_batidas.py)
 import sys, os, json; sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from common import *
 sr=22050
 g=json.load(open(sys.argv[1]+"/grid.json")); bt=np.array(g["beats"]); nb=len(bt)
-st={k:stem(k,sr) for k in ["bateria","baixo","guitarras","cordas","outros"]}
+st={k:stem(k,sr) for k in CAMADAS}
+DUR=len(st['bateria'])/sr
 n=1024; hop=256; fr=np.fft.rfftfreq(n,1/sr); edges=np.geomspace(40,11000,33)
 M=np.array([(fr>=a)&(fr<b) for a,b in zip(edges[:-1],edges[1:])]).astype(float)
 SUB=12
@@ -31,7 +32,7 @@ res=[]
 for L in (64,96,128,144,160):
     for s in range(0,nb,4):
         e=s+L
-        if e+4>=nb-1 or bt[e]+0.6>86.0: continue
+        if e+4>=nb-1 or bt[e]+0.6>DUR-2.0: continue
         ds={k:S(F,s,e) for k,F in FS.items() if k!="cordas"}
         if any(v is None for v in ds.values()): continue
         res.append((min(ds.values()),np.mean(list(ds.values())),L,s,e,ds))
@@ -39,18 +40,8 @@ res.sort(key=lambda r:-r[0])
 for mn,av,L,s,e,ds in res[:15]:
     print(f"L={L:3d} s={s:3d} ({bt[s]:5.2f}s) e={e:3d} ({bt[e]:5.2f}s) pior {mn:.2f} media {av:.2f}",{k:round(v,2) for k,v in ds.items()})
 json.dump([[r[2],r[3],r[4],r[0],r[1]] for r in res],open(sys.argv[1]+"/cands.json","w"))
-print("--- janelas largas, L=96")
-for s in range(48,72,4):
-    e=s+96
-    if e+16>=nb-1: continue
-    row=[]
-    for w in (2,4,8,12):
-        ds={k:S(F,s,e,w) for k,F in FS.items() if k!="cordas"}
-        row.append(f"w{w}: pior {min(ds.values()):.2f}")
-    print(s,round(bt[s],2),e,round(bt[e],2)," | ".join(row))
-print("--- só para frente (o que o ouvido espera depois da emenda)")
-for s in (52,56,60,64):
-    e=s+96
+print("--- melhores candidatos, so para frente (o que o ouvido espera depois da emenda)")
+for mn,av,L,s0,e0,ds in res[:4]:
     for W in (4,8,16):
-        ds={k:np.mean([cos(F[s+j],F[e+j]) for j in range(W) if e+j<nb-1]) for k,F in FS.items() if k!="cordas"}
-        print(s,e,"W",W,{k:round(v,2) for k,v in ds.items()})
+        d={k:np.mean([cos(F[s0+j],F[e0+j]) for j in range(W) if e0+j<nb-1]) for k,F in FS.items() if k!="cordas"}
+        print(f"L={L} s={s0} e={e0} W={W}",{k:round(v,2) for k,v in d.items()})

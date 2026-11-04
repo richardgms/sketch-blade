@@ -1,4 +1,4 @@
-# Etapa 1 da musica adaptativa (docs/plano-musica-adaptativa.md). Uso: python tools/musica/grade_batidas.py <pasta de trabalho fora do repo>
+# Etapa 1 da musica adaptativa (docs/plano-musica-adaptativa.md). Uso: MUSICA=partida|chefe python tools/musica/grade_batidas.py <pasta de trabalho fora do repo>
 import sys, os, json; sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from common import *
 sr=22050
