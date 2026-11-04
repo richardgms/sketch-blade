@@ -25,7 +25,7 @@ def ataque(t):
 ataques=[ataque(t) for t in grade]
 # metronomo: o clique do Richard (1o clique do arquivo dele) em cada ataque, circular
 met=None
-if NOME=="partida":
+if True:  # o mesmo clique do Richard nas duas musicas
     m=load(MET); e=np.sqrt((m.mean(1)**2)); i0=int(np.argmax(e>e.max()*0.05))
     clk=m[max(i0-int(0.004*SR),0):i0+int(0.12*SR)].copy(); fo=int(0.03*SR); clk[-fo:]*=np.linspace(1,0,fo)[:,None]
     pre=int(0.004*SR); met=np.zeros((N,2),np.float32)
@@ -42,8 +42,8 @@ if NOME=="partida":
     mono={"baixo","metronomo"}
 else:  # chefe: "outros" e a sobra da guitarra (vai junto); "teclado" e o efeito alienigena
     gt=L["guitarras"]+L["outros"]
-    camadas={"baixo":L["baixo"],"bateria":L["bateria"],"guitarras_leve":passa_baixa(gt,900,3,-6),"guitarras":gt,"alien":L["teclado"]}
-    mono={"baixo","bateria"}
+    camadas={"baixo":L["baixo"],"metronomo":met,"bateria":L["bateria"],"guitarras_leve":passa_baixa(gt,900,3,-6),"guitarras":gt,"alien":L["teclado"]}
+    mono={"baixo","metronomo","bateria"}
 rel={}
 for k,x in camadas.items():
     lr=float(np.corrcoef(x[:,0],x[:,1])[0,1])
