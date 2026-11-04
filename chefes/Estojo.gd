@@ -110,6 +110,8 @@ func _ir(nova: Fase) -> void:
 
 func _trocar_fase() -> void:
 	fase_vida = _fase_pela_vida()
+	if fase_vida >= 2:
+		Musica.raiva_chefe() # o Estojo não tem raiva: a música intensifica na fase 2
 	_ultimo_ataque = ""
 	var main = boss.get_parent()
 	if main and main.has_method("aviso_topo"):

@@ -237,6 +237,7 @@ func _preparar_boss() -> void:
 		main_node._spawn_feedback("CUIDADO: BOSS!", "miss", Vector2(540, 960))
 		# Chefe surge: rosnado grave + explosão abafada
 		main_node._tocar_som(main_node.SONS["chefe_surge"])
+		Musica.entrar_chefe() # a música do chefe entra por baixo do rugido
 
 	# Espera 2.5s dramáticos e spawna o Boss
 	await get_tree().create_timer(2.5).timeout

@@ -370,6 +370,7 @@ func _aplicar_dano(quantidade: int, critico: bool, pos_numero: Vector2, piscar: 
 
 func _entrar_raiva() -> void:
 	_raiva = true
+	Musica.raiva_chefe()
 	var main = get_parent()
 	if main and main.has_method("aviso_topo"):
 		main.aviso_topo("COM RAIVA!")

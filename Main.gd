@@ -380,6 +380,7 @@ func _hitstop(duracao: float = 0.04, escala: float = 0.05) -> void:
 func _exit_tree() -> void:
 	# Garante que nenhuma troca de cena herde o tempo congelado
 	Engine.time_scale = 1.0
+	Musica.parar(0.3) # saiu da partida (hub): a música não vai junto
 
 # ============================================================
 # CICLO DE VIDA DO APP — gesto voltar e app indo para segundo plano
@@ -530,6 +531,7 @@ func _on_player_morreu() -> void:
 	if not AdsManager.revive_usado_na_run:
 		get_tree().paused = true
 		menu_revive.visible = true
+		Musica.abafar(true)
 		tela_reviver.mostrar({"cap": capitulo_atual, "pagina": max(1, wave_manager.pagina_atual),
 			"total_paginas": GameData.PAGINAS.size()})
 		return
@@ -538,6 +540,7 @@ func _on_player_morreu() -> void:
 
 func _finalizar_derrota() -> void:
 	fim_de_jogo_declarado = true
+	Musica.parar(0.5)
 	SaveManager.limpar_run_snapshot() # Run encerrada: nada a retomar
 	boss_hp_bar.visible = false
 	_processar_fim_de_jogo(false)
@@ -594,6 +597,7 @@ func _on_anuncio_falhou(placement: String) -> void:
 
 func _executar_revive() -> void:
 	menu_revive.visible = false
+	Musica.abafar(false)
 
 	# Cancela a declaração de fim de jogo para permitir novas jogadas
 	fim_de_jogo_declarado = false
@@ -672,6 +676,7 @@ func _on_fase_concluida() -> void:
 		
 	# Decreta o fim da partida com vitória
 	fim_de_jogo_declarado = true
+	Musica.parar(1.0) # desce antes do jingle de vitória
 	SaveManager.limpar_run_snapshot() # Run vencida: nada a retomar
 	jogo_iniciado = false
 	player.attack_timer.stop()
@@ -1389,6 +1394,7 @@ func _criar_menu_upgrades() -> void:
 # ============================================================
 func _on_pagina_iniciada(numero: int, total: int) -> void:
 	dano_sofrido_na_pagina = false
+	Musica.pagina(numero)
 	# Checkpoint a cada página: se o Android matar o app (falta de memória,
 	# travamento) sem avisar, a run volta nesta página em vez de do zero.
 	if _run_em_andamento():
@@ -1613,6 +1619,7 @@ func _on_botao_pausa_pressed() -> void:
 		"tinta_partida": tinta_partida, "melhorias": melhorias,
 		"som": SaveManager.dados.get("som_ativo", true), "vibracao": SaveManager.dados.get("vibracao_ativa", true)})
 	get_tree().paused = true
+	Musica.pausar(true)
 
 func _criar_menu_pausa() -> void:
 	menu_pausa = Control.new()
@@ -1632,6 +1639,8 @@ func _criar_menu_pausa() -> void:
 	tela_pausa.ajuste_alterado.connect(func(chave: String, ligado: bool):
 		SaveManager.dados[chave] = ligado
 		SaveManager.salvar()
+		if chave == "som_ativo":
+			Musica.atualizar_som(ligado, wave_manager.pagina_atual, wave_manager.boss_ativo)
 		_tocar_som(SONS["clique"]))
 
 func _criar_label_contagem() -> void:
@@ -1682,4 +1691,5 @@ func _on_retomar_pausa_pressed() -> void:
 	tween.finished.connect(func():
 		label_contagem.visible = false
 		get_tree().paused = false
+		Musica.pausar(false)
 	)

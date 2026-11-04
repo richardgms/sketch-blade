@@ -147,6 +147,7 @@ func avisar(p, _dir: Vector2) -> void:
 	p.inchar(0.5)
 
 func _efeito_divisao(pos: Vector2, tremor: float) -> void:
+	Musica.raiva_chefe() # a Mancha não tem raiva: a música intensifica quando ela se divide
 	var main = boss.get_parent()
 	if main.has_method("_spawn_particles"):
 		for i in 3:
