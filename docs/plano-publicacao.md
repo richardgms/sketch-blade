@@ -2,6 +2,18 @@
 
 Atualizado em 2026-10-24. Fonte única do plano; marque cada item ao concluir.
 
+## Build 1.8.1 (código 16) — teste fechado (04/11/2026)
+- Pedido do Richard: novo build para testar a trilha sem o metrônomo na partida e nos chefes.
+- [x] Atualizar versão 1.8.1 e sincronizar os códigos do preset e de `GameData` em 16.
+- [x] Importar e testar música, sons e hub: 7 verificações de sons, 17 de música sem metrônomo e abertura/navegação do hub passaram, código de saída 0. Save restaurado e bytes/hash conferidos. Logs em `%TEMP%/sketchblade-181-kwy0qbb6/`.
+- [x] Exportar AAB de release assinado em `Documentos/Sketch Blade - builds/sketchblade-1.8.1-vc16.aab`: **68.029.850 bytes (68,0 MB)**. O processo deste export foi encerrado após o pacote assinado ficar íntegro e estável por 15 s, como no build anterior.
+- [x] Conferir assinatura, manifesto, 11 camadas de música, ausência do metrônomo e maiores arquivos: ZIP íntegro; assinatura validada por `jarsigner`, mesmo certificado de upload dos builds anteriores; manifesto com versão **1.8.1 (16)**. Os **40 sons + 11 camadas** correspondem aos importados locais. Nenhum arquivo do metrônomo, foto, rascunho ou credencial no pacote.
+- [ ] Enviar ao teste fechado e testar no celular.
+- O aviso público permanece na versão 1.8.0 (15) até a Play disponibilizar a 1.8.1. Depois, publicar somente o JSON com código 16.
+- SHA-256: `b4282e5d134a6fce1d15771f164457363f00e0bcab3b8540cd762f31be518e29`. Relatório: `sketchblade-1.8.1-vc16.validacao.json`, ao lado do AAB.
+- Maiores arquivos (descomprimidos): motor Godot 71,15 MB; DEX 10,18 / 7,49 / 3,53 MB; ícone 2,37 MB; splash 2,32 MB; texturas seguintes até 1,81 MB.
+- Notas para a Play: “Ajustes na trilha sonora para uma experiência mais agradável durante as partidas.”
+
 ## Build 1.8.0 (código 15) — teste fechado (04/11/2026)
 - Destino confirmado pelo Richard: teste fechado da Play Console. Música e sons aprovados; marimba aprovada para a contagem.
 - [x] Atualizar `version/code` e `GameData.VERSAO_CODIGO` para 15, versão 1.8.0.
@@ -10,9 +22,9 @@ Atualizado em 2026-10-24. Fonte única do plano; marque cada item ao concluir.
 - [x] Exportar AAB de release assinado para `Documentos/Sketch Blade - builds/sketchblade-1.8.0-vc15.aab`: **68.196.260 bytes (68,2 MB)**. O Godot permaneceu aberto depois de gravar o pacote; só o processo deste export foi encerrado após o ZIP assinado ficar íntegro e estável por 15 s.
 - [x] Conferir integridade, assinatura, versão, áudios novos e maiores arquivos do AAB: ZIP íntegro; `jarsigner -verify` confirmou a assinatura; certificado de upload igual ao AAB 1.7.4. Manifesto protobuf conferido com as classes do `aapt2-proto` já instalado: pacote `com.richardgms.sketchblade`, versão 1.8.0, código 15. **40 sons + 13 camadas de música** coincidem byte a byte com os recursos importados locais. Sem JPG/JPEG/PSD, `store/`, rascunhos, credenciais, saves ou morte 7/8.
 - [x] Disponível na faixa fechada: Richard relatou que atualizou pela Play pelo link salvo.
-- [ ] Concluir o teste no celular: música por 10 min, pausa/retomada, segundo plano, chefe/raiva, sons e contagem. A escuta já motivou a retirada do metrônomo (ainda local).
+- [ ] Concluir o teste no celular: música por 10 min, pausa/retomada, segundo plano, chefe/raiva, sons e contagem. A escuta motivou a retirada do metrônomo, já incluída no AAB 1.8.1 (16).
 - Manter `MODO_TESTE = true` e anúncios de teste para esta faixa. Atualizar `atualizacao/versao.json` somente depois de a Play disponibilizar esta versão.
-- Ajuste de escuta posterior: metrônomo retirado do código e dos assets a pedido do Richard. **Este AAB já gerado ainda tem o metrônomo**; antes de testar essa alteração no celular, gerar outro build. Detalhes em `plano-musica-adaptativa.md`.
+- Ajuste de escuta posterior: metrônomo retirado do código e dos assets a pedido do Richard. **Este AAB 1.8.0 ainda tem o metrônomo**; a alteração já está no AAB 1.8.1 (16), descrito acima. Detalhes em `plano-musica-adaptativa.md`.
 - SHA-256: `4a24895c7b6991adf092ff035c1f5952cac2a8f0d301ac7e949deeb6adfaaac0`. Relatório ao lado do AAB: `sketchblade-1.8.0-vc15.validacao.json`.
 - Maiores arquivos (tamanho descomprimido): motor Godot 71,15 MB; três DEX 10,18 / 7,49 / 3,53 MB; ícone 2,37 MB; splash 2,32 MB; demais maiores são texturas do jogo (até 1,81 MB).
 - Notas para a Play: “Nova trilha sonora que acompanha a intensidade das partidas e das batalhas contra os chefes. Novos efeitos sonoros deixam o combate e a navegação mais envolventes.”
@@ -97,7 +109,7 @@ O Hub mostra "PÁGINA NOVA!" quando sai versão nova (`JanelaAtualizacao.gd`, ve
 - Correção publicada: **somente** `atualizacao/versao.json` passou a anunciar a versão disponível **1.8.0 (15)** e as notas aprovadas. Commit remoto `0caa6d5`, criado em checkout temporário a partir do `origin/main`; os commits locais de áudio e os arquivos de compras/anúncios não foram enviados.
 - `tools/teste_aviso_atualizacao.gd`: **7 verificações passaram**, incluindo a leitura real do endereço público (HTTP 200, versão 15), versão igual sem aviso, código maior com aviso, JSON inválido e não duplicação na mesma abertura. Save restaurado e conferido; logs em `%TEMP%/sketch-blade-continuacao-tjtsjr76/`. A importação e o teste saíram com código 0; houve apenas avisos de recursos ao encerrar.
 - Quem já atualizou para a 1.8.0 não recebe aviso dessa mesma versão. O hub consulta ao abrir o jogo; testar a versão anterior exige fechar o app e abrir novamente com internet. Depois de cada publicação disponível na Play, atualizar este JSON com as mesmas notas da versão.
-- A remoção posterior do metrônomo continua local e precisa de novo build.
+- A remoção posterior do metrônomo entrou no AAB 1.8.1 (16), gerado e validado; aguarda envio à Play.
 
 ## Decisões em aberto
 - Confirmar o nome na loja (Tinta & Papel ou Roguelite).

@@ -1,12 +1,12 @@
 # Plano de música adaptativa
 
-Fonte única sobre a música da partida (efeitos e jingles continuam em `sons.md`). **Situação (04/11/2026): abordagem aprovada pelo Richard (leve = stem da cheia tratado). Etapa 0 ok (cheia gerada em plano pago da Suno). Etapa 1 aprovada de ouvido ("3 voltas perfeito"). Etapa 2 feita. Etapa 3 aprovada de ouvido ("gostei"). Página de escuta: https://claude.ai/artifact/W3KYzjySNFX9UeH3dwtUwS. Chefe com música própria aprovada (seção abaixo). **Etapa 4 feita e testada no PC (04/11); AAB 1.8.0 (15) gerado e conferido para o teste fechado (ver `plano-publicacao.md`). Falta o teste no celular (etapa 5).** Saiu de um /brainstorming e de um /llm-council (5 conselheiros + revisão anônima).
+Fonte única sobre a música da partida (efeitos e jingles continuam em `sons.md`). **Situação (04/11/2026): abordagem aprovada pelo Richard (leve = stem da cheia tratado). Etapa 0 ok (cheia gerada em plano pago da Suno). Etapa 1 aprovada de ouvido ("3 voltas perfeito"). Etapa 2 feita. Etapa 3 aprovada de ouvido ("gostei"). Página de escuta: https://claude.ai/artifact/W3KYzjySNFX9UeH3dwtUwS. Chefe com música própria aprovada (seção abaixo). **Etapa 4 feita e testada no PC (04/11); AAB 1.8.1 (16) sem metrônomo gerado e conferido para o teste fechado (ver `plano-publicacao.md`). Falta o teste no celular (etapa 5).** Saiu de um /brainstorming e de um /llm-council (5 conselheiros + revisão anônima).
 
 ## Ajuste após a escuta (04/11)
 - Richard pediu retirar o metrônomo por soar esquisito. A camada saiu da partida e do chefe, inclusive da raiva, do gerador e das demonstrações futuras. Os cliques e seus imports saíram dos assets; as outras camadas e a grade de compassos permanecem iguais.
 - Estado atual: **6 camadas na partida (3.203.812 bytes) e 5 no chefe (2.412.888 bytes)**, duas decodificações a menos e 226.786 bytes de áudio removidos. A sincronia usa a posição dos loops e a grade medida, sem depender do clique audível.
 - Validação: `tools/teste_musica.gd` passou nas 17 verificações, sem erros; save restaurado e conferido. Logs em `%TEMP%/sketch-blade-continuacao-31v497ag/`. Sintaxe dos três scripts Python alterados também conferida, sem regenerar os áudios originais.
-- **O AAB 1.8.0 (15), já gerado, ainda contém o metrônomo.** Este ajuste precisa entrar em outro build; o arquivo anterior foi preservado.
+- **O AAB 1.8.1 (16) foi gerado sem metrônomo e conferido**, com 11 camadas, assinatura e manifesto validados; aguarda envio ao teste fechado. O AAB anterior 1.8.0 (15), preservado, ainda contém o metrônomo. Detalhes e relatório em `plano-publicacao.md`.
 
 ## O que queremos
 - A música da partida fica mais forte conforme a partida pesa, **sem troca de faixa perceptível** (hoje a pesada recomeça do começo e dá para ouvir).

@@ -7,7 +7,7 @@ Continuação do Sketch Blade (Godot 4.7, pasta atual). Leia primeiro:
 - CLAUDE.md
 - docs/identidade-visual.md (a pegada visual aprovada: base para tudo, inclusive a seção "Cartas")
 - docs/proximas-melhorias.md (topo: "Próximo" e as entradas de 29/10 a 01/11)
-- docs/plano-publicacao.md (build 1.8.0 e a seção "Aviso de atualização")
+- docs/plano-publicacao.md (build 1.8.1 e a seção "Aviso de atualização")
 - docs/plano-musica-adaptativa.md e docs/sons.md (música e sons aprovados em 04/11)
 
 Onde estamos (31/10): todo o visual de DENTRO da partida está no estilo "caderno à caneta":
@@ -24,14 +24,14 @@ Em 31/10–01/11 a partida também ficou no estilo caderno: tela antes da partid
 virada de página pelo canto (VirarPagina.gd), respingo de tinta na morte (MorteTinta.gd), papel com
 textura e linha-limite à caneta (Paper.gd), HUD +30%, selo DERROTADO no Hub. E o Hub ganhou o aviso
 de versão nova (JanelaAtualizacao.gd + atualizacao/versao.json no GitHub).
-Build 1.8.0 (código 15, 04/11) gerado, assinado e conferido para o teste fechado, com música
-adaptativa, música de chefe/raiva, sons aprovados e marimba na contagem. Richard já atualizou pela
-Play; o JSON público foi corrigido para 15 depois do relato do aviso ausente (plano-publicacao.md).
-A remoção do metrônomo foi implementada e testada depois dessa escuta, mas ainda precisa de novo build.
+Build 1.8.1 (código 16, 04/11) gerado, assinado e conferido para o teste fechado, com música
+adaptativa sem metrônomo, música de chefe/raiva, sons aprovados e marimba na contagem. Aguarda envio
+à Play e teste no celular. Richard já instalou a 1.8.0 (15); o JSON público anuncia 15, corrigido
+após o relato do aviso ausente. Só passar esse JSON para 16 quando a Play disponibilizar a 1.8.1.
 Ainda com MODO_TESTE = true e anúncios de teste. Em aberto: papel usado também no pardo (cap. 6-7)?
 O cap. 10 continua com o usado?
 
-Próximo: gerar novo build com a retirada do metrônomo quando solicitado e concluir os testes de áudio no celular.
+Próximo: enviar o AAB 1.8.1 (16) ao teste fechado, atualizar o aviso online após ficar disponível e testar o áudio no celular.
 Todas as telas de jogador já estão no estilo novo (só o painel
 "Stats de teste", de testador, segue o antigo). Compras e anúncios: só o visual; push que envolva
 pagamento ou anúncio: me pergunte antes.
