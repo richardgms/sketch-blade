@@ -1734,6 +1734,7 @@ func _coletar_missao(indice: int) -> void:
 	missao["coletada"] = true
 	_salvar_dados()
 	_tocar_som(preload("res://assets/sons/check.ogg"))
+	_tocar_som(preload("res://assets/sons/compra.ogg"))
 	_atualizar_badge_missoes()
 	# Estojo e Loja mudam com o saldo novo (botões de falta)
 	_atualizar_ui_upgrades()

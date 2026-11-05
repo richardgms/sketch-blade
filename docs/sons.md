@@ -115,3 +115,8 @@ Música: `assets/musica/` (ver `plano-musica-adaptativa.md`).
   pausado. Save restaurado e hash conferido. Importação sem erros de script;
   headless ainda reporta recursos residuais ao encerrar.
 - Correção no código; não está no AAB 1.8.3 já gerado.
+
+## Resgate de missão diária — 04/11/2026
+`Hub._coletar_missao` toca `compra.ogg` (a mesma moedinha do upgrade do Estojo)
+junto com `check.ogg` após o resgate válido. Missão incompleta ou já coletada
+retorna antes dos sons; o botão geral de som continua sendo respeitado.
