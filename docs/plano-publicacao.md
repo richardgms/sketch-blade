@@ -178,3 +178,18 @@ Maiores arquivos: motor, DEX, ícone e splash. Assinatura UPLOAD verificada
 pelo jarsigner (retorno 0, `jar verified`).
 16 testes de lógica passaram; confirmação em aparelho via Play ainda pendente.
 Não publicar anúncio JSON desta versão antes da disponibilidade na Play.
+
+## Build 1.8.4 (19) — 05/11/2026
+- AAB: `Documentos/Sketch Blade - builds/sketchblade-1.8.4-vc19.aab`,
+  68.783.166 bytes. Inclui enquadramentos finais ajustados pelo usuário,
+  heartbeat/zumbido e música em vida crítica, jingles de vitória/derrota
+  corrigidos e som de moedinha junto ao check no resgate de missão diária.
+- `version/code` e `GameData.VERSAO_CODIGO` em 19; nome 1.8.4. Configurações de
+  teste fechado preservadas. Consulta automática de atualização Play incluída.
+- Export concluído; ZIP íntegro; versão 1.8.4 no manifesto; plugin da Play e
+  os dois novos sons críticos presentes. Assinatura UPLOAD: jarsigner exit 0,
+  `jar verified`. Sem store, referências, JPG/JPEG/PSD ou cena auxiliar de ajustes.
+- Maiores arquivos: motor ARM64, três DEX, ícone, splash e ícone importado.
+- SHA256: `fb39228ce701cea0ece55c32d14d3f6ec082acdcc5c4d02c34556b02f9fbf2cc`.
+- Pronto para envio manual à Play. Escuta dos novos sons no celular e teste
+  real da detecção de atualização permanecem dependentes da instalação via Play.
