@@ -1,117 +1,117 @@
-[gd_scene load_steps=13 format=3]
+[gd_scene format=3 uid="uid://nj7ux23b43iw"]
 
-[ext_resource type="Script" path="res://tools/ajuste_retratos/folha.gd" id="1"]
-[ext_resource type="Script" path="res://tools/ajuste_retratos/mascara.gd" id="2"]
-[ext_resource type="Texture2D" path="res://assets/inimigos/chefe_1.png" id="tex1"]
-[ext_resource type="Texture2D" path="res://assets/inimigos/chefe_2.png" id="tex2"]
-[ext_resource type="Texture2D" path="res://assets/inimigos/chefe_3.png" id="tex3"]
-[ext_resource type="Texture2D" path="res://assets/inimigos/chefe_4.png" id="tex4"]
-[ext_resource type="Texture2D" path="res://assets/inimigos/chefe_5.png" id="tex5"]
-[ext_resource type="Texture2D" path="res://assets/inimigos/chefe_6.png" id="tex6"]
-[ext_resource type="Texture2D" path="res://assets/inimigos/chefe_7.png" id="tex7"]
-[ext_resource type="Texture2D" path="res://assets/inimigos/chefe_8.png" id="tex8"]
-[ext_resource type="Texture2D" path="res://assets/inimigos/chefe_9.png" id="tex9"]
-[ext_resource type="Texture2D" path="res://assets/inimigos/chefe_10.png" id="tex10"]
+[ext_resource type="Script" uid="uid://bcpkkvrokqi0v" path="res://tools/ajuste_retratos/folha.gd" id="1"]
+[ext_resource type="Script" uid="uid://r7o6jam37e1i" path="res://tools/ajuste_retratos/mascara.gd" id="2"]
+[ext_resource type="Texture2D" uid="uid://bxkqnl6amniew" path="res://assets/inimigos/chefe_1.png" id="tex1"]
+[ext_resource type="Texture2D" uid="uid://bowpncfpsc45u" path="res://assets/inimigos/chefe_2.png" id="tex2"]
+[ext_resource type="Texture2D" uid="uid://nt28up5cf868" path="res://assets/inimigos/chefe_3.png" id="tex3"]
+[ext_resource type="Texture2D" uid="uid://dwq6jfd273dwp" path="res://assets/inimigos/chefe_4.png" id="tex4"]
+[ext_resource type="Texture2D" uid="uid://b3unf6tevsjjg" path="res://assets/inimigos/chefe_5.png" id="tex5"]
+[ext_resource type="Texture2D" uid="uid://bvs7royjfwali" path="res://assets/inimigos/chefe_6.png" id="tex6"]
+[ext_resource type="Texture2D" uid="uid://c472rlo22qmin" path="res://assets/inimigos/chefe_7.png" id="tex7"]
+[ext_resource type="Texture2D" uid="uid://52kqn42664v2" path="res://assets/inimigos/chefe_8.png" id="tex8"]
+[ext_resource type="Texture2D" uid="uid://dlnkkp116t7ov" path="res://assets/inimigos/chefe_9.png" id="tex9"]
+[ext_resource type="Texture2D" uid="uid://dxxphtntmk7ww" path="res://assets/inimigos/chefe_10.png" id="tex10"]
 
-[node name="AjusteRetratos" type="Node2D"]
+[node name="AjusteRetratos" type="Node2D" unique_id=182420477]
 script = ExtResource("1")
 
-[node name="Chefe01" type="Node2D" parent="."]
-position = Vector2(180, 180)
+[node name="Chefe01" type="Node2D" parent="." unique_id=1190695305]
 clip_children = 2
+position = Vector2(180, 180)
 script = ExtResource("2")
 
-[node name="Rosto" type="Sprite2D" parent="Chefe01"]
-position = Vector2(0.000000000, 4.166666667)
-scale = Vector2(0.813802083, 0.813802083)
+[node name="Rosto" type="Sprite2D" parent="Chefe01" unique_id=1543705331]
+position = Vector2(-2.9999962, 11)
+scale = Vector2(0.641276, 0.641276)
 texture = ExtResource("tex1")
 
-[node name="Chefe02" type="Node2D" parent="."]
-position = Vector2(560, 180)
+[node name="Chefe02" type="Node2D" parent="." unique_id=134968344]
 clip_children = 2
+position = Vector2(560, 180)
 script = ExtResource("2")
 
-[node name="Rosto" type="Sprite2D" parent="Chefe02"]
-position = Vector2(-2.222222222, -24.444444444)
-scale = Vector2(0.868055556, 0.868055556)
+[node name="Rosto" type="Sprite2D" parent="Chefe02" unique_id=407282733]
+position = Vector2(1.0000134, -15.00001)
+scale = Vector2(0.79188377, 0.79188377)
 texture = ExtResource("tex2")
 
-[node name="Chefe03" type="Node2D" parent="."]
-position = Vector2(940, 180)
+[node name="Chefe03" type="Node2D" parent="." unique_id=138539275]
 clip_children = 2
+position = Vector2(940, 180)
 script = ExtResource("2")
 
-[node name="Rosto" type="Sprite2D" parent="Chefe03"]
-position = Vector2(-3.846153846, 73.076923077)
-scale = Vector2(0.751201923, 0.751201923)
+[node name="Rosto" type="Sprite2D" parent="Chefe03" unique_id=2091367403]
+position = Vector2(1.9999895, 6.000002)
+scale = Vector2(0.5432505, 0.5432505)
 texture = ExtResource("tex3")
 
-[node name="Chefe04" type="Node2D" parent="."]
-position = Vector2(1320, 180)
+[node name="Chefe04" type="Node2D" parent="." unique_id=1520614953]
 clip_children = 2
+position = Vector2(1320, 180)
 script = ExtResource("2")
 
-[node name="Rosto" type="Sprite2D" parent="Chefe04"]
-position = Vector2(0.000000000, -21.428571429)
-scale = Vector2(0.697544643, 0.697544643)
+[node name="Rosto" type="Sprite2D" parent="Chefe04" unique_id=1274836954]
+position = Vector2(-3.9999828, 3.999998)
+scale = Vector2(0.61872196, 0.61872196)
 texture = ExtResource("tex4")
 
-[node name="Chefe05" type="Node2D" parent="."]
-position = Vector2(1700, 180)
+[node name="Chefe05" type="Node2D" parent="." unique_id=545143794]
 clip_children = 2
+position = Vector2(1700, 180)
 script = ExtResource("2")
 
-[node name="Rosto" type="Sprite2D" parent="Chefe05"]
-position = Vector2(-0.000000000, 158.823529412)
-scale = Vector2(1.148897059, 1.148897059)
+[node name="Rosto" type="Sprite2D" parent="Chefe05" unique_id=1534613846]
+position = Vector2(4.999979, 134.00002)
+scale = Vector2(1.0382009, 1.0382009)
 texture = ExtResource("tex5")
 
-[node name="Chefe06" type="Node2D" parent="."]
-position = Vector2(180, 560)
+[node name="Chefe06" type="Node2D" parent="." unique_id=1036172562]
 clip_children = 2
+position = Vector2(180, 560)
 script = ExtResource("2")
 
-[node name="Rosto" type="Sprite2D" parent="Chefe06"]
-position = Vector2(0.000000000, 52.000000000)
-scale = Vector2(0.781250000, 0.781250000)
+[node name="Rosto" type="Sprite2D" parent="Chefe06" unique_id=1493896297]
+position = Vector2(-1.999999, 55.999992)
+scale = Vector2(0.65722656, 0.65722656)
 texture = ExtResource("tex6")
 
-[node name="Chefe07" type="Node2D" parent="."]
-position = Vector2(560, 560)
+[node name="Chefe07" type="Node2D" parent="." unique_id=606825552]
 clip_children = 2
+position = Vector2(560, 560)
 script = ExtResource("2")
 
-[node name="Rosto" type="Sprite2D" parent="Chefe07"]
-position = Vector2(-27.777777778, 83.333333333)
-scale = Vector2(1.085069444, 1.085069444)
+[node name="Rosto" type="Sprite2D" parent="Chefe07" unique_id=2030964528]
+position = Vector2(-33.99999, 98)
+scale = Vector2(0.9839409, 0.9839409)
 texture = ExtResource("tex7")
 
-[node name="Chefe08" type="Node2D" parent="."]
-position = Vector2(940, 560)
+[node name="Chefe08" type="Node2D" parent="." unique_id=35304617]
 clip_children = 2
+position = Vector2(940, 560)
 script = ExtResource("2")
 
-[node name="Rosto" type="Sprite2D" parent="Chefe08"]
-position = Vector2(0.000000000, 38.461538462)
-scale = Vector2(0.751201923, 0.751201923)
+[node name="Rosto" type="Sprite2D" parent="Chefe08" unique_id=1647309938]
+position = Vector2(-2.000023, 39.00003)
+scale = Vector2(0.66271037, 0.66271037)
 texture = ExtResource("tex8")
 
-[node name="Chefe09" type="Node2D" parent="."]
-position = Vector2(1320, 560)
+[node name="Chefe09" type="Node2D" parent="." unique_id=1106138491]
 clip_children = 2
+position = Vector2(1320, 560)
 script = ExtResource("2")
 
-[node name="Rosto" type="Sprite2D" parent="Chefe09"]
-position = Vector2(5.882352941, -88.235294118)
-scale = Vector2(1.148897059, 1.148897059)
+[node name="Rosto" type="Sprite2D" parent="Chefe09" unique_id=1474716519]
+position = Vector2(-0.99995804, -62.999985)
+scale = Vector2(1.1132814, 1.1132814)
 texture = ExtResource("tex9")
 
-[node name="Chefe10" type="Node2D" parent="."]
-position = Vector2(1700, 560)
+[node name="Chefe10" type="Node2D" parent="." unique_id=1223857542]
 clip_children = 2
+position = Vector2(1700, 560)
 script = ExtResource("2")
 
-[node name="Rosto" type="Sprite2D" parent="Chefe10"]
-position = Vector2(0.000000000, 0.000000000)
-scale = Vector2(0.697544643, 0.697544643)
+[node name="Rosto" type="Sprite2D" parent="Chefe10" unique_id=964782096]
+position = Vector2(-4.0000114, 15.999989)
+scale = Vector2(0.6445318, 0.6445318)
 texture = ExtResource("tex10")

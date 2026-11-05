@@ -117,6 +117,11 @@ Guia geral (não é regra fixa: cada tela é um caso). Tirado do que o Richard a
   `Hub.ROSTOS_TRILHA`. Pasta excluída do export Android. Renderização OpenGL e
   conversão dos dez transforms verificadas (erro normalizado máximo 4×10⁻⁸,
   precisão float32); importação sem erro de script e save restaurado por hash.
+  **05/11/2026:** os dez enquadramentos ajustados pelo usuário na cena foram
+  transferidos para `Hub.ROSTOS_TRILHA`, preservando a cena salva. Comparação
+  OpenGL lado a lado entre Sprite2D salvo e desenho do jogo conferida nos dez;
+  diferença média de cor menor que 0,1/255 no interior de cada retrato.
+  Evidência: `retratos-trilha/ajuste-final/comparacao.png` na pasta de design.
 - Estilo do rascunho do amigo: **simples**, contorno grosso de caneta, hachura leve, miolo branco, poucos detalhes (a asa ficou boa com 3 dobras; a detalhada não). Sem brilhinhos nem rabiscos em volta.
 - Ícone ao lado do valor que ele representa (gota + "+1.058 tinta").
 - Em cima do azul (botão cheio), ícone em **caneta branca com o miolo vazado**, nunca silhueta branca cheia: `assets/ui/gota_branca.png` (gerada por `tools/gerar_gota_branca.gd`; o mesmo método serve para outros ícones).

@@ -24,3 +24,7 @@ Leitura exata pelo Godot, sem gravar nada:
 Se deformar o rosto sem querer, iguale Scale X/Y no Inspector; o leitor recusa
 escala desigual, escala negativa e rotação para evitar resultado diferente do
 que a tabela de recortes do jogo consegue representar.
+
+Ao transferir a saída por script: Windows PowerShell pode redirecionar o texto
+como UTF-16 com CRLF. Decodificar e normalizar para UTF-8/LF antes de inserir em
+GDScript, evitando caracteres CR duplicados.
