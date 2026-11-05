@@ -102,3 +102,16 @@ Música: `assets/musica/` (ver `plano-musica-adaptativa.md`).
   feedback visual e sons da partida: todos passaram, código 0. Save restaurado
   e hash conferido; testes headless ainda reportam recursos residuais ao encerrar.
   A qualidade subjetiva ainda precisa de escuta no celular.
+
+## Correção dos jingles de resultado — 04/11/2026
+- Relato: vitória e derrota não tocavam. Reproduzido nos finais reais: os
+  players herdavam a pausa de Main e congelavam imediatamente após play().
+- `_tocar_som` agora usa `PROCESS_MODE_ALWAYS` somente para `vitoria.ogg` e
+  `derrota.ogg`. Os sons terminam nas telas pausadas e seus players são removidos
+  pelo sinal finished; efeitos de combate continuam sujeitos à pausa.
+- `tools/teste_sons_resultado.gd`: antes da correção, quatro falhas (nenhum dos
+  dois jingles avançava ou terminava). Depois, 16 verificações passaram nos
+  caminhos reais, incluindo som desligado, limpeza da vida crítica e combate
+  pausado. Save restaurado e hash conferido. Importação sem erros de script;
+  headless ainda reporta recursos residuais ao encerrar.
+- Correção no código; não está no AAB 1.8.3 já gerado.

@@ -1332,6 +1332,9 @@ func _tocar_som(stream: AudioStream, pitch: float = 1.0) -> void:
 	var p = AudioStreamPlayer.new()
 	p.stream = stream
 	p.pitch_scale = pitch
+	# As telas de resultado pausam o combate imediatamente após disparar o jingle.
+	if stream == SONS["vitoria"] or stream == SONS["derrota"]:
+		p.process_mode = Node.PROCESS_MODE_ALWAYS
 	if stream in VARIACOES["morte"]:
 		_garantir_bus_mortes()
 		p.bus = "MortesMonstros"
