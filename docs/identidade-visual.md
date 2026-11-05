@@ -102,6 +102,14 @@ Guia geral (não é regra fixa: cada tela é um caso). Tirado do que o Richard a
 - Derrota: irmã da vitória com título vermelho; mostra até onde chegou (trilha com X vermelho) e o recorde, para motivar a revanche. Frases azuis de motivação grandes (52/50): ele pediu para aumentar de 42/40.
 
 ## Ícones
+- Miniatura do chefe na última casa da trilha do Hub: **zoom no rosto**, com
+  enquadramento próprio para cada um dos dez desenhos (`Hub.ROSTOS_TRILHA`).
+  Desenhar a textura em polígono circular com UVs do recorte; um contorno por
+  cima de `draw_texture_rect` sozinho não recorta asas e pontas. Preservar o
+  tamanho da casa, o contorno de caneta e o check verde. Artes originais intactas.
+  Conferido em OpenGL nos dez retratos e nas telas reais dos capítulos 1 e 7;
+  save restaurado por hash. Prévias em
+  `Documentos/Sketch Blade - design/retratos-trilha/` (04/11/2026).
 - Estilo do rascunho do amigo: **simples**, contorno grosso de caneta, hachura leve, miolo branco, poucos detalhes (a asa ficou boa com 3 dobras; a detalhada não). Sem brilhinhos nem rabiscos em volta.
 - Ícone ao lado do valor que ele representa (gota + "+1.058 tinta").
 - Em cima do azul (botão cheio), ícone em **caneta branca com o miolo vazado**, nunca silhueta branca cheia: `assets/ui/gota_branca.png` (gerada por `tools/gerar_gota_branca.gd`; o mesmo método serve para outros ícones).

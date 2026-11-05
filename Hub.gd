@@ -509,6 +509,19 @@ var lbl_regra_cap: RichTextLabel
 var trilha_cap: Control
 var recorde_trilha: int = 0 # páginas pintadas na trilha (0..8)
 var chefe_trilha: Texture2D # mini desenho do chefe na última casa (capítulo vencido)
+## Recortes normalizados do rosto nas artes originais 512×512.
+const ROSTOS_TRILHA := {
+	1: Rect2(0.26, 0.25, 0.48, 0.48),
+	2: Rect2(0.28, 0.33, 0.45, 0.45),
+	3: Rect2(0.25, 0.05, 0.52, 0.52),
+	4: Rect2(0.22, 0.28, 0.56, 0.56),
+	5: Rect2(0.33, 0.06, 0.34, 0.34),
+	6: Rect2(0.25, 0.12, 0.50, 0.50),
+	7: Rect2(0.37, 0.17, 0.36, 0.36),
+	8: Rect2(0.24, 0.14, 0.52, 0.52),
+	9: Rect2(0.32, 0.48, 0.34, 0.34),
+	10: Rect2(0.22, 0.22, 0.56, 0.56),
+}
 var selo_hub: Control
 const FICHAS_CHEFE: Dictionary = preload("res://Boss.gd").FICHAS
 
@@ -755,8 +768,7 @@ func _desenhar_trilha(c: Control) -> void:
 	var chegou: bool = recorde_trilha >= total
 	_disco(c, cc, r_chefe, Color("dbe6f7") if chegou and chefe_trilha == null else Color(1, 1, 1, 0.95))
 	if chefe_trilha:
-		var lado: float = r_chefe * 1.9
-		c.draw_texture_rect(chefe_trilha, Rect2(cc - Vector2(lado, lado) / 2.0, Vector2(lado, lado)), false)
+		_desenhar_retrato_chefe(c, chefe_trilha, cc, r_chefe - 1.0, int(dados_save["capitulo_selecionado"]))
 	_circulo_caneta(c, cc, r_chefe, COR_AZUL_ESCURO, 4.0, 99)
 	if chefe_trilha:
 		var cv := cc + Vector2(r_chefe * 0.72, r_chefe * 0.72)
@@ -768,6 +780,17 @@ func _desenhar_trilha(c: Control) -> void:
 	var tam: int = 56
 	var w: float = fonte.get_string_size("?", HORIZONTAL_ALIGNMENT_LEFT, -1, tam).x
 	c.draw_string(fonte, cc + Vector2(-w / 2.0, tam * 0.36), "?", HORIZONTAL_ALIGNMENT_LEFT, -1, tam, COR_AZUL_ESCURO)
+
+## A própria geometria circular limita a textura: asas/pontas nunca vazam.
+func _desenhar_retrato_chefe(c: Control, textura: Texture2D, centro: Vector2, raio: float, capitulo: int) -> void:
+	var recorte: Rect2 = ROSTOS_TRILHA.get(capitulo, ROSTOS_TRILHA[1])
+	var pontos := PackedVector2Array()
+	var uvs := PackedVector2Array()
+	for i in range(96):
+		var direcao := Vector2.from_angle(TAU * float(i) / 96.0)
+		pontos.append(centro + direcao * raio)
+		uvs.append(recorte.position + (direcao + Vector2.ONE) * 0.5 * recorte.size)
+	c.draw_colored_polygon(pontos, Color.WHITE, uvs, textura)
 
 func _disco(c: Control, centro: Vector2, raio: float, cor: Color) -> void:
 	var pts: PackedVector2Array = []
