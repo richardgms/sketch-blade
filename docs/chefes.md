@@ -90,7 +90,8 @@ Confirmado no código em 29/10/2026 (`Main.gd`, `Hub.gd`).
   preservam avisos de suas fases próprias.
 - `AlertaVida.gd`: arte RGBA original (941×1672) em `assets/ui/vida_baixa_vinheta.png`,
   atrás do HUD e sem bloquear toque. Surge com até 30% da vida (mínimo 2 corações),
-  pulsa suavemente e intensifica com 1; some ao curar, pausar ou terminar.
+  pulsa suavemente e intensifica com 1, sincronizada à dupla batida do heartbeat;
+  some ao curar, pausar ou terminar. Áudio crítico detalhado em `sons.md`.
 - Teste: `tools/teste_feedback_combate.gd`, 13 verificações sem falha, também
   executado com renderização OpenGL. Save restaurado e hash conferido.
 - Arte e prévia real: `Documentos/Sketch Blade - design/feedback-combate/`.

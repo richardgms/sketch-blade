@@ -2,6 +2,13 @@
 
 Fonte única sobre a música da partida (efeitos e jingles continuam em `sons.md`). **Situação (04/11/2026): abordagem aprovada pelo Richard (leve = stem da cheia tratado). Etapa 0 ok (cheia gerada em plano pago da Suno). Etapa 1 aprovada de ouvido ("3 voltas perfeito"). Etapa 2 feita. Etapa 3 aprovada de ouvido ("gostei"). Página de escuta: https://claude.ai/artifact/W3KYzjySNFX9UeH3dwtUwS. Chefe com música própria aprovada (seção abaixo). **Etapa 4 feita e testada no PC (04/11); AAB 1.8.1 (16) sem metrônomo gerado e conferido para o teste fechado (ver `plano-publicacao.md`). Falta o teste no celular (etapa 5).** Saiu de um /brainstorming e de um /llm-council (5 conselheiros + revisão anônima).
 
+## Vida crítica (04/11)
+Com 1 coração, `VidaCritica` solicita a `Musica` −4 dB e corte suave em 5 kHz,
+no pai `MusicaVidaCritica`, compartilhado só pelas músicas de partida/chefe.
+Essa camada não altera os players, ganhos dos stems ou o filtro da pré-entrada
+do boss. Entrada 0,3 s, saída 0,9 s em relógio real; pausa/fim limpam o efeito.
+Detalhes dos sons e estados: `sons.md`, seção Vida crítica equilibrada.
+
 ## Mixagem atual — revisão de clareza (04/11)
 O começo abafado foi rejeitado no jogo. A intensidade agora muda por ganho dos
 stems originais, preservando o brilho da guitarra e reduzindo acompanhamentos.

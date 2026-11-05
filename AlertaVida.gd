@@ -22,4 +22,6 @@ func _process(delta: float) -> void:
 	tempo += delta if baixa else 0.0
 	var intensidade := 1.0 if p.vidas == 1 else 0.65
 	var alvo := intensidade * (0.58 + 0.18 * sin(tempo * TAU * 0.85)) if baixa else 0.0
+	if baixa and p.vidas == 1 and is_instance_valid(partida._vida_critica):
+		alvo = 0.5 + 0.28 * partida._vida_critica.pulso
 	modulate.a = move_toward(modulate.a, alvo, delta * 3.0) if ativo else 0.0

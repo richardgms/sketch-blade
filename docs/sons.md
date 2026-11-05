@@ -73,3 +73,32 @@ Música: `assets/musica/` (ver `plano-musica-adaptativa.md`).
 - Teste de roteamento, ganho, antissobreposição e cliques: zero falhas.
   Qualidade subjetiva ainda depende da escuta no celular.
 - Referência de bandas: [AudioEffectEQ6 oficial](https://docs.godotengine.org/en/stable/classes/class_audioeffecteq6.html).
+
+## Vida crítica equilibrada — opção 1 aprovada e implementada (04/11/2026)
+- Gatilho: 1 coração. `VidaCritica.gd` coordena som e estado; vinheta acompanha
+  a reprodução do heartbeat em `AlertaVida.gd` (sem relógios visuais separados).
+- Novo `coracao_critico.ogg`: dupla batida em ciclo de 0,85 s, ataques em 0 e
+  0,16 s, harmônicos para celular; entrada de ganho 0,12 s, saída de cura 0,9 s.
+- `zumbido_critico.ogg`: pressão/ruído ressonante de 1,2 s, faixa principal de
+  180–1800 Hz, sem apito puro sustentado. Toca uma vez na entrada crítica;
+  atualizar HUD/dano bloqueado não o reinicia. Na cura, cauda cai suavemente.
+- Música da partida e do chefe: −4 dB e passa-baixa suave de 5 kHz, entrada
+  0,3 s, saída 0,9 s. Pai `MusicaVidaCritica` exclusivo da música; efeitos,
+  heartbeat e alertas de ataques não passam por ele. A mistura crítica compõe
+  com fades da partida/chefe, raiva e a atenuação da tela de reviver.
+- Pausa/roleta/descanso suspendem os sons sem repetir o impacto ao voltar.
+  Morte/vitória/saída/som desligado limpam o tratamento. Religar som ou retomar
+  run já com 1 coração entra sem novo impacto. A vinheta continua independente
+  do botão de som e preserva aviso visual para quem joga sem áudio.
+- Síntese original e determinística, sem API: `tools/gerar_audio_vida_critica.py`.
+  Masters mono 44,1 kHz/PCM24, sem recompressão, arquivados em
+  `Documentos/Sketch Blade - audio/vida-critica/`; uso no jogo em OGG q8.
+  Pico/RMS antes da codificação: heartbeat −5,4/−22,4 dBFS; zumbido −11/−28 dBFS
+  (player do zumbido acrescenta −3 dB). Nenhum asset anterior sobrescrito.
+- Rampas usam tempo real para acompanhar o áudio durante hitstop e quadros
+  lentos. O teste de duração também mede relógio real: timers do SceneTree no
+  quadro de carregamento podiam adiantar a verificação antes da reprodução.
+- `tools/teste_vida_critica.gd`: 24 verificações passaram. Regressões de música,
+  feedback visual e sons da partida: todos passaram, código 0. Save restaurado
+  e hash conferido; testes headless ainda reportam recursos residuais ao encerrar.
+  A qualidade subjetiva ainda precisa de escuta no celular.

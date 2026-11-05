@@ -140,11 +140,14 @@ func _ready() -> void:
 	# Sons gravados (assets/sons; fontes e licenças em docs/sons.md).
 	# Gota, morte e dano são sorteados entre variações (VARIACOES).
 	audio_vitoria = _gerar_som_procedural(600.0, 0.6, "sin")
-	var cor_lento: AudioStreamOggVorbis = SONS["coracao_lento"]
+	var cor_lento: AudioStreamOggVorbis = preload("res://assets/sons/coracao_critico.ogg")
 	cor_lento.loop = true
 	_coracao_player.stream = cor_lento
 	_coracao_player.volume_db = -2.0
 	add_child(_coracao_player)
+	_vida_critica = preload("res://VidaCritica.gd").new()
+	_vida_critica.partida = self
+	add_child(_vida_critica)
 	
 	_atualizar_hud()
 	
@@ -1278,16 +1281,12 @@ func _sortear(nome: String) -> AudioStream:
 	_ultima_variacao[nome] = i
 	return lista[i]
 
-## Coração lento em loop enquanto a caneta está com 1 coração (para quando
-## a vida sobe, a partida acaba ou o som está desligado).
+## Heartbeat crítico: a coordenação de entrada, cura e menus fica em VidaCritica.
 var _coracao_player := AudioStreamPlayer.new()
+var _vida_critica: Node
 func _atualizar_coracao() -> void:
-	var tocar: bool = jogo_iniciado and not fim_de_jogo_declarado and player != null \
-		and player.vidas == 1 and SaveManager.dados.get("som_ativo", true)
-	if tocar and not _coracao_player.playing:
-		_coracao_player.play()
-	elif not tocar and _coracao_player.playing:
-		_coracao_player.stop()
+	if is_instance_valid(_vida_critica):
+		_vida_critica.atualizar(0.0)
 
 ## Tiro dos chefes: cuspe curto, no máximo 1 a cada 0,12 s, com tom variando.
 var _ultimo_tiro_chefe_ms: int = -10000

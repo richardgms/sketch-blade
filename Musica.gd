@@ -60,9 +60,44 @@ var _raiva: bool = false
 var _pausado: bool = false
 var _abafado: bool = false
 var _tweens: Array = []
+var _bus_critico := -1
+var _filtro_critico: AudioEffectLowPassFilter
+var _critico := false
+var _mistura_critica := 0.0
+var _ultimo_mix_critico := 0.0
+
+## Barramento pai exclusivo de música: soma com fades e filtro de entrada do boss.
+func _garantir_bus_critico() -> void:
+	if _bus_critico >= 0:
+		return
+	_bus_critico = AudioServer.bus_count
+	AudioServer.add_bus(_bus_critico)
+	AudioServer.set_bus_name(_bus_critico, "MusicaVidaCritica")
+	AudioServer.set_bus_send(_bus_critico, "Master")
+	_filtro_critico = AudioEffectLowPassFilter.new()
+	_filtro_critico.cutoff_hz = 20000.0
+	AudioServer.add_bus_effect(_bus_critico, _filtro_critico)
+	AudioServer.set_bus_effect_enabled(_bus_critico, 0, false)
+
+func vida_critica(sim: bool, imediato: bool = false) -> void:
+	_critico = sim
+	if sim:
+		_garantir_bus_critico()
+	if imediato:
+		_mistura_critica = 1.0 if sim else 0.0
+		_atualizar_mix_critica(0.0)
+
+func _atualizar_mix_critica(delta: float) -> void:
+	if _bus_critico < 0:
+		return
+	_mistura_critica = move_toward(_mistura_critica, 1.0 if _critico else 0.0, delta / (0.3 if _critico else 0.9))
+	AudioServer.set_bus_volume_db(_bus_critico, -4.0 * _mistura_critica)
+	_filtro_critico.cutoff_hz = exp(lerpf(log(20000.0), log(5000.0), _mistura_critica))
+	AudioServer.set_bus_effect_enabled(_bus_critico, 0, _mistura_critica > 0.001)
 
 func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
+	_ultimo_mix_critico = _agora()
 
 func _pode() -> bool:
 	return ATIVA and SaveManager.dados.get("som_ativo", true)
@@ -76,6 +111,7 @@ func _log(t: String) -> void:
 func _garantir_faixas() -> void:
 	if _partida != null:
 		return
+	_garantir_bus_critico()
 	_bus_partida = _criar_bus("MusicaPartida", true)
 	_criar_bus("MusicaChefe", false)
 	_partida = _criar_faixa("partida", DIR_PARTIDA, CAMADAS_PARTIDA, COMPASSOS_PARTIDA, DURACAO_PARTIDA, "MusicaPartida", VOLUME_DB)
@@ -87,7 +123,7 @@ func _criar_bus(nome: String, com_filtro: bool) -> int:
 		i = AudioServer.bus_count
 		AudioServer.add_bus(i)
 		AudioServer.set_bus_name(i, nome)
-		AudioServer.set_bus_send(i, "Master")
+		AudioServer.set_bus_send(i, "MusicaVidaCritica")
 		if com_filtro:
 			var f := AudioEffectLowPassFilter.new()
 			f.cutoff_hz = 20000.0
@@ -164,6 +200,10 @@ func _zerar(f: Faixa, alvo: Dictionary = {}) -> void:
 		_definir(f, i, float(alvo.get(f.camadas[i], 0.0)))
 
 func _process(_delta: float) -> void:
+	# Áudio continua em tempo real durante hitstop e quadros lentos.
+	var agora := _agora()
+	_atualizar_mix_critica(maxf(0.0, agora - _ultimo_mix_critico))
+	_ultimo_mix_critico = agora
 	if _partida == null:
 		return
 	var t := _agora()
@@ -296,6 +336,7 @@ func raiva_chefe() -> void:
 # ------------------------------------------------------- pausa, fim e ajustes
 ## Sai com fade e para tudo (vitória, derrota, saída da partida).
 func parar(dur: float = 0.5, manter_pausa: bool = false) -> void:
+	vida_critica(false, true)
 	if _partida == null:
 		return
 	_cancelar_tweens()

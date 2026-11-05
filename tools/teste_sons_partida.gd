@@ -31,6 +31,7 @@ func _rodar() -> void:
 	_ok("coração toca com 1 coração", m._coracao_player.playing)
 	m.player.vidas = 3
 	m._atualizar_hud()
+	await create_timer(1.0).timeout
 	await process_frame
 	_ok("coração para quando a vida sobe", not m._coracao_player.playing)
 	# variações sem repetir a última
