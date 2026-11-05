@@ -110,6 +110,13 @@ Guia geral (não é regra fixa: cada tela é um caso). Tirado do que o Richard a
   Conferido em OpenGL nos dez retratos e nas telas reais dos capítulos 1 e 7;
   save restaurado por hash. Prévias em
   `Documentos/Sketch Blade - design/retratos-trilha/` (04/11/2026).
+  Ajuste visual auxiliar: abrir `tools/ajuste_retratos/ajuste_retratos.tscn`
+  no editor 2D, mover/escalar somente os filhos **Rosto** e salvar a cena.
+  Instruções e leitura dos valores em `tools/ajuste_retratos/LEIA-ME.md`.
+  A cena não é consumida pelo jogo: valores salvos são transferidos depois para
+  `Hub.ROSTOS_TRILHA`. Pasta excluída do export Android. Renderização OpenGL e
+  conversão dos dez transforms verificadas (erro normalizado máximo 4×10⁻⁸,
+  precisão float32); importação sem erro de script e save restaurado por hash.
 - Estilo do rascunho do amigo: **simples**, contorno grosso de caneta, hachura leve, miolo branco, poucos detalhes (a asa ficou boa com 3 dobras; a detalhada não). Sem brilhinhos nem rabiscos em volta.
 - Ícone ao lado do valor que ele representa (gota + "+1.058 tinta").
 - Em cima do azul (botão cheio), ícone em **caneta branca com o miolo vazado**, nunca silhueta branca cheia: `assets/ui/gota_branca.png` (gerada por `tools/gerar_gota_branca.gd`; o mesmo método serve para outros ícones).

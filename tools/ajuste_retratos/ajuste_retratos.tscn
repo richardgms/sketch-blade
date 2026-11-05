@@ -1,0 +1,117 @@
+[gd_scene load_steps=13 format=3]
+
+[ext_resource type="Script" path="res://tools/ajuste_retratos/folha.gd" id="1"]
+[ext_resource type="Script" path="res://tools/ajuste_retratos/mascara.gd" id="2"]
+[ext_resource type="Texture2D" path="res://assets/inimigos/chefe_1.png" id="tex1"]
+[ext_resource type="Texture2D" path="res://assets/inimigos/chefe_2.png" id="tex2"]
+[ext_resource type="Texture2D" path="res://assets/inimigos/chefe_3.png" id="tex3"]
+[ext_resource type="Texture2D" path="res://assets/inimigos/chefe_4.png" id="tex4"]
+[ext_resource type="Texture2D" path="res://assets/inimigos/chefe_5.png" id="tex5"]
+[ext_resource type="Texture2D" path="res://assets/inimigos/chefe_6.png" id="tex6"]
+[ext_resource type="Texture2D" path="res://assets/inimigos/chefe_7.png" id="tex7"]
+[ext_resource type="Texture2D" path="res://assets/inimigos/chefe_8.png" id="tex8"]
+[ext_resource type="Texture2D" path="res://assets/inimigos/chefe_9.png" id="tex9"]
+[ext_resource type="Texture2D" path="res://assets/inimigos/chefe_10.png" id="tex10"]
+
+[node name="AjusteRetratos" type="Node2D"]
+script = ExtResource("1")
+
+[node name="Chefe01" type="Node2D" parent="."]
+position = Vector2(180, 180)
+clip_children = 2
+script = ExtResource("2")
+
+[node name="Rosto" type="Sprite2D" parent="Chefe01"]
+position = Vector2(0.000000000, 4.166666667)
+scale = Vector2(0.813802083, 0.813802083)
+texture = ExtResource("tex1")
+
+[node name="Chefe02" type="Node2D" parent="."]
+position = Vector2(560, 180)
+clip_children = 2
+script = ExtResource("2")
+
+[node name="Rosto" type="Sprite2D" parent="Chefe02"]
+position = Vector2(-2.222222222, -24.444444444)
+scale = Vector2(0.868055556, 0.868055556)
+texture = ExtResource("tex2")
+
+[node name="Chefe03" type="Node2D" parent="."]
+position = Vector2(940, 180)
+clip_children = 2
+script = ExtResource("2")
+
+[node name="Rosto" type="Sprite2D" parent="Chefe03"]
+position = Vector2(-3.846153846, 73.076923077)
+scale = Vector2(0.751201923, 0.751201923)
+texture = ExtResource("tex3")
+
+[node name="Chefe04" type="Node2D" parent="."]
+position = Vector2(1320, 180)
+clip_children = 2
+script = ExtResource("2")
+
+[node name="Rosto" type="Sprite2D" parent="Chefe04"]
+position = Vector2(0.000000000, -21.428571429)
+scale = Vector2(0.697544643, 0.697544643)
+texture = ExtResource("tex4")
+
+[node name="Chefe05" type="Node2D" parent="."]
+position = Vector2(1700, 180)
+clip_children = 2
+script = ExtResource("2")
+
+[node name="Rosto" type="Sprite2D" parent="Chefe05"]
+position = Vector2(-0.000000000, 158.823529412)
+scale = Vector2(1.148897059, 1.148897059)
+texture = ExtResource("tex5")
+
+[node name="Chefe06" type="Node2D" parent="."]
+position = Vector2(180, 560)
+clip_children = 2
+script = ExtResource("2")
+
+[node name="Rosto" type="Sprite2D" parent="Chefe06"]
+position = Vector2(0.000000000, 52.000000000)
+scale = Vector2(0.781250000, 0.781250000)
+texture = ExtResource("tex6")
+
+[node name="Chefe07" type="Node2D" parent="."]
+position = Vector2(560, 560)
+clip_children = 2
+script = ExtResource("2")
+
+[node name="Rosto" type="Sprite2D" parent="Chefe07"]
+position = Vector2(-27.777777778, 83.333333333)
+scale = Vector2(1.085069444, 1.085069444)
+texture = ExtResource("tex7")
+
+[node name="Chefe08" type="Node2D" parent="."]
+position = Vector2(940, 560)
+clip_children = 2
+script = ExtResource("2")
+
+[node name="Rosto" type="Sprite2D" parent="Chefe08"]
+position = Vector2(0.000000000, 38.461538462)
+scale = Vector2(0.751201923, 0.751201923)
+texture = ExtResource("tex8")
+
+[node name="Chefe09" type="Node2D" parent="."]
+position = Vector2(1320, 560)
+clip_children = 2
+script = ExtResource("2")
+
+[node name="Rosto" type="Sprite2D" parent="Chefe09"]
+position = Vector2(5.882352941, -88.235294118)
+scale = Vector2(1.148897059, 1.148897059)
+texture = ExtResource("tex9")
+
+[node name="Chefe10" type="Node2D" parent="."]
+position = Vector2(1700, 560)
+clip_children = 2
+script = ExtResource("2")
+
+[node name="Rosto" type="Sprite2D" parent="Chefe10"]
+position = Vector2(0.000000000, 0.000000000)
+scale = Vector2(0.697544643, 0.697544643)
+texture = ExtResource("tex10")
