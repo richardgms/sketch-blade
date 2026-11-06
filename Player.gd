@@ -382,7 +382,7 @@ func receber_dano(quantidade: int = 1) -> void:
 		if main_node:
 			var quebra := Node2D.new()
 			quebra.set_script(preload("res://EscudoQuebra.gd"))
-			quebra.pedacos = EscudoBorracha.pedacos(Time.get_ticks_msec() * 0.001)
+			quebra.altura_escudo = EscudoBorracha.MEIA_ALTURA * 2.0
 			quebra.position = global_position + EscudoBorracha.CENTRO
 			main_node.add_child(quebra)
 		if main_node and main_node.has_method("_spawn_feedback"):

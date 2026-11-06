@@ -95,6 +95,17 @@ func _escudo() -> void:
 	p.invencivel = false
 	p.receber_dano(1)
 	p.invencivel = true
+	if _gif:
+		var pasta := "%s/gif-escudo%s" % [_saida, _sufixo]
+		DirAccess.make_dir_recursive_absolute(pasta)
+		var c := p.global_position + Vector2(0, -12)
+		var x := clampi(int(c.x) - 280, 0, 1080 - 560)
+		var y := clampi(int(c.y) - 330, 0, 1920 - 560)
+		Engine.time_scale = 0.2
+		for q in 30:
+			await RenderingServer.frame_post_draw
+			_sv.get_texture().get_image().get_region(Rect2i(x, y, 560, 560)).save_png("%s/%03d.png" % [pasta, q])
+		Engine.time_scale = 1.0
 	await create_timer(0.05).timeout
 	await _foto("escudo-2-quebra", p.global_position)
 	await create_timer(0.15).timeout

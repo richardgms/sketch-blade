@@ -14,7 +14,6 @@ const FRACAO_AZUL: float = 0.35
 const AZUL := Color("3456a8")
 const VERMELHO := Color("c8473f")
 const TINTA := Color("1d2a5c")     # traço escuro da caneta nos detalhes
-const N_PEDACOS: int = 18
 
 ## Vértices do bloco chanfrado (sentido horário, começando no topo esquerdo).
 static func _vertices(w: float, h: float, c: float) -> PackedVector2Array:
@@ -118,17 +117,3 @@ static func desenhar(ci: CanvasItem, progresso: float, ativo: bool, t: float, po
 		ci.draw_polyline(_trecho(fora, s, s1 + 1.0), c, 5.0, true)
 		ci.draw_polyline(_trecho(fora, s, s1 + 1.0, 2.2), Color(c, 0.45), 2.0, true)
 		s = s1
-
-## Pedaços do contorno para voar na quebra: [pontos (em volta do centro), cor, largura].
-static func pedacos(_t: float) -> Array:
-	var fora := _vertices(MEIA_LARGURA, MEIA_ALTURA, CHANFRO)
-	var p := perimetro(fora)
-	var lista: Array = []
-	for i in N_PEDACOS:
-		var s0: float = p * i / N_PEDACOS
-		var pts := _trecho(fora, s0, s0 + p / N_PEDACOS * 0.9)
-		var cor := _cor_em(ponto(fora, s0, 0.0), MEIA_ALTURA)
-		for j in pts.size():
-			pts[j] -= CENTRO
-		lista.append([pts, cor, 5.0])
-	return lista

@@ -111,3 +111,11 @@ vez com print na página de melhorias visuais. Sem build sem pedido.
   e a nuvem parada (texturas removidas). APAGADO! com folga 280.
   GIF da explosão: o script espera o hitstop (0,06 s real) e grava em câmera lenta
   0,2x; senão o hitstop devolve time_scale 1 e a gravação sai acelerada.
+- 06/11, rodada 9: quebra do escudo animada. Folha do GPT Image com a borracha do
+  jogo como referência (`upgrades\gerados\borracha_quebra_quadros.png`; referência
+  `ref_borracha_jogo.png`), recortada COM as cores (alfa = brancura invertida,
+  cor desmisturada do branco, redução com alfa pré-multiplicado) em
+  `assets/ui/borracha_quebra.png` (6 x 216x336). Centros fixos a cada 363 px
+  (a estrelinha do impacto deslocava o centro calculado pelos vãos).
+  `EscudoQuebra.gd` toca 0,52 s na escala do escudo + 8 farelos com gravidade.
+  Saiu `EscudoBorracha.pedacos`. O escudo parado segue em código (precisa da recarga).
