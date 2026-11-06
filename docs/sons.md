@@ -8,7 +8,8 @@ Fonte única dos sons gravados (`assets/sons/`). Lote 1 escolhido pelo Richard e
 | `gota.ogg`, `gota_2..4.ogg` | pegar gota (sorteia) | Kenney, Interface Sounds, `drop_002/001/003/004` | CC0 |
 | `morte.ogg`, `morte_2..6.ogg` | monstro morre (sorteia; chefe usa `morte` grave) | EZduzziteh, Squish Sounds Effects (6 arquivos; 7 e 8 removidos a pedido do Richard em 04/11) | CC0 |
 | `dano_1..3.ogg` | caneta toma dano (sorteia) | krb21, *tossing pen down* (Freesound 118618), 3 quedas | CC0 |
-| `coracao_lento.ogg` | loop enquanto a caneta está com 1 coração | gerado por `tools/sons_lote2.py` | nosso |
+| `coracao_critico.ogg` | loop enquanto a caneta está com 1 coração (desde 06/11) | BigSoundBank, *Heartbeat #1* (s0243), recortado e equalizado por `tools/gerar_coracao_cc0.py`; original em `Videos\sons sketch blade\26 musica\01 Sala sci-fi (escolhida)\` | CC0 |
+| `coracao_lento.ogg` | antigo loop de 1 coração (fora de uso) | gerado por `tools/sons_lote2.py` | nosso |
 | `acerto.ogg` | tiro da caneta acerta | gerado por código ("tup" 460→140 Hz) | nosso |
 | `pagina.ogg` | página concluída | Beussa, *Page turned* (Freesound 749880) | CC0 |
 | `contagem_bipe.ogg`, `contagem_ja.ogg` | 3-2-1-JÁ na volta da pausa; marimba aprovada em 04/11 | GAMEDRIX974, *marimba f1*, original `marimba tick.wav`; JÁ com oitava + quinta + nota original | CC0 |
@@ -77,8 +78,8 @@ Música: `assets/musica/` (ver `plano-musica-adaptativa.md`).
 ## Vida crítica equilibrada — opção 1 aprovada e implementada (04/11/2026)
 - Gatilho: 1 coração. `VidaCritica.gd` coordena som e estado; vinheta acompanha
   a reprodução do heartbeat em `AlertaVida.gd` (sem relógios visuais separados).
-- Novo `coracao_critico.ogg`: dupla batida em ciclo de 0,85 s, ataques em 0 e
-  0,16 s, harmônicos para celular; entrada de ganho 0,12 s, saída de cura 0,9 s.
+- `coracao_critico.ogg` (trocado em 06/11 pela gravação CC0, ver abaixo): ciclo de
+  0,85 s, ataques em 0 e 0,243 s (`VidaCritica.SEGUNDO_ATAQUE`); entrada de ganho 0,12 s, saída de cura 0,9 s.
 - `zumbido_critico.ogg`: pressão/ruído ressonante de 1,2 s, faixa principal de
   180–1800 Hz, sem apito puro sustentado. Toca uma vez na entrada crítica;
   atualizar HUD/dano bloqueado não o reinicia. Na cura, cauda cai suavemente.
@@ -118,7 +119,9 @@ Música: `assets/musica/` (ver `plano-musica-adaptativa.md`).
   celular: C "Heartbeat #1" (s0243, seca) −17,6 cru / −11,4 equalizada; A
   "Heart Beat #4" (s1929, estúdio 24 bits) −34 / −25; B "Heart Beat" (s0218)
   −25 / −24,5; atual −23. Gravação real aguenta EQ sem soar robótica. Junto,
-  vibração leve a cada batida (`docs/vibracao.md`). Aguardando escuta.
+  vibração leve a cada batida (`docs/vibracao.md`). **Escolhida a C**, a partir do
+  WAV original: −24,6 LUFS (igual ao anterior no fone) e +10 dB no celular
+  simulado. Sintético antigo arquivado como `coracao_critico_sintetico_antigo.wav`.
 - Rampas usam tempo real para acompanhar o áudio durante hitstop e quadros
   lentos. O teste de duração também mede relógio real: timers do SceneTree no
   quadro de carregamento podiam adiantar a verificação antes da reprodução.

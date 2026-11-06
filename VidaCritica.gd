@@ -1,7 +1,7 @@
 extends Node
 ## Coordena heartbeat, impacto de pressão e mistura da música sem depender dos menus.
 const CICLO := 0.85
-const SEGUNDO_ATAQUE := 0.16
+const SEGUNDO_ATAQUE := 0.243 # gravação CC0 "Heartbeat #1": tum em 0, tá em 0,243 s, mesma força
 var partida: Node
 var zumbido := AudioStreamPlayer.new()
 var _em_critico := false
@@ -68,7 +68,7 @@ func atualizar(delta: float) -> void:
 	if critico and _ganho > 0.5 and pos < _pos_anterior:
 		Vibracao.tocar("coracao")
 	_pos_anterior = pos
-	pulso = (exp(-pos / 0.11) + (0.65 * exp(-(pos - SEGUNDO_ATAQUE) / 0.09) if pos >= SEGUNDO_ATAQUE else 0.0)) * _ganho
+	pulso = (exp(-pos / 0.11) + (0.9 * exp(-(pos - SEGUNDO_ATAQUE) / 0.09) if pos >= SEGUNDO_ATAQUE else 0.0)) * _ganho
 
 func _exit_tree() -> void:
 	Musica.vida_critica(false, true)
