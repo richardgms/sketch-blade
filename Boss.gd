@@ -209,7 +209,7 @@ func _process(delta: float) -> void:
 			_dot_pulso = 0.0
 			var dano_tick = int(dot_acumulado)
 			dot_acumulado -= dano_tick
-			receber_dano(dano_tick)
+			receber_dano_fonte(dano_tick, "corrosao")
 			if is_queued_for_deletion():
 				return
 		if dot_restante <= 0.0:
@@ -334,6 +334,13 @@ var _dot_pulso: float = 0.0
 
 var _tween_flash: Tween
 
+## Dano de upgrade com cor própria no número ("corrosao", "explosao").
+var fonte_dano: String = ""
+func receber_dano_fonte(quantidade: int, fonte: String) -> void:
+	fonte_dano = fonte
+	receber_dano(quantidade)
+	fonte_dano = ""
+
 func receber_dano(quantidade: int) -> void:
 	receber_dano_detalhado(quantidade, false)
 
@@ -362,7 +369,10 @@ func _aplicar_dano(quantidade: int, critico: bool, pos_numero: Vector2, piscar: 
 	# Aciona popup de dano no Main apenas se o Boss sobreviver ao golpe
 	if hp > 0:
 		var main_node = get_parent()
-		if main_node and main_node.has_method("spawn_dano_chefe"):
+		if fonte_dano != "" and main_node and main_node.has_method("spawn_damage_number"):
+			# Dano de upgrade: número colorido ao lado, fora da soma dos tiros
+			main_node.spawn_damage_number(quantidade, pos_numero + Vector2(randf_range(60, 110), 40), false, false, fonte_dano)
+		elif main_node and main_node.has_method("spawn_dano_chefe"):
 			main_node.spawn_dano_chefe(quantidade, critico, self if piscar else null, pos_numero)
 	if not piscar:
 		if hp <= 0:

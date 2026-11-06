@@ -351,7 +351,9 @@ func _on_enemy_morreu(pos: Vector2, cor: Color, textura: String) -> void:
 			if inimigo.is_queued_for_deletion():
 				continue
 			if pos.distance_to(inimigo.global_position) <= raio:
-				if inimigo.has_method("receber_dano"):
+				if inimigo.has_method("receber_dano_fonte"):
+					inimigo.receber_dano_fonte.call_deferred(dano_explosao, "explosao")
+				elif inimigo.has_method("receber_dano"):
 					inimigo.receber_dano.call_deferred(dano_explosao)
 
 ## Respingo + anel do alcance do Borrão Explosivo (no máximo 6 ao mesmo tempo:
@@ -1467,7 +1469,10 @@ func _atualizar_posicao_dano_chefe() -> void:
 	var y := topo - 78.0 if topo > 340.0 else fundo + 20.0
 	_lbl_dano_chefe.position = Vector2(clampf(centro.x - 150.0, 20.0, tamanho.x - 320.0), clampf(y, 260.0, tamanho.y - 180.0))
 
-func spawn_damage_number(quantidade: int, pos: Vector2, eh_jogador: bool, critico: bool = false) -> void:
+## Cor do número para cada dano de upgrade (o tiro da caneta é branco).
+const COR_DANO_FONTE := {"corrosao": Color("6fd877"), "explosao": Color("c99bff")}
+
+func spawn_damage_number(quantidade: int, pos: Vector2, eh_jogador: bool, critico: bool = false, fonte: String = "") -> void:
 	var lbl = Label.new()
 	lbl.text = ("-" + str(quantidade)) if quantidade > 0 else "BLOQUEADO"
 	if critico:
@@ -1476,7 +1481,7 @@ func spawn_damage_number(quantidade: int, pos: Vector2, eh_jogador: bool, critic
 	lbl.add_theme_font_size_override("font_size", 64 if critico else 46)
 	# Branco/laranja com contorno escuro: legível sobre papel claro e sobre
 	# monstro escuro (antes era tinta escura, sumia no chefe preto)
-	var cor = Color("ff6b5e") if eh_jogador else (Color("ffb020") if critico else Color.WHITE)
+	var cor = Color("ff6b5e") if eh_jogador else (Color("ffb020") if critico else COR_DANO_FONTE.get(fonte, Color.WHITE))
 	lbl.add_theme_color_override("font_color", cor)
 	lbl.add_theme_color_override("font_outline_color", Color("1a1a2e"))
 	lbl.add_theme_constant_override("outline_size", 12 if critico else 10)

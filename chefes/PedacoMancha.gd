@@ -66,7 +66,7 @@ func _process(delta: float) -> void:
 			_dot_pulso = 0.0
 			var d := int(_dot_acum)
 			_dot_acum -= d
-			receber_dano(d)
+			receber_dano_fonte(d, "corrosao")
 			if _morto:
 				return
 
@@ -92,6 +92,13 @@ func inchar(duracao: float) -> void:
 	tw.tween_property(self, "_pulso", 0.2, duracao * 0.8).set_trans(Tween.TRANS_SINE)
 	tw.tween_property(self, "_pulso", 0.0, duracao * 0.2)
 
+## Dano de upgrade com cor própria no número ("corrosao", "explosao").
+var fonte_dano: String = ""
+func receber_dano_fonte(quantidade: int, fonte: String) -> void:
+	fonte_dano = fonte
+	receber_dano(quantidade)
+	fonte_dano = ""
+
 func receber_dano(quantidade: int) -> void:
 	receber_dano_detalhado(quantidade, false)
 
@@ -102,7 +109,9 @@ func receber_dano_detalhado(quantidade: int, critico: bool) -> void:
 	hp -= q
 	mancha.tirar_da_barra(q)
 	var main = get_parent()
-	if hp > 0 and main and main.has_method("spawn_dano_chefe"):
+	if hp > 0 and fonte_dano != "" and main and main.has_method("spawn_damage_number"):
+		main.spawn_damage_number(quantidade, global_position + Vector2(randf_range(40, 80), 30), false, false, fonte_dano)
+	elif hp > 0 and main and main.has_method("spawn_dano_chefe"):
 		main.spawn_dano_chefe(quantidade, critico)
 	_piscar()
 	if hp <= 0:

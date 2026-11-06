@@ -90,3 +90,10 @@ vez com print na página de melhorias visuais. Sem build sem pedido.
   sobem tremendo (quadros 0/1) e estouram (2..5, 0,06 s); chefe 4/s e maiores,
   monstro 1,5/s. Camada própria sem o shader de onda. GIF do monstro: o script
   baixa o dano da caneta para ele durar na tela.
+- 06/11, rodada 6: número de dano colorido por fonte. `receber_dano_fonte(q, fonte)`
+  em Enemy, Boss e PedacoMancha (guarda `fonte_dano` só durante a chamada);
+  `Main.COR_DANO_FONTE`: corrosão `#6fd877`, explosão `#c99bff` (tiro branco,
+  crítico dourado, dano no jogador vermelho). No chefe, número colorido ao lado,
+  fora da soma de `spawn_dano_chefe`. Novo upgrade com dano próprio: passar a fonte
+  e pôr a cor na tabela. Uma captura de prints encerrou no meio uma vez sem erro
+  no log; repetida, passou.

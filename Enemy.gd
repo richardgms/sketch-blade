@@ -283,7 +283,7 @@ func _process(delta: float) -> void:
 			_dot_pulso = 0.0
 			var dano_tick = int(dot_acumulado)
 			dot_acumulado -= dano_tick
-			receber_dano(dano_tick)
+			receber_dano_fonte(dano_tick, "corrosao")
 			if is_queued_for_deletion():
 				return
 		if dot_restante <= 0.0:
@@ -369,6 +369,13 @@ func aplicar_dot(dps: int, duracao: float) -> void:
 
 var _fx_corrosao: Node2D
 
+## Dano de upgrade com cor própria no número ("corrosao", "explosao").
+var fonte_dano: String = ""
+func receber_dano_fonte(quantidade: int, fonte: String) -> void:
+	fonte_dano = fonte
+	receber_dano(quantidade)
+	fonte_dano = ""
+
 func receber_dano(quantidade: int) -> void:
 	receber_dano_detalhado(quantidade, false)
 
@@ -381,7 +388,7 @@ func receber_dano_detalhado(quantidade: int, critico: bool) -> void:
 	if hp > 0:
 		var main_node = get_parent()
 		if main_node and main_node.has_method("spawn_damage_number"):
-			main_node.spawn_damage_number(quantidade, global_position, false, critico)
+			main_node.spawn_damage_number(quantidade, global_position, false, critico, fonte_dano)
 
 	# Flash branco (shader) + empurrão para trás; tanque e elite quase não se movem
 	_piscar()
