@@ -128,7 +128,7 @@ const MODO_TESTE: bool = true
 
 ## Código desta versão: subir junto com version/code do export_presets.cfg.
 ## O aviso de atualização compara com o codigo de atualizacao/versao.json.
-const VERSAO_CODIGO: int = 19
+const VERSAO_CODIGO: int = 20
 
 ## Raio do Borrão Explosivo por nível (índice = nível - 1).
 const RAIOS_EXPLOSAO: Array = [200.0, 240.0, 280.0]
