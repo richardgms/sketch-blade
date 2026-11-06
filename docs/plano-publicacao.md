@@ -195,8 +195,9 @@ Não publicar anúncio JSON desta versão antes da disponibilidade na Play.
   real da detecção de atualização permanecem dependentes da instalação via Play.
 
 ### Envio e notas combinadas da 1.8.4
-Richard informou em 05/11 que não enviou a 1.8.3 e está enviando diretamente
-esta 1.8.4. Publicação/disponibilidade ainda não confirmada. O upload pelo
+Richard informou em 05/11 que não enviou a 1.8.3 e enviou diretamente esta
+1.8.4. Publicação confirmada por ele em 05/11; JSON anunciando 1.8.4 (19)
+publicado em push isolado (commit remoto `c9663bd`). O upload pelo
 agente não ocorreu: Computer Use foi interrompido por não conseguir determinar
 com confiança a URL atual do Chrome. O próprio usuário assumiu o upload.
 
@@ -216,3 +217,40 @@ Após confirmar a disponibilidade, anunciar código 19 no JSON para instalaçõe
 antigas (como 1.8.2), que ainda dependem desse arquivo. Na 1.8.4 instalada, a
 consulta automática será comprovada com uma atualização posterior (>19) oferecida
 à mesma conta. Não confundir upload iniciado com versão publicada.
+
+## Build 1.8.5 (20) — 06/11/2026
+Upgrades da roleta refeitos (`docs/plano-upgrades.md`, página
+https://claude.ai/artifact/TJVaMr4MGn6EGpBcQjzUyZ, tudo aprovado pelo Richard).
+- Mecânica: Corrosiva 20/35/50% do dano do tiro por s por 3 s; Borrão 40/60/80%
+  do dano da caneta, raio 200/240/280. Dano contínuo em pulsos de 0,5 s.
+- Visual: escudo em forma de borracha (azul/vermelho) com quebra animada em 10
+  quadros; explosão em nuvem animada em 6 quadros; corrosão com vapor e bolhas à
+  caneta. Dano de corrosão em verde e de explosão em rosa. Avisos (MORREU!,
+  APAGADO!) com contorno e fora do alvo; escudo mostra um texto só.
+- Antes do build: cartas da roleta conferidas com os textos novos; robô nos 10
+  chefes (esquiva, 1 semente, 30 lutas) achou erro de script na corrosão
+  (parâmetro tipado com objeto liberado), corrigido; nova rodada com 0 erros.
+- `version/code` e `GameData.VERSAO_CODIGO` em 20; nome 1.8.5. MODO_TESTE e
+  anúncios de teste mantidos (teste fechado).
+- AAB: `Documentos\Sketch Blade - builds\sketchblade-1.8.5-vc20.aab`
+  (69.153.071 bytes). ZIP íntegro; versão 1.8.5 no manifesto; `jar verified`,
+  mesmo certificado de upload da 1.8.4; texturas e scripts novos presentes; sem
+  store, referências, JPG/PSD, cena de ajuste ou texturas descartadas. Maiores
+  arquivos: motor ARM64, três DEX, ícone e splash.
+- SHA256: `c54c03356e5247b8c7b6b8b193f1b7e0868aa751095668cfdb476417009d5024`.
+- Falta: envio à Play pelo Richard e teste no celular. Depois de publicada,
+  anunciar 1.8.5 (20) no `atualizacao/versao.json` (push isolado) para quem
+  ainda está em versão anterior à 1.8.3; a 1.8.4 detecta pela própria Play.
+
+Notas sugeridas para a Play:
+
+```text
+<pt-BR>
+• Escudo de Borracha redesenhado, com animação ao quebrar.
+• Borrão Explosivo com explosão animada e alcance maior.
+• Tinta Corrosiva mais forte, com vapor e bolhas.
+• Dano da corrosão e da explosão com cores próprias.
+• Avisos na tela com contorno, sem cobrir os monstros.
+</pt-BR>
+```
+

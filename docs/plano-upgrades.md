@@ -125,3 +125,20 @@ vez com print na página de melhorias visuais. Sem build sem pedido.
   tira única `assets/ui/borracha_quebra.png` (10 x 304x316). Fundo azul/vermelho
   do escudo (`EscudoBorracha.desenhar_fundo`) por baixo até rachar, some em 0,12 s.
   0,61 s no total. Pedir mais quadros em grade de 2 linhas funciona melhor que 1 linha.
+- 06/11: tudo aprovado (borracha, quebra em 10 quadros, explosão animada, vapor
+  com bolhas, cores do dano, textos). Robô nos 10 chefes achou erro na corrosão
+  (`CorrosaoTinta.aplicar` com parâmetro tipado recebendo objeto liberado; agora
+  sem tipo + `is_instance_valid`); nova rodada sem erros. Build 1.8.5 (20) gerado
+  (`docs/plano-publicacao.md`). **Concluído.**
+
+## Como repetir o método (folha de quadros do GPT Image)
+1. Gerar com `gerar-imagem`, pedindo "uma linha (ou grade 2x5) de N quadros
+   separados por vãos largos, mesmo centro e escala, fundo branco", com a arte
+   já aprovada como referência.
+2. Recortar: alfa pela brancura (tinta de uma cor: branco tingível; colorido:
+   desmisturar do branco e reduzir com alfa pré-multiplicado); separar quadros
+   pelos vãos ou por centros medidos; limitar cada quadro à faixa dele.
+3. Traço fino que vai aparecer pequeno: reduzir por máximo de bloco.
+4. Animar no jogo com `draw_texture_rect_region` e tempos por quadro; conferir
+   com GIF gravado em câmera lenta (`tools/prints_upgrades.gd`).
+
