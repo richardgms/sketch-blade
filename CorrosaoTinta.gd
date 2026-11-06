@@ -44,9 +44,13 @@ var _acum_bolha: float = 0.3
 var _camada_bolhas: Node2D # sem o shader de onda
 
 ## Cria (ou reaproveita) o efeito no dono e renova a duração.
-static func aplicar(dono: Node2D, atual: Node2D, raio_alvo: float, duracao: float) -> Node2D:
-	var fx: Node2D = atual
-	if fx == null or not is_instance_valid(fx) or fx.is_queued_for_deletion():
+## "atual" sem tipo: pode chegar já liberado (o efeito anterior acabou) e um
+## parâmetro tipado dá erro com objeto liberado.
+static func aplicar(dono: Node2D, atual, raio_alvo: float, duracao: float) -> Node2D:
+	var fx: Node2D = null
+	if is_instance_valid(atual) and not atual.is_queued_for_deletion():
+		fx = atual
+	if fx == null:
 		fx = Node2D.new()
 		fx.set_script(load("res://CorrosaoTinta.gd"))
 		fx.raio = raio_alvo
