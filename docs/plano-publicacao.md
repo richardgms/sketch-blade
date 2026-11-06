@@ -193,3 +193,26 @@ Não publicar anúncio JSON desta versão antes da disponibilidade na Play.
 - SHA256: `fb39228ce701cea0ece55c32d14d3f6ec082acdcc5c4d02c34556b02f9fbf2cc`.
 - Pronto para envio manual à Play. Escuta dos novos sons no celular e teste
   real da detecção de atualização permanecem dependentes da instalação via Play.
+
+### Envio e notas combinadas da 1.8.4
+Richard informou em 05/11 que não enviou a 1.8.3 e está enviando diretamente
+esta 1.8.4. Publicação/disponibilidade ainda não confirmada. O upload pelo
+agente não ocorreu: Computer Use foi interrompido por não conseguir determinar
+com confiança a URL atual do Chrome. O próprio usuário assumiu o upload.
+
+Notas fornecidas para a Play (incluem as duas versões):
+
+```text
+<pt-BR>
+• Aviso de atualização integrado à Play Store.
+• Alerta de vida crítica com heartbeat reforçado, zumbido e música suavemente abafada.
+• Correção dos sons de vitória e derrota.
+• Som de moedinha ao resgatar missões diárias.
+• Miniaturas dos chefes com foco no rosto e recorte circular.
+</pt-BR>
+```
+
+Após confirmar a disponibilidade, anunciar código 19 no JSON para instalações
+antigas (como 1.8.2), que ainda dependem desse arquivo. Na 1.8.4 instalada, a
+consulta automática será comprovada com uma atualização posterior (>19) oferecida
+à mesma conta. Não confundir upload iniciado com versão publicada.

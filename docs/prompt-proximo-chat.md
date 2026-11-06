@@ -1,46 +1,71 @@
 # Prompt para o próximo chat
 
-Resumo atualizado em 04/11/2026. Pode ser usado no Codex ou Claude Code; os detalhes ficam nas fontes indicadas.
+Resumo atualizado em 05/11/2026. Detalhes nas fontes indicadas; não reler todo o histórico.
 
 ```text
 Continuação do Sketch Blade, Godot 4.7, nesta pasta. Leia:
-- CLAUDE.md (comandos e regras do projeto).
-- docs/plano-publicacao.md (build atual e aviso de atualização).
-- docs/plano-musica-adaptativa.md (trilha e teste pendente no celular).
-- docs/sons.md (efeitos aprovados e suas origens).
-- Para mexer em telas: docs/identidade-visual.md; próximos assuntos em docs/proximas-melhorias.md.
+- CLAUDE.md (comandos e regras).
+- docs/plano-publicacao.md (build, status e notas da versão).
+- docs/plano-atualizacao-play.md (consulta automática de atualização).
+- docs/sons.md e docs/plano-musica-adaptativa.md (mixagem e vida crítica).
+- Para visual: docs/identidade-visual.md; próximos assuntos em docs/proximas-melhorias.md.
 
 Estado atual:
-- AAB 1.8.1, código 16, gerado, assinado e conferido. Está disponível no teste fechado da Play.
-  Arquivo: Documentos/Sketch Blade - builds/sketchblade-1.8.1-vc16.aab.
-  Relatório de validação ao lado do AAB; detalhes em plano-publicacao.md.
-- Música adaptativa e música própria dos chefes/raiva. Metrônomo removido da partida,
-  dos chefes, dos assets e dos geradores/demonstrações: 6 camadas na partida e 5 no chefe.
-- Sons aprovados: seis variações de morte (7 e 8 removidas), krw ao inchar antes do tiro,
-  derrota inteira e marimba na contagem. Fontes/licenças em sons.md.
-- Testes no PC passaram: 17 de música, 7 de sons, hub e 7 do aviso de atualização.
-  Saves dos testes restaurados e conferidos; isso não equivale a aprovação do áudio no celular.
-- O JSON público atualizacao/versao.json já anuncia 1.8.1 (16).
-  Richard confirmou no celular que o aviso funcionou após essa correção.
-  O jogo consulta ao iniciar: fechar completamente e abrir com internet força nova consulta.
-- MODO_TESTE = true e anúncios de teste mantidos para a faixa fechada.
+- AAB 1.8.4, código 19, gerado, assinado e validado:
+  Documentos/Sketch Blade - builds/sketchblade-1.8.4-vc19.aab (68.783.166 bytes).
+  SHA256, conteúdo e notas prontas em plano-publicacao.md.
+- Richard NÃO enviou a 1.8.3 (18); está fazendo upload direto da 1.8.4.
+  Ainda NÃO confirmou publicação/disponibilidade da 1.8.4. Não assumir que publicou.
+- A 1.8.4 inclui a integração automática da Play criada na 1.8.3, efeitos de vida
+  crítica, correção dos jingles, som de moedinha nas missões e retratos finais.
+- Play Update: mesma notinha de caderno, disponibilidade confirmada pela Play
+  para a conta instalada. JSON fornece somente notas da mesma versão; se faltar
+  ou estiver antigo, abre aviso genérico. Não depende de publicar JSON nas novas.
+  Falta teste real: instalar a 1.8.4 via Play e depois liberar versão superior
+  à mesma conta para testar o aviso. 16 testes de lógica passaram.
+- Versões anteriores à integração ainda usam JSON para detectar atualização.
+  Último JSON publicado por nós: 1.8.2 (17), commit remoto 4413b27. Atualizar
+  para 1.8.4 (19) somente após Richard confirmar disponibilidade na Play; assim
+  quem está na 1.8.2 também recebe o aviso e instala a integração nova.
+- Trilha clara por ganhos dos stems originais; guitarra filtrada saiu dos níveis
+  normais. Mortes −7 dB com EQ/compressor e limite de sobreposição.
+- Vida crítica aprovada (opção 1): entra com 1 coração, heartbeat duplo mais
+  marcado, zumbido curto 1,2 s e vinheta sincronizada. Música −4 dB e filtro
+  5 kHz em barramento pai exclusivo; entrada 0,3 s, saída 0,9 s, relógio real.
+  Pausa suspende; cura/fim limpam; retomada não repete impacto. 24 testes passaram.
+- Vitória/derrota não tocavam porque os players herdavam a pausa. Corrigido com
+  PROCESS_MODE_ALWAYS apenas nos dois jingles. 16 verificações nos finais reais
+  passaram. Moedinha compra.ogg soma ao check.ogg ao resgatar missão diária.
+- Miniaturas da trilha do Hub: rosto ampliado e recorte circular. Richard ajustou
+  os dez visualmente e os valores já foram transferidos para Hub.ROSTOS_TRILHA.
+  Cena salva: tools/ajuste_retratos/ajuste_retratos.tscn; instruções no LEIA-ME
+  dessa pasta. É auxiliar, excluída do export; jogo não a lê diretamente.
+  Ajustes finais conferidos lado a lado em OpenGL; evidência na pasta de design.
+- Testes no PC passaram; saves restaurados por hash. Headless ainda reporta
+  recursos residuais ao encerrar. Não confundir com validação de áudio no celular.
+- MODO_TESTE e anúncios de teste mantidos para a faixa fechada.
 
 Próximo:
-- Receber o relato do áudio da 1.8.1 no celular: música por 10 min, chefe/raiva, pausa,
-  retomada e segundo plano. Não marcar esse teste como concluído pelo “funcionou” do aviso.
-- Notas de versão para jogadores devem descrever a melhoria geral, evitando detalhes como
-  “marimba” ou “derrota inteira”; texto aprovado de cada versão em plano-publicacao.md.
-- Não gerar novo build sem pedido. Em nova publicação, subir juntos o código no preset
-  e GameData.VERSAO_CODIGO; atualizar/publicar o JSON do aviso somente após a Play liberar.
+- Aguardar confirmação de publicação da 1.8.4 antes de anunciar JSON para versões
+  antigas. Notas combinadas de 1.8.3/1.8.4 estão em plano-publicacao.md.
+- Receber teste auditivo da 1.8.4 no celular: vida crítica, cura/pausa, chefes,
+  jingles de vitória/derrota e resgate de missões. Não presumir aprovação de ouvido.
+- Não gerar novo build sem pedido. Subir juntos preset version/code e
+  GameData.VERSAO_CODIGO quando houver novo envio.
 
 Git e cuidados:
-- Só os JSON de aviso das versões 15 e 16 foram publicados em pushes isolados.
-  Os demais commits de áudio/build/documentação continuam locais; verificar antes de push.
-  Há mudança de som no Hub.gd que trata compras: manter a confirmação para publicar esse código.
+- Mudanças desta conversa salvas em commits locais. Último build: ca4fc02.
+  Outros commits de código continuam sem push; não enviar a branch inteira por
+  rotina. Só os avisos JSON foram publicados em pushes isolados.
+- Hub contém compras/anúncios: manter confirmação para publicar esse código.
+- Chrome: upload automático NÃO ocorreu. A ferramenta interrompeu o controle
+  porque não conseguiu confirmar a URL da janela; Richard assumiu o upload.
 - Pendências preexistentes preservadas: .serena/project.yml, docs/guia-busca-sons.md,
-  imports de store/ e tools/__pycache__/. Conferir git status e não apagar/incluir por rotina.
-- Builds, originais e referências grandes ficam fora do repo, nos caminhos documentados.
-- Aplicar as instruções globais da sessão. Nada de economia/save/compras/anúncios fora do escopo.
+  imports de store/ e tools/__pycache__/. Não apagar/incluir por rotina.
+- Builds e originais ficam fora do repo, em Documentos/Sketch Blade - builds,
+  Sketch Blade - design e Sketch Blade - audio. Caminhos exatos nas fontes.
+- Aplicar as instruções globais da sessão. Nada de economia/save/compras/anúncios
+  fora do escopo. Delegação só pelo Orca quando autorizada; sem subagentes nativos.
 ```
 
 ## Lições técnicas dos chats de 29–30/10

@@ -42,8 +42,9 @@ Fontes oficiais:
   investigação e testes continuaram pelas ferramentas locais.
 
 ## Teste no celular ainda necessário
-Instalar esta integração pela Play (1.8.3/18), depois disponibilizar uma versão
-superior à mesma conta. Abrir o jogo antigo: a notinha deve surgir mesmo que o
+A integração foi incluída na 1.8.3/18, mas essa versão não foi enviada. Instalar
+a 1.8.4/19 pela Play, depois disponibilizar uma versão
+superior (código >19) à mesma conta. Abrir o jogo antigo: a notinha deve surgir mesmo que o
 JSON não tenha sido atualizado. Quem já está na versão mais nova não deve vê-la.
 Instalação lateral/PC não comprova disponibilidade real do Google Play.
 Versões anteriores à 1.8.3 ainda dependem do JSON antigo para detectar atualização.
