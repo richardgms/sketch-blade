@@ -122,6 +122,11 @@ Música: `assets/musica/` (ver `plano-musica-adaptativa.md`).
   vibração leve a cada batida (`docs/vibracao.md`). **Escolhida a C**, a partir do
   WAV original: −24,6 LUFS (igual ao anterior no fone) e +10 dB no celular
   simulado. Sintético antigo arquivado como `coracao_critico_sintetico_antigo.wav`.
+- 06/11, mistura real gravada pelo Movie Maker do Godot (`tools/gravar_ambiente.gd`,
+  luta do Estojo, coração novo × antigo) em `Documentos/Sketch Blade - audio/ambiente-partida/`
+  e na página https://claude.ai/artifact/H8hfV3XBanRAJt7Nr1Mo9k. Mistura a −18 LUFS;
+  encosta em 0 dBFS no rosnado do chefe (1,5 s) e num pico aos ~17,7 s: se
+  incomodar, pôr um limitador no bus Master.
 - Rampas usam tempo real para acompanhar o áudio durante hitstop e quadros
   lentos. O teste de duração também mede relógio real: timers do SceneTree no
   quadro de carregamento podiam adiantar a verificação antes da reprodução.
