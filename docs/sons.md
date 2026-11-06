@@ -95,11 +95,17 @@ Música: `assets/musica/` (ver `plano-musica-adaptativa.md`).
   `Documentos/Sketch Blade - audio/vida-critica/`; uso no jogo em OGG q8.
   Pico/RMS antes da codificação: heartbeat −5,4/−22,4 dBFS; zumbido −11/−28 dBFS
   (player do zumbido acrescenta −3 dB). Nenhum asset anterior sobrescrito.
-- 06/11: com volume baixo o coração quase some (fundamental 78 Hz; alto-falante
-  de celular corta abaixo de ~400 Hz). Simulando esse corte, o atual fica em
-  −47,5 dB médios. Testes em `Documentos/Sketch Blade - audio/vida-critica/testes-agudo/`
-  (com o gerador): 1 = mesmo coração 1,7× mais agudo (−30,3 dB), 2 = grave + "tum"
-  médio de 310 Hz (−34,6), 3 = grave + toque seco de caneta (−36,5). Aguardando escolha.
+- 06/11, coração em volume baixo: o atual quase some no celular (energia toda
+  abaixo de 300 Hz; alto-falante corta abaixo de ~400 Hz: perde 23 dB contra 0–4 dB
+  de dano/morte). Revisão de som em `Documentos/Sketch Blade - audio/vida-critica/testes-agudo/`
+  (geradores, `analise.py` e pasta `simulacao-celular/`), tudo a −20 LUFS para
+  comparar só o timbre. Versões 4–6: mesmo grave + "grave virtual" (harmônicos
+  2–9 da fundamental, 170–1400 Hz, o ouvido reconstrói a nota grave), S2 mais curto
+  e agudo que S1 (como o coração real), transiente filtrado sem chiado acima de
+  4 kHz, saturação suave pelo nível do corpo, filtros causais (sem pré-eco) e emenda
+  do loop contínua. Perdem 6–9 dB no celular (as 1–3 da 1ª rodada: 6–15 dB, mas a
+  1 perde o grave e a 2/3 têm chiado). Ao aplicar: manter a loudness atual no jogo
+  (−24,6 LUFS) e tempos de ataque 0/0,16 s (vinheta). Aguardando escolha.
 - Rampas usam tempo real para acompanhar o áudio durante hitstop e quadros
   lentos. O teste de duração também mede relógio real: timers do SceneTree no
   quadro de carregamento podiam adiantar a verificação antes da reprodução.
