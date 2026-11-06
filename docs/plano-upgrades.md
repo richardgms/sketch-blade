@@ -74,3 +74,11 @@ vez com print na página de melhorias visuais. Sem build sem pedido.
   Corrosão: nenhuma das 3 agradou (rabiscado não; vapor de código "parece Paint";
   bolhas tampam o olho do chefe; "só verde" era melhor). Próximo: vapor desenhado
   no GPT Image, animado no jogo. Explosão: escolha ainda pendente.
+- 06/11, rodada 4: GIF do ChatGPT (Images 2.6, 04/11) testado pelo Richard, movimento
+  ruim; o Codex CLI não gera GIF (devolve PNG). Escolhido vapor animado pelo jogo:
+  `vapor_referencia.png` (GPT Image, em `upgrades\gerados\`) separado em 3 fiapos
+  (`assets/ui/vapor_1..3.png`, reduzidos por máximo de bloco para o traço não
+  sumir no tamanho do monstro). `CorrosaoTinta.gd`: fiapos sobem do alto da
+  cabeça, crescem e somem (1,1 s, 3,2/s), shader de onda; monstro segue
+  esverdeado. Prints e GIFs do jogo em `upgrades\v4\` (`tools/prints_upgrades.gd`
+  grava a sequência `gif-*`). Chefe não fica verde (só o vapor).

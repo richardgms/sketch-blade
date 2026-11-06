@@ -1,27 +1,38 @@
 extends Node2D
 class_name CorrosaoTinta
-## Tinta Corrosiva no alvo, em 3 estilos para escolher:
-##   A = rabiscado: riscos verdes de caneta tremendo por cima do corpo + pingos
-##   B = vapor: fiozinhos de fumaça à caneta subindo e chiadinhos na borda
-##   C = bolhas à caneta: bolhas de contorno verde (miolo de papel) + pingos
+## Tinta Corrosiva no alvo: o monstro fica esverdeado (o dono faz o tom) e
+## fiapos de vapor desenhados à caneta (assets/ui/vapor_1..3.png, do GPT Image,
+## branco tingível) sobem do alto da cabeça, ondulando, crescendo e sumindo,
+## defasados. Nada passa na frente do rosto.
 ## Filho do monstro/chefe; o dono chama renovar() a cada acerto. Some sozinho
-## quando o efeito acaba e as últimas partículas terminam.
+## quando o efeito acaba e o último fiapo termina.
 
-const VERDE := Color("2e9d3a")
-const PAPEL := Color("fbf8ef")
+const VERDE := Color("1f7a2c")
+const TEXTURAS := [preload("res://assets/ui/vapor_1.png"), preload("res://assets/ui/vapor_2.png"),
+	preload("res://assets/ui/vapor_3.png")]
+const VIDA: float = 1.1
+const POR_SEGUNDO: float = 3.2
 
-static var estilo: String = "A"
+## Ondulação: desloca a textura na horizontal em onda que sobe; mais forte na
+## ponta de cima do fiapo (que fica solta) e quase nada na base.
+const SHADER_ONDA := """
+shader_type canvas_item;
+void fragment() {
+	vec2 uv = UV;
+	float solto = 1.0 - uv.y;
+	uv.x += sin(uv.y * 8.0 - TIME * 3.2) * 0.07 * (0.25 + solto);
+	COLOR = texture(TEXTURE, uv) * COLOR;
+	if (uv.x < 0.0 || uv.x > 1.0) { COLOR.a = 0.0; }
+}
+"""
+static var _material: ShaderMaterial
 
 var raio: float = 35.0
 
 var _restante: float = 0.0
 var _t: float = 0.0
-var _acum: float = 0.0
-var _acum_pingo: float = 0.0
-var _parts: Array = []  # bolhas (C) ou fumaças (B): [pos, vel_y, vida, vida_max, tam, fase]
-var _pingos: Array = [] # [pos, vel_y, vida]
-var _riscos: Array = [] # A: polylines atuais
-var _troca_risco: float = 0.0
+var _acum: float = 0.6
+var _fiapos: Array = [] # [textura, x, idade, fase, lado (espelha)]
 
 ## Cria (ou reaproveita) o efeito no dono e renova a duração.
 static func aplicar(dono: Node2D, atual: Node2D, raio_alvo: float, duracao: float) -> Node2D:
@@ -39,96 +50,39 @@ func renovar(duracao: float) -> void:
 
 func _ready() -> void:
 	z_index = 1
-
-func _gerar_riscos() -> void:
-	_riscos.clear()
-	for i in 4:
-		var pts := PackedVector2Array()
-		var y0: float = lerpf(-0.55, 0.45, i / 3.0) * raio + randf_range(-4.0, 4.0)
-		var n: int = 7
-		for k in n:
-			var x: float = lerpf(-0.6, 0.6, float(k) / (n - 1)) * raio
-			var y: float = y0 + (-0.22 if k % 2 == 0 else 0.22) * raio + randf_range(-3.0, 3.0)
-			pts.append(Vector2(x, y + x * 0.35))
-		_riscos.append(pts)
+	if _material == null:
+		var sh := Shader.new()
+		sh.code = SHADER_ONDA
+		_material = ShaderMaterial.new()
+		_material.shader = sh
+	material = _material
 
 func _process(delta: float) -> void:
 	_t += delta
 	_restante -= delta
-	var ativo := _restante > 0.0
-	if ativo:
-		match estilo:
-			"A":
-				_troca_risco -= delta
-				if _troca_risco <= 0.0:
-					_troca_risco = 0.09
-					_gerar_riscos()
-			"B":
-				_acum += delta * 7.0
-				while _acum >= 1.0:
-					_acum -= 1.0
-					_parts.append([Vector2(randf_range(-0.45, 0.45) * raio, -0.45 * raio), randf_range(55.0, 80.0), 0.85, 0.85, randf_range(0.8, 1.2), randf() * TAU])
-			_:
-				_acum += delta * 8.0
-				while _acum >= 1.0:
-					_acum -= 1.0
-					var vida := randf_range(0.5, 0.9)
-					_parts.append([Vector2(randf_range(-0.55, 0.55) * raio, randf_range(-0.2, 0.5) * raio), randf_range(45.0, 80.0), vida, vida, randf_range(6.0, 11.0), randf() * TAU])
-		if estilo != "B":
-			_acum_pingo += delta * 3.5
-			while _acum_pingo >= 1.0:
-				_acum_pingo -= 1.0
-				_pingos.append([Vector2(randf_range(-0.45, 0.45) * raio, raio * 0.55), 20.0, 0.7])
-	else:
-		_riscos.clear()
-	for b in _parts:
-		b[0].y -= b[1] * delta
-		b[0].x += sin(_t * 6.0 + b[5]) * 10.0 * delta
-		b[2] -= delta
-	for g in _pingos:
-		g[1] += 520.0 * delta
-		g[0].y += g[1] * delta
-		g[2] -= delta
-	_parts = _parts.filter(func(b): return b[2] > 0.0)
-	_pingos = _pingos.filter(func(g): return g[2] > 0.0)
-	if not ativo and _parts.is_empty() and _pingos.is_empty():
+	if _restante > 0.0:
+		_acum += delta * POR_SEGUNDO
+		while _acum >= 1.0:
+			_acum -= 1.0
+			_fiapos.append([TEXTURAS.pick_random(), randf_range(-0.38, 0.38) * raio, 0.0, randf() * TAU,
+				-1.0 if randf() < 0.5 else 1.0])
+	for f in _fiapos:
+		f[2] += delta
+	_fiapos = _fiapos.filter(func(f): return f[2] < VIDA)
+	if _restante <= 0.0 and _fiapos.is_empty():
 		queue_free()
 		return
 	queue_redraw()
 
 func _draw() -> void:
-	var forca: float = clampf(_restante / 0.4, 0.0, 1.0)
-	match estilo:
-		"A":
-			for pts in _riscos:
-				draw_polyline(pts, Color(VERDE, 0.85 * forca), 3.5, true)
-		"B":
-			for f in _parts:
-				var vida_rel: float = f[2] / f[3]
-				var pts := PackedVector2Array()
-				for k in 12:
-					var y: float = -k * 7.0 * f[4]
-					pts.append(f[0] + Vector2(sin(_t * 5.0 + k * 0.7 + f[5]) * (2.0 + k * 1.1), y))
-				draw_polyline(pts, Color(VERDE, sin(vida_rel * PI)), 5.0, true)
-			if forca > 0.0:
-				# Chiadinho: risquinhos curtos piscando na borda
-				for j in 5:
-					var ang: float = -PI * 0.9 + j * 0.45 + sin(_t * 9.0 + j) * 0.1
-					var d := Vector2.from_angle(ang)
-					if fmod(_t * 8.0 + j * 0.37, 1.0) < 0.6:
-						draw_line(d * raio * 0.75, d * (raio * 0.75 + 11.0), Color(VERDE, 0.9 * forca), 3.0, true)
-		_:
-			for b in _parts:
-				var vida_rel: float = b[2] / b[3]
-				var r: float = b[4] * (1.0 + (1.0 - vida_rel) * 0.4)
-				if vida_rel < 0.15:
-					draw_arc(b[0], r * 1.4, 0.0, TAU, 12, Color(VERDE, vida_rel / 0.15), 2.0, true)
-				else:
-					draw_circle(b[0], r, Color(PAPEL, 0.85))
-					draw_arc(b[0], r, 0.0, TAU, 16, VERDE, 2.6, true)
-					draw_arc(b[0], r * 0.6, PI * 1.05, PI * 1.45, 6, VERDE, 2.0, true)
-	for g in _pingos:
-		var a: float = clampf(g[2] / 0.3, 0.0, 1.0)
-		var along: float = clampf(g[1] / 300.0, 0.0, 1.0) * 6.0
-		draw_colored_polygon(PackedVector2Array([g[0] + Vector2(0, -11.0 - along), g[0] + Vector2(5.0, 0), g[0] + Vector2(-5.0, 0)]), Color(VERDE, a))
-		draw_circle(g[0], 5.5, Color(VERDE, a))
+	for f in _fiapos:
+		var tex: Texture2D = f[0]
+		var rel: float = f[2] / VIDA
+		var alto: float = minf(raio * 2.4, 190.0) * lerpf(0.75, 1.1, rel)
+		var largo: float = alto * tex.get_width() / tex.get_height()
+		# A base nasce no alto da cabeça e sobe; balança de leve para os lados
+		var base := Vector2(f[1] + sin(_t * 2.2 + f[3]) * raio * 0.08, -raio * 0.45 - rel * raio * 0.6)
+		var a: float = minf(1.0, sin(rel * PI) * 1.6)
+		draw_set_transform(base, 0.0, Vector2(f[4], 1.0))
+		draw_texture_rect(tex, Rect2(-largo / 2.0, -alto, largo, alto), false, Color(VERDE, a))
+	draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)

@@ -10,6 +10,7 @@ var _sv: SubViewport
 var _casos := ["escudo", "borrao", "corrosiva"]
 var _sufixo := ""
 var _estilos := ["A", "B", "C"]
+var _gif := true
 
 func _initialize() -> void:
 	var args := OS.get_cmdline_user_args()
@@ -26,7 +27,6 @@ func _rodar() -> void:
 	await process_frame
 	for e in _estilos:
 		ExplosaoBorrao.estilo = e
-		CorrosaoTinta.estilo = e
 		_sufixo = "-" + e
 		if "escudo" in _casos:
 			await _escudo()
@@ -155,4 +155,17 @@ func _corrosiva_em(cap: int, pag: int, nome: String, lado: int) -> void:
 			if alvo:
 				break
 		await _foto("%s-%d" % [nome, i + 1], alvo.global_position if alvo else Vector2(540, 700), lado)
+		if i == 2 and alvo and _gif:
+			# Sequência para GIF: recorte acompanhando o monstro, ~15 quadros/s
+			DirAccess.make_dir_recursive_absolute(_saida + "/gif-" + nome + _sufixo)
+			for q in 36:
+				if not is_instance_valid(alvo):
+					break
+				await RenderingServer.frame_post_draw
+				var img: Image = _sv.get_texture().get_image()
+				var c := alvo.global_position
+				var x := clampi(int(c.x) - lado / 2, 0, 1080 - lado)
+				var y := clampi(int(c.y) - lado / 2, 0, 1920 - lado)
+				img.get_region(Rect2i(x, y, lado, lado)).save_png("%s/gif-%s%s/%03d.png" % [_saida, nome, _sufixo, q])
+				await create_timer(0.066).timeout
 	await _fechar()
