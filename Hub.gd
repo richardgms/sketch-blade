@@ -698,10 +698,10 @@ func _texto_rich_centro(r: RichTextLabel, texto: String) -> void:
 	r.text = "[center]" + _bbcode_numeros(texto) + "[/center]"
 
 ## Textos e trilha conforme o estado do capítulo selecionado.
-## Vencido = capítulo < capitulo_desbloqueado (o mesmo critério do jogo).
+## Vencido: SaveManager.capitulo_vencido (o último capítulo tem marca própria).
 func _atualizar_estado_capitulo(cap: int) -> void:
 	var total: int = GameData.PAGINAS.size()
-	var vencido: bool = cap < int(dados_save["capitulo_desbloqueado"])
+	var vencido: bool = SaveManager.capitulo_vencido(cap)
 	var recorde: int = SaveManager.get_melhor_pagina(cap)
 	selo_hub.visible = vencido
 	chefe_trilha = null

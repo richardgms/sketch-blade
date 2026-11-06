@@ -94,6 +94,12 @@ func _rodar() -> void:
 	# Concluído: capítulos vencidos (cap < capitulo_desbloqueado = 5)
 	for c in [1, 3, 4]:
 		await _hub("hub-cap%d-concluido" % c, func(_h): pass, c, 8)
+	# Último capítulo: não libera outro, então vencido vem de capitulo_final_vencido
+	for venceu in [true, false]:
+		await _hub("hub-cap10-" + ("concluido" if venceu else "chefe"), func(h):
+			SaveManager_dados()["capitulo_desbloqueado"] = 10
+			SaveManager_dados()["capitulo_final_vencido"] = venceu
+			h._atualizar_ui_capitulo(), 10, 8)
 	# Retomar partida (capítulo 5, página 4): reviver disponível e já usado
 	for usado in [false, true]:
 		await _hub("retomar" + ("-revive-usado" if usado else ""), func(h):

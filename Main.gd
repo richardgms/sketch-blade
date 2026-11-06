@@ -795,7 +795,9 @@ func _processar_fim_de_jogo(venceu: bool) -> void:
 	# Se venceu, desbloqueia o próximo capítulo
 	var texto_desbloqueio = ""
 	if venceu:
-		if capitulo_atual == dados_save["capitulo_desbloqueado"] and capitulo_atual < 10:
+		if capitulo_atual >= GameData.ULTIMO_CAPITULO and not run_de_teste:
+			dados_save["capitulo_final_vencido"] = true
+		if capitulo_atual == dados_save["capitulo_desbloqueado"] and capitulo_atual < GameData.ULTIMO_CAPITULO:
 			dados_save["capitulo_desbloqueado"] += 1
 			texto_desbloqueio = "[ NOVO CAPÍTULO %d DESBLOQUEADO! ]\n" % dados_save["capitulo_desbloqueado"]
 			

@@ -140,6 +140,9 @@ const ANGULO_LEQUE_GRAUS: float = 18.0
 # "intensidade" multiplica HP/velocidade dos inimigos da página
 # (por cima da escala de capítulo).
 # ============================================================
+## Último capítulo do jogo (vencê-lo não libera outro).
+const ULTIMO_CAPITULO: int = 10
+
 const PAGINAS: Array = [
 	{"tipo": "onda", "quantidade": 3, "intervalo": 2.2, "intensidade": 0.8},              # Pág 1: aquecimento
 	{"tipo": "onda", "quantidade": 4, "intervalo": 2.0, "intensidade": 0.8},              # Pág 2: leve

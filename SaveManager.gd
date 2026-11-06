@@ -31,6 +31,8 @@ var _defaults: Dictionary = {
 	"xp_conta": 0,
 	"capitulo_desbloqueado": 1,
 	"capitulo_selecionado": 1,
+	# O último capítulo não libera outro; esta marca guarda que o chefe dele caiu
+	"capitulo_final_vencido": false,
 	"nivel_dano": 1,
 	"nivel_hp": 1,
 	"nivel_cadencia": 1,
@@ -182,6 +184,18 @@ func registrar_morte_pagina(cap: int, pagina: int) -> void:
 	por_pag[str(pagina)] = int(por_pag.get(str(pagina), 0)) + 1
 	tabela[str(cap)] = por_pag
 	dados["stats"]["mortes_pagina"] = tabela
+
+## Capítulo já vencido: há um capítulo seguinte liberado ou, no último
+## (que não libera outro), a marca própria; saves antigos caem na tabela de vitórias.
+func capitulo_vencido(cap: int) -> bool:
+	if cap < int(dados["capitulo_desbloqueado"]):
+		return true
+	if cap < GameData.ULTIMO_CAPITULO:
+		return false
+	if bool(dados.get("capitulo_final_vencido", false)):
+		return true
+	var c: Array = dados["stats"].get("por_capitulo", {}).get(str(cap), [0, 0, 0])
+	return int(c[0]) > 0
 
 ## Recorde de página do capítulo (0 = nunca jogou). Página 8 = chegou ao chefe.
 func get_melhor_pagina(cap: int) -> int:
