@@ -69,7 +69,7 @@ vez com print na página de melhorias visuais. Sem build sem pedido.
     estilos e imagens não usados.
 - 06/11, rodada 3: escudo escolhido = B (borracha), pedindo mais cara de borracha.
   `EscudoBorracha.gd` virou o bloco chanfrado da borracha de caneta (azul 35% em
-  cima, vermelho 65%, face de cima, quinas, hachura e faixa branca); miolo por
+  cima, vermelho 65%, face de cima, quinas, hachura; a faixa branca perto da ponta vermelha saiu depois da 1.8.5, a pedido); miolo por
   baixo da caneta (`_desenhar_escudo(false)`), contorno por cima. Estilos A/C saíram.
   Corrosão: nenhuma das 3 agradou (rabiscado não; vapor de código "parece Paint";
   bolhas tampam o olho do chefe; "só verde" era melhor). Próximo: vapor desenhado

@@ -101,10 +101,6 @@ static func desenhar(ci: CanvasItem, progresso: float, ativo: bool, t: float, po
 			ci.draw_line(CENTRO + fora[i], CENTRO + dentro[i], Color(TINTA, 0.55), 2.0, true)
 		# Divisa azul/vermelho atravessando a face e a borda
 		ci.draw_line(Vector2(CENTRO.x - w + 1.0, yd), Vector2(CENTRO.x + w - 1.0, yd + 1.5), Color(TINTA, 0.6), 2.2, true)
-		# Faixa branca da borracha, perto da ponta vermelha
-		var yb := CENTRO.y + h - CHANFRO - 10.0
-		ci.draw_line(Vector2(CENTRO.x - w + BORDA, yb), Vector2(CENTRO.x + w - BORDA, yb + 1.0), Color(1, 1, 1, 0.9), 5.0, true)
-		ci.draw_line(Vector2(CENTRO.x - w + BORDA, yb + 4.0), Vector2(CENTRO.x + w - BORDA, yb + 5.0), Color(TINTA, 0.35), 1.5, true)
 	if not frente:
 		return
 	# Contorno de fora: inteiro quando ativo; recarregando, sendo desenhado
