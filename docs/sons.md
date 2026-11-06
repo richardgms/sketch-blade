@@ -105,7 +105,11 @@ Música: `assets/musica/` (ver `plano-musica-adaptativa.md`).
   4 kHz, saturação suave pelo nível do corpo, filtros causais (sem pré-eco) e emenda
   do loop contínua. Perdem 6–9 dB no celular (as 1–3 da 1ª rodada: 6–15 dB, mas a
   1 perde o grave e a 2/3 têm chiado). Ao aplicar: manter a loudness atual no jogo
-  (−24,6 LUFS) e tempos de ataque 0/0,16 s (vinheta). Aguardando escolha.
+  (−24,6 LUFS) e tempos de ataque 0/0,16 s (vinheta).
+  **Reprovado na escuta:** todas (1–6) soam robóticas; só o atual parece coração.
+  Subir altura ou somar harmônicos/tons dá nota definida ao som, e coração é baque
+  sem nota. Não insistir nesse caminho; alternativas: vibração por batida (permissão
+  já existe), camada de ruído sem nota ou gravação real CC0.
 - Rampas usam tempo real para acompanhar o áudio durante hitstop e quadros
   lentos. O teste de duração também mede relógio real: timers do SceneTree no
   quadro de carregamento podiam adiantar a verificação antes da reprodução.
