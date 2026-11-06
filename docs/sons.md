@@ -110,6 +110,15 @@ Música: `assets/musica/` (ver `plano-musica-adaptativa.md`).
   Subir altura ou somar harmônicos/tons dá nota definida ao som, e coração é baque
   sem nota. Não insistir nesse caminho; alternativas: vibração por batida (permissão
   já existe), camada de ruído sem nota ou gravação real CC0.
+- 06/11, gravações reais CC0 (BigSoundBank, CC0 sem crédito obrigatório, confirmado
+  na página do som e em bigsoundbank.com/license.html): originais, recortador e
+  testes em `Documentos/Sketch Blade - audio/vida-critica/gravacoes-cc0/`.
+  Ciclo tum-tá recortado e encaixado em 0,85 s; o 2º ataque real fica em ~0,25 s
+  (jogo usa 0,16: ajustar `VidaCritica.SEGUNDO_ATAQUE` ao adotar). Perda no
+  celular: C "Heartbeat #1" (s0243, seca) −17,6 cru / −11,4 equalizada; A
+  "Heart Beat #4" (s1929, estúdio 24 bits) −34 / −25; B "Heart Beat" (s0218)
+  −25 / −24,5; atual −23. Gravação real aguenta EQ sem soar robótica. Junto,
+  vibração leve a cada batida (`docs/vibracao.md`). Aguardando escuta.
 - Rampas usam tempo real para acompanhar o áudio durante hitstop e quadros
   lentos. O teste de duração também mede relógio real: timers do SceneTree no
   quadro de carregamento podiam adiantar a verificação antes da reprodução.
