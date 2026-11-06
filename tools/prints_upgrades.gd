@@ -129,6 +129,13 @@ func _borrao() -> void:
 		await _fechar()
 		return
 	var pos := alvo.global_position
+	# Garante um vizinho dentro do raio para mostrar o dano da explosão
+	for o in main.get_tree().get_nodes_in_group("enemies"):
+		if o != alvo and not o.is_queued_for_deletion() and o.get("entrada_concluida") == true:
+			o.global_position = pos + Vector2(150 if pos.x < 700 else -150, 30)
+			o.hp_max = maxi(o.hp_max, 500)
+			o.hp = o.hp_max
+			break
 	alvo.receber_dano(99999)
 	await create_timer(0.04).timeout
 	await _foto("borrao-1", pos, 640)

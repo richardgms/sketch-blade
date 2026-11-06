@@ -97,3 +97,9 @@ vez com print na página de melhorias visuais. Sem build sem pedido.
   fora da soma de `spawn_dano_chefe`. Novo upgrade com dano próprio: passar a fonte
   e pôr a cor na tabela. Uma captura de prints encerrou no meio uma vez sem erro
   no log; repetida, passou.
+- 06/11, rodada 7: lilás da explosão sem contraste → rosa `#ff5cc8`. Textos
+  flutuantes (`FeedbackLabel.gd`) com contorno escuro 12 (cor na fonte, não no
+  modulate, senão o contorno tinge). `Main._spawn_feedback(..., folga)`: texto
+  fora do alvo, acima; embaixo e descendo se acima ficar sobre o HUD (y < 360).
+  MORREU! usa folga 95 ou 0,62 x raio do Borrão. Escudo: saiu o "BLOQUEADO"
+  (ficou só APAGADO!, folga 190). Tsuru continua usando "BLOQUEADO" no bloqueio dele.

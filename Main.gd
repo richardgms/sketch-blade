@@ -329,7 +329,9 @@ func _on_botao_continuar_pressed() -> void:
 
 func _on_enemy_morreu(pos: Vector2, cor: Color, textura: String) -> void:
 	_spawn_particles(cor, pos)
-	_spawn_feedback("MORREU!", "perfect", pos)
+	var nivel_b: int = player.nivel_upgrade("borrao_explosivo") if player else 0
+	var folga_morte: float = 95.0 if nivel_b == 0 else maxf(95.0, GameData.RAIOS_EXPLOSAO[clampi(nivel_b, 1, 3) - 1] * 0.62)
+	_spawn_feedback("MORREU!", "perfect", pos, folga_morte)
 	_spawn_drops_de_tinta(pos, 2, 4, textura)
 	_tocar_som(_sortear("morte"), randf_range(0.9, 1.15))
 	_hitstop(0.04)
@@ -1149,11 +1151,17 @@ func aviso_topo(texto: String, cor: Color = Color("c0392b"), destaque: bool = fa
 	tw.tween_property(lbl, "modulate:a", 0.0, 0.35)
 	tw.tween_callback(lbl.queue_free)
 
-func _spawn_feedback(texto: String, timing: String, pos: Vector2) -> void:
+## folga > 0: o texto sai fora do alvo (acima; embaixo se em cima for o topo
+## da tela, onde fica o HUD), para não cobrir o monstro nem a explosão.
+func _spawn_feedback(texto: String, timing: String, pos: Vector2, folga: float = 0.0) -> void:
+	var subir := true
+	if folga > 0.0:
+		subir = pos.y - folga > 360.0
+		pos.y = pos.y - folga if subir else pos.y + folga * 0.75
 	var feedback = feedback_label_scene.instantiate()
 	add_child.call_deferred(feedback)
 	feedback.set_deferred("global_position", pos)
-	feedback.call_deferred("setup", texto, timing)
+	feedback.call_deferred("setup", texto, timing, subir)
 
 func obter_projetil_player() -> Area2D:
 	var proj: Area2D = null
@@ -1470,7 +1478,7 @@ func _atualizar_posicao_dano_chefe() -> void:
 	_lbl_dano_chefe.position = Vector2(clampf(centro.x - 150.0, 20.0, tamanho.x - 320.0), clampf(y, 260.0, tamanho.y - 180.0))
 
 ## Cor do número para cada dano de upgrade (o tiro da caneta é branco).
-const COR_DANO_FONTE := {"corrosao": Color("6fd877"), "explosao": Color("c99bff")}
+const COR_DANO_FONTE := {"corrosao": Color("6fd877"), "explosao": Color("ff5cc8")}
 
 func spawn_damage_number(quantidade: int, pos: Vector2, eh_jogador: bool, critico: bool = false, fonte: String = "") -> void:
 	var lbl = Label.new()

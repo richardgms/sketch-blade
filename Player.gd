@@ -277,7 +277,7 @@ func _process(delta: float) -> void:
 			# Feedback flutuante na tela de escudo pronto
 			var main_node = get_parent()
 			if main_node and main_node.has_method("_spawn_feedback"):
-				main_node._spawn_feedback("ESCUDO ATIVO!", "perfect", global_position)
+				main_node._spawn_feedback("ESCUDO ATIVO!", "perfect", global_position, 190.0)
 
 func _clampar_aos_limites(pos: Vector2) -> Vector2:
 	return Vector2(
@@ -385,10 +385,8 @@ func receber_dano(quantidade: int = 1) -> void:
 			quebra.pedacos = EscudoBorracha.pedacos(Time.get_ticks_msec() * 0.001)
 			quebra.position = global_position + EscudoBorracha.CENTRO
 			main_node.add_child(quebra)
-		if main_node and main_node.has_method("spawn_damage_number"):
-			main_node.spawn_damage_number(0, global_position, false)
 		if main_node and main_node.has_method("_spawn_feedback"):
-			main_node._spawn_feedback("APAGADO!", "perfect", global_position)
+			main_node._spawn_feedback("APAGADO!", "perfect", global_position, 190.0)
 
 		# Efeito visual rápido de encolher/voltar
 		var tween = create_tween()
