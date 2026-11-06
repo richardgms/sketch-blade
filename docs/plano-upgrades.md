@@ -37,4 +37,19 @@ Regras: economia, save, compras e anúncios fora do escopo. Uma tela/efeito por
 vez com print na página de melhorias visuais. Sem build sem pedido.
 
 ## Andamento
-- 05/11: diagnóstico feito; aguardando decisão da etapa 1.
+- 05/11: diagnóstico feito. Etapa 1 decidida (opção 1, dano proporcional) e
+  Richard pediu raio maior no borrão (monstros raramente estão tão perto).
+- 05/11, v1 no jogo (aguardando aprovação visual):
+  - Corrosiva 20/35/50% do dano do tiro por s, 3 s (`Player._disparar_projetil`);
+    dano em pulsos de 0,5 s com um número só (Enemy, Boss, PedacoMancha).
+  - Borrão 40/60/80% do dano da caneta, raio `GameData.RAIOS_EXPLOSAO` 200/240/280.
+  - Escudo: `Player._desenhar_escudo` (anel tracejado r=92 em volta da caneta toda,
+    gira, cruzinhas; recarga mostra os traços voltando) + `EscudoQuebra.gd`.
+  - Borrão: `ExplosaoBorrao.gd` com `assets/ui/explosao_borrao.png` (o ícone
+    convertido para branco tingível, na cor do monstro) + anel do alcance; máx. 6.
+  - Corrosiva: `CorrosaoTinta.gd` (bolhas, pingos, fumaça, mancha verde), filho
+    do alvo; no chefe usa 1,5x o raio de acerto.
+  - Prints: `tools/prints_upgrades.gd -- <pasta> [escudo,borrao,corrosiva]`
+    (backup do save antes). Antes/v1 em `Documentos\Sketch Blade - design\upgrades\`.
+  - Página: https://claude.ai/artifact/TJVaMr4MGn6EGpBcQjzUyZ
+  - Robô nos chefes 1, 3, 5 e 8 sem erro de script (1 semente, sem medir equilíbrio).
