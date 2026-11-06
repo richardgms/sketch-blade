@@ -231,10 +231,64 @@ func _draw() -> void:
 		draw_circle(gota, 5.8 * pulso, cor_projetil)
 		draw_circle(gota + Vector2(-1, -1.0), 2.0 * pulso, Color(1.0, 1.0, 1.0, 0.6))
 
-	# Desenho do Escudo de Borracha (arco tracejado envolvendo a caneta)
-	if nivel_upgrade("escudo_borracha") > 0 and tem_escudo_ativo:
-		draw_arc(Vector2.ZERO, raio_corpo + 23.0, 0, TAU, 32, Color("5bc0de"), 4.0)
-		draw_arc(Vector2.ZERO, raio_corpo + 23.0, 0, TAU, 16, Color.WHITE, 2.0)
+	if nivel_upgrade("escudo_borracha") > 0:
+		_desenhar_escudo()
+
+## Escudo de Borracha: anel tracejado à caneta em volta da caneta inteira (como
+## o ícone), girando devagar, com cruzinhas e risquinhos de brilho. Recarregando,
+## os traços voltam um a um (apagados os que faltam): dá para ler o tempo.
+const ESCUDO_CENTRO := Vector2(0, -12)
+const ESCUDO_RAIO: float = 92.0
+const ESCUDO_TRACOS: int = 16
+const ESCUDO_COR := Color("0047ab")
+var _escudo_tremor: Array = []
+var _escudo_pop: float = 0.0
+
+func _escudo_rot() -> float:
+	return Time.get_ticks_msec() * 0.0006
+
+func _desenhar_escudo() -> void:
+	if _escudo_tremor.is_empty():
+		var rng := RandomNumberGenerator.new()
+		rng.seed = 7
+		for i in ESCUDO_TRACOS:
+			_escudo_tremor.append([rng.randf_range(-0.06, 0.06), rng.randf_range(-4.0, 4.0), rng.randf_range(0.48, 0.66)])
+	var t: float = Time.get_ticks_msec() * 0.001
+	var rot := _escudo_rot()
+	var cheios: int = ESCUDO_TRACOS
+	if not tem_escudo_ativo:
+		cheios = int(ESCUDO_TRACOS * clampf(timer_escudo / maxf(tempo_recarga_escudo, 0.01), 0.0, 1.0))
+	var r: float = ESCUDO_RAIO * (1.0 + 0.025 * sin(t * 3.0) + 0.22 * _escudo_pop)
+	if tem_escudo_ativo:
+		draw_circle(ESCUDO_CENTRO, r - 3.0, Color(0.89, 0.93, 0.99, 0.22))
+	var arco: float = TAU / ESCUDO_TRACOS
+	for i in ESCUDO_TRACOS:
+		var tr: Array = _escudo_tremor[i]
+		var a0: float = rot + arco * i + tr[0]
+		var pts := PackedVector2Array()
+		for k in 5:
+			var ang: float = a0 + arco * tr[2] * k / 4.0
+			pts.append(ESCUDO_CENTRO + Vector2.from_angle(ang) * (r + tr[1] + sin(k * 1.7 + i) * 1.5))
+		if i < cheios:
+			draw_polyline(pts, ESCUDO_COR, 5.0 if tem_escudo_ativo else 3.5, true)
+		else:
+			draw_polyline(pts, Color(ESCUDO_COR, 0.16), 3.0, true)
+	if not tem_escudo_ativo:
+		return
+	# Brilho: cruzinhas piscando e grupos de três risquinhos nos 4 lados
+	var brilho: float = 0.55 + 0.45 * sin(t * 4.0)
+	for j in 4:
+		var ang: float = PI * 0.25 + PI * 0.5 * j + rot * 0.3
+		var c: Vector2 = ESCUDO_CENTRO + Vector2.from_angle(ang) * (r + 20.0)
+		var tam: float = 6.0 * (0.8 + 0.4 * brilho)
+		draw_line(c - Vector2(tam, 0), c + Vector2(tam, 0), Color(ESCUDO_COR, brilho), 2.5, true)
+		draw_line(c - Vector2(0, tam), c + Vector2(0, tam), Color(ESCUDO_COR, brilho), 2.5, true)
+	for j in 4:
+		var base: float = PI * 0.5 * j
+		for k in 3:
+			var ang: float = base + (k - 1) * 0.13
+			var d := Vector2.from_angle(ang)
+			draw_line(ESCUDO_CENTRO + d * (r + 12.0), ESCUDO_CENTRO + d * (r + 22.0 + 4.0 * brilho), Color(ESCUDO_COR, 0.7), 2.5, true)
 
 func _process(delta: float) -> void:
 	if Engine.is_editor_hint():
@@ -263,6 +317,8 @@ func _process(delta: float) -> void:
 		if timer_escudo >= tempo_recarga_escudo:
 			tem_escudo_ativo = true
 			queue_redraw() # Desenha o escudo ativo
+			_escudo_pop = 1.0
+			create_tween().tween_property(self, "_escudo_pop", 0.0, 0.35).set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_BACK)
 
 			# Feedback flutuante na tela de escudo pronto
 			var main_node = get_parent()
@@ -332,7 +388,9 @@ func _disparar_projetil(offset: Vector2, direcao: Vector2, mult_dano: float) -> 
 	proj.perfuracoes_restantes = GameData.valor_upgrade("tiro_perfurante", nivel_upgrade("tiro_perfurante"))
 	proj.ricochetes_restantes = GameData.valor_upgrade("ricochete", nivel_upgrade("ricochete"))
 	proj.chance_critica = chance_critica_passiva + float(GameData.valor_upgrade("ponta_critica", nivel_upgrade("ponta_critica")))
-	proj.dot_dps = GameData.valor_upgrade("tinta_corrosiva", nivel_upgrade("tinta_corrosiva"))
+	# Tinta Corrosiva: dano por segundo proporcional ao dano deste tiro
+	var frac_dot: float = float(GameData.valor_upgrade("tinta_corrosiva", nivel_upgrade("tinta_corrosiva")))
+	proj.dot_dps = maxi(1, roundi(proj.dano * frac_dot)) if frac_dot > 0.0 else 0
 	proj.cor_tinta = cor_projetil
 	proj.ultimo_alvo = null
 	proj.rotation = direcao.angle() + PI / 2.0
@@ -367,6 +425,15 @@ func receber_dano(quantidade: int = 1) -> void:
 
 		# Som e feedback de apagamento/bloqueio
 		var main_node = get_parent()
+		if main_node:
+			var quebra := Node2D.new()
+			quebra.set_script(preload("res://EscudoQuebra.gd"))
+			quebra.cor = ESCUDO_COR
+			quebra.raio = ESCUDO_RAIO
+			quebra.rot_inicial = _escudo_rot()
+			quebra.n_tracos = ESCUDO_TRACOS
+			quebra.position = global_position + ESCUDO_CENTRO
+			main_node.add_child(quebra)
 		if main_node and main_node.has_method("spawn_damage_number"):
 			main_node.spawn_damage_number(0, global_position, false)
 		if main_node and main_node.has_method("_spawn_feedback"):

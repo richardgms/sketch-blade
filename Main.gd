@@ -342,13 +342,34 @@ func _on_enemy_morreu(pos: Vector2, cor: Color, textura: String) -> void:
 	# Borrão Explosivo: a morte fere inimigos próximos (permite reação em cadeia)
 	var nivel_borrao = player.nivel_upgrade("borrao_explosivo") if player else 0
 	if nivel_borrao > 0:
-		var dano_explosao: int = GameData.valor_upgrade("borrao_explosivo", nivel_borrao)
+		# Dano proporcional ao da caneta; raio cresce com o nível
+		var frac: float = float(GameData.valor_upgrade("borrao_explosivo", nivel_borrao))
+		var dano_explosao: int = maxi(1, roundi(player.dano * frac))
+		var raio: float = GameData.RAIOS_EXPLOSAO[clampi(nivel_borrao, 1, 3) - 1]
+		_spawn_explosao_borrao(pos, cor, raio)
 		for inimigo in get_tree().get_nodes_in_group("enemies"):
 			if inimigo.is_queued_for_deletion():
 				continue
-			if pos.distance_to(inimigo.global_position) <= GameData.RAIO_EXPLOSAO:
+			if pos.distance_to(inimigo.global_position) <= raio:
 				if inimigo.has_method("receber_dano"):
 					inimigo.receber_dano.call_deferred(dano_explosao)
+
+## Respingo + anel do alcance do Borrão Explosivo (no máximo 6 ao mesmo tempo:
+## reação em cadeia numa horda não vira borrão de tela inteira).
+const EXPLOSAO_BORRAO = preload("res://ExplosaoBorrao.gd")
+var _explosoes_ativas: int = 0
+
+func _spawn_explosao_borrao(pos: Vector2, cor: Color, raio: float) -> void:
+	if _explosoes_ativas >= 6:
+		return
+	var fx = EXPLOSAO_BORRAO.new()
+	fx.cor = Color(cor, 1.0)
+	fx.raio = raio
+	fx.position = pos
+	_explosoes_ativas += 1
+	fx.tree_exited.connect(func(): _explosoes_ativas -= 1)
+	add_child(fx)
+	_shake_tela(4.0)
 
 func _on_enemy_escapou() -> void:
 	print("[DEBUG] Inimigo escapou da tela e causou dano!")
@@ -1285,7 +1306,7 @@ func _sortear(nome: String) -> AudioStream:
 var _coracao_player := AudioStreamPlayer.new()
 var _vida_critica: Node
 func _atualizar_coracao() -> void:
-	if is_instance_valid(_vida_critica):
+	if is_instance_valid(_vida_critica) and _vida_critica.is_inside_tree():
 		_vida_critica.atualizar(0.0)
 
 ## Tiro dos chefes: cuspe curto, no máximo 1 a cada 0,12 s, com tom variando.

@@ -61,7 +61,9 @@ func _process(delta: float) -> void:
 	if _dot_restante > 0.0:
 		_dot_restante -= delta
 		_dot_acum += _dot_dps * delta
-		if _dot_acum >= 1.0:
+		_dot_pulso += delta
+		if _dot_acum >= 1.0 and (_dot_pulso >= 0.5 or _dot_restante <= 0.0):
+			_dot_pulso = 0.0
 			var d := int(_dot_acum)
 			_dot_acum -= d
 			receber_dano(d)
@@ -113,6 +115,10 @@ func aplicar_dot(dps: int, duracao: float) -> void:
 	_dot_dps = maxi(_dot_dps, dps)
 	_dot_restante = duracao
 	modulate = Color(0.75, 1.1, 0.75)
+	_fx_corrosao = CorrosaoTinta.aplicar(self, _fx_corrosao, raio, duracao)
+
+var _fx_corrosao: Node2D
+var _dot_pulso: float = 0.0
 
 func _piscar() -> void:
 	if _tween_flash:

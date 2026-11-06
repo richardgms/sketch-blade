@@ -35,6 +35,7 @@ var _desvio_x: float = 0.0
 var dot_dps: int = 0
 var dot_restante: float = 0.0
 var dot_acumulado: float = 0.0
+var _dot_pulso: float = 0.0
 
 const ENEMY_PROJECTILE_SCENE = preload("res://enemy_projectile.tscn")
 const SHADER_FLASH = preload("res://flash.gdshader")
@@ -276,7 +277,10 @@ func _process(delta: float) -> void:
 	if dot_restante > 0.0:
 		dot_restante -= delta
 		dot_acumulado += float(dot_dps) * delta
-		if dot_acumulado >= 1.0:
+		_dot_pulso += delta
+		# Um número a cada 0,5 s (antes saía um "-1" por frame)
+		if dot_acumulado >= 1.0 and (_dot_pulso >= 0.5 or dot_restante <= 0.0):
+			_dot_pulso = 0.0
 			var dano_tick = int(dot_acumulado)
 			dot_acumulado -= dano_tick
 			receber_dano(dano_tick)
@@ -359,8 +363,11 @@ func _process(delta: float) -> void:
 func aplicar_dot(dps: int, duracao: float) -> void:
 	dot_dps = max(dot_dps, dps)
 	dot_restante = duracao
-	# Tinge de verde corrosivo enquanto o efeito durar
-	modulate = Color(0.6, 1.1, 0.6)
+	# Tinge de verde corrosivo e borbulha enquanto o efeito durar
+	modulate = Color(0.75, 1.05, 0.75)
+	_fx_corrosao = CorrosaoTinta.aplicar(self, _fx_corrosao, raio_visual, duracao)
+
+var _fx_corrosao: Node2D
 
 func receber_dano(quantidade: int) -> void:
 	receber_dano_detalhado(quantidade, false)

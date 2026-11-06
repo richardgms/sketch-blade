@@ -204,7 +204,9 @@ func _process(delta: float) -> void:
 	if dot_restante > 0.0:
 		dot_restante -= delta
 		dot_acumulado += float(dot_dps) * delta
-		if dot_acumulado >= 1.0:
+		_dot_pulso += delta
+		if dot_acumulado >= 1.0 and (_dot_pulso >= 0.5 or dot_restante <= 0.0):
+			_dot_pulso = 0.0
 			var dano_tick = int(dot_acumulado)
 			dot_acumulado -= dano_tick
 			receber_dano(dano_tick)
@@ -322,6 +324,13 @@ func _processar_retorno(delta: float) -> void:
 func aplicar_dot(dps: int, duracao: float) -> void:
 	dot_dps = max(dot_dps, dps)
 	dot_restante = duracao
+	var forma: CollisionShape2D = get_node_or_null("CollisionShape2D")
+	var r: float = forma.shape.radius if forma and forma.shape is CircleShape2D else raio_visual
+	# A arte do chefe passa bem do raio de acerto: espalha as bolhas
+	_fx_corrosao = CorrosaoTinta.aplicar(self, _fx_corrosao, r * 1.5, duracao)
+
+var _fx_corrosao: Node2D
+var _dot_pulso: float = 0.0
 
 var _tween_flash: Tween
 
