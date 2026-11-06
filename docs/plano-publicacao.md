@@ -254,3 +254,38 @@ Notas sugeridas para a Play:
 </pt-BR>
 ```
 
+
+## Build 1.8.6 (21) — 06/11/2026
+Ajustes depois da 1.8.5:
+- Capítulo 10 vencido mostra o Estojo com o selo DERROTADO no hub e na última
+  bolinha da trilha (o último capítulo não libera outro; marca própria no save,
+  `SaveManager.capitulo_vencido`).
+- Escudo de Borracha sem a faixa branca perto da ponta vermelha.
+- Coração da última vida: gravação real CC0 (BigSoundBank *Heartbeat #1*),
+  mesmo volume no fone e ~10 dB a mais no alto-falante do celular; vinheta no
+  ritmo novo. Mistura real ouvida antes em https://claude.ai/artifact/H8hfV3XBanRAJt7Nr1Mo9k
+- Vibração em mais momentos, com força por momento (`docs/vibracao.md`).
+- Antes do build: testes de vida crítica, sons da partida, sons do resultado e
+  feedback do combate (0 falhas); robô nos 10 chefes (esquiva, 1 semente): 0
+  erros de script.
+- `version/code` e `GameData.VERSAO_CODIGO` em 21; nome 1.8.6. MODO_TESTE e
+  anúncios de teste mantidos (teste fechado).
+- AAB: `Documentos\Sketch Blade - builds\sketchblade-1.8.6-vc21.aab`
+  (69.166.880 bytes). ZIP íntegro; 1.8.6 no manifesto; `jar verified`, mesmo
+  certificado de upload (SHA256 E2:28:70:F9…F7:1C); `Vibracao.gd` e coração novo
+  presentes; sem store, referências, JPG/PSD ou `__pycache__`. Maiores
+  arquivos: motor ARM64, três DEX, ícone e splash.
+- SHA256: `58e91db5cb3c4bb055e9fb072ae585f469350d77739257b4ba81670351fe8f72`.
+- Falta: envio à Play pelo Richard e teste no celular (vibração e coração só
+  dão para conferir no aparelho).
+
+Notas sugeridas para a Play:
+
+```text
+<pt-BR>
+• Ao vencer o capítulo 10, o Estojo aparece com o selo de derrotado.
+• Novo som de coração na última vida, bem mais audível no celular.
+• Vibração em mais momentos: chefe, escudo, vitória, compras e mais.
+• Escudo de Borracha com o desenho corrigido.
+</pt-BR>
+```
