@@ -95,6 +95,11 @@ Música: `assets/musica/` (ver `plano-musica-adaptativa.md`).
   `Documentos/Sketch Blade - audio/vida-critica/`; uso no jogo em OGG q8.
   Pico/RMS antes da codificação: heartbeat −5,4/−22,4 dBFS; zumbido −11/−28 dBFS
   (player do zumbido acrescenta −3 dB). Nenhum asset anterior sobrescrito.
+- 06/11: com volume baixo o coração quase some (fundamental 78 Hz; alto-falante
+  de celular corta abaixo de ~400 Hz). Simulando esse corte, o atual fica em
+  −47,5 dB médios. Testes em `Documentos/Sketch Blade - audio/vida-critica/testes-agudo/`
+  (com o gerador): 1 = mesmo coração 1,7× mais agudo (−30,3 dB), 2 = grave + "tum"
+  médio de 310 Hz (−34,6), 3 = grave + toque seco de caneta (−36,5). Aguardando escolha.
 - Rampas usam tempo real para acompanhar o áudio durante hitstop e quadros
   lentos. O teste de duração também mede relógio real: timers do SceneTree no
   quadro de carregamento podiam adiantar a verificação antes da reprodução.
