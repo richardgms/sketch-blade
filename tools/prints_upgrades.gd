@@ -144,6 +144,8 @@ func _corrosiva() -> void:
 
 func _corrosiva_em(cap: int, pag: int, nome: String, lado: int) -> void:
 	var main := await _abrir(cap, pag, ["tinta_corrosiva", "tinta_corrosiva", "tinta_corrosiva"], true)
+	if nome == "corrosiva":
+		main.player.dano = 4 # o monstro dura mais na tela para o GIF
 	for i in 3:
 		var alvo: Node2D = null
 		for tentativa in 40:
@@ -155,7 +157,7 @@ func _corrosiva_em(cap: int, pag: int, nome: String, lado: int) -> void:
 			if alvo:
 				break
 		await _foto("%s-%d" % [nome, i + 1], alvo.global_position if alvo else Vector2(540, 700), lado)
-		if i == 2 and alvo and _gif:
+		if i == 0 and alvo and _gif:
 			# Sequência para GIF: recorte acompanhando o monstro, ~15 quadros/s
 			DirAccess.make_dir_recursive_absolute(_saida + "/gif-" + nome + _sufixo)
 			for q in 36:

@@ -82,3 +82,11 @@ vez com print na página de melhorias visuais. Sem build sem pedido.
   cabeça, crescem e somem (1,1 s, 3,2/s), shader de onda; monstro segue
   esverdeado. Prints e GIFs do jogo em `upgrades\v4\` (`tools/prints_upgrades.gd`
   grava a sequência `gif-*`). Chefe não fica verde (só o vapor).
+- 06/11, rodada 5: fumaça espalhada (x ±0,8 raio, base mais baixa e inclinada nas
+  laterais) e bolhas à caneta: folha de 6 quadros do GPT Image (`upgrades\gerados\
+  bolha_quadros.png`; pedir "uma linha de N quadros com vãos largos" funcionou e
+  saiu em grade igual) recortada em `assets/ui/bolha_quadros.png` (6 x 96 px,
+  reduzida por máximo de bloco). Bolhas nascem na borda do corpo fora do rosto,
+  sobem tremendo (quadros 0/1) e estouram (2..5, 0,06 s); chefe 4/s e maiores,
+  monstro 1,5/s. Camada própria sem o shader de onda. GIF do monstro: o script
+  baixa o dano da caneta para ele durar na tela.
