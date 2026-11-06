@@ -386,7 +386,7 @@ func receber_dano(quantidade: int = 1) -> void:
 			quebra.position = global_position + EscudoBorracha.CENTRO
 			main_node.add_child(quebra)
 		if main_node and main_node.has_method("_spawn_feedback"):
-			main_node._spawn_feedback("APAGADO!", "perfect", global_position, 190.0)
+			main_node._spawn_feedback("APAGADO!", "perfect", global_position, 280.0)
 
 		# Efeito visual rápido de encolher/voltar
 		var tween = create_tween()

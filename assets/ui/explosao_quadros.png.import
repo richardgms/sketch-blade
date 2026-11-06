@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://djyt2y3ifefkw"
-path="res://.godot/imported/explosao_nuvem.png-dafd6c6d60a541efbe9e5a0586440cc7.ctex"
+uid="uid://bqlbpwo7jp72j"
+path="res://.godot/imported/explosao_quadros.png-8bb3bae2b372ee01b2a57db41fcd6b9f.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/ui/explosao_nuvem.png"
-dest_files=["res://.godot/imported/explosao_nuvem.png-dafd6c6d60a541efbe9e5a0586440cc7.ctex"]
+source_file="res://assets/ui/explosao_quadros.png"
+dest_files=["res://.godot/imported/explosao_quadros.png-8bb3bae2b372ee01b2a57db41fcd6b9f.ctex"]
 
 [params]
 

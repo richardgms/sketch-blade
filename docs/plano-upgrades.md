@@ -103,3 +103,11 @@ vez com print na página de melhorias visuais. Sem build sem pedido.
   fora do alvo, acima; embaixo e descendo se acima ficar sobre o HUD (y < 360).
   MORREU! usa folga 95 ou 0,62 x raio do Borrão. Escudo: saiu o "BLOQUEADO"
   (ficou só APAGADO!, folga 190). Tsuru continua usando "BLOQUEADO" no bloqueio dele.
+- 06/11, rodada 8: borracha aprovada (por enquanto); explosão escolhida = nuvem.
+  Virou animação: folha de 6 quadros do GPT Image (`upgrades\gerados\explosao_quadros.png`,
+  com a nuvem como referência) em `assets/ui/explosao_quadros.png` (6 x 140 px).
+  Quadros fora de grade: separados pelos vãos de colunas vazias e cada um limitado
+  à própria faixa. Tempos 0,05/0,06/0,08/0,20/0,14/0,14 s. Saíram estrela, respingo
+  e a nuvem parada (texturas removidas). APAGADO! com folga 280.
+  GIF da explosão: o script espera o hitstop (0,06 s real) e grava em câmera lenta
+  0,2x; senão o hitstop devolve time_scale 1 e a gravação sai acelerada.

@@ -26,7 +26,6 @@ func _initialize() -> void:
 func _rodar() -> void:
 	await process_frame
 	for e in _estilos:
-		ExplosaoBorrao.estilo = e
 		_sufixo = "-" + e
 		if "escudo" in _casos:
 			await _escudo()
@@ -137,12 +136,31 @@ func _borrao() -> void:
 			o.hp = o.hp_max
 			break
 	alvo.receber_dano(99999)
-	await create_timer(0.04).timeout
-	await _foto("borrao-1", pos, 640)
-	await create_timer(0.1).timeout
-	await _foto("borrao-2", pos, 640)
-	await create_timer(0.18).timeout
-	await _foto("borrao-3", pos, 640)
+	if _gif:
+		# Sequência quadro a quadro da explosão (para GIF), ~30 por segundo
+		var pasta := "%s/gif-borrao%s" % [_saida, _sufixo]
+		DirAccess.make_dir_recursive_absolute(pasta)
+		var x := clampi(int(pos.x) - 320, 0, 1080 - 640)
+		var y := clampi(int(pos.y) - 320, 0, 1920 - 640)
+		# Câmera lenta (0,2x) para pegar todos os quadros; o log diz o tempo de jogo por quadro
+		# Espera o congelamento da morte (hitstop) devolver a velocidade, senão ele
+		# sobrescreve a câmera lenta
+		await create_timer(0.06, true, false, true).timeout
+		Engine.time_scale = 0.2
+		var t0 := Time.get_ticks_usec()
+		for q in 40:
+			await RenderingServer.frame_post_draw
+			_sv.get_texture().get_image().get_region(Rect2i(x, y, 640, 640)).save_png("%s/%03d.png" % [pasta, q])
+		var ms_jogo := (Time.get_ticks_usec() - t0) / 1000.0 / 40.0 * 0.2
+		Engine.time_scale = 1.0
+		print("[prints_upgrades] gif-borrao: %.1f ms de jogo por quadro" % ms_jogo)
+	else:
+		await create_timer(0.04).timeout
+		await _foto("borrao-1", pos, 640)
+		await create_timer(0.1).timeout
+		await _foto("borrao-2", pos, 640)
+		await create_timer(0.18).timeout
+		await _foto("borrao-3", pos, 640)
 	await _fechar()
 
 func _corrosiva() -> void:
