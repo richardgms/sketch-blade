@@ -234,61 +234,12 @@ func _draw() -> void:
 	if nivel_upgrade("escudo_borracha") > 0:
 		_desenhar_escudo()
 
-## Escudo de Borracha: anel tracejado à caneta em volta da caneta inteira (como
-## o ícone), girando devagar, com cruzinhas e risquinhos de brilho. Recarregando,
-## os traços voltam um a um (apagados os que faltam): dá para ler o tempo.
-const ESCUDO_CENTRO := Vector2(0, -12)
-const ESCUDO_RAIO: float = 92.0
-const ESCUDO_TRACOS: int = 16
-const ESCUDO_COR := Color("0047ab")
-var _escudo_tremor: Array = []
+## Escudo de Borracha: desenho em EscudoBorracha.gd (pílula em volta da caneta).
 var _escudo_pop: float = 0.0
 
-func _escudo_rot() -> float:
-	return Time.get_ticks_msec() * 0.0006
-
 func _desenhar_escudo() -> void:
-	if _escudo_tremor.is_empty():
-		var rng := RandomNumberGenerator.new()
-		rng.seed = 7
-		for i in ESCUDO_TRACOS:
-			_escudo_tremor.append([rng.randf_range(-0.06, 0.06), rng.randf_range(-4.0, 4.0), rng.randf_range(0.48, 0.66)])
-	var t: float = Time.get_ticks_msec() * 0.001
-	var rot := _escudo_rot()
-	var cheios: int = ESCUDO_TRACOS
-	if not tem_escudo_ativo:
-		cheios = int(ESCUDO_TRACOS * clampf(timer_escudo / maxf(tempo_recarga_escudo, 0.01), 0.0, 1.0))
-	var r: float = ESCUDO_RAIO * (1.0 + 0.025 * sin(t * 3.0) + 0.22 * _escudo_pop)
-	if tem_escudo_ativo:
-		draw_circle(ESCUDO_CENTRO, r - 3.0, Color(0.89, 0.93, 0.99, 0.22))
-	var arco: float = TAU / ESCUDO_TRACOS
-	for i in ESCUDO_TRACOS:
-		var tr: Array = _escudo_tremor[i]
-		var a0: float = rot + arco * i + tr[0]
-		var pts := PackedVector2Array()
-		for k in 5:
-			var ang: float = a0 + arco * tr[2] * k / 4.0
-			pts.append(ESCUDO_CENTRO + Vector2.from_angle(ang) * (r + tr[1] + sin(k * 1.7 + i) * 1.5))
-		if i < cheios:
-			draw_polyline(pts, ESCUDO_COR, 5.0 if tem_escudo_ativo else 3.5, true)
-		else:
-			draw_polyline(pts, Color(ESCUDO_COR, 0.16), 3.0, true)
-	if not tem_escudo_ativo:
-		return
-	# Brilho: cruzinhas piscando e grupos de três risquinhos nos 4 lados
-	var brilho: float = 0.55 + 0.45 * sin(t * 4.0)
-	for j in 4:
-		var ang: float = PI * 0.25 + PI * 0.5 * j + rot * 0.3
-		var c: Vector2 = ESCUDO_CENTRO + Vector2.from_angle(ang) * (r + 20.0)
-		var tam: float = 6.0 * (0.8 + 0.4 * brilho)
-		draw_line(c - Vector2(tam, 0), c + Vector2(tam, 0), Color(ESCUDO_COR, brilho), 2.5, true)
-		draw_line(c - Vector2(0, tam), c + Vector2(0, tam), Color(ESCUDO_COR, brilho), 2.5, true)
-	for j in 4:
-		var base: float = PI * 0.5 * j
-		for k in 3:
-			var ang: float = base + (k - 1) * 0.13
-			var d := Vector2.from_angle(ang)
-			draw_line(ESCUDO_CENTRO + d * (r + 12.0), ESCUDO_CENTRO + d * (r + 22.0 + 4.0 * brilho), Color(ESCUDO_COR, 0.7), 2.5, true)
+	var prog: float = 1.0 if tem_escudo_ativo else clampf(timer_escudo / maxf(tempo_recarga_escudo, 0.01), 0.0, 1.0)
+	EscudoBorracha.desenhar(self, prog, tem_escudo_ativo, Time.get_ticks_msec() * 0.001, _escudo_pop)
 
 func _process(delta: float) -> void:
 	if Engine.is_editor_hint():
@@ -428,11 +379,8 @@ func receber_dano(quantidade: int = 1) -> void:
 		if main_node:
 			var quebra := Node2D.new()
 			quebra.set_script(preload("res://EscudoQuebra.gd"))
-			quebra.cor = ESCUDO_COR
-			quebra.raio = ESCUDO_RAIO
-			quebra.rot_inicial = _escudo_rot()
-			quebra.n_tracos = ESCUDO_TRACOS
-			quebra.position = global_position + ESCUDO_CENTRO
+			quebra.pedacos = EscudoBorracha.pedacos(Time.get_ticks_msec() * 0.001)
+			quebra.position = global_position + EscudoBorracha.CENTRO
 			main_node.add_child(quebra)
 		if main_node and main_node.has_method("spawn_damage_number"):
 			main_node.spawn_damage_number(0, global_position, false)

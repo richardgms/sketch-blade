@@ -53,3 +53,17 @@ vez com print na página de melhorias visuais. Sem build sem pedido.
     (backup do save antes). Antes/v1 em `Documentos\Sketch Blade - design\upgrades\`.
   - Página: https://claude.ai/artifact/TJVaMr4MGn6EGpBcQjzUyZ
   - Robô nos chefes 1, 3, 5 e 8 sem erro de script (1 semente, sem medir equilíbrio).
+- 06/11, rodada 1 recusada: escudo redondo cobria a caneta, cruzinhas e 3
+  tracinhos "mehh" (gostou do bloqueio com pedaços e farelo); explosão grande
+  demais e por cima do MORREU!; corrosão sem convencer. Pediu opções e sugeriu
+  pílula inspirada na borracha azul/vermelha de caneta.
+- 06/11, rodada 2 (3 opções por efeito, troca por `static var estilo`):
+  - Escudo em pílula (`EscudoBorracha.gd`): A tracejada, B bicolor azul/vermelho,
+    C contorno com hachura. Quebra genérica por pedaços (`EscudoQuebra.pedacos`).
+  - Explosão (`ExplosaoBorrao.gd`, z 0, MORREU! por cima): A nuvem e B estrela de
+    quadrinho geradas no GPT Image (originais em `Sketch Blade - design\upgrades\gerados\`,
+    branco tingível em `assets/ui/explosao_nuvem.png` e `explosao_estrela.png`),
+    C respingo menor. Conversão: alfa = alfa x (1 - luminância) x 2,2.
+  - Corrosão (`CorrosaoTinta.gd`): A rabiscado, B vapor, C bolhas à caneta.
+  - Prints em `upgrades\v2\` (sufixo -A/-B/-C). Depois da escolha, apagar os
+    estilos e imagens não usados.

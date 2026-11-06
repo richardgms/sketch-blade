@@ -8,6 +8,7 @@ extends SceneTree
 var _saida := "C:/Users/joalh/Documentos/Sketch Blade - design/upgrades/prints"
 var _sv: SubViewport
 var _casos := ["escudo", "borrao", "corrosiva"]
+var _sufixo := ""
 
 func _initialize() -> void:
 	var args := OS.get_cmdline_user_args()
@@ -20,12 +21,17 @@ func _initialize() -> void:
 
 func _rodar() -> void:
 	await process_frame
-	if "escudo" in _casos:
-		await _escudo()
-	if "borrao" in _casos:
-		await _borrao()
-	if "corrosiva" in _casos:
-		await _corrosiva()
+	for e in ["A", "B", "C"]:
+		EscudoBorracha.estilo = e
+		ExplosaoBorrao.estilo = e
+		CorrosaoTinta.estilo = e
+		_sufixo = "-" + e
+		if "escudo" in _casos:
+			await _escudo()
+		if "borrao" in _casos:
+			await _borrao()
+		if "corrosiva" in _casos:
+			await _corrosiva()
 	print("[prints_upgrades] pronto em: ", _saida)
 	quit()
 
@@ -66,6 +72,7 @@ func _abrir(capitulo: int, pagina: int, upgrades: Array, atirar: bool) -> Node:
 func _foto(nome: String, centro: Vector2, lado: int = 560) -> void:
 	await RenderingServer.frame_post_draw
 	var img: Image = _sv.get_texture().get_image()
+	nome += _sufixo
 	img.save_png("%s/%s.png" % [_saida, nome])
 	var x := clampi(int(centro.x) - lado / 2, 0, 1080 - lado)
 	var y := clampi(int(centro.y) - lado / 2, 0, 1920 - lado)
@@ -130,7 +137,7 @@ func _borrao() -> void:
 	await _fechar()
 
 func _corrosiva() -> void:
-	await _corrosiva_em(3, 5, "corrosiva", 480)
+	await _corrosiva_em(3, 5, "corrosiva", 320)
 	await _corrosiva_em(1, 8, "corrosiva-chefe", 640)
 
 func _corrosiva_em(cap: int, pag: int, nome: String, lado: int) -> void:
