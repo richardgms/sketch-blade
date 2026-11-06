@@ -382,6 +382,7 @@ func receber_dano(quantidade: int = 1) -> void:
 		if main_node:
 			var quebra := Node2D.new()
 			quebra.set_script(preload("res://EscudoQuebra.gd"))
+			Vibracao.tocar("escudo")
 			quebra.altura_escudo = EscudoBorracha.MEIA_ALTURA * 2.0
 			quebra.position = global_position + EscudoBorracha.CENTRO
 			main_node.add_child(quebra)

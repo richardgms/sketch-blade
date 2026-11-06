@@ -385,8 +385,7 @@ func _on_player_dano(vidas_restantes: int) -> void:
 	_atualizar_hud()
 	_tocar_som(_sortear("dano"))
 	_shake_tela(10.0)
-	if SaveManager.dados.get("vibracao_ativa", true):
-		Input.vibrate_handheld(100)
+	Vibracao.tocar("dano")
 
 ## Micro-congelamento de tempo no impacto (juice de kill).
 ## O timer ignora time_scale e roda mesmo pausado. Pedidos sobrepostos
@@ -580,6 +579,7 @@ func _finalizar_derrota() -> void:
 	boss_hp_bar.visible = false
 	_processar_fim_de_jogo(false)
 	_tocar_som(SONS["derrota"])
+	Vibracao.tocar("derrota")
 	get_tree().paused = true
 	menu_game_over.visible = true
 
@@ -652,6 +652,7 @@ func _executar_revive() -> void:
 	player.modulate = Color(1, 1, 1, 0.6)
 	_atualizar_hud()
 	_spawn_feedback("DE VOLTA!", "perfect", player.global_position)
+	Vibracao.tocar("reviver")
 
 	get_tree().paused = false
 	jogo_iniciado = true
@@ -699,6 +700,7 @@ func _on_boss_surgiu(boss_node: Node2D) -> void:
 		_spawn_drops_de_tinta(boss_node.global_position, 10, 8, "res://assets/ink-red.svg")
 		_spawn_feedback("BOSS DERROTADO!", "perfect", boss_node.global_position)
 		_tocar_som(SONS["morte"], 0.8)
+		Vibracao.tocar("chefe_derrotado")
 		_shake_tela(22.0)
 		_hitstop(0.12)
 		boss_derrotado_partida = true
@@ -736,6 +738,7 @@ func _on_fase_concluida() -> void:
 	_processar_fim_de_jogo(true)
 	
 	_tocar_som(SONS["vitoria"])
+	Vibracao.tocar("vitoria")
 	get_tree().paused = true
 	menu_vitoria.visible = true
 
@@ -1712,6 +1715,7 @@ func _tocar_som_clunk() -> void:
 func _aplicar_upgrade(id: String, _index_escolhido: int) -> void:
 	# Som de seleção (a animação da carta escolhida fica na TelaRoleta)
 	_tocar_som(SONS["carta"])
+	Vibracao.tocar("carta")
 
 	menu_upgrades.visible = false
 	_mostrar_label_pagina()
@@ -1846,6 +1850,8 @@ func _on_retomar_pausa_pressed() -> void:
 			label_contagem.text = etapa["texto"]
 			label_contagem.scale = Vector2.ZERO
 			_tocar_som(SONS["contagem_ja"] if etapa["texto"] == "JÁ!" else SONS["contagem_bipe"])
+			if etapa["texto"] == "JÁ!":
+				Vibracao.tocar("ja")
 		)
 		tween.tween_property(label_contagem, "scale", Vector2(1.3, 1.3), 0.25).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
 		tween.tween_property(label_contagem, "scale", Vector2.ZERO, 0.25).set_delay(0.4)

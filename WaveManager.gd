@@ -130,6 +130,7 @@ func _spawnar_inimigo(eh_elite: bool) -> void:
 		main_node._on_enemy_morreu(pos, cor, textura)
 		if eh_elite:
 			SaveManager.incrementar_stat("elites_derrotados")
+			Vibracao.tocar("elite")
 			# Elite derruba um jackpot extra de tinta e morre com mais peso
 			if main_node.has_method("_spawn_drops_de_tinta"):
 				main_node._spawn_drops_de_tinta(pos, 6, 8, textura)
@@ -237,6 +238,7 @@ func _preparar_boss() -> void:
 		main_node._spawn_feedback("CUIDADO: BOSS!", "miss", Vector2(540, 960))
 		# Chefe surge: rosnado grave + explosão abafada
 		main_node._tocar_som(main_node.SONS["chefe_surge"])
+		Vibracao.tocar("chefe_surge")
 		Musica.entrar_chefe() # a música do chefe entra por baixo do rugido
 
 	# Espera 2.5s dramáticos e spawna o Boss

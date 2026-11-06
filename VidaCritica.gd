@@ -10,6 +10,7 @@ var _coracao_ligado := false
 var _ganho := 0.0
 var pulso := 0.0
 var _ultimo_quadro := 0.0
+var _pos_anterior := 0.0
 
 func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
@@ -63,6 +64,10 @@ func atualizar(delta: float) -> void:
 	else:
 		zumbido.volume_db = -3.0
 	var pos := fmod(maxf(0.0, coracao.get_playback_position() + AudioServer.get_time_since_last_mix() - AudioServer.get_output_latency()), CICLO)
+	# Volta do ciclo = nova batida: vibração leve junto (sente-se mesmo com o volume baixo)
+	if critico and _ganho > 0.5 and pos < _pos_anterior:
+		Vibracao.tocar("coracao")
+	_pos_anterior = pos
 	pulso = (exp(-pos / 0.11) + (0.65 * exp(-(pos - SEGUNDO_ATAQUE) / 0.09) if pos >= SEGUNDO_ATAQUE else 0.0)) * _ganho
 
 func _exit_tree() -> void:

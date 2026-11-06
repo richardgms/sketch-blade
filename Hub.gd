@@ -955,6 +955,7 @@ func _on_confirmar_compra_pressed() -> void:
 
 func _on_compra_concluida(_chave: String) -> void:
 	_tocar_som(preload("res://assets/sons/compra.ogg"))
+	Vibracao.tocar("compra")
 	_atualizar_ui_upgrades() # Tinta nova pode liberar botões do Estojo
 	_atualizar_loja()
 	popup_compra.visible = false
@@ -985,6 +986,7 @@ func _on_upar(chave: String) -> void:
 		_salvar_dados()
 		_atualizar_ui_upgrades(chave)
 		_tocar_som(preload("res://assets/sons/compra.ogg"))
+		Vibracao.tocar("compra")
 	else:
 		_tocar_som(audio_click_erro)
 		estojo.negar(chave)
@@ -1467,6 +1469,7 @@ func _on_caneta_pressed(caneta: Dictionary) -> void:
 		dados_save["caneta_equipada"] = id
 		_salvar_dados()
 		_tocar_som(preload("res://assets/sons/compra.ogg"))
+		Vibracao.tocar("compra")
 		_atualizar_loja(id)
 	else:
 		_tocar_som(audio_click_erro)
@@ -1527,6 +1530,7 @@ func _mostrar_popup_recompensa_diaria(dia: int) -> void:
 		dados_save["clipes_ouro"] += recompensa["clipes"] * mult
 		_salvar_dados()
 		_tocar_som(preload("res://assets/sons/check.ogg"))
+		Vibracao.tocar("coleta")
 		_atualizar_ui_upgrades()
 		_atualizar_loja()
 		janela.marcar_e_fechar()
@@ -1758,6 +1762,7 @@ func _coletar_missao(indice: int) -> void:
 	_salvar_dados()
 	_tocar_som(preload("res://assets/sons/check.ogg"))
 	_tocar_som(preload("res://assets/sons/compra.ogg"))
+	Vibracao.tocar("coleta")
 	_atualizar_badge_missoes()
 	# Estojo e Loja mudam com o saldo novo (botões de falta)
 	_atualizar_ui_upgrades()
