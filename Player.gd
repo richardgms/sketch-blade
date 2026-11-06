@@ -205,6 +205,9 @@ func _recalcular_atributos() -> void:
 	attack_timer.wait_time = intervalo_ataque
 
 func _draw() -> void:
+	# Miolo da borracha do escudo por baixo da caneta (o contorno vai por cima)
+	if nivel_upgrade("escudo_borracha") > 0:
+		_desenhar_escudo(false)
 	# Desenha a caneta in-game usando o SVG real quando disponível
 	if textura_caneta:
 		var tex_w := float(textura_caneta.get_width())
@@ -237,9 +240,9 @@ func _draw() -> void:
 ## Escudo de Borracha: desenho em EscudoBorracha.gd (pílula em volta da caneta).
 var _escudo_pop: float = 0.0
 
-func _desenhar_escudo() -> void:
+func _desenhar_escudo(frente: bool = true) -> void:
 	var prog: float = 1.0 if tem_escudo_ativo else clampf(timer_escudo / maxf(tempo_recarga_escudo, 0.01), 0.0, 1.0)
-	EscudoBorracha.desenhar(self, prog, tem_escudo_ativo, Time.get_ticks_msec() * 0.001, _escudo_pop)
+	EscudoBorracha.desenhar(self, prog, tem_escudo_ativo, Time.get_ticks_msec() * 0.001, _escudo_pop, frente)
 
 func _process(delta: float) -> void:
 	if Engine.is_editor_hint():

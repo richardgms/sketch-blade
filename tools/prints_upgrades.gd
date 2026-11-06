@@ -1,7 +1,7 @@
 extends SceneTree
 ## Prints dos efeitos dos upgrades (escudo, borrão, corrosiva) em combate real.
 ## Uso (com janela): Godot --path . -s tools/prints_upgrades.gd -- <pasta> [casos]
-## casos: escudo,borrao,corrosiva (padrão: todos). Salva o quadro inteiro e um
+## casos: escudo,borrao,corrosiva (padrão: todos); estilos: A,B,C (sufixo do arquivo). Salva o quadro inteiro e um
 ## recorte ampliado (zoom-*.png) em volta do efeito.
 ## Grava o save do PC em alguns eventos: faça backup antes e restaure depois.
 
@@ -9,6 +9,7 @@ var _saida := "C:/Users/joalh/Documentos/Sketch Blade - design/upgrades/prints"
 var _sv: SubViewport
 var _casos := ["escudo", "borrao", "corrosiva"]
 var _sufixo := ""
+var _estilos := ["A", "B", "C"]
 
 func _initialize() -> void:
 	var args := OS.get_cmdline_user_args()
@@ -16,13 +17,14 @@ func _initialize() -> void:
 		_saida = args[0]
 	if args.size() > 1:
 		_casos = Array(args[1].split(","))
+	if args.size() > 2:
+		_estilos = Array(args[2].split(","))
 	DirAccess.make_dir_recursive_absolute(_saida)
 	_rodar()
 
 func _rodar() -> void:
 	await process_frame
-	for e in ["A", "B", "C"]:
-		EscudoBorracha.estilo = e
+	for e in _estilos:
 		ExplosaoBorrao.estilo = e
 		CorrosaoTinta.estilo = e
 		_sufixo = "-" + e

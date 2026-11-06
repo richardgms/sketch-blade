@@ -67,3 +67,10 @@ vez com print na página de melhorias visuais. Sem build sem pedido.
   - Corrosão (`CorrosaoTinta.gd`): A rabiscado, B vapor, C bolhas à caneta.
   - Prints em `upgrades\v2\` (sufixo -A/-B/-C). Depois da escolha, apagar os
     estilos e imagens não usados.
+- 06/11, rodada 3: escudo escolhido = B (borracha), pedindo mais cara de borracha.
+  `EscudoBorracha.gd` virou o bloco chanfrado da borracha de caneta (azul 35% em
+  cima, vermelho 65%, face de cima, quinas, hachura e faixa branca); miolo por
+  baixo da caneta (`_desenhar_escudo(false)`), contorno por cima. Estilos A/C saíram.
+  Corrosão: nenhuma das 3 agradou (rabiscado não; vapor de código "parece Paint";
+  bolhas tampam o olho do chefe; "só verde" era melhor). Próximo: vapor desenhado
+  no GPT Image, animado no jogo. Explosão: escolha ainda pendente.
