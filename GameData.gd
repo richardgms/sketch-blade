@@ -72,10 +72,10 @@ const UPGRADES: Array = [
 	{
 		"id": "tinta_corrosiva",
 		"nome": "TINTA\nCORROSIVA",
-		"descricao": "Acertos corroem o inimigo\ncausando dano contínuo",
+		"descricao": "Acertos corroem o inimigo\npor 3 segundos",
 		"nivel_max": 3,
-		"valores": [2, 4, 6], # dano por segundo (2s de duração)
-		"stats": ["2 dano/s", "4 dano/s", "6 dano/s"],
+		"valores": [0.20, 0.35, 0.50], # fração do dano do tiro, por segundo
+		"stats": ["20% do dano\npor segundo", "35% do dano\npor segundo", "50% do dano\npor segundo"],
 		"cor_stats": "0a473a",
 		"icone": "res://assets/tinta_corrosiva.png"
 	},
@@ -115,8 +115,8 @@ const UPGRADES: Array = [
 		"nome": "BORRÃO\nEXPLOSIVO",
 		"descricao": "Inimigos mortos explodem\ne ferem os vizinhos",
 		"nivel_max": 3,
-		"valores": [8, 14, 20], # dano da explosão (raio 160px)
-		"stats": ["8 de dano\nem área", "14 de dano\nem área", "20 de dano\nem área"],
+		"valores": [0.40, 0.60, 0.80], # fração do dano da caneta (raio em RAIOS_EXPLOSAO)
+		"stats": ["40% do dano\nem área", "60% do dano\nárea maior", "80% do dano\nárea enorme"],
 		"cor_stats": "d9534f",
 		"icone": "res://assets/borrao_explosivo.png"
 	}
@@ -130,8 +130,9 @@ const MODO_TESTE: bool = true
 ## O aviso de atualização compara com o codigo de atualizacao/versao.json.
 const VERSAO_CODIGO: int = 19
 
-const RAIO_EXPLOSAO: float = 160.0
-const DURACAO_DOT: float = 2.0
+## Raio do Borrão Explosivo por nível (índice = nível - 1).
+const RAIOS_EXPLOSAO: Array = [200.0, 240.0, 280.0]
+const DURACAO_DOT: float = 3.0
 const ANGULO_LEQUE_GRAUS: float = 18.0
 
 # ============================================================
