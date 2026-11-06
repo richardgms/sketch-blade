@@ -119,3 +119,9 @@ vez com print na página de melhorias visuais. Sem build sem pedido.
   (a estrelinha do impacto deslocava o centro calculado pelos vãos).
   `EscudoQuebra.gd` toca 0,52 s na escala do escudo + 8 farelos com gravidade.
   Saiu `EscudoBorracha.pedacos`. O escudo parado segue em código (precisa da recarga).
+- 06/11, rodada 10: quebra com 10 quadros (folha 2x5 do GPT Image, pedindo
+  "redesenhe a animação anexada mais longa"; `upgrades\gerados\borracha_quebra_10q.png`)
+  recortada por centros medidos de coluna/linha, limitada à célula da grade, em
+  tira única `assets/ui/borracha_quebra.png` (10 x 304x316). Fundo azul/vermelho
+  do escudo (`EscudoBorracha.desenhar_fundo`) por baixo até rachar, some em 0,12 s.
+  0,61 s no total. Pedir mais quadros em grade de 2 linhas funciona melhor que 1 linha.

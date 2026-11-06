@@ -117,3 +117,15 @@ static func desenhar(ci: CanvasItem, progresso: float, ativo: bool, t: float, po
 		ci.draw_polyline(_trecho(fora, s, s1 + 1.0), c, 5.0, true)
 		ci.draw_polyline(_trecho(fora, s, s1 + 1.0, 2.2), Color(c, 0.45), 2.0, true)
 		s = s1
+
+## Só o fundo colorido da borracha (sem traços), para a quebra: some enquanto ela racha.
+static func desenhar_fundo(ci: CanvasItem, alfa: float) -> void:
+	var fora := _deslocar(_vertices(MEIA_LARGURA, MEIA_ALTURA, CHANFRO))
+	var dentro := _deslocar(_vertices(MEIA_LARGURA - BORDA, MEIA_ALTURA - BORDA, CHANFRO - BORDA * 0.45))
+	var yd := _y_divisa(MEIA_ALTURA)
+	for pc in _recorte(fora, -999, yd):
+		ci.draw_colored_polygon(pc, Color(AZUL, 0.20 * alfa))
+	for pc in _recorte(fora, yd, 999):
+		ci.draw_colored_polygon(pc, Color(VERMELHO, 0.20 * alfa))
+	for pc in _recorte(dentro, -999, 999):
+		ci.draw_colored_polygon(pc, Color(1, 1, 1, 0.35 * alfa))

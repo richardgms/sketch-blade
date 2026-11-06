@@ -1,15 +1,16 @@
 extends Node2D
 ## Escudo de Borracha bloqueou: a borracha racha e se parte em pedaços que voam
-## e caem, com farelo (assets/ui/borracha_quebra.png: 6 quadros coloridos de uma
-## folha do GPT Image, com a borracha do jogo como referência). Um pouco de
+## e caem, com farelo (assets/ui/borracha_quebra.png: 10 quadros coloridos de uma
+## folha do GPT Image, com a borracha do jogo como referência). O fundo azul e
+## vermelho do escudo aparece por baixo e some enquanto ela racha. Um pouco de
 ## farelo extra, com gravidade, cai entre os quadros.
 
 const QUADROS := preload("res://assets/ui/borracha_quebra.png")
-const LARGURA_QUADRO: float = 216.0
-const ALTURA_QUADRO: float = 336.0
+const LARGURA_QUADRO: float = 304.0
+const ALTURA_QUADRO: float = 316.0
 ## Altura da borracha inteira no quadro 1 (px da folha): casa com o escudo.
-const ALTURA_BORRACHA_FOLHA: float = 258.0
-const TEMPOS := [0.05, 0.07, 0.07, 0.1, 0.11, 0.12]
+const ALTURA_BORRACHA_FOLHA: float = 222.4
+const TEMPOS := [0.04, 0.05, 0.05, 0.05, 0.06, 0.06, 0.06, 0.07, 0.08, 0.09]
 const CORES_FARELO := [Color("c8473f"), Color("c8473f"), Color("3456a8"), Color("8d8d8d")]
 
 var altura_escudo: float = 296.0
@@ -51,6 +52,12 @@ func _quadro_atual() -> int:
 
 func _draw() -> void:
 	var q := _quadro_atual()
+	# Fundo da borracha: inteiro até rachar (quadro 3), some até o quadro 5
+	var fundo: float = 1.0 - clampf((_t - 0.14) / 0.12, 0.0, 1.0)
+	if fundo > 0.0:
+		draw_set_transform(-EscudoBorracha.CENTRO, 0.0, Vector2.ONE)
+		EscudoBorracha.desenhar_fundo(self, fundo)
+		draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
 	if q >= 0:
 		var esc: float = altura_escudo / ALTURA_BORRACHA_FOLHA
 		var tam := Vector2(LARGURA_QUADRO, ALTURA_QUADRO) * esc
