@@ -143,8 +143,9 @@ São 6 sub-streams, **3.203.812 bytes** (q4, loop de 48 s). O Godot guarda o OGG
 - A conferir no celular: anúncio com recompensa aberto pelo hub (a música não pausa; entra junto com o item de pausar no anúncio).
 
 ## Descanso calmo (07/11, aguardando aprovação de ouvido)
-- Na página de descanso a música da partida acalma em vez de seguir a do combate: `NIVEL_DESCANSO` (baixo 0,6, bateria leve 0,2, guitarra leve 0,85; o resto some), no próximo compasso, em 2 compassos. `Musica.descanso()` é chamado ao abrir a tela; `_nivel = 0` faz a página 5 voltar ao nível dela (sobe em 1 compasso). A roleta depois do descanso segue calma.
-- Chave `Musica.descanso_calmo` (false = como antes). Gravação no jogo: `tools/gravar_descanso.gd [antes]` (página 3 → descanso → roleta → página 5). Medido: no descanso a música desce ~3 dB em relação ao combate.
+- Na página de descanso a música da partida acalma em vez de seguir a do combate: `NIVEL_DESCANSO` (baixo 0,6, bateria leve 0,2, guitarra leve 0,85; o resto some). `Musica.descanso()` é chamado ao abrir a tela; `_nivel = 0` faz a página 5 voltar ao nível dela (sobe em 1 compasso). A roleta depois do descanso segue calma.
+- **Desce na hora, em 1 s** (`DESCANSO_RAMPA`), sem esperar o compasso: a 1ª versão (próximo compasso + 2 compassos, até ~6 s) só acalmava quando o jogador já ia tocar na carta (Richard, 07/11). Dá para trocar fora do tempo porque só muda o volume de camadas que tocam juntas.
+- Chave `Musica.descanso_calmo` (false = como antes). Gravação no jogo: `tools/gravar_descanso.gd [antes]`. Página: https://claude.ai/artifact/KDHR8YQvfu54BmRo2CfXeG
 
 ## Início, pausa e fim
 - **Início da partida:** toca o nível 1 desde a posição 0 com subida de volume de ~2 s (a entrada suave que o Richard gostou). Sem trecho de introdução no v1; se quiser, depois dá para pôr uma introdução no começo do arquivo e usar `loop_offset`.

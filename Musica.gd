@@ -269,15 +269,17 @@ func pagina(numero: int) -> void:
 	_aplicar(_partida, NIVEIS[nivel], ate, _compasso(_partida) * (1.0 if subir else 2.0))
 	_log("página %d -> nível %d em %.2f s" % [numero, nivel, ate])
 
-## Tela de descanso abriu: no próximo compasso a música acalma, em 2 compassos.
+## Tela de descanso abriu: a música acalma na hora, em 1 s (sem esperar o
+## compasso: tem jogador que escolhe a carta em 2 s). Só muda volume de
+## camadas que tocam juntas, então não precisa cair no tempo.
 ## _nivel = 0 faz a próxima página voltar ao nível dela.
+const DESCANSO_RAMPA := 1.0
 func descanso() -> void:
 	if not descanso_calmo or not _pode() or _partida == null or not _partida.tocando:
 		return
 	_nivel = 0
-	var ate := _ate_compasso(_partida, 0.05)
-	_aplicar(_partida, NIVEL_DESCANSO, ate, _compasso(_partida) * 2.0)
-	_log("descanso em %.2f s" % ate)
+	_aplicar(_partida, NIVEL_DESCANSO, 0.0, DESCANSO_RAMPA)
+	_log("descanso (%.1f s)" % DESCANSO_RAMPA)
 
 func _iniciar_partida(nivel: int) -> void:
 	_cancelar_tweens()
