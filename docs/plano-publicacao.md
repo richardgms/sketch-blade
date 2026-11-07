@@ -289,3 +289,38 @@ Notas sugeridas para a Play:
 • Escudo de Borracha com o desenho corrigido.
 </pt-BR>
 ```
+
+
+## Build 1.8.7 (22) — 07/11/2026
+Ajustes depois da 1.8.6:
+- Música do hub (Suno, versão calma aprovada), também na tela antes da partida;
+  desce no COMEÇAR (`docs/plano-musica-adaptativa.md`).
+- Descanso: a música da partida acalma na hora, em 1 s; a virada "Página 4"
+  passa antes do descanso abrir (antes ficava congelada e saía colada na
+  "Página 5"); selo da lua na casa do descanso da trilha.
+- Inimigo comum solta tinta azul (`ink-blue.svg`); roxo rápido mais claro e
+  puxado para o lilás da gota.
+- Antes do build: testes de música, sons da partida, sons do resultado, vida
+  crítica e feedback do combate (0 falhas); abrir hub OK; robô nos 10 chefes
+  (esquiva, 1 semente, chegada+roleta): 0 erros de script.
+- `version/code` e `GameData.VERSAO_CODIGO` em 22; nome 1.8.7. MODO_TESTE e
+  anúncios de teste mantidos (teste fechado).
+- AAB: `Documentos\Sketch Blade - builds\sketchblade-1.8.7-vc22.aab`
+  (69.790.647 bytes). ZIP íntegro; 1.8.7 no manifesto; `jar verified`, mesmo
+  certificado de upload (SHA256 E2:28:70:F9…F7:1C); música do hub, selo do
+  descanso e gota azul presentes, gota cinza fora; sem store, referências,
+  JPG/PSD ou `__pycache__`. Maiores arquivos: motor ARM64, três DEX, ícone e splash.
+- SHA256: `b3cde635bf683ae43f3f61ed2e38b3f8dd87806f850bca0cf27d573241137e3f`.
+- Falta: envio à Play pelo Richard e escuta no celular (música do hub e do descanso).
+
+Notas sugeridas para a Play:
+
+```text
+<pt-BR>
+• Música nova no menu e na tela antes da partida.
+• Página de descanso com música mais calma.
+• A página 4 agora vira antes do descanso: nada de pular duas páginas.
+• Símbolo de descanso na trilha de páginas.
+• Monstro comum solta tinta azul e o roxo ficou mais claro.
+</pt-BR>
+```
