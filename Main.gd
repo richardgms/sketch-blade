@@ -1606,6 +1606,7 @@ func _on_descanso_iniciado() -> void:
 		label_pagina.visible = false
 
 	menu_descanso.visible = true
+	Musica.descanso()
 	tela_descanso.mostrar({"cap": capitulo_atual, "pagina": max(1, wave_manager.pagina_atual),
 		"total_paginas": GameData.PAGINAS.size(), "vidas": player.vidas, "vidas_max": player.vidas_max,
 		"cura": GameData.DESCANSO_CURA, "tinta_partida": tinta_partida,

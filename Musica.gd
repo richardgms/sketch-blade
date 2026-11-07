@@ -39,6 +39,10 @@ const NIVEIS := {
 	3: {"baixo": 1.0, "bateria": 1.0, "guitarras": 1.0, "outros": 1.0},
 }
 const NIVEL_POR_PAGINA := {1: 1, 2: 1, 3: 2, 4: 1, 5: 2, 6: 3, 7: 3}
+## Descanso (página 4): mesma música, só a guitarra abafada, o baixo e um resto de
+## bateria leve. Volta ao combate quando a página 5 começa.
+const NIVEL_DESCANSO := {"baixo": 0.6, "bateria_leve": 0.2, "guitarras_leve": 0.85}
+var descanso_calmo := true # false = descanso com a música do combate (como antes); usado na gravação de comparação
 const CHEFE_NORMAL := {"baixo": 1.0, "bateria": 0.8, "guitarras": 0.8, "alien": 0.5}
 const CHEFE_RAIVA := {"baixo": 1.0, "bateria": 1.0, "guitarras": 1.0, "alien": 1.0}
 
@@ -264,6 +268,16 @@ func pagina(numero: int) -> void:
 	var ate := _ate_compasso(_partida, 0.05)
 	_aplicar(_partida, NIVEIS[nivel], ate, _compasso(_partida) * (1.0 if subir else 2.0))
 	_log("página %d -> nível %d em %.2f s" % [numero, nivel, ate])
+
+## Tela de descanso abriu: no próximo compasso a música acalma, em 2 compassos.
+## _nivel = 0 faz a próxima página voltar ao nível dela.
+func descanso() -> void:
+	if not descanso_calmo or not _pode() or _partida == null or not _partida.tocando:
+		return
+	_nivel = 0
+	var ate := _ate_compasso(_partida, 0.05)
+	_aplicar(_partida, NIVEL_DESCANSO, ate, _compasso(_partida) * 2.0)
+	_log("descanso em %.2f s" % ate)
 
 func _iniciar_partida(nivel: int) -> void:
 	_cancelar_tweens()

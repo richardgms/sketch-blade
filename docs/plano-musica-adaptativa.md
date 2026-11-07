@@ -138,9 +138,13 @@ São 6 sub-streams, **3.203.812 bytes** (q4, loop de 48 s). O Godot guarda o OGG
 - **Origem:** Suno (plano pago do Richard), "HUB", Mi menor, 120 BPM, 2:30, com stems do Moises. Originais em `Videos/sons sketch blade/26 musica/04 Hub/` (o .wav, `stems/`, `trabalho/`, `loop 24 compassos/`, `jogo/`).
 - **Loop:** 24 compassos (96 batidas, 48,0007 s), das batidas 68 a 164 (34,0 s a 82,0 s), a emenda de melhor nota no `achar_emenda.py` (pior camada 0,85). Saltos na emenda abaixo do passo típico em todas as camadas. A camada de cordas veio vazia (-86 dB) e fica de fora.
 - **No jogo:** um arquivo só (`assets/musica/hub/hub.ogg`, estéreo, q4, ~0,7 MB), sem camadas; `Musica.hub_tocar()` / `hub_parar()` / `hub_atualizar_som()`, barramento `MusicaHub`. Arquivo a -16 LUFS e `VOLUME_HUB_DB = -10`: gravado no jogo, o hub fica ~2 dB abaixo do começo da partida.
-- **Duas versões para escolher** (`tools/musica/hub_jogo.py`, mesmo volume percebido): "original" (soma das camadas) e "calma" (bateria com passa-baixa de 1,2 kHz e -9 dB, baixo -2 dB, teclado +1,5 dB, "outros" com passa-baixa de 6 kHz e -3 dB). O jogo está com a original até o Richard escolher; página de escuta: https://claude.ai/artifact/KDHR8YQvfu54BmRo2CfXeG
+- **Versão no jogo: a calma** (aprovada pelo Richard em 07/11, de ouvido). `tools/musica/hub_jogo.py` gera as duas no mesmo volume percebido: "original" (soma das camadas) e "calma" (bateria com passa-baixa de 1,2 kHz e -9 dB, baixo -2 dB, teclado +1,5 dB, "outros" com passa-baixa de 6 kHz e -3 dB). Página de escuta: https://claude.ai/artifact/KDHR8YQvfu54BmRo2CfXeG
 - **Refazer:** `MUSICA=hub python tools/musica/grade_batidas.py <trabalho>` → `achar_emenda.py` → `cortar_loop.py <trabalho> 68 164` → `python tools/musica/hub_jogo.py` → copiar a versão escolhida para `assets/musica/hub/hub.ogg`. Gravação no jogo: `tools/gravar_hub.gd` (instruções no topo; aceita um .ogg alternativo).
 - A conferir no celular: anúncio com recompensa aberto pelo hub (a música não pausa; entra junto com o item de pausar no anúncio).
+
+## Descanso calmo (07/11, aguardando aprovação de ouvido)
+- Na página de descanso a música da partida acalma em vez de seguir a do combate: `NIVEL_DESCANSO` (baixo 0,6, bateria leve 0,2, guitarra leve 0,85; o resto some), no próximo compasso, em 2 compassos. `Musica.descanso()` é chamado ao abrir a tela; `_nivel = 0` faz a página 5 voltar ao nível dela (sobe em 1 compasso). A roleta depois do descanso segue calma.
+- Chave `Musica.descanso_calmo` (false = como antes). Gravação no jogo: `tools/gravar_descanso.gd [antes]` (página 3 → descanso → roleta → página 5). Medido: no descanso a música desce ~3 dB em relação ao combate.
 
 ## Início, pausa e fim
 - **Início da partida:** toca o nível 1 desde a posição 0 com subida de volume de ~2 s (a entrada suave que o Richard gostou). Sem trecho de introdução no v1; se quiser, depois dá para pôr uma introdução no começo do arquivo e usar `loop_offset`.
