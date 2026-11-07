@@ -58,7 +58,7 @@ var dados_save: Dictionary
 
 # Cache de texturas de drops de tinta para evitar load() dinâmico em tempo de execução
 var texturas_drops: Dictionary = {
-	"res://assets/ink-black.svg": preload("res://assets/ink-black.svg"),
+	"res://assets/ink-blue.svg": preload("res://assets/ink-blue.svg"),
 	"res://assets/ink-purple.svg": preload("res://assets/ink-purple.svg"),
 	"res://assets/ink-green.svg": preload("res://assets/ink-green.svg"),
 	"res://assets/ink-brown.svg": preload("res://assets/ink-brown.svg"),

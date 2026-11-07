@@ -9,7 +9,7 @@ enum TipoInimigo { COMUM, NANQUIM, RESPINGO, GUACHE }
 
 @export var velocidade: float = 200.0
 @export var cor_tinta: Color = Color("1a1a2e")
-var textura_drop: String = "res://assets/ink-black.svg"
+var textura_drop: String = "res://assets/ink-blue.svg"
 @export var raio_visual: float = 35.0
 @export var hp_max: int = 20
 
@@ -101,14 +101,14 @@ func configurar_tipo(novo_tipo: TipoInimigo) -> void:
 		velocidade = 200.0
 		hp_max = 20
 		cor_tinta = Color("26238c", 0.95) # azul do desenho (respingo e mancha)
-		textura_drop = "res://assets/ink-black.svg"
+		textura_drop = "res://assets/ink-blue.svg"
 		dano_contato = 1
 		_desvio_x = randf_range(80.0, 160.0) * (1.0 if randf() < 0.5 else -1.0)
 	elif tipo == TipoInimigo.NANQUIM:
 		raio_visual = 20.0
 		velocidade = 350.0
 		hp_max = 10
-		cor_tinta = Color("3b2c64", 0.95)
+		cor_tinta = Color("4f2a8a", 0.95) # roxo do desenho clareado (07/11)
 		textura_drop = "res://assets/ink-purple.svg"
 		dano_contato = 1
 	elif tipo == TipoInimigo.RESPINGO:
