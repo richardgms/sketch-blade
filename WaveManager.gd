@@ -5,6 +5,10 @@ extends Node
 signal pagina_iniciada(numero: int, total: int)
 signal pagina_concluida(numero: int)
 signal descanso_iniciado
+
+## Duração da virada de página (VirarPagina.gd: entra 0,3 + espera 0,65 + descola 0,5).
+const DURACAO_VIRADA := 1.45
+var virada_antes_do_descanso := true # false = como era (gravação de comparação)
 signal boss_surgiu(boss_node: Node2D)
 signal fase_concluida
 
@@ -73,6 +77,11 @@ func _iniciar_proxima_pagina() -> void:
 			await get_tree().create_timer(1.2).timeout
 			timer_spawn.start()
 		"descanso":
+			# A virada "Página 4" passa inteira antes do descanso abrir (o
+			# descanso pausa o jogo; antes a virada ficava congelada por baixo e
+			# passava depois da roleta, colada na "Página 5")
+			if virada_antes_do_descanso and pagina_atual > 1:
+				await get_tree().create_timer(DURACAO_VIRADA).timeout
 			descanso_iniciado.emit()
 		"boss":
 			_preparar_boss()

@@ -5,11 +5,12 @@ extends SceneTree
 ## Uso (Movie Maker; faça backup do save, a partida grava checkpoint):
 ##   Godot --path . --write-movie <saida.avi> --fixed-fps 60 --resolution 540x960 \
 ##     -s tools/gravar_descanso.gd -- [antes]
-## "antes" = descanso com a música do combate (como era antes do descanso calmo).
+## "antes" = como era: música do combate no descanso, descanso abrindo junto com a
+## virada "Página 4" (que passava depois da roleta) e trilha sem o selo do descanso.
 
 const Y_CANETA := 1700.0
-const ESPERA_DESCANSO := 7.0
-const ESPERA_ROLETA := 4.0
+const ESPERA_DESCANSO := 3.0 # jogador rápido
+const ESPERA_ROLETA := 3.0
 const DEPOIS_PAGINA_5 := 9.0
 
 func _initialize() -> void:
@@ -24,8 +25,11 @@ func _rodar() -> void:
 	d["capitulo_selecionado"] = 2
 	if a.has("antes"):
 		root.get_node("Musica").descanso_calmo = false
+		preload("res://TrilhaPaginas.gd").selo_descanso = false
 	var m = load("res://main.tscn").instantiate()
 	root.add_child(m)
+	if a.has("antes"):
+		m.wave_manager.virada_antes_do_descanso = false
 	for i in 5: await process_frame
 	m.jogo_iniciado = true; m.menu_iniciar.visible = false
 	m.player.invencivel = true

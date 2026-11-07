@@ -1,11 +1,15 @@
 extends Control
 ## Trilha das páginas do capítulo: casas ligadas por tracejado, as primeiras
-## `cheias` em azul, a `atual` com anel verde e a última maior com "?" (o
-## chefe). Usada na tela antes da partida e na virada de página.
+## `cheias` em azul, a `atual` com anel verde, a do descanso com o selo do
+## descanso (desenho do ChatGPT, branco com alfa, tingido) e a última maior com
+## "?" (o chefe). Usada na tela antes da partida e na virada de página.
 
 const FONTE := preload("res://assets/fonts/ArchitectsDaughter-Regular.ttf")
 const AZUL := Color("0047ab")
 const AZUL_ESCURO := Color("002867")
+const SELO := preload("res://assets/ui/selo_descanso.png")
+const LADO_SELO := 46.0
+static var selo_descanso := true # false = trilha como era (gravação de comparação)
 
 var total := 8
 var cheias := 0
@@ -26,9 +30,13 @@ func _draw() -> void:
 	for i in range(total):
 		var p := Vector2(x0 + passo * i, 50)
 		var ultimo: bool = i == total - 1
-		var r: float = 40.0 if ultimo else 26.0
+		var descanso: bool = selo_descanso and total == GameData.PAGINAS.size() and GameData.PAGINAS[i]["tipo"] == "descanso"
+		var r: float = 40.0 if ultimo else (32.0 if descanso else 26.0)
 		draw_circle(p, r, Color(AZUL, 0.85) if i < cheias else Color.WHITE)
 		draw_arc(p, r, 0, TAU, 32, AZUL_ESCURO, 3.5, true)
+		if descanso:
+			draw_texture_rect(SELO, Rect2(p - Vector2.ONE * LADO_SELO / 2.0, Vector2.ONE * LADO_SELO), false,
+				Color.WHITE if i < cheias else AZUL_ESCURO)
 		if ultimo:
 			draw_string(FONTE, p + Vector2(-13, 17), "?", HORIZONTAL_ALIGNMENT_LEFT, -1, 48,
 				Color.WHITE if i < cheias else AZUL_ESCURO)
