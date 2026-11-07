@@ -13,6 +13,7 @@ Jogo mobile (Android, retrato) em **Godot 4.7** (GL Compatibility), GDScript. Ro
 - Prints das telas: `bash tools/capturar_telas.sh <pasta> <telas>` (faz backup e restaura o save do PC; flags de autoload passam de uma partida de teste para a outra). Se o Godot de teste travar, encerre só esse processo pelo PID (`Get-CimInstance Win32_Process`): o editor aberto também se chama Godot.
 - Imagens geradas no ChatGPT: original em `Documentos\Sketch Blade - design\<tela>\gerados\`, versão de uso em `assets/ui/`.
 - Ouvir a mistura real de uma luta antes do build (música, tiros, dano, vida crítica, vitória): `tools/gravar_ambiente.gd` com `--write-movie <saida.avi> --fixed-fps 60 --resolution 540x960` (instruções no topo do script; backup do save). Página de escuta: https://claude.ai/artifact/H8hfV3XBanRAJt7Nr1Mo9k
+- Ouvir a música do hub no jogo (hub → antes da partida → COMEÇAR): `tools/gravar_hub.gd`, mesmo uso do `gravar_ambiente` (aceita um .ogg alternativo). Página de escuta: https://claude.ai/artifact/KDHR8YQvfu54BmRo2CfXeG
 - Testar chefe no jogo: Configurações → Stats de teste → "Testar chefe" / "Zerar Estojo" (só com `GameData.MODO_TESTE`). Teste por script: ver `docs/chefes.md`.
 
 ## Regras que importam

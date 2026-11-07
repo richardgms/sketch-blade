@@ -35,7 +35,7 @@ fade inicial de 2 s e filtro apenas na saída da partida para a chegada do chefe
 ## O que queremos
 - A música da partida fica mais forte conforme a partida pesa, **sem troca de faixa perceptível** (hoje a pesada recomeça do começo e dá para ouvir).
 - Ideia do Richard (mantida na essência): cada instrumento em versão leve e pesada, tudo no mesmo tempo, e o código cruza leve↔pesado e libera instrumentos no tempo certo.
-- Fora de escopo agora: música do hub, música por capítulo, compras e anúncios (pausar a música no anúncio entra quando mexermos em anúncios).
+- Fora de escopo agora: música por capítulo, compras e anúncios (pausar a música no anúncio entra quando mexermos em anúncios). Música do hub: seção própria abaixo.
 
 ## O que foi medido (04/11, por arquivo; ninguém além do Richard ouviu)
 - Material em `C:\Users\joalh\Videos\sons sketch blade\26 musica\01 Sala sci-fi (escolhida)\`. Originais Suno: limpa 59,48 s, cheia 88,20 s (48 kHz estéreo). Stems do Moises com a mesma duração do original.
@@ -132,6 +132,15 @@ São 6 sub-streams, **3.203.812 bytes** (q4, loop de 48 s). O Godot guarda o OGG
 - Níveis: **normal** = bateria, baixo, guitarra leve, alien a −6 dB; **raiva** = guitarra leve→cheia e alien a 0 dB, em 1 compasso.
 - Volume: a música do chefe toca **+2,5 dB** para o normal ficar no nível da partida 3 (partida n3 −16,9 dB; chefe normal −16,5; raiva −15,4). Sem isso a chegada do chefe soaria como queda.
 - Demonstração (`C2 - demonstracao\`, `tools/musica/demo_chefe.py`): partida n3 → rugido com a partida −6 dB por baixo → música do chefe entra no compasso seguinte, sem silêncio (medido: nada abaixo de −29 dB na passagem) → raiva → desce em 1 s e entra `vitoria.ogg`. Ajuste 2 aprovado no tempo ("o tempo tá bom"); ajuste 3 (filtro, entrada em começo de frase) aguardando ouvido.
+
+## Música do hub (07/11)
+- **Onde toca:** hub e janelas dele, e a tela antes da partida (a mesma faixa continua, sem recomeçar). No COMEÇAR desce em 1 s e a partida entra com a subida de 2 s de sempre; partida retomada (CONTINUAR) desce em 0,5 s. Descanso, vitória e derrota seguem como estavam.
+- **Origem:** Suno (plano pago do Richard), "HUB", Mi menor, 120 BPM, 2:30, com stems do Moises. Originais em `Videos/sons sketch blade/26 musica/04 Hub/` (o .wav, `stems/`, `trabalho/`, `loop 24 compassos/`, `jogo/`).
+- **Loop:** 24 compassos (96 batidas, 48,0007 s), das batidas 68 a 164 (34,0 s a 82,0 s), a emenda de melhor nota no `achar_emenda.py` (pior camada 0,85). Saltos na emenda abaixo do passo típico em todas as camadas. A camada de cordas veio vazia (-86 dB) e fica de fora.
+- **No jogo:** um arquivo só (`assets/musica/hub/hub.ogg`, estéreo, q4, ~0,7 MB), sem camadas; `Musica.hub_tocar()` / `hub_parar()` / `hub_atualizar_som()`, barramento `MusicaHub`. Arquivo a -16 LUFS e `VOLUME_HUB_DB = -10`: gravado no jogo, o hub fica ~2 dB abaixo do começo da partida.
+- **Duas versões para escolher** (`tools/musica/hub_jogo.py`, mesmo volume percebido): "original" (soma das camadas) e "calma" (bateria com passa-baixa de 1,2 kHz e -9 dB, baixo -2 dB, teclado +1,5 dB, "outros" com passa-baixa de 6 kHz e -3 dB). O jogo está com a original até o Richard escolher; página de escuta: https://claude.ai/artifact/KDHR8YQvfu54BmRo2CfXeG
+- **Refazer:** `MUSICA=hub python tools/musica/grade_batidas.py <trabalho>` → `achar_emenda.py` → `cortar_loop.py <trabalho> 68 164` → `python tools/musica/hub_jogo.py` → copiar a versão escolhida para `assets/musica/hub/hub.ogg`. Gravação no jogo: `tools/gravar_hub.gd` (instruções no topo; aceita um .ogg alternativo).
+- A conferir no celular: anúncio com recompensa aberto pelo hub (a música não pausa; entra junto com o item de pausar no anúncio).
 
 ## Início, pausa e fim
 - **Início da partida:** toca o nível 1 desde a posição 0 com subida de volume de ~2 s (a entrada suave que o Richard gostou). Sem trecho de introdução no v1; se quiser, depois dá para pôr uma introdução no começo do arquivo e usar `loop_offset`.
