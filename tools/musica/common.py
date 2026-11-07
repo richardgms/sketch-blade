@@ -1,5 +1,5 @@
 # Caminhos e funcoes comuns dos scripts de musica (arquivos fora do repo: pasta 26 musica).
-# Escolha a musica com a variavel de ambiente MUSICA=partida (padrao) ou MUSICA=chefe.
+# Escolha a musica com a variavel de ambiente MUSICA=partida (padrao), MUSICA=chefe ou MUSICA=hub.
 import os, subprocess, numpy as np
 RAIZ="C:/Users/joalh/Videos/sons sketch blade/26 musica"
 MUSICAS={
@@ -11,6 +11,10 @@ MUSICAS={
              "mo":"/camadas do Moises (zip)/Boss Fight/Boss Fight-",
              "suf":"-E minor-118bpm-440hz.wav","orig":"/originais suno/Boss Fight.wav",
              "stems":{"bateria":"Drums","baixo":"Bass","guitarras":"Guitars","teclado":"Keys","outros":"Other","metronomo_moises":"Metronome"}},
+    "hub":{"base":RAIZ+"/04 Hub",
+           "mo":"/stems/HUB-",
+           "suf":"-E minor-120bpm-441hz.wav","orig":"/HUB.wav",
+           "stems":{"bateria":"Drums","baixo":"Bass","guitarras":"Guitars","teclado":"Keys","cordas":"Strings","outros":"Other","metronomo_moises":"Metronome"}},
 }
 NOME=os.environ.get("MUSICA","partida"); M=MUSICAS[NOME]
 BASE=M["base"]; MO=M["base"]+M["mo"]; SUF=M["suf"]; ORIG=M["base"]+M["orig"]; STEMS=M["stems"]

@@ -1,8 +1,8 @@
-# Etapa 1 da musica adaptativa (docs/plano-musica-adaptativa.md). Uso: MUSICA=partida|chefe python tools/musica/cortar_loop.py <pasta de trabalho> <batida inicial> <batida final>
+# Etapa 1 da musica adaptativa (docs/plano-musica-adaptativa.md). Uso: MUSICA=partida|chefe|hub python tools/musica/cortar_loop.py <pasta de trabalho> <batida inicial> <batida final>
 import sys, os, json, subprocess; sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from common import *
 SR=48000; S0,E0=int(sys.argv[2]),int(sys.argv[3]); COMP=(E0-S0)//4
-OUT=BASE+(f"/etapa 1 - loop {COMP} compassos" if NOME=="partida" else f"/C2 - loop {COMP} compassos"); os.makedirs(OUT,exist_ok=True)
+OUT=BASE+{"partida":f"/etapa 1 - loop {COMP} compassos","chefe":f"/C2 - loop {COMP} compassos"}.get(NOME,f"/loop {COMP} compassos"); os.makedirs(OUT,exist_ok=True)
 g=json.load(open(sys.argv[1]+"/grid.json")); bt=np.array(g["beats"])
 X={k:stem(k,SR,2) for k in CAMADAS}
 orig=load(ORIG,SR,2)
