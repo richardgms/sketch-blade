@@ -71,6 +71,11 @@ eviver\gerados\`), 3 corações, "Volte com 3 corações", "Continue da página 
 - **Hub "A evoluída" (conselho 29/10):** estrutura da A aprovada (capítulo compacto → arte grande → nome/estado → trilha → botão forte), selo pequeno no canto. Sem campo novo no save na primeira leva: capítulo não vencido mostra a ilustração do objeto (o subtítulo já é o nome do objeto, então nada é entregue), vencido mostra o monstro colorido com selo no canto (vencido = abaixo de `capitulo_desbloqueado`). A revelação objeto → monstro acontece no combate, quando o chefe surge na página 8 (sem estado novo). Botão com moldura e texto conforme a ação (Lutar / Continuar · página X / Jogar de novo), sem tirar o popup de retomada. Trilha maior, com o mini desenho do chefe na última casa (não depende só de cor). "Melhor página" entra depois, como campo com valor padrão. Cortado: transição no hub com flag "chefe visto", post-it e cartaz permanentes.
 - **Hub "A evoluída", protótipo (29/10):** 3 estados na página de antes/depois (não vencido, partida salva, vencido). Gerado por script fora do repositório; aguardando aprovação para entrar no jogo.
 
+## Cores: gota do comum e roxo rápido (07/11) — aguardando aprovação
+- Gota do comum ainda era cinza (`ink-black.svg`, da época em que ele era preto). Proposta: `ink-blue.svg` = a gota roxa recolorida para o matiz do comum (235°), só nos tons saturados; contorno preto igual. Gota vetorial: recolorir sai idêntica, sem GPT.
+- Nanquim (roxo rápido) escuro perto da própria gota: só os tons roxos do corpo clareiam (contorno quase preto e olhos ficam). Variantes A/B/C; C (mais claro e matiz +14° para o lilás da gota) recomendada.
+- Arquivos das variantes em `Documentos/Sketch Blade - design/inimigos-cores/`. Página: https://claude.ai/artifact/DqxiLTdEtDZ4Q4AD36nPA7
+
 ## "Passou duas páginas ao mesmo tempo" no descanso (07/11) — corrigido no código, aguardando aprovação
 - Relato dos testadores: depois do descanso parece que passam as páginas 4 e 5 juntas.
 - Causa (vista em gravação, `tools/gravar_descanso.gd`): a página 4 começa e, no mesmo quadro, a tela de descanso abre e pausa o jogo. A virada "Página 4" (`VirarPagina`) fica congelada por baixo. Depois do descanso e da roleta o jogo despausa: a virada "Página 4" passa inteira e logo em seguida vem a "Página 5".
