@@ -15,6 +15,10 @@ const VOLUME_DB := -6.0
 ## volume do nível 3 da partida (medido).
 const GANHO_CHEFE_DB := 2.5
 const LOG := true
+## Música do hub e da tela antes da partida: um loop só, sem camadas.
+## O arquivo está a -16 LUFS; -10 dB deixa ele um pouco abaixo do nível 1 da partida.
+const ARQUIVO_HUB := "res://assets/musica/hub/hub.ogg"
+const VOLUME_HUB_DB := -10.0
 
 const DIR_PARTIDA := "res://assets/musica/partida/"
 const DIR_CHEFE := "res://assets/musica/chefe/"
@@ -332,6 +336,75 @@ func raiva_chefe() -> void:
 	var ate := _ate_compasso(_chefe, 0.05)
 	_aplicar(_chefe, CHEFE_RAIVA, ate, _compasso(_chefe))
 	_log("raiva em %.2f s" % ate)
+
+# ---------------------------------------------------------------------- hub
+var _hub: AudioStreamPlayer
+var _hub_tween: Tween
+var _hub_saindo := false
+var _hub_alt: AudioStreamOggVorbis
+
+## Hub e tela antes da partida: começa com fade de 1,5 s. Se já está tocando
+## (voltou do "antes da partida" para o hub), segue sem recomeçar.
+func hub_tocar() -> void:
+	if not _pode():
+		return
+	if _hub == null:
+		var i := AudioServer.get_bus_index("MusicaHub")
+		if i == -1:
+			i = AudioServer.bus_count
+			AudioServer.add_bus(i)
+			AudioServer.set_bus_name(i, "MusicaHub")
+			AudioServer.set_bus_send(i, "Master")
+		_hub = AudioStreamPlayer.new()
+		var s: AudioStreamOggVorbis = _hub_alt if _hub_alt else load(ARQUIVO_HUB)
+		s.loop = true
+		_hub.stream = s
+		_hub.bus = "MusicaHub"
+		_hub.process_mode = Node.PROCESS_MODE_ALWAYS
+		add_child(_hub)
+	if _hub.playing and not _hub_saindo:
+		return
+	if _hub_tween and _hub_tween.is_valid():
+		_hub_tween.kill()
+	if not _hub.playing:
+		_hub.volume_db = -80.0
+		_hub.play(0.0)
+	_hub_saindo = false
+	_hub_tween = create_tween()
+	_hub_tween.tween_method(_volume_hub, db_to_linear(_hub.volume_db - VOLUME_HUB_DB), 1.0, 1.5)
+	_log("hub toca")
+
+## COMEÇAR, partida retomada ou som desligado: desce e para.
+func hub_parar(dur: float = 1.0) -> void:
+	if _hub == null or not _hub.playing or _hub_saindo:
+		return
+	if _hub_tween and _hub_tween.is_valid():
+		_hub_tween.kill()
+	_hub_saindo = true
+	_hub_tween = create_tween()
+	_hub_tween.tween_method(_volume_hub, db_to_linear(_hub.volume_db - VOLUME_HUB_DB), 0.0, dur)
+	_hub_tween.tween_callback(func():
+		_hub.stop()
+		_hub_saindo = false)
+	_log("hub para (%.1f s)" % dur)
+
+## Chave "Som" mudou no hub.
+func hub_atualizar_som() -> void:
+	if _pode():
+		hub_tocar()
+	else:
+		hub_parar(0.3)
+
+## Só para gravações de teste: troca o arquivo do hub por outro (caminho do disco).
+func hub_trocar_arquivo(caminho: String) -> void:
+	_hub_alt = AudioStreamOggVorbis.load_from_file(caminho)
+	_hub_alt.loop = true
+	if _hub != null:
+		_hub.stop()
+		_hub.stream = _hub_alt
+
+func _volume_hub(x: float) -> void:
+	_hub.volume_db = VOLUME_HUB_DB + (linear_to_db(x) if x > 0.0001 else -80.0)
 
 # ------------------------------------------------------- pausa, fim e ajustes
 ## Sai com fade e para tudo (vitória, derrota, saída da partida).

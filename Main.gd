@@ -279,6 +279,7 @@ func _on_botao_jogar_pressed() -> void:
 	_atualizar_hud()
 	jogo_iniciado = true
 	menu_iniciar.visible = false
+	Musica.hub_parar(1.0) # a música do hub desce; a da partida entra suave na página 1
 	player.attack_timer.start()
 	run_de_teste = SaveManager.teste_chefe > 0
 	if SaveManager.teste_chefe > 0:
@@ -535,6 +536,7 @@ func _retomar_run_do_snapshot() -> void:
 	_atualizar_hud()
 	jogo_iniciado = true
 	menu_iniciar.visible = false
+	Musica.hub_parar(0.5) # partida retomada: não passa pela tela antes da partida
 	player.attack_timer.start()
 
 	var pagina: int = clamp(int(snap.get("pagina", 1)), 1, GameData.PAGINAS.size())

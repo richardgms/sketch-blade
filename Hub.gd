@@ -94,6 +94,7 @@ func _adicionar_sublinhado(parent: Control, y_top: float, meio_largura: float) -
 func _ready() -> void:
 	$HUD.visibility_changed.connect(func(): $DesenhoHub.visible = $HUD.visible)
 	dados_save = SaveManager.dados
+	Musica.hub_tocar() # segue tocando na tela antes da partida
 	tinta_visual = dados_save["tinta"]
 	clipes_visual = dados_save["clipes_ouro"]
 
@@ -1802,6 +1803,8 @@ func _abrir_painel_config() -> void:
 	janela.alterar.connect(func(chave: String, ligado: bool):
 		dados_save[chave] = ligado
 		_salvar_dados()
+		if chave == "som_ativo":
+			Musica.hub_atualizar_som()
 		_tocar_som(audio_click_sucesso))
 	janela.abrir_stats.connect(_abrir_painel_stats)
 	janela.fechar.connect(janela.queue_free)
