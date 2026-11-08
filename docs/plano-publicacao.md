@@ -65,6 +65,7 @@ Resultado (24/10/2026): conta **pessoal**, sem avisos de verificação/pagamento
 Atualização: "Configurar seu app" está em **10 de 11** (política, login, anúncios, classificação, público-alvo, segurança dos dados, governamentais, financeiros, saúde, categoria/contato: feitos). Falta só a página "Detalhes do app" (textos em `docs/ficha-da-loja.md` + 2–8 prints do celular).
 
 Regra do teste fechado (lida no painel): mínimo de **12 testadores** por **14 dias**; só libera depois de terminar a configuração do app. É o gargalo do prazo.
+- **08/11/2026:** Painel → "Solicitar o acesso de produção" mostra **10 testadores participando**; faltam 2. Os 14 dias só contam depois de 12. Só conta quem aceitou o convite pelo link (não basta estar na lista de e-mails nem instalar).
 
 A conferir depois: se o que foi declarado em Anúncios e Segurança dos dados (feitos em jul/2026) bate com o AdMob real (ID de publicidade etc.).
 
