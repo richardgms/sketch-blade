@@ -66,6 +66,7 @@ Atualização: "Configurar seu app" está em **10 de 11** (política, login, an�
 
 Regra do teste fechado (lida no painel): mínimo de **12 testadores** por **14 dias**; só libera depois de terminar a configuração do app. É o gargalo do prazo.
 - **08/11/2026:** Painel → "Solicitar o acesso de produção" mostra **10 testadores participando**; faltam 2. Os 14 dias só contam depois de 12. Só conta quem aceitou o convite pelo link (não basta estar na lista de e-mails nem instalar).
+- **09/11/2026:** **12 testadores** aceitos (os dois primeiros itens do Painel marcados). Falta o último: manter o teste fechado com 12 por **14 dias** → previsão de liberar "Solicitar a produção" a partir de **23/11/2026**. Manter os 12 ativos até lá (se alguém sair, o prazo pode recomeçar).
 
 A conferir depois: se o que foi declarado em Anúncios e Segurança dos dados (feitos em jul/2026) bate com o AdMob real (ID de publicidade etc.).
 
