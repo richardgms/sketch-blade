@@ -301,7 +301,7 @@ Começo mais fácil (feedback de teste: "caneta demora, monstros descem rápido"
 - Antes do build: import sem erros; robô nos 10 chefes (esquiva, chegada+roleta).
 - `version/code` e `GameData.VERSAO_CODIGO` em 23; nome 1.8.8. MODO_TESTE e
   anúncios de teste mantidos (teste fechado).
-- AAB: `Documentos\Sketch Bladeuilds\sketchblade-1.8.8-vc23.aab`
+- AAB: `Documentos\Sketch Blade\builds\sketchblade-1.8.8-vc23.aab`
   (69.791.020 bytes). ZIP íntegro; 1.8.8 no manifesto; `jar verified`, mesmo
   certificado da 1.8.7; sem store, referências, JPG/PSD ou `__pycache__`.
   Maiores arquivos: motor ARM64, três DEX, ícone e splash.
