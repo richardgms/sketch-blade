@@ -10,7 +10,7 @@ extends Node
 const UPGRADES: Array = [
 	{
 		"id": "tiro_duplo",
-		"nome": "CANETA DE\nDUAS PORTAS",
+		"nome": "CANETA DE\nDUAS PONTAS",
 		"descricao": "Dispara 2 projéteis\nparalelos",
 		"nivel_max": 3,
 		"valores": [0.85, 0.95, 1.0], # multiplicador de dano por bala
