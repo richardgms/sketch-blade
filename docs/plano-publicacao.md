@@ -293,6 +293,26 @@ Notas sugeridas para a Play:
 ```
 
 
+## Build 1.8.9 (24) — 12/11/2026
+Caneta de duas pontas (sugestão de testador; ver `docs/proximas-melhorias.md`):
+- Com o Tiro Duplo, a caneta equipada troca para a versão de duas pontas
+  (`assets/canetas_duplas/`); cada tiro nasce numa ponta e abre até a faixa de
+  sempre. Dano igual. Nome do upgrade corrigido para "CANETA DE DUAS PONTAS".
+- Antes do build: import sem erros; vídeo das 5 canetas (`tools/gravar_caneta_dupla.gd`);
+  robô nos chefes 1, 3 e 5 (segue, chegada+roleta): 6 de 6, sem erro de script.
+- `version/code` e `GameData.VERSAO_CODIGO` em 24; nome 1.8.9. MODO_TESTE e
+  anúncios de teste mantidos (teste fechado).
+- AAB: `Documentos\Sketch Bladeuilds\sketchblade-1.8.9-vc24.aab`
+  (70.653.953 bytes, +0,9 MB das canetas). ZIP íntegro; 1.8.9 no manifesto;
+  `jar verified`; sem store, referências, JPG/PSD, vídeo ou `__pycache__`.
+  Maiores arquivos: motor ARM64, três DEX, ícone e splash.
+- SHA256: `ff686b83e9da2ad96d8829f9e3c05f3dd67743bff0a58752eae084020d1d4850`.
+- `enviar_play.py --validar` na faixa alpha: bundle aceito (código 24), nada publicado.
+- Falta: ok do Richard para o envio de verdade ao teste fechado.
+
+Notas para a Play: "Caneta de duas pontas: com o Tiro Duplo, sua caneta ganha
+duas pontas e cada tiro sai de uma delas. Vale para todas as canetas."
+
 ## Build 1.8.8 (23) — 12/11/2026
 Começo mais fácil (feedback de teste: "caneta demora, monstros descem rápido"):
 - Tiro guardado: o tiro que vencia com a caneta em movimento sai assim que ela para.
