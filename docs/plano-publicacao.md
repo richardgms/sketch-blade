@@ -293,6 +293,30 @@ Notas sugeridas para a Play:
 ```
 
 
+## Build 1.8.8 (23) — 12/11/2026
+Começo mais fácil (feedback de teste: "caneta demora, monstros descem rápido"):
+- Tiro guardado: o tiro que vencia com a caneta em movimento sai assim que ela para.
+- Capítulos 1 e 2 com monstros 20% e 10% mais lentos; no 1, monstro comum
+  morre em 2 tiros da caneta inicial. Efeito nos chefes em `docs/equilibrio-chefes.md`.
+- Antes do build: import sem erros; robô nos 10 chefes (esquiva, chegada+roleta).
+- `version/code` e `GameData.VERSAO_CODIGO` em 23; nome 1.8.8. MODO_TESTE e
+  anúncios de teste mantidos (teste fechado).
+- AAB: `Documentos\Sketch Bladeuilds\sketchblade-1.8.8-vc23.aab`
+  (69.791.020 bytes). ZIP íntegro; 1.8.8 no manifesto; `jar verified`, mesmo
+  certificado da 1.8.7; sem store, referências, JPG/PSD ou `__pycache__`.
+  Maiores arquivos: motor ARM64, três DEX, ícone e splash.
+- SHA256: `dd5aa950c4fb0abeb6a6e67afa328ab1b40234d4b11445fdf55b4cb51eb09e9d`.
+- Falta: envio à Play pelo Richard e teste do capítulo 1 no celular.
+
+Notas sugeridas para a Play:
+
+```text
+<pt-BR>
+• Começo mais tranquilo: monstros mais lentos nos capítulos 1 e 2.
+• A caneta atira assim que você para de se mexer.
+</pt-BR>
+```
+
 ## Build 1.8.7 (22) — 07/11/2026
 Ajustes depois da 1.8.6:
 - Música do hub (Suno, versão calma aprovada), também na tela antes da partida;
