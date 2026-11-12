@@ -154,6 +154,11 @@ const PAGINAS: Array = [
 	{"tipo": "boss"},                                                                      # Pág 8: boss
 ]
 
+# Alívio do começo: multiplicador de velocidade dos monstros por capítulo
+# e teto de vida no capítulo 1 (20 = 2 tiros da caneta inicial).
+const ALIVIO_VELOCIDADE: Dictionary = {1: 0.8, 2: 0.9}
+const ALIVIO_HP_MAX_CAP1: int = 20
+
 # Após concluir estas páginas o jogador escolhe um upgrade na roleta
 const PAGINAS_COM_UPGRADE: Array = [2, 4, 6]
 

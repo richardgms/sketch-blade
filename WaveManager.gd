@@ -121,7 +121,13 @@ func _spawnar_inimigo(eh_elite: bool) -> void:
 	var mult_hp = pow(1.28, capitulo_atual - 1) * intensidade_atual
 	var mult_vel = (1.0 + (capitulo_atual - 1) * 0.08) * lerp(1.0, intensidade_atual, 0.5)
 
+	# Alívio do começo (feedback de teste): capítulos 1 e 2 mais lentos;
+	# no 1, nenhum monstro comum pede mais que 2 tiros da caneta inicial.
+	mult_vel *= GameData.ALIVIO_VELOCIDADE.get(capitulo_atual, 1.0)
+
 	enemy.hp_max = int(enemy.hp_max * mult_hp)
+	if capitulo_atual == 1 and not eh_elite:
+		enemy.hp_max = mini(enemy.hp_max, GameData.ALIVIO_HP_MAX_CAP1)
 	enemy.velocidade = enemy.velocidade * mult_vel
 
 	# Se capítulos avançados (6 a 10), inimigos tanques causam 3 de dano
