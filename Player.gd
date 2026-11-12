@@ -51,6 +51,7 @@ var upgrades: Dictionary = {}
 
 # Medidor de repouso para o "Move-and-Shoot" inteligente
 var _tempo_alvo_estatico: float = 0.0
+var _tiro_guardado: bool = false
 var _ultima_posicao_alvo: Vector2 = Vector2.ZERO
 
 # Controle do Escudo de Borracha
@@ -262,6 +263,14 @@ func _process(delta: float) -> void:
 		_tempo_alvo_estatico = 0.0
 	_ultima_posicao_alvo = posicao_alvo
 
+	# Tiro guardado: o intervalo venceu enquanto a caneta se mexia
+	if _tiro_guardado:
+		if attack_timer.is_stopped():
+			_tiro_guardado = false # pausa, roleta, fim de partida
+		elif _pode_atirar():
+			_atirar()
+			attack_timer.start() # próximo tiro um intervalo inteiro depois
+
 	# Solicita redesenho a cada frame para a gotinha da ponta pulsar suavemente
 	queue_redraw()
 
@@ -297,12 +306,20 @@ func _on_attack_timer_timeout() -> void:
 	# Só atira se o jogador estiver parado.
 	# Lógica inteligente: permite atirar se a caneta já estiver muito perto do alvo (tolerância ampliada de 28px)
 	# OU se o dedo do jogador estiver imóvel na tela por pelo menos 0.08s (compensando o lag do LERP visual).
+	if not _pode_atirar():
+		# Tiro guardado: sai assim que a caneta parar (em _process), em vez de
+		# ser perdido e obrigar a esperar o intervalo inteiro de novo.
+		_tiro_guardado = true
+		return
+	_atirar()
+
+func _pode_atirar() -> bool:
 	var perto_o_suficiente = position.distance_to(posicao_alvo) < 28.0
 	var dedo_parado = _tempo_alvo_estatico > 0.08
-	
-	if not (perto_o_suficiente or dedo_parado):
-		return
+	return perto_o_suficiente or dedo_parado
 
+func _atirar() -> void:
+	_tiro_guardado = false
 	# Monta a lista de tiros desta rajada de acordo com os upgrades (escalados 1.3x)
 	var tiros: Array = []
 	var nivel_duplo = nivel_upgrade("tiro_duplo")
