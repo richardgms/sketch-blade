@@ -14,6 +14,7 @@ Jogo mobile (Android, retrato) em **Godot 4.7** (GL Compatibility), GDScript. Ro
 - Imagens geradas no ChatGPT: original em `Documentos\Sketch Blade - design\<tela>\gerados\`, versão de uso em `assets/ui/`.
 - Ouvir a mistura real de uma luta antes do build (música, tiros, dano, vida crítica, vitória): `tools/gravar_ambiente.gd` com `--write-movie <saida.avi> --fixed-fps 60 --resolution 540x960` (instruções no topo do script; backup do save). Página de escuta: https://claude.ai/artifact/H8hfV3XBanRAJt7Nr1Mo9k. Para vídeo de divulgação em 1080x1920, `--resolution` é ignorado (o projeto força a janela em 540x960): crie um `override.cfg` temporário na raiz com `[display]` `window/size/window_width_override=1080` e `window_height_override=1920`, grave e apague. Gravações e vídeos de divulgação ficam em `Documentos\Sketch Blade - divulgacao`.
 - Ouvir a música do hub no jogo (hub → antes da partida → COMEÇAR): `tools/gravar_hub.gd`, mesmo uso do `gravar_ambiente` (aceita um .ogg alternativo). Página de escuta: https://claude.ai/artifact/KDHR8YQvfu54BmRo2CfXeG
+- Enviar AAB ao teste fechado sem abrir o Play Console: `python tools/enviar_play.py` (ver `docs/plano-atualizacao-play.md`, seção "Envio pela API").
 - Testar chefe no jogo: Configurações → Stats de teste → "Testar chefe" / "Zerar Estojo" (só com `GameData.MODO_TESTE`). Teste por script: ver `docs/chefes.md`.
 
 ## Regras que importam

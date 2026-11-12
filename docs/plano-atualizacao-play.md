@@ -48,3 +48,10 @@ superior (código >19) à mesma conta. Abrir o jogo antigo: a notinha deve surgi
 JSON não tenha sido atualizado. Quem já está na versão mais nova não deve vê-la.
 Instalação lateral/PC não comprova disponibilidade real do Google Play.
 Versões anteriores à 1.8.3 ainda dependem do JSON antigo para detectar atualização.
+
+## Envio pela API (12/11/2026)
+- `python tools/enviar_play.py <aab> --faixa alpha --notas "..." [--validar]`; `--listar` mostra as faixas.
+- Faixas: `alpha` = teste fechado, `internal` = teste interno. O script recusa `production`.
+- Projeto Google Cloud `sketch-blade-play`, conta de serviço `enviar-play@sketch-blade-play.iam.gserviceaccount.com`, só com "Liberar apps para as faixas de teste" no Play Console.
+- Chave em `Documentos\keys\sketchblade-play-api.json` (fora do git). Usa `google-auth` + `requests`.
+- Cada envio publica para os testadores: pedir ok antes; rodar `--validar` primeiro.
