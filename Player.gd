@@ -13,6 +13,13 @@ var textura_caneta: Texture2D = null:
 		textura_caneta = valor
 		_atualizar_hitbox()
 		_bico_desenho = _calcular_bico(valor)
+## Versão de duas pontas da caneta equipada (assets/canetas_duplas/): entra
+## no lugar da normal enquanto o Tiro Duplo está ativo; cada tiro sai de uma ponta.
+var textura_caneta_dupla: Texture2D = null:
+	set(valor):
+		textura_caneta_dupla = valor
+		_pontas_duplas = _calcular_pontas(valor)
+var _pontas_duplas: Array = []   # [esquerda, direita] no espaço da caneta
 
 var vidas: int = 5
 var posicao_alvo: Vector2
@@ -99,6 +106,54 @@ static func _calcular_bico(tex: Texture2D) -> Vector2:
 	if chave != "":
 		_cache_bico[chave] = bico
 	return bico
+
+## As duas pontas da caneta de duas pontas, giradas e escaladas como em _draw:
+## o ponto mais alto e o mais alto que esteja a mais de 7 px dele na horizontal.
+static var _cache_pontas: Dictionary = {}
+static func _calcular_pontas(tex: Texture2D) -> Array:
+	if tex == null:
+		return []
+	var chave: String = tex.resource_path
+	if chave != "" and _cache_pontas.has(chave):
+		return _cache_pontas[chave]
+	var img := tex.get_image()
+	if img == null:
+		return []
+	if img.is_compressed():
+		img.decompress()
+	var w := img.get_width()
+	var h := img.get_height()
+	var esc := 200.0 / float(max(w, h))
+	var ang := deg_to_rad(150.0)
+	var c := cos(ang)
+	var sn := sin(ang)
+	var pts: Array = []
+	var passo: int = max(1, int(max(w, h) / 400))
+	for y in range(0, h, passo):
+		for x in range(0, w, passo):
+			if img.get_pixel(x, y).a < 0.5:
+				continue
+			var px := (x - w * 0.5) * esc
+			var py := (y - h * 0.5) * esc
+			pts.append(Vector2(px * c - py * sn, px * sn + py * c) + Vector2(0, -10))
+	if pts.is_empty():
+		return []
+	pts.sort_custom(func(a, b): return a.y < b.y)
+	var p1: Vector2 = pts[0]
+	var p2 = null
+	for p in pts:
+		if absf(p.x - p1.x) > 7.0:
+			p2 = p
+			break
+	var res: Array = []
+	if p2 != null:
+		res = [p1, p2] if p1.x < p2.x else [p2, p1]
+	if chave != "":
+		_cache_pontas[chave] = res
+	return res
+
+func _usa_caneta_dupla() -> bool:
+	return nivel_upgrade("tiro_duplo") > 0 and textura_caneta_dupla != null and _pontas_duplas.size() == 2
 
 func obter_y_ponta() -> float:
 	return -100.0 if textura_caneta else -60.0
@@ -210,14 +265,16 @@ func _draw() -> void:
 	if nivel_upgrade("escudo_borracha") > 0:
 		_desenhar_escudo(false)
 	# Desenha a caneta in-game usando o SVG real quando disponível
-	if textura_caneta:
-		var tex_w := float(textura_caneta.get_width())
-		var tex_h := float(textura_caneta.get_height())
+	var dupla := _usa_caneta_dupla()
+	var tex: Texture2D = textura_caneta_dupla if dupla else textura_caneta
+	if tex:
+		var tex_w := float(tex.get_width())
+		var tex_h := float(tex.get_height())
 		# Escala para ~200px de altura, mantendo proporção
 		var escala_alvo := 200.0 / float(max(tex_w, tex_h))
 		# Rotaciona 150° para a ponta da caneta apontar pra cima (12h)
 		draw_set_transform(Vector2(0, -10), deg_to_rad(150.0), Vector2(escala_alvo, escala_alvo))
-		draw_texture(textura_caneta, Vector2(-tex_w * 0.5, -tex_h * 0.5))
+		draw_texture(tex, Vector2(-tex_w * 0.5, -tex_h * 0.5))
 		draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
 	else:
 		# Fallback: desenho procedural 1.3x
@@ -230,10 +287,12 @@ func _draw() -> void:
 	var dedo_parado = _tempo_alvo_estatico > 0.08
 	if (perto_o_suficiente or dedo_parado) and not Engine.is_editor_hint():
 		# Logo acima do bico, por fora (antes ficava em cima da ponta)
-		var gota := _bico_desenho + Vector2(0, -10.0)
 		var pulso = 1.0 + 0.15 * sin(Time.get_ticks_msec() * 0.015)
-		draw_circle(gota, 5.8 * pulso, cor_projetil)
-		draw_circle(gota + Vector2(-1, -1.0), 2.0 * pulso, Color(1.0, 1.0, 1.0, 0.6))
+		var bicos: Array = _pontas_duplas if dupla else [_bico_desenho]
+		for b in bicos:
+			var gota: Vector2 = b + Vector2(0, -10.0)
+			draw_circle(gota, 5.8 * pulso, cor_projetil)
+			draw_circle(gota + Vector2(-1, -1.0), 2.0 * pulso, Color(1.0, 1.0, 1.0, 0.6))
 
 	if nivel_upgrade("escudo_borracha") > 0:
 		_desenhar_escudo()
@@ -326,8 +385,15 @@ func _atirar() -> void:
 	var y_ponta = obter_y_ponta()
 	if nivel_duplo > 0:
 		var mult_duplo: float = GameData.valor_upgrade("tiro_duplo", nivel_duplo)
-		tiros.append({"offset": Vector2(-20, y_ponta), "direcao": Vector2.UP, "mult": mult_duplo})
-		tiros.append({"offset": Vector2(20, y_ponta), "direcao": Vector2.UP, "mult": mult_duplo})
+		if _usa_caneta_dupla():
+			# Cada tiro nasce numa ponta e abre até a faixa de sempre (±20)
+			for i in 2:
+				var ponta: Vector2 = _pontas_duplas[i]
+				var faixa: float = -20.0 if i == 0 else 20.0
+				tiros.append({"offset": ponta, "direcao": Vector2.UP, "mult": mult_duplo, "abrir": faixa - ponta.x})
+		else:
+			tiros.append({"offset": Vector2(-20, y_ponta), "direcao": Vector2.UP, "mult": mult_duplo})
+			tiros.append({"offset": Vector2(20, y_ponta), "direcao": Vector2.UP, "mult": mult_duplo})
 	else:
 		tiros.append({"offset": Vector2(0, y_ponta), "direcao": Vector2.UP, "mult": 1.0})
 
@@ -340,9 +406,9 @@ func _atirar() -> void:
 		tiros.append({"offset": Vector2(16, y_ponta + 7.0), "direcao": Vector2.UP.rotated(angulo), "mult": mult_diag})
 
 	for tiro in tiros:
-		_disparar_projetil(tiro["offset"], tiro["direcao"], tiro["mult"])
+		_disparar_projetil(tiro["offset"], tiro["direcao"], tiro["mult"], tiro.get("abrir", 0.0))
 
-func _disparar_projetil(offset: Vector2, direcao: Vector2, mult_dano: float) -> void:
+func _disparar_projetil(offset: Vector2, direcao: Vector2, mult_dano: float, abrir: float = 0.0) -> void:
 	var main = get_parent()
 	var proj = null
 	if main and main.has_method("obter_projetil_player"):
@@ -365,6 +431,8 @@ func _disparar_projetil(offset: Vector2, direcao: Vector2, mult_dano: float) -> 
 	proj.cor_tinta = cor_projetil
 	proj.ultimo_alvo = null
 	proj.rotation = direcao.angle() + PI / 2.0
+	proj.abrir = abrir
+	proj.percorrido = 0.0
 
 	if not proj.is_inside_tree():
 		main.add_child(proj)

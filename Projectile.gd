@@ -17,6 +17,17 @@ var ultimo_alvo: Area2D = null
 # Y de auto-destruição abaixo do rodapé real (ricochete pode mandar pra baixo)
 var y_kill: float = 2000.0
 
+## Tiro Duplo com caneta de duas pontas: nasce na ponta e "abre" `abrir` px de
+## lado nos primeiros DIST_ABRE px de voo, depois segue reto (faixa de ±20 do
+## Tiro Duplo antigo). Zerado a cada disparo (o tiro vem do pool).
+const DIST_ABRE: float = 120.0
+var abrir: float = 0.0
+var percorrido: float = 0.0
+
+static func _suave(k: float) -> float:
+	k = clampf(k, 0.0, 1.0)
+	return k * k * (3.0 - 2.0 * k)
+
 func _ready() -> void:
 	area_entered.connect(_on_area_entered)
 	rotation = direcao.angle() + PI / 2.0 # Traço aponta na direção do voo
@@ -24,6 +35,17 @@ func _ready() -> void:
 
 func _process(delta: float) -> void:
 	position += direcao * velocidade * delta
+	# Abertura do Tiro Duplo (só enquanto sobe reto; ricochete cancela)
+	if abrir != 0.0 and percorrido < DIST_ABRE and direcao == Vector2.UP:
+		var antes := percorrido
+		percorrido += velocidade * delta
+		position.x += abrir * (_suave(percorrido / DIST_ABRE) - _suave(antes / DIST_ABRE))
+		if percorrido < DIST_ABRE:
+			var k := percorrido / DIST_ABRE
+			var deriva := abrir * 6.0 * k * (1.0 - k) / DIST_ABRE
+			rotation = Vector2(deriva, -1.0).angle() + PI / 2.0
+		else:
+			rotation = direcao.angle() + PI / 2.0
 
 	# Auto-destrói ao sair da tela (qualquer borda, pois ricochete muda a direção)
 	if position.y < -50 or position.y > y_kill or position.x < -50 or position.x > 1130:

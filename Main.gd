@@ -217,6 +217,9 @@ func _aplicar_upgrades_rpg() -> void:
 		player.textura_caneta = load(ICONES_CANETA[caneta_id])
 	else:
 		player.textura_caneta = null
+	# Versão de duas pontas (Tiro Duplo); sem arquivo, o tiro duplo antigo continua
+	var caminho_dupla := "res://assets/canetas_duplas/%s.png" % caneta_id
+	player.textura_caneta_dupla = load(caminho_dupla) if ResourceLoader.exists(caminho_dupla) else null
 
 	player.queue_redraw()
 
