@@ -302,7 +302,7 @@ Caneta de duas pontas (sugestão de testador; ver `docs/proximas-melhorias.md`):
   robô nos chefes 1, 3 e 5 (segue, chegada+roleta): 6 de 6, sem erro de script.
 - `version/code` e `GameData.VERSAO_CODIGO` em 24; nome 1.8.9. MODO_TESTE e
   anúncios de teste mantidos (teste fechado).
-- AAB: `Documentos\Sketch Bladeuilds\sketchblade-1.8.9-vc24.aab`
+- AAB: `Documentos\Sketch Blade\builds\sketchblade-1.8.9-vc24.aab`
   (70.653.953 bytes, +0,9 MB das canetas). ZIP íntegro; 1.8.9 no manifesto;
   `jar verified`; sem store, referências, JPG/PSD, vídeo ou `__pycache__`.
   Maiores arquivos: motor ARM64, três DEX, ícone e splash.
