@@ -306,7 +306,7 @@ Começo mais fácil (feedback de teste: "caneta demora, monstros descem rápido"
   certificado da 1.8.7; sem store, referências, JPG/PSD ou `__pycache__`.
   Maiores arquivos: motor ARM64, três DEX, ícone e splash.
 - SHA256: `dd5aa950c4fb0abeb6a6e67afa328ab1b40234d4b11445fdf55b4cb51eb09e9d`.
-- Falta: envio à Play pelo Richard e teste do capítulo 1 no celular.
+- Publicada no teste fechado (faixa alpha) em 12/11 pela API (`tools/enviar_play.py`). Falta: testar o capítulo 1 no celular.
 
 Notas sugeridas para a Play:
 
