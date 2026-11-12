@@ -81,3 +81,9 @@ Leitura: capítulos 1–5 ≈ metade dos corações; 6–10 de 68% a 80%, com o 
 - **Choque:** reordenar os chefes (barato, mas o Estojo reaproveita ataques e a história dos capítulos muda) × corrigir os pontos fora da curva no lugar. E criar modos de fim de jogo agora (Ascensão, rush de chefes) × só depois de haver dados humanos.
 - **Pontos cegos da revisão:** o robô joga sem roleta e só com o Estojo esperado (falta medir com roleta e Estojo ±2); poucas lutas por chefe; falta dado humano (o painel "Stats de teste" pode contar vitórias e derrotas por capítulo, e os testadores mandam print); clareza (Tsuru fechado, sombra do Fantasma e "com raiva" precisam ser óbvios no celular).
 - **Recomendação:** meta de duração (vida por chefe) + pressão crescente com os botões que já existem + corrigir só Mancha, Compasso, Tsuru e Estojo + clareza; mecânica de fim de jogo (Ascensão) fica para a 1ª atualização depois da produção.
+
+## Alívio do começo (12/11/2026)
+Feedback de teste: "a caneta demora a atirar e os monstros descem rápido demais" no 1º capítulo.
+- **Tiro guardado** (`Player.gd`): se o intervalo vence com a caneta em movimento, o tiro sai assim que ela para (antes era perdido e esperava mais um intervalo inteiro).
+- **Capítulos 1 e 2** (`GameData.ALIVIO_VELOCIDADE`): monstros 20% e 10% mais lentos; no capítulo 1, monstro comum com no máximo 20 de vida (2 tiros da caneta inicial; elite fora do teto).
+- Efeito do tiro guardado nos chefes (robô esquiva, chegada+roleta, antes → depois): Borrão 33→30 s, Avião 36→26 s, Mancha 42→25 s, Grade 28→25 s, Compasso 45→42 s, Pirata 34→30 s, Tsuru 51→44 s, Fantasma 44→38 s, Pena 47→42 s, Estojo 67→54 s (cap. 1–2 com 10 sementes; 3–10 com 4, margem maior que ±15%). O robô se mexe o tempo todo, então ganha mais que uma pessoa.
