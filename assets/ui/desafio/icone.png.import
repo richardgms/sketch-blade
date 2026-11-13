@@ -3,15 +3,15 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://dr8xwpj7pfmtt"
-path="res://.godot/imported/desafio_icone.png-1291686810a000c2f27fbb309de5b90e.ctex"
+path="res://.godot/imported/icone.png-dc2b93dd6d8127198f534f3ef5e3beab.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/ui/desafio_icone.png"
-dest_files=["res://.godot/imported/desafio_icone.png-1291686810a000c2f27fbb309de5b90e.ctex"]
+source_file="res://assets/ui/desafio/icone.png"
+dest_files=["res://.godot/imported/icone.png-dc2b93dd6d8127198f534f3ef5e3beab.ctex"]
 
 [params]
 

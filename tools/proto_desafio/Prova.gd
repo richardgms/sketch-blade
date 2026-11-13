@@ -1,0 +1,79 @@
+extends "res://JanelaAtualizacao.gd"
+## Desafio do dia v3: folha de prova escolar montada com peças separadas
+## (assets/ui/desafio/). As pautas são desenhadas aqui, com cada linha de
+## texto encaixada entre duas pautas. d["estilo"]: "prancheta" ou "fita".
+const P := "res://assets/ui/desafio/"
+const PAUTA := 66.0      # distância entre pautas
+const Y_PAUTAS := 210.0  # primeira pauta (coordenada da folha)
+const VERMELHO_PROF := Color("d32f2f")
+
+var _folha: Control
+
+func _img(pai: Control, nome: String, r: Rect2, giro := 0.0) -> TextureRect:
+	var t := TextureRect.new()
+	t.texture = load(P + nome)
+	t.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	t.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	t.position = r.position; t.size = r.size
+	t.pivot_offset = r.size / 2.0; t.rotation_degrees = giro
+	t.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	pai.add_child(t)
+	return t
+
+## Texto na linha n (entre a pauta n e a n+1).
+func _na_linha(n: int, t: String, tam: int, cor: Color, x0 := 90.0, x1 := 770.0,
+		alinh := HORIZONTAL_ALIGNMENT_LEFT, fonte: Font = FONTE) -> void:
+	var y := Y_PAUTAS + n * PAUTA
+	_txt(_folha, t, tam, cor, y + 4, y + PAUTA - 2, fonte, x0, x1, alinh)
+
+func _folha_nova(d: Dictionary) -> void:
+	var r: Rect2
+	if d["estilo"] == "prancheta":
+		_img(_bloco, "prancheta.png", Rect2(50, 96, 980, 1728))
+		r = Rect2(120, 350, 840, 1346)
+	else:
+		r = Rect2(90, 239, 900, 1442)
+	_folha = Control.new()
+	_folha.position = r.position; _folha.size = r.size
+	_bloco.add_child(_folha)
+	_img(_folha, "papel.png", Rect2(Vector2.ZERO, r.size))
+	var larg := r.size.x
+	var n_pautas := 13
+	var pautas := Control.new()
+	pautas.draw.connect(func():
+		for i in n_pautas + 1:
+			var y := Y_PAUTAS + i * PAUTA
+			pautas.draw_line(Vector2(66, y), Vector2(larg - 24, y), Color("8fb0e8", 0.75), 2.0))
+	_folha.add_child(pautas)
+	if d["estilo"] == "fita":
+		_img(_bloco, "fita.png", Rect2(r.position.x - 40, r.position.y - 40, 230, 114), -28)
+		_img(_bloco, "fita.png", Rect2(r.end.x - 190, r.position.y - 40, 230, 114), 28)
+	# Cabeçalho (acima das pautas)
+	_txt(_folha, "PROVA SURPRESA", 52, AZUL_ESCURO, 70, 160, FONTE, 100, larg - 215, HORIZONTAL_ALIGNMENT_LEFT)
+	_img(_folha, "carimbo_hoje.png", Rect2(larg - 215, 46, 185, 99), 8)
+	# Linhas
+	_na_linha(0, "Nome: " + d["nome"], 40, AZUL_ESCURO)
+	_na_linha(1, "Data: " + d["data"], 40, AZUL_ESCURO)
+	_na_linha(0, "Nota:", 40, AZUL_ESCURO, larg - 270, larg - 160, HORIZONTAL_ALIGNMENT_RIGHT)
+	_img(_folha, "nota_interrogacao.png", Rect2(larg - 160, Y_PAUTAS - 20, 130, 130), -6)
+	_na_linha(3, "Questão do dia:", 40, AZUL)
+	_na_linha(4, d["regra"], 58, AZUL_ESCURO)
+	_na_linha(5, d["desc"][0], 40, AZUL_ESCURO)
+	_na_linha(6, d["desc"][1], 40, AZUL_ESCURO)
+	_na_linha(7, "3 páginas + o chefe do seu capítulo.", 34, Color(AZUL, 0.85))
+	_na_linha(9, "Visto do professor:", 40, AZUL)
+	var marca := "carimbo_visto.png" if d["estilo"] == "prancheta" else "check_vermelho.png"
+	for i in 3:
+		var cx := 120.0 + i * 170.0
+		var cy := Y_PAUTAS + 10 * PAUTA - 4
+		_img(_folha, "slot_carimbo.png", Rect2(cx, cy, 136, 136))
+		if i < d["carimbos"]:
+			_img(_folha, marca, Rect2(cx - 4, cy - 4, 144, 144), [-10, 6, -4][i])
+	_txt(_folha, "3 vistos =", 34, Color("2e7d32"), Y_PAUTAS + 10 * PAUTA + 4, Y_PAUTAS + 11 * PAUTA - 2, FONTE, 620, larg - 30, HORIZONTAL_ALIGNMENT_LEFT)
+	_txt(_folha, "+5 clipes", 34, Color("2e7d32"), Y_PAUTAS + 11 * PAUTA + 4, Y_PAUTAS + 12 * PAUTA - 2, FONTE, 620, larg - 30, HORIZONTAL_ALIGNMENT_LEFT)
+	_na_linha(12, "Prêmio: " + d["premio"], 40, Color("2e7d32"))
+	var yb := Y_PAUTAS + (n_pautas + 0.4) * PAUTA
+	var bx := (larg - 620) / 2.0
+	_botao_atualizar(Rect2(r.position.x + bx, r.position.y + yb, 620, 130))
+	_btns[0].text = "FAZER A PROVA"
+	_btn_fechar = _botao_fechar("Agora não", Rect2(r.position.x + bx + 70, r.position.y + yb + 142, 480, 92))
