@@ -6,7 +6,7 @@ Atualizado em 2026-11-04. Fonte única do plano; marque cada item ao concluir.
 - Pedido do Richard: novo build para testar a trilha sem o metrônomo na partida e nos chefes.
 - [x] Atualizar versão 1.8.1 e sincronizar os códigos do preset e de `GameData` em 16.
 - [x] Importar e testar música, sons e hub: 7 verificações de sons, 17 de música sem metrônomo e abertura/navegação do hub passaram, código de saída 0. Save restaurado e bytes/hash conferidos. Logs em `%TEMP%/sketchblade-181-kwy0qbb6/`.
-- [x] Exportar AAB de release assinado em `Documentos/Sketch Blade - builds/sketchblade-1.8.1-vc16.aab`: **68.029.850 bytes (68,0 MB)**. O processo deste export foi encerrado após o pacote assinado ficar íntegro e estável por 15 s, como no build anterior.
+- [x] Exportar AAB de release assinado em `Documentos/Sketch Blade/builds/sketchblade-1.8.1-vc16.aab`: **68.029.850 bytes (68,0 MB)**. O processo deste export foi encerrado após o pacote assinado ficar íntegro e estável por 15 s, como no build anterior.
 - [x] Conferir assinatura, manifesto, 11 camadas de música, ausência do metrônomo e maiores arquivos: ZIP íntegro; assinatura validada por `jarsigner`, mesmo certificado de upload dos builds anteriores; manifesto com versão **1.8.1 (16)**. Os **40 sons + 11 camadas** correspondem aos importados locais. Nenhum arquivo do metrônomo, foto, rascunho ou credencial no pacote.
 - [x] Disponível no teste fechado: Richard confirmou que o link da Play exibe ATUALIZAR.
 - [ ] Concluir o teste de áudio no celular.
@@ -23,7 +23,7 @@ Atualizado em 2026-11-04. Fonte única do plano; marque cada item ao concluir.
 - [x] Atualizar `version/code` e `GameData.VERSAO_CODIGO` para 15, versão 1.8.0.
 - [x] Ligar a marimba aprovada no 3-2-1-JÁ e manter o tratamento reproduzível em `tools/sons_lote2.py`.
 - [x] Importar e validar música, sons e hub no PC, preservando o save: 7 verificações de sons, 17 de música e hub passaram; save restaurado e conferido. Logs em `%TEMP%/sketchblade-180-frtbq_pj/`.
-- [x] Exportar AAB de release assinado para `Documentos/Sketch Blade - builds/sketchblade-1.8.0-vc15.aab`: **68.196.260 bytes (68,2 MB)**. O Godot permaneceu aberto depois de gravar o pacote; só o processo deste export foi encerrado após o ZIP assinado ficar íntegro e estável por 15 s.
+- [x] Exportar AAB de release assinado para `Documentos/Sketch Blade/builds/sketchblade-1.8.0-vc15.aab`: **68.196.260 bytes (68,2 MB)**. O Godot permaneceu aberto depois de gravar o pacote; só o processo deste export foi encerrado após o ZIP assinado ficar íntegro e estável por 15 s.
 - [x] Conferir integridade, assinatura, versão, áudios novos e maiores arquivos do AAB: ZIP íntegro; `jarsigner -verify` confirmou a assinatura; certificado de upload igual ao AAB 1.7.4. Manifesto protobuf conferido com as classes do `aapt2-proto` já instalado: pacote `com.richardgms.sketchblade`, versão 1.8.0, código 15. **40 sons + 13 camadas de música** coincidem byte a byte com os recursos importados locais. Sem JPG/JPEG/PSD, `store/`, rascunhos, credenciais, saves ou morte 7/8.
 - [x] Disponível na faixa fechada: Richard relatou que atualizou pela Play pelo link salvo.
 - [ ] Concluir o teste no celular: música por 10 min, pausa/retomada, segundo plano, chefe/raiva, sons e contagem. A escuta motivou a retirada do metrônomo, já incluída no AAB 1.8.1 (16).
@@ -94,17 +94,17 @@ Oito fotos de outro cliente (antes/depois de cirurgia, rosto) estavam soltas na 
 - Corrigido no código (não publicado ainda): checkpoint da run no início de cada página (`Main._on_pagina_iniciada`); antes só salvava ao ir para segundo plano. Testado: restaura página, tinta e upgrades. Vai na versão 4 junto com a correção do fechamento.
 
 ## Versão 1.1.0 (código 4) — 27/10/2026
-AAB: `Documentos\Sketch Blade - builds\sketchblade-1.1.0-vc4.aab` (43,8 MB; antes 68,3). Inclui checkpoint por página, roleta redesenhada, missões no layout limpo, janela de compra corrigida, telas de resultado enxutas, HUD maior, imagens no tamanho de tela (~52 MB de memória de vídeo, antes ~209). Conferido: sem fotos de cliente, com BILLING, assinado. Detalhes em `docs/revisao-visual.md`. Antes da produção: `GameData.MODO_TESTE = false`.
+AAB: `Documentos\Sketch Blade\builds\sketchblade-1.1.0-vc4.aab` (43,8 MB; antes 68,3). Inclui checkpoint por página, roleta redesenhada, missões no layout limpo, janela de compra corrigida, telas de resultado enxutas, HUD maior, imagens no tamanho de tela (~52 MB de memória de vídeo, antes ~209). Conferido: sem fotos de cliente, com BILLING, assinado. Detalhes em `docs/revisao-visual.md`. Antes da produção: `GameData.MODO_TESTE = false`.
 
 ## Versão 1.2.0 (código 5) — plano (28/10/2026)
 1. [x] **[+] de compra sem resposta**: as telas do Hub (`TelaLutar/Estojo/Loja` e o container da loja) cobriam o topo com `mouse_filter` STOP. Corrigido e testado por script (toque simulado nas 3 abas).
 2. [x] **Aba "Pacotes" na Loja**: título vira abas Canetas | Pacotes; cartões com preço da Play Store; os [+] do topo abrem Pacotes (`Hub._montar_pacotes`).
 3. [x] **Oferta quando faltar saldo**: upgrade do Estojo ou caneta sem saldo abre a confirmação do pacote, 1x por moeda a cada visita ao Hub (`Hub._oferecer_pacote`).
 4. [x] **AdMob real**: plugin poing-studios v5.1.0 em `addons/admob` (só Android; binários em `android/bin/ads`, `package.gd` criado à mão para o plugin não baixar nada no export headless; C#, iOS, docs e skills com `.gdignore`). App ID real em `project.godot` (`admob/general/android/app_id`). `AdsManager` pré-carrega um anúncio por placement e só concede no `on_user_earned_reward`; `USAR_BLOCOS_TESTE = true` usa o bloco de teste do Google — trocar para false só antes da produção. Recompensa diária: botão não trava mais se o anúncio falhar.
-5. [x] Build 1.2.0 (código 5) **gerado**: `Documentos\Sketch Blade - builds\sketchblade-1.2.0-vc5.aab` (54,7 MB; +8,8 MB do SDK de anúncios). Conferido: SDK de anúncios, App ID, AD_ID, BILLING, sem fotos. Falta: enviar ao Teste fechado/interno, testar compra e anúncio no celular, rever Segurança dos dados. **Testado no celular pelo Richard (28/10): compra de teste e anúncio de teste funcionando.**
-6. [ ] **Combate (versão 1.3.0)**. Etapa 1 feita (28/10): tiro em cometa de tinta (`Projectile._draw`), respingo no acerto (`ImpactoTinta.gd`), piscar branco por shader (`flash.gdshader`; o `modulate` antigo não clareava tinta escura), empurrão leve, números 46/64 px, tremor curto no crítico. Etapa 2 feita (28/10, decidida por conselho de LLMs): desenho por IA por tipo (`assets/inimigos/*.png`, 256 px; chefe 512 px; originais em `Documentos\Sketch Blade - arte original\inimigos`), animação por código (respira/balança) e tremido de desenho à mão no `flash.gdshader` (8 passos/s). Elite: auréola dourada atrás do desenho. Medido no PC com 30+ inimigos: 120 fps, 110 draw calls, 35 MB de VRAM de texturas. Falta: medir no celular. Blender/After Effects/HTML ficam para o trailer da loja.
+5. [x] Build 1.2.0 (código 5) **gerado**: `Documentos\Sketch Blade\builds\sketchblade-1.2.0-vc5.aab` (54,7 MB; +8,8 MB do SDK de anúncios). Conferido: SDK de anúncios, App ID, AD_ID, BILLING, sem fotos. Falta: enviar ao Teste fechado/interno, testar compra e anúncio no celular, rever Segurança dos dados. **Testado no celular pelo Richard (28/10): compra de teste e anúncio de teste funcionando.**
+6. [ ] **Combate (versão 1.3.0)**. Etapa 1 feita (28/10): tiro em cometa de tinta (`Projectile._draw`), respingo no acerto (`ImpactoTinta.gd`), piscar branco por shader (`flash.gdshader`; o `modulate` antigo não clareava tinta escura), empurrão leve, números 46/64 px, tremor curto no crítico. Etapa 2 feita (28/10, decidida por conselho de LLMs): desenho por IA por tipo (`assets/inimigos/*.png`, 256 px; chefe 512 px; originais em `Documentos\Sketch Blade\arte original\inimigos`), animação por código (respira/balança) e tremido de desenho à mão no `flash.gdshader` (8 passos/s). Elite: auréola dourada atrás do desenho. Medido no PC com 30+ inimigos: 120 fps, 110 draw calls, 35 MB de VRAM de texturas. Falta: medir no celular. Blender/After Effects/HTML ficam para o trailer da loja.
 
-**Build 1.7.4 (código 14) gerado em 01/11**: `Documentos\Sketch Blade - builds\sketchblade-1.7.4-vc14.aab` (62,1 MB). Novidade desde a 1.7.3: aviso de versão nova no Hub (`GameData.VERSAO_CODIGO = 14`); economia, compras e anúncios iguais. Conferido: zip íntegro, assinado (UPLOAD), versão 1.7.4 no manifesto, permissão de internet, `JanelaAtualizacao` dentro, sem `.jpg`, `store/`, `referencias/` nem a pasta `atualizacao/`; maiores arquivos = motor, código Android, ícone e splash. Ainda com `MODO_TESTE = true` e anúncios de teste. Falta: enviar ao Teste fechado (o 14 substitui o 13 se ele não foi enviado) e, depois de publicado, trocar `atualizacao/versao.json` para o código 14 — e ninguém vê aviso por ela, porque é a primeira com o aviso.
+**Build 1.7.4 (código 14) gerado em 01/11**: `Documentos\Sketch Blade\builds\sketchblade-1.7.4-vc14.aab` (62,1 MB). Novidade desde a 1.7.3: aviso de versão nova no Hub (`GameData.VERSAO_CODIGO = 14`); economia, compras e anúncios iguais. Conferido: zip íntegro, assinado (UPLOAD), versão 1.7.4 no manifesto, permissão de internet, `JanelaAtualizacao` dentro, sem `.jpg`, `store/`, `referencias/` nem a pasta `atualizacao/`; maiores arquivos = motor, código Android, ícone e splash. Ainda com `MODO_TESTE = true` e anúncios de teste. Falta: enviar ao Teste fechado (o 14 substitui o 13 se ele não foi enviado) e, depois de publicado, trocar `atualizacao/versao.json` para o código 14 — e ninguém vê aviso por ela, porque é a primeira com o aviso.
 
 ## Aviso de atualização (01/11/2026)
 O Hub mostra "PÁGINA NOVA!" quando sai versão nova (`JanelaAtualizacao.gd`, versão A aprovada; página: https://claude.ai/artifact/DW93hYy2bsenc71zB8oLHP). Ao abrir o Hub (só no Android, uma vez por abertura do app) o jogo baixa `atualizacao/versao.json` do GitHub público (`Hub.URL_VERSAO`, raw do `main`) e compara `codigo` com `GameData.VERSAO_CODIGO`; se for maior, mostra a versão e até 3 `novidades`, com ATUALIZAR (abre a Play Store) e "Agora não". Espera a recompensa diária fechar. Sem internet ou arquivo ruim: nada aparece. Nada vai para o save. A pasta `atualizacao/` tem `.gdignore` (fora do build).
@@ -126,20 +126,20 @@ O Hub mostra "PÁGINA NOVA!" quando sai versão nova (`JanelaAtualizacao.gd`, ve
 - 2026-10-24: investigação feita, plano criado.
 
 ## Chefes e combate
-Fonte única: `docs/chefes.md` (regras de design, situação de cada chefe, arquitetura, como testar). Versão 1.4.0 (código 7) gerada em 28/10 com chefes 2, 3 e 5. Depois dela: os 10 chefes prontos e calibrados (`docs/equilibrio-chefes.md`), sinal de raiva e contador de vitórias/derrotas por capítulo no painel "Stats de teste" (o atalho "Testar chefe" não conta). **Build 1.5.0 (código 8) gerado em 28/10**: `Documentos\Sketch Blade - builds\sketchblade-1.5.0-vc8.aab` (58,7 MB). Conferido: assinado, 10 chefes, sem fotos; maiores arquivos = motor, código Android, ícone, splash e música. Ainda com `MODO_TESTE = true` e anúncios de teste. **Enviado ao Teste fechado em 29/10.** Falta: jogar no celular e mandar print do "Stats de teste".
+Fonte única: `docs/chefes.md` (regras de design, situação de cada chefe, arquitetura, como testar). Versão 1.4.0 (código 7) gerada em 28/10 com chefes 2, 3 e 5. Depois dela: os 10 chefes prontos e calibrados (`docs/equilibrio-chefes.md`), sinal de raiva e contador de vitórias/derrotas por capítulo no painel "Stats de teste" (o atalho "Testar chefe" não conta). **Build 1.5.0 (código 8) gerado em 28/10**: `Documentos\Sketch Blade\builds\sketchblade-1.5.0-vc8.aab` (58,7 MB). Conferido: assinado, 10 chefes, sem fotos; maiores arquivos = motor, código Android, ícone, splash e música. Ainda com `MODO_TESTE = true` e anúncios de teste. **Enviado ao Teste fechado em 29/10.** Falta: jogar no celular e mandar print do "Stats de teste".
 
-**Build 1.6.0 (código 9) gerado em 29/10**: `Documentos\Sketch Blade - builds\sketchblade-1.6.0-vc9.aab` (59,1 MB). Novidades: hub novo (3 telas), vitória e derrota redesenhadas (`docs/proximas-melhorias.md`). Conferido: assinado, versão 1.6.0, telas novas dentro, sem fotos; maiores arquivos = motor, código Android, ícone, splash e música. Ainda com `MODO_TESTE = true` e anúncios de teste. Falta: enviar ao Teste fechado. Obs.: o export terminou o AAB mas o Godot ficou aberto; conferir o arquivo e encerrar o processo.
+**Build 1.6.0 (código 9) gerado em 29/10**: `Documentos\Sketch Blade\builds\sketchblade-1.6.0-vc9.aab` (59,1 MB). Novidades: hub novo (3 telas), vitória e derrota redesenhadas (`docs/proximas-melhorias.md`). Conferido: assinado, versão 1.6.0, telas novas dentro, sem fotos; maiores arquivos = motor, código Android, ícone, splash e música. Ainda com `MODO_TESTE = true` e anúncios de teste. Falta: enviar ao Teste fechado. Obs.: o export terminou o AAB mas o Godot ficou aberto; conferir o arquivo e encerrar o processo.
 
-**Build 1.7.0 (código 10) gerado em 30/10**: `Documentos\Sketch Blade - builds\sketchblade-1.7.0-vc10.aab` (58,1 MB). Novidades desde a 1.6.0: reviver "Segunda chance?", HUD do combate (coração e barra de vida riscada), chefe legível, 10 sons gravados, dica da primeira gota, mortes por página no "Stats de teste", roleta de melhorias nova, música e exemplos do plugin de anúncios fora do pacote (`docs/proximas-melhorias.md`). Conferido: zip íntegro, assinado (UPLOAD), versão 1.7.0, `TelaRoleta` e `card_roleta` dentro, sem fotos, sem `music.ogg`; maiores arquivos = motor, código Android, ícone e splash. Ainda com `MODO_TESTE = true` e anúncios de teste. O export grava o AAB mas o Godot não fecha sozinho: rodar com `timeout` e conferir o arquivo. **Enviada ao Teste fechado em 30/10** e atualizada no celular do Richard ("ficou bem legal"). Falta: jogar mais partidas no aparelho.
+**Build 1.7.0 (código 10) gerado em 30/10**: `Documentos\Sketch Blade\builds\sketchblade-1.7.0-vc10.aab` (58,1 MB). Novidades desde a 1.6.0: reviver "Segunda chance?", HUD do combate (coração e barra de vida riscada), chefe legível, 10 sons gravados, dica da primeira gota, mortes por página no "Stats de teste", roleta de melhorias nova, música e exemplos do plugin de anúncios fora do pacote (`docs/proximas-melhorias.md`). Conferido: zip íntegro, assinado (UPLOAD), versão 1.7.0, `TelaRoleta` e `card_roleta` dentro, sem fotos, sem `music.ogg`; maiores arquivos = motor, código Android, ícone e splash. Ainda com `MODO_TESTE = true` e anúncios de teste. O export grava o AAB mas o Godot não fecha sozinho: rodar com `timeout` e conferir o arquivo. **Enviada ao Teste fechado em 30/10** e atualizada no celular do Richard ("ficou bem legal"). Falta: jogar mais partidas no aparelho.
 
-**Build 1.7.1 (código 11) gerado em 30/10**: `Documentos\Sketch Blade - builds\sketchblade-1.7.1-vc11.aab` (57,8 MB). Novidades: página de descanso e pausa no estilo caderno (pausa com confirmação para abandonar e som/vibração rápidos); saiu a moldura antiga `assets/backgroundpowerup.png`. Conferido: zip íntegro, assinado (UPLOAD), versão 1.7.1, `TelaDescanso`/`TelaPausa`/`TelaRoleta`/`card_roleta` dentro, sem fotos. Ainda com `MODO_TESTE = true` e anúncios de teste. Falta: enviar ao Teste fechado.
+**Build 1.7.1 (código 11) gerado em 30/10**: `Documentos\Sketch Blade\builds\sketchblade-1.7.1-vc11.aab` (57,8 MB). Novidades: página de descanso e pausa no estilo caderno (pausa com confirmação para abandonar e som/vibração rápidos); saiu a moldura antiga `assets/backgroundpowerup.png`. Conferido: zip íntegro, assinado (UPLOAD), versão 1.7.1, `TelaDescanso`/`TelaPausa`/`TelaRoleta`/`card_roleta` dentro, sem fotos. Ainda com `MODO_TESTE = true` e anúncios de teste. Falta: enviar ao Teste fechado.
 
-**Build 1.7.2 (código 12) gerado em 31/10**: `Documentos\Sketch Blade - builds\sketchblade-1.7.2-vc12.aab` (60,2 MB). Novidades desde a 1.7.1: Estojo, Loja (Canetas | Pacotes), Missões, Recompensa diária e Configurações no estilo caderno (`docs/proximas-melhorias.md`); compras, preços, prêmios e anúncios iguais. Conferido: zip íntegro, assinado (UPLOAD), versão 1.7.2 no manifesto, telas novas dentro, sem fotos e sem `store/`; maiores arquivos = motor, código Android, ícone, splash e a folha das janelas (`fundo_missoes`, 1,5 MB). Ainda com `MODO_TESTE = true` e anúncios de teste. Falta: enviar ao Teste fechado (se a 1.7.1 não foi enviada, basta a 1.7.2: o código 11 pode ser pulado).
+**Build 1.7.2 (código 12) gerado em 31/10**: `Documentos\Sketch Blade\builds\sketchblade-1.7.2-vc12.aab` (60,2 MB). Novidades desde a 1.7.1: Estojo, Loja (Canetas | Pacotes), Missões, Recompensa diária e Configurações no estilo caderno (`docs/proximas-melhorias.md`); compras, preços, prêmios e anúncios iguais. Conferido: zip íntegro, assinado (UPLOAD), versão 1.7.2 no manifesto, telas novas dentro, sem fotos e sem `store/`; maiores arquivos = motor, código Android, ícone, splash e a folha das janelas (`fundo_missoes`, 1,5 MB). Ainda com `MODO_TESTE = true` e anúncios de teste. Falta: enviar ao Teste fechado (se a 1.7.1 não foi enviada, basta a 1.7.2: o código 11 pode ser pulado).
 
-**Build 1.7.3 (código 13) gerado em 31/10**: `Documentos\Sketch Blade - builds\sketchblade-1.7.3-vc13.aab` (62,1 MB). Novidades desde a 1.7.2: topo da partida 30% maior, chefes sem teleporte no balanço (Mancha e Avião), selo DERROTADO do Hub no lugar da vitória, tela antes da partida (ficha colada), virada de página pelo canto, respingo de tinta na morte, papel com textura (limpo; usado nos quadriculados e amarelados) e linha-limite tracejada à mão (`docs/proximas-melhorias.md`); economia, compras e anúncios iguais. Conferido: zip íntegro, assinado (UPLOAD), versão 1.7.3 no manifesto, scripts e imagens novos dentro, sem `.jpg`, `store/` ou rascunhos; maiores arquivos = motor, código Android, ícone e splash. Na 1ª exportação as texturas de papel eram `.jpg` e ficaram de fora (o export exclui `*.jpg`): trocadas por PNG antes do build final. Ainda com `MODO_TESTE = true` e anúncios de teste. Falta: enviar ao Teste fechado (pode pular os códigos 11 e 12 se não foram enviados).
+**Build 1.7.3 (código 13) gerado em 31/10**: `Documentos\Sketch Blade\builds\sketchblade-1.7.3-vc13.aab` (62,1 MB). Novidades desde a 1.7.2: topo da partida 30% maior, chefes sem teleporte no balanço (Mancha e Avião), selo DERROTADO do Hub no lugar da vitória, tela antes da partida (ficha colada), virada de página pelo canto, respingo de tinta na morte, papel com textura (limpo; usado nos quadriculados e amarelados) e linha-limite tracejada à mão (`docs/proximas-melhorias.md`); economia, compras e anúncios iguais. Conferido: zip íntegro, assinado (UPLOAD), versão 1.7.3 no manifesto, scripts e imagens novos dentro, sem `.jpg`, `store/` ou rascunhos; maiores arquivos = motor, código Android, ícone e splash. Na 1ª exportação as texturas de papel eram `.jpg` e ficaram de fora (o export exclui `*.jpg`): trocadas por PNG antes do build final. Ainda com `MODO_TESTE = true` e anúncios de teste. Falta: enviar ao Teste fechado (pode pular os códigos 11 e 12 se não foram enviados).
 
 ## Build 1.8.2 (17) — 04/11/2026
-AAB gerado em `Documentos/Sketch Blade - builds/sketchblade-1.8.2-vc17.aab`
+AAB gerado em `Documentos/Sketch Blade/builds/sketchblade-1.8.2-vc17.aab`
 (68.722.773 bytes). Inclui mixagem clara, mortes tratadas, vinheta com alfa,
 aviso de raiva, dano junto do chefe e clique com zíper. ZIP íntegro, assinatura
 UPLOAD verificada pelo jarsigner, versão 1.8.2 no manifesto e arte nova incluída.
@@ -171,7 +171,7 @@ recompilação e teste real pendente em `docs/plano-atualizacao-play.md` (fonte 
 A partir desta versão, publicar JSON deixa de ser necessário para detectar novas
 versões; continua útil para os textos e os jogos antigos já instalados.
 
-AAB: `Documentos/Sketch Blade - builds/sketchblade-1.8.3-vc18.aab`,
+AAB: `Documentos/Sketch Blade/builds/sketchblade-1.8.3-vc18.aab`,
 68.746.548 bytes. Exportação concluída; pacote ZIP íntegro, manifesto 1.8.3,
 registro do plugin v2, classe do plugin e biblioteca AppUpdate presentes nos DEX.
 Sem JPG ou store; fontes Java/Gradle do plugin excluídas por `.gdignore`.
@@ -182,7 +182,7 @@ pelo jarsigner (retorno 0, `jar verified`).
 Não publicar anúncio JSON desta versão antes da disponibilidade na Play.
 
 ## Build 1.8.4 (19) — 05/11/2026
-- AAB: `Documentos/Sketch Blade - builds/sketchblade-1.8.4-vc19.aab`,
+- AAB: `Documentos/Sketch Blade/builds/sketchblade-1.8.4-vc19.aab`,
   68.783.166 bytes. Inclui enquadramentos finais ajustados pelo usuário,
   heartbeat/zumbido e música em vida crítica, jingles de vitória/derrota
   corrigidos e som de moedinha junto ao check no resgate de missão diária.
@@ -234,7 +234,7 @@ https://claude.ai/artifact/TJVaMr4MGn6EGpBcQjzUyZ, tudo aprovado pelo Richard).
   (parâmetro tipado com objeto liberado), corrigido; nova rodada com 0 erros.
 - `version/code` e `GameData.VERSAO_CODIGO` em 20; nome 1.8.5. MODO_TESTE e
   anúncios de teste mantidos (teste fechado).
-- AAB: `Documentos\Sketch Blade - builds\sketchblade-1.8.5-vc20.aab`
+- AAB: `Documentos\Sketch Blade\builds\sketchblade-1.8.5-vc20.aab`
   (69.153.071 bytes). ZIP íntegro; versão 1.8.5 no manifesto; `jar verified`,
   mesmo certificado de upload da 1.8.4; texturas e scripts novos presentes; sem
   store, referências, JPG/PSD, cena de ajuste ou texturas descartadas. Maiores
@@ -272,7 +272,7 @@ Ajustes depois da 1.8.5:
   erros de script.
 - `version/code` e `GameData.VERSAO_CODIGO` em 21; nome 1.8.6. MODO_TESTE e
   anúncios de teste mantidos (teste fechado).
-- AAB: `Documentos\Sketch Blade - builds\sketchblade-1.8.6-vc21.aab`
+- AAB: `Documentos\Sketch Blade\builds\sketchblade-1.8.6-vc21.aab`
   (69.166.880 bytes). ZIP íntegro; 1.8.6 no manifesto; `jar verified`, mesmo
   certificado de upload (SHA256 E2:28:70:F9…F7:1C); `Vibracao.gd` e coração novo
   presentes; sem store, referências, JPG/PSD ou `__pycache__`. Maiores
@@ -292,6 +292,15 @@ Notas sugeridas para a Play:
 </pt-BR>
 ```
 
+
+## Build 1.9.0 (25) — 13/11/2026
+Correção de feedback de testador: tiros inimigos continuavam voando na virada
+de página e na roleta de upgrade, dando dano de graça. Agora somem com respingo
+ao concluir a página e ao iniciar a seguinte (`Main._limpar_tiros_inimigos`).
+- `version/code` e `GameData.VERSAO_CODIGO` em 25; nome 1.9.0. MODO_TESTE e anúncios de teste mantidos.
+- AAB: `Documentos\Sketch Bladeuilds\sketchblade-1.9.0-vc25.aab` (70.653.974 bytes).
+- Validado e enviado ao teste fechado (alpha) pela API em 13/11/2026: código 25 publicado.
+- Falta: confirmar no celular que a virada de página não dá mais hit.
 
 ## Build 1.8.9 (24) — 12/11/2026
 Caneta de duas pontas (sugestão de testador; ver `docs/proximas-melhorias.md`):
@@ -352,7 +361,7 @@ Ajustes depois da 1.8.6:
   (esquiva, 1 semente, chegada+roleta): 0 erros de script.
 - `version/code` e `GameData.VERSAO_CODIGO` em 22; nome 1.8.7. MODO_TESTE e
   anúncios de teste mantidos (teste fechado).
-- AAB: `Documentos\Sketch Blade - builds\sketchblade-1.8.7-vc22.aab`
+- AAB: `Documentos\Sketch Blade\builds\sketchblade-1.8.7-vc22.aab`
   (69.790.647 bytes). ZIP íntegro; 1.8.7 no manifesto; `jar verified`, mesmo
   certificado de upload (SHA256 E2:28:70:F9…F7:1C); música do hub, selo do
   descanso e gota azul presentes, gota cinza fora; sem store, referências,
