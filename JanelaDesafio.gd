@@ -52,7 +52,7 @@ func _folha_nova(d: Dictionary) -> void:
 			pautas.draw_line(Vector2(66, y), Vector2(larg - 24, y), Color("8fb0e8", 0.75), 2.0))
 	_folha.add_child(pautas)
 	# Cabeçalho (acima das pautas)
-	_txt(_folha, "PROVA SURPRESA", 52, AZUL_ESCURO, 70, 160, FONTE, 100, larg - 215, HORIZONTAL_ALIGNMENT_LEFT)
+	_txt(_folha, "PROVA SURPRESA", d.get("tam_titulo", 52), AZUL_ESCURO, 70, 160, _corpo if d.get("titulo_igual", false) else FONTE, 100, larg - 215, HORIZONTAL_ALIGNMENT_LEFT)
 	_img(_folha, "carimbo_hoje.png", Rect2(larg - 215, 46, 185, 99), 8)
 	# Linhas (uma por pauta, sem linhas vazias)
 	var tam: int = d.get("tam_corpo", 46)

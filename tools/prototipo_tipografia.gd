@@ -20,6 +20,8 @@ func _rodar() -> void:
 	# [nome, arquivo .ttf ("" = atual), tamanho das linhas]
 	var lista: Array = [["atual", "", 46]]
 	for linha in a.slice(2):
+		if linha.begins_with("--"):
+			continue
 		var p: PackedStringArray = linha.split(":")
 		lista.append([p[0], fontes + "/" + p[1], int(p[2])])
 	for par in lista:
@@ -36,6 +38,9 @@ func _rodar() -> void:
 		if par[1] != "":
 			dd["fonte_corpo"] = par[1]
 		dd["tam_corpo"] = par[2]
+		if a.has("--titulo"):
+			dd["titulo_igual"] = true
+			dd["tam_titulo"] = par[2] + 10
 		j.mostrar(dd)
 		await create_timer(0.5).timeout
 		await RenderingServer.frame_post_draw
