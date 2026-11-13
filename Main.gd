@@ -1579,9 +1579,13 @@ func _on_pagina_iniciada(numero: int, total: int) -> void:
 	if label_pagina:
 		label_pagina.text = "Página %d / %d" % [numero, total]
 	if numero > 1:
+		_limpar_tiros_inimigos()
 		_animar_virada_pagina(numero)
 
 func _on_pagina_concluida(numero: int) -> void:
+	# Página vencida: tiros inimigos que sobraram somem com um respingo
+	# (antes continuavam voando na virada de página e acertavam de graça)
+	_limpar_tiros_inimigos()
 	# Bônus de página perfeita (nenhum dano sofrido)
 	if not dano_sofrido_na_pagina:
 		var bonus = GameData.bonus_pagina_perfeita(capitulo_atual)
@@ -1594,6 +1598,12 @@ func _on_pagina_concluida(numero: int) -> void:
 		_abrir_roleta_upgrades()
 	else:
 		wave_manager.continuar_proxima_pagina()
+
+func _limpar_tiros_inimigos() -> void:
+	for proj in get_tree().get_nodes_in_group("enemy_projectiles"):
+		if proj.visible:
+			spawn_impacto(proj.global_position, Color("e0352b"), false)
+			devolver_projetil_inimigo(proj)
 
 func _on_descanso_iniciado() -> void:
 	get_tree().paused = true
