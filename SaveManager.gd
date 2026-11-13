@@ -20,6 +20,8 @@ var xp_snapshot_pendente: Dictionary = {}
 var retomar_run_pendente: bool = false
 ## Modo de teste: capítulo cujo chefe a próxima partida abre direto (0 = normal).
 var teste_chefe: int = 0
+## Desafio do dia a jogar na próxima partida (id da regra; "" = partida normal).
+var desafio_pendente: String = ""
 
 # Valores padrão — todo campo novo entra aqui e é migrado automaticamente
 # para saves antigos via _mesclar_com_defaults().
@@ -74,6 +76,8 @@ var _defaults: Dictionary = {
 	"novidades_vistas": 0, # VERSAO_CODIGO cujas novidades já apareceram
 	"avaliacao_pedida": 0, # VERSAO_CODIGO em que o pedido de avaliação apareceu
 	"avaliou": false, # tocou em AVALIAR: não pede de novo
+	"desafio_vencido_data": "", # data da última prova (desafio do dia) vencida
+	"desafio_vistos": 0, # vistos na cartela (o 3º dá bônus e zera)
 	"dica_gotas_vista": false, # dica da primeira gota de tinta (uma vez por conta)
 	"som_ativo": true,
 	"vibracao_ativa": true,

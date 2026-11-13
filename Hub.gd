@@ -244,6 +244,7 @@ func _ready() -> void:
 	_verificar_recompensa_diaria()
 	_verificar_atualizacao()
 	_verificar_novidades()
+	_criar_entrada_desafio()
 
 func _process(delta: float) -> void:
 	# Efeito de contagem animada no saldo de tinta
@@ -1662,6 +1663,68 @@ func _verificar_novidades() -> void:
 		_tocar_som(audio_click_sucesso)
 		janela.queue_free())
 	janela.mostrar({"versao": GameData.VERSAO_NOME, "novidades": GameData.NOVIDADES.slice(0, 3), "nova": true})
+
+# ============================================================
+# DESAFIO DO DIA ("Prova surpresa", docs/plano-desafio.md)
+# ============================================================
+const DIAS_SEMANA := ["domingo", "segunda", "terça", "quarta", "quinta", "sexta", "sábado"]
+var botao_desafio: Button
+
+## Bilhete à direita, abaixo da seta do capítulo. Balança enquanto a prova de
+## hoje não foi vencida; vencida, ganha um VISTO pequeno.
+func _criar_entrada_desafio() -> void:
+	if not dados_save["tutorial_visto"]:
+		return
+	botao_desafio = Button.new()
+	botao_desafio.flat = true
+	botao_desafio.focus_mode = Control.FOCUS_NONE
+	botao_desafio.position = Vector2(870, 450)
+	botao_desafio.size = Vector2(170, 170)
+	botao_desafio.pivot_offset = Vector2(85, 10)
+	botao_desafio.rotation_degrees = 6
+	for e in ["normal", "hover", "pressed", "focus"]:
+		botao_desafio.add_theme_stylebox_override(e, StyleBoxEmpty.new())
+	var icone := TextureRect.new()
+	icone.texture = load("res://assets/ui/desafio/icone.png")
+	icone.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	icone.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	icone.set_anchors_preset(Control.PRESET_FULL_RECT)
+	icone.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	botao_desafio.add_child(icone)
+	tela_lutar.add_child(botao_desafio)
+	botao_desafio.pressed.connect(_abrir_desafio)
+	if dados_save["desafio_vencido_data"] == _data_de_hoje():
+		var visto := TextureRect.new()
+		visto.texture = load("res://assets/ui/desafio/carimbo_visto.png")
+		visto.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+		visto.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+		visto.position = Vector2(80, 90); visto.size = Vector2(90, 90)
+		visto.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		botao_desafio.add_child(visto)
+	else:
+		var t := botao_desafio.create_tween().set_loops()
+		t.tween_property(botao_desafio, "rotation_degrees", -2.0, 0.9).set_trans(Tween.TRANS_SINE)
+		t.tween_property(botao_desafio, "rotation_degrees", 6.0, 0.9).set_trans(Tween.TRANS_SINE)
+
+func _abrir_desafio() -> void:
+	var hoje := _data_de_hoje()
+	var regra: Dictionary = GameData.desafio_do_dia(hoje)
+	var dt := Time.get_datetime_dict_from_system()
+	var caneta: Dictionary = GameData.get_caneta(dados_save["caneta_equipada"])
+	var janela := Control.new()
+	janela.set_script(preload("res://JanelaDesafio.gd"))
+	$HUD.add_child(janela)
+	_tocar_som(preload("res://assets/sons/folha.ogg"))
+	janela.atualizar.connect(func():
+		_tocar_som(audio_click_sucesso)
+		SaveManager.desafio_pendente = regra["id"]
+		get_tree().change_scene_to_file("res://main.tscn"))
+	janela.fechar.connect(janela.queue_free)
+	janela.mostrar({"nome": caneta.get("nome", "Caneta"),
+		"data": "%s, %02d/%02d" % [DIAS_SEMANA[dt["weekday"]], dt["day"], dt["month"]],
+		"regra": regra["nome"], "desc": regra["desc"], "so_chefe": regra["id"] == "turbinado",
+		"carimbos": int(dados_save["desafio_vistos"]),
+		"vencido": dados_save["desafio_vencido_data"] == hoje, "nova": true})
 
 func _verificar_missoes_diarias() -> void:
 	var hoje = _data_de_hoje()

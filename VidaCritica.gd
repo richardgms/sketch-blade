@@ -27,7 +27,7 @@ func _process(_delta: float) -> void:
 
 func atualizar(delta: float) -> void:
 	var combate: bool = partida.jogo_iniciado and not partida.fim_de_jogo_declarado and partida.player.vidas > 0
-	var critico: bool = combate and partida.player.vidas == 1
+	var critico: bool = combate and partida.player.vidas == 1 and partida.player.vidas_max > 1 # Caneta de vidro: 1 de 1 o tempo todo
 	var suspenso: bool = get_tree().paused or partida.menu_iniciar.visible
 	var som: bool = SaveManager.dados.get("som_ativo", true)
 	var coracao: AudioStreamPlayer = partida._coracao_player

@@ -9,6 +9,7 @@ const SELO_CENTRO := Vector2(728, 665)
 const ESCALA_SELO := 0.82 # maior para o anel (capítulo e nome) ficar legível
 const Y_DESBLOQUEIO := 1450.0
 
+var _titulo: Label
 var _arte: TextureRect
 var _selo: Control
 var _rotulo_total: Label
@@ -21,7 +22,7 @@ var _destaque: Control
 # Montagem
 # ------------------------------------------------------------
 func _montar_fixo() -> void:
-	_txt(_conteudo, "CAPÍTULO CONCLUÍDO!", 74, VERDE, 70, 170)
+	_titulo = _txt(_conteudo, "CAPÍTULO CONCLUÍDO!", 74, VERDE, 70, 170)
 	_traco(_conteudo, 170, 910, 180, Color(VERDE, 0.85), 5.0)
 
 	_arte = TextureRect.new()
@@ -93,7 +94,10 @@ func mostrar(d: Dictionary) -> void:
 	# Desbloqueio num espaço fixo: na vitória repetida o espaço fica vazio
 	for f in _destaque.get_children():
 		f.queue_free()
-	if int(d["cap_desbloqueado"]) > 0:
+	_titulo.text = "PROVA VENCIDA!" if d.has("destaque") else "CAPÍTULO CONCLUÍDO!"
+	if d.has("destaque"): # prova do dia: prêmio no lugar do desbloqueio
+		_marca_texto(_destaque, d["destaque"])
+	elif int(d["cap_desbloqueado"]) > 0:
 		_marca_texto(_destaque, "Capítulo %d desbloqueado!" % int(d["cap_desbloqueado"]))
 	_animar()
 

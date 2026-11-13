@@ -18,7 +18,7 @@ func _process(delta: float) -> void:
 	var ativo: bool = partida.jogo_iniciado and not partida.fim_de_jogo_declarado \
 		and not get_tree().paused and p.vidas > 0 and not partida.menu_iniciar.visible
 	var limite := maxi(2, int(ceil(p.vidas_max * 0.3)))
-	var baixa: bool = ativo and p.vidas <= limite
+	var baixa: bool = ativo and p.vidas <= limite and p.vidas_max > 1 # Caneta de vidro: 1 de 1 o tempo todo
 	tempo += delta if baixa else 0.0
 	var intensidade := 1.0 if p.vidas == 1 else 0.65
 	var alvo := intensidade * (0.58 + 0.18 * sin(tempo * TAU * 0.85)) if baixa else 0.0

@@ -1,6 +1,6 @@
 extends Node
 ## Controla a run de 8 páginas do caderno: ondas, descanso, elite e boss.
-## A receita das páginas vive em GameData.PAGINAS.
+## A receita das páginas vive em `paginas` (GameData.PAGINAS ou a do desafio do dia).
 
 signal pagina_iniciada(numero: int, total: int)
 signal pagina_concluida(numero: int)
@@ -24,6 +24,10 @@ var intensidade_atual: float = 1.0
 var elite_pendente: bool = false
 
 var pagina_concluida_emitida: bool = false
+## Receita da partida (o desafio do dia troca por GameData.DESAFIO_PAGINAS).
+var paginas: Array = GameData.PAGINAS
+## Vida extra do chefe (desafio "Chefe turbinado").
+var mult_vida_chefe: float = 1.0
 
 var timer_spawn: Timer
 var timer_pagina: Timer
@@ -60,12 +64,12 @@ func iniciar_fase_na_pagina(capitulo: int, pagina: int) -> void:
 
 func _iniciar_proxima_pagina() -> void:
 	pagina_atual += 1
-	if pagina_atual > GameData.PAGINAS.size():
+	if pagina_atual > paginas.size():
 		return # Segurança: página 8 (boss) encerra via fase_concluida
 
 	pagina_concluida_emitida = false
-	var receita: Dictionary = GameData.PAGINAS[pagina_atual - 1]
-	pagina_iniciada.emit(pagina_atual, GameData.PAGINAS.size())
+	var receita: Dictionary = paginas[pagina_atual - 1]
+	pagina_iniciada.emit(pagina_atual, paginas.size())
 
 	match receita["tipo"]:
 		"onda":
@@ -228,9 +232,9 @@ func _sortear_tipo_inimigo(capitulo: int, pagina: int) -> int:
 func _verificar_fim_da_pagina() -> void:
 	if pagina_concluida_emitida:
 		return
-	if pagina_atual < 1 or pagina_atual > GameData.PAGINAS.size():
+	if pagina_atual < 1 or pagina_atual > paginas.size():
 		return
-	if GameData.PAGINAS[pagina_atual - 1]["tipo"] != "onda":
+	if paginas[pagina_atual - 1]["tipo"] != "onda":
 		return
 	if monstros_restantes_spawn <= 0 and not elite_pendente and monstros_vivos <= 0 and not boss_ativo:
 		pagina_concluida_emitida = true
@@ -269,7 +273,7 @@ func _preparar_boss() -> void:
 		# Geométrica, expoente menor que o dos comuns: a luta encurta de
 		# ~35s (cap 1) até ~19s (cap 10) conforme o Estojo maxa.
 		var mult_boss_hp = pow(1.26, capitulo_atual - 1)
-		boss.hp_max = int(boss.hp_max * mult_boss_hp * boss.mult_vida) # vida da ficha de cada chefe
+		boss.hp_max = int(boss.hp_max * mult_boss_hp * boss.mult_vida * mult_vida_chefe) # vida da ficha de cada chefe
 		boss.hp = boss.hp_max
 
 		# Ajusta dano de contato do Boss para Capítulos altos

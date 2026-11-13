@@ -167,6 +167,38 @@ const PAGINAS: Array = [
 const ALIVIO_VELOCIDADE: Dictionary = {1: 0.8, 2: 0.9}
 const ALIVIO_HP_MAX_CAP1: int = 20
 
+# Desafio do dia ("Prova surpresa", docs/plano-desafio.md): uma regra por
+# dia, sorteada pela data; 3 páginas + chefe, roleta depois das páginas 1 e 2.
+const DESAFIOS: Array = [
+	{"id": "vidro", "nome": "Caneta de vidro", "desc": ["Metade dos corações,", "mas toda tinta vale o triplo."]},
+	{"id": "chuva", "nome": "Chuva de borrões", "desc": ["Borrões caem do alto:", "desvie enquanto atira."]},
+	{"id": "ricochete", "nome": "Só ricochete", "desc": ["Todo tiro quica nas bordas.", "Sem Tiro Duplo nem Leque."]},
+	{"id": "turbinado", "nome": "Chefe turbinado", "desc": ["Direto ao chefe, mais forte,", "e você com 2 melhorias."]},
+]
+const DESAFIO_PAGINAS: Array = [
+	{"tipo": "onda", "quantidade": 5, "intervalo": 1.6, "intensidade": 1.0},
+	{"tipo": "onda", "quantidade": 5, "intervalo": 1.5, "intensidade": 1.2, "elite": true},
+	{"tipo": "onda", "quantidade": 7, "intervalo": 0.9, "intensidade": 1.4},
+	{"tipo": "boss"},
+]
+const DESAFIO_PAGINAS_COM_UPGRADE: Array = [1, 2]
+const DESAFIO_PREMIO: Dictionary = {"tinta": 150, "clipes": 3}
+const DESAFIO_VISTOS_BONUS: int = 3 # vistos na cartela para o bônus
+const DESAFIO_CLIPES_BONUS: int = 5
+
+## Regra do dia: mesma para todos, sorteada pela data ("2026-11-14").
+static func desafio_do_dia(data: String) -> Dictionary:
+	var n: int = 0
+	for c in data.to_utf8_buffer():
+		n = (n * 31 + c) % 1000003
+	return DESAFIOS[n % DESAFIOS.size()]
+
+static func get_desafio(id: String) -> Dictionary:
+	for d in DESAFIOS:
+		if d["id"] == id:
+			return d
+	return {}
+
 # Após concluir estas páginas o jogador escolhe um upgrade na roleta
 const PAGINAS_COM_UPGRADE: Array = [2, 4, 6]
 

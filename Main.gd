@@ -182,6 +182,11 @@ func _ready() -> void:
 	if SaveManager.retomar_run_pendente:
 		SaveManager.retomar_run_pendente = false
 		_retomar_run_do_snapshot()
+	elif SaveManager.desafio_pendente != "":
+		# Desafio do dia: a prancheta do Hub já foi a "tela antes da partida"
+		desafio = SaveManager.desafio_pendente
+		SaveManager.desafio_pendente = ""
+		_on_botao_jogar_pressed.call_deferred()
 
 func _aplicar_upgrades_rpg() -> void:
 	var nd = dados_save.get("nivel_dano", 1)
@@ -266,12 +271,14 @@ func _criar_tela_inicio() -> void:
 		"nome": preload("res://TelaPausa.gd").NOMES_CAPITULOS[capitulo_atual],
 		"arte": arte,
 		"recorde": SaveManager.get_melhor_pagina(capitulo_atual),
-		"total": GameData.PAGINAS.size()})
+		"total": wave_manager.paginas.size()})
 	tela.comecar.connect(_on_botao_jogar_pressed)
 
 func _on_botao_jogar_pressed() -> void:
-	# Run nova: descarta qualquer snapshot antigo pendente.
-	SaveManager.limpar_run_snapshot()
+	# Run nova: descarta qualquer snapshot antigo pendente (a prova do dia
+	# não mexe na partida normal guardada).
+	if desafio == "":
+		SaveManager.limpar_run_snapshot()
 	tinta_partida = 0
 	monstros_derrotados_partida = 0
 	boss_derrotado_partida = false
@@ -285,11 +292,13 @@ func _on_botao_jogar_pressed() -> void:
 	Musica.hub_parar(1.0) # a música do hub desce; a da partida entra suave na página 1
 	player.attack_timer.start()
 	run_de_teste = SaveManager.teste_chefe > 0
+	if desafio != "":
+		_configurar_desafio()
 	if SaveManager.teste_chefe > 0:
 		# Modo de teste: vai direto para a página do chefe do capítulo escolhido
 		capitulo_atual = SaveManager.teste_chefe
 		SaveManager.teste_chefe = 0
-		wave_manager.iniciar_fase_na_pagina(capitulo_atual, GameData.PAGINAS.size())
+		wave_manager.iniciar_fase_na_pagina(capitulo_atual, wave_manager.paginas.size())
 	else:
 		wave_manager.iniciar_fase(capitulo_atual)
 
@@ -429,7 +438,7 @@ func _notification(what: int) -> void:
 		NOTIFICATION_APPLICATION_PAUSED, NOTIFICATION_WM_CLOSE_REQUEST:
 			# App foi para segundo plano (home/app switcher) ou está fechando.
 			# Grava um snapshot para sobreviver a um kill de processo do Android.
-			if _run_em_andamento():
+			if _run_em_andamento() and desafio == "": # a prova do dia não se retoma
 				SaveManager.salvar_run_snapshot(_capturar_estado_run())
 
 ## Decide o que o gesto "voltar" faz conforme o estado atual da tela.
@@ -545,7 +554,7 @@ func _retomar_run_do_snapshot() -> void:
 	Musica.hub_parar(0.5) # partida retomada: não passa pela tela antes da partida
 	player.attack_timer.start()
 
-	var pagina: int = clamp(int(snap.get("pagina", 1)), 1, GameData.PAGINAS.size())
+	var pagina: int = clamp(int(snap.get("pagina", 1)), 1, wave_manager.paginas.size())
 	# Limpa ANTES de iniciar: o início da página regrava o checkpoint.
 	SaveManager.limpar_run_snapshot()
 	wave_manager.iniciar_fase_na_pagina(capitulo_atual, pagina)
@@ -574,7 +583,7 @@ func _on_player_morreu() -> void:
 		menu_revive.visible = true
 		Musica.abafar(true)
 		tela_reviver.mostrar({"cap": capitulo_atual, "pagina": max(1, wave_manager.pagina_atual),
-			"total_paginas": GameData.PAGINAS.size()})
+			"total_paginas": wave_manager.paginas.size()})
 		return
 
 	_finalizar_derrota()
@@ -794,18 +803,19 @@ func _processar_fim_de_jogo(venceu: bool) -> void:
 		SaveManager.incrementar_stat("capitulos_vencidos")
 	# Recorde antes desta partida (a derrota mostra "Novo recorde!")
 	var recorde_antes: int = SaveManager.get_melhor_pagina(capitulo_atual)
-	if not run_de_teste: # atalho "Testar chefe" não entra na conta
+	if not run_de_teste and desafio == "": # teste e prova do dia não entram na conta
 		SaveManager.registrar_capitulo(capitulo_atual, venceu,
-			wave_manager.pagina_atual >= GameData.PAGINAS.size())
+			wave_manager.pagina_atual >= wave_manager.paginas.size())
 		SaveManager.registrar_melhor_pagina(capitulo_atual,
-			clamp(wave_manager.pagina_atual, 1, GameData.PAGINAS.size()))
+			clamp(wave_manager.pagina_atual, 1, wave_manager.paginas.size()))
 		if not venceu:
 			SaveManager.registrar_morte_pagina(capitulo_atual,
-				clamp(wave_manager.pagina_atual, 1, GameData.PAGINAS.size()))
+				clamp(wave_manager.pagina_atual, 1, wave_manager.paginas.size()))
 
 	# Se venceu, desbloqueia o próximo capítulo
 	var texto_desbloqueio = ""
-	if venceu:
+	var texto_desafio := _premiar_desafio() if venceu and desafio != "" else ""
+	if venceu and desafio == "":
 		if capitulo_atual >= GameData.ULTIMO_CAPITULO and not run_de_teste:
 			dados_save["capitulo_final_vencido"] = true
 		if capitulo_atual == dados_save["capitulo_desbloqueado"] and capitulo_atual < GameData.ULTIMO_CAPITULO:
@@ -851,13 +861,15 @@ func _processar_fim_de_jogo(venceu: bool) -> void:
 		dados_tela["nome"] = ficha["nome"].substr(2) # sem o artigo ("o Compasso" → "Compasso")
 		dados_tela["arte"] = ficha["arte"]
 		dados_tela["cap_desbloqueado"] = cap_desbloqueado
+		if texto_desafio != "":
+			dados_tela["destaque"] = texto_desafio
 		tela_vitoria.mostrar(dados_tela)
 		_talvez_pedir_avaliacao()
 	else:
 		dados_tela["nome"] = ficha["nome"] # com o artigo: "O Compasso venceu desta vez!"
 		dados_tela["arte_chefe"] = ficha["arte"]
 		dados_tela["pagina"] = wave_manager.pagina_atual
-		dados_tela["total_paginas"] = GameData.PAGINAS.size()
+		dados_tela["total_paginas"] = wave_manager.paginas.size()
 		dados_tela["recorde_antes"] = recorde_antes
 		tela_derrota.mostrar(dados_tela)
 
@@ -889,6 +901,75 @@ func _talvez_pedir_avaliacao() -> void:
 		janela_avaliacao.queue_free())
 	janela_avaliacao.fechar.connect(janela_avaliacao.queue_free)
 	janela_avaliacao.mostrar({"nova": true})
+
+# ============================================================
+# DESAFIO DO DIA ("Prova surpresa", docs/plano-desafio.md)
+# ============================================================
+var desafio: String = "" # id da regra; "" = partida normal
+var paginas_com_upgrade: Array = GameData.PAGINAS_COM_UPGRADE
+var mult_tinta: int = 1
+var _fora_da_roleta: Array = []
+var _timer_chuva: Timer
+
+func _configurar_desafio() -> void:
+	wave_manager.paginas = GameData.DESAFIO_PAGINAS
+	paginas_com_upgrade = GameData.DESAFIO_PAGINAS_COM_UPGRADE
+	match desafio:
+		"vidro":
+			# Metade dos corações: com 1 só, o chefe vira loteria (a bateria dos
+			# chefes mostra 3 a 8 acertos por luta)
+			player.vidas_max = int(ceil(player.vidas_max / 2.0))
+			player.vidas = player.vidas_max
+			mult_tinta = 3
+		"chuva":
+			_timer_chuva = Timer.new()
+			_timer_chuva.wait_time = 1.4
+			_timer_chuva.timeout.connect(_cair_borrao)
+			add_child(_timer_chuva)
+			_timer_chuva.start()
+		"ricochete":
+			player.aplicar_upgrade("ricochete")
+			_fora_da_roleta = ["tiro_duplo", "leque"]
+		"turbinado":
+			wave_manager.paginas = [{"tipo": "boss"}]
+			wave_manager.mult_vida_chefe = 1.5
+			var pool: Array = []
+			for up in GameData.UPGRADES:
+				if not up.get("consumivel", false):
+					pool.append(up["id"])
+			pool.shuffle()
+			for id in pool.slice(0, 2):
+				player.aplicar_upgrade(id)
+	_atualizar_hud()
+
+## Chuva de borrões: um pingo cai do alto numa coluna sorteada.
+func _cair_borrao() -> void:
+	if not _run_em_andamento() or get_tree().paused:
+		return
+	var proj = obter_projetil_inimigo()
+	proj.position = Vector2(randf_range(80.0, 1000.0), -40.0)
+	proj.setup(Vector2.DOWN, 420.0, 12.0, "tinta")
+	if not proj.is_inside_tree():
+		add_child(proj)
+	else:
+		proj.queue_redraw()
+
+## 1ª vitória do dia paga o prêmio; toda vitória do dia carimba um visto
+## (só uma por dia); o 3º visto dá clipes e zera a cartela.
+func _premiar_desafio() -> String:
+	var hoje := Time.get_date_string_from_system()
+	if dados_save["desafio_vencido_data"] == hoje:
+		return "Prêmio de hoje já recebido."
+	dados_save["desafio_vencido_data"] = hoje
+	dados_save["tinta"] += GameData.DESAFIO_PREMIO["tinta"]
+	dados_save["clipes_ouro"] += GameData.DESAFIO_PREMIO["clipes"]
+	dados_save["desafio_vistos"] = int(dados_save["desafio_vistos"]) + 1
+	var clipes: int = GameData.DESAFIO_PREMIO["clipes"]
+	if dados_save["desafio_vistos"] >= GameData.DESAFIO_VISTOS_BONUS:
+		dados_save["desafio_vistos"] = 0
+		dados_save["clipes_ouro"] += GameData.DESAFIO_CLIPES_BONUS
+		clipes += GameData.DESAFIO_CLIPES_BONUS
+	return "+%d tinta  +%d clipes" % [GameData.DESAFIO_PREMIO["tinta"], clipes]
 
 const FICHAS_CHEFE: Dictionary = preload("res://Boss.gd").FICHAS
 ## Tela de vitória redesenhada (TelaVitoria.gd). Os nós antigos do .tscn
@@ -1090,6 +1171,7 @@ func _mostrar_dica_gotas(drop: Node2D) -> void:
 var _tween_pulso_tinta: Tween
 
 func _on_ink_drop_coletada(valor: int) -> void:
+	valor *= mult_tinta
 	tinta_partida += valor
 	SaveManager.incrementar_stat("gotas_coletadas")
 	_atualizar_hud()
@@ -1604,7 +1686,7 @@ func _on_pagina_iniciada(numero: int, total: int) -> void:
 	Musica.pagina(numero)
 	# Checkpoint a cada página: se o Android matar o app (falta de memória,
 	# travamento) sem avisar, a run volta nesta página em vez de do zero.
-	if _run_em_andamento():
+	if _run_em_andamento() and desafio == "": # a prova do dia não se retoma
 		SaveManager.salvar_run_snapshot(_capturar_estado_run())
 	# Página nova, papel limpo: as manchas de batalha ficam na página anterior
 	if has_node("Paper"):
@@ -1627,7 +1709,7 @@ func _on_pagina_concluida(numero: int) -> void:
 		_spawn_feedback("PÁGINA LIMPA! +%d" % bonus, "perfect", Vector2(540, 900))
 		_atualizar_hud()
 
-	if numero in GameData.PAGINAS_COM_UPGRADE:
+	if numero in paginas_com_upgrade:
 		_abrir_roleta_upgrades()
 	else:
 		wave_manager.continuar_proxima_pagina()
@@ -1654,7 +1736,7 @@ func _on_descanso_iniciado() -> void:
 	menu_descanso.visible = true
 	Musica.descanso()
 	tela_descanso.mostrar({"cap": capitulo_atual, "pagina": max(1, wave_manager.pagina_atual),
-		"total_paginas": GameData.PAGINAS.size(), "vidas": player.vidas, "vidas_max": player.vidas_max,
+		"total_paginas": wave_manager.paginas.size(), "vidas": player.vidas, "vidas_max": player.vidas_max,
 		"cura": GameData.DESCANSO_CURA, "tinta_partida": tinta_partida,
 		"ganho_tinta": GameData.tinta_descanso(capitulo_atual)})
 	_tocar_som(SONS["folha"])
@@ -1685,7 +1767,7 @@ func _animar_virada_pagina(numero: int) -> void:
 	$HUD.move_child(vp, 0)
 	vp.virando.connect(func(): _tocar_som(SONS["pagina"]))
 	vp.iniciar({"cap": capitulo_atual, "nome": preload("res://TelaPausa.gd").NOMES_CAPITULOS[capitulo_atual],
-		"numero": numero, "total": GameData.PAGINAS.size()})
+		"numero": numero, "total": wave_manager.paginas.size()})
 
 ## Evento de Descanso (página 4): escolher entre curar ou ganhar tinta
 func _criar_menu_descanso() -> void:
@@ -1735,6 +1817,8 @@ func _abrir_roleta_upgrades() -> void:
 	# Monta o pool: só upgrades NÃO maxados + consumíveis (sempre disponíveis)
 	var pool: Array = []
 	for up in GameData.UPGRADES:
+		if up["id"] in _fora_da_roleta:
+			continue
 		if up.get("consumivel", false) or player.nivel_upgrade(up["id"]) < up["nivel_max"]:
 			pool.append(up)
 	pool.shuffle()
@@ -1756,7 +1840,7 @@ func _abrir_roleta_upgrades() -> void:
 		label_pagina.visible = false
 	_tocar_som(SONS["roleta"])
 	tela_roleta.mostrar(tela_roleta.montar_dados(opcoes, player, capitulo_atual,
-		max(1, wave_manager.pagina_atual), GameData.PAGINAS.size()))
+		max(1, wave_manager.pagina_atual), wave_manager.paginas.size()))
 
 func _tocar_som_clunk() -> void:
 	_tocar_som(SONS["erro"])
@@ -1832,7 +1916,7 @@ func _on_botao_pausa_pressed() -> void:
 		label_pagina.visible = false
 	menu_pausa.visible = true
 	tela_pausa.mostrar({"cap": capitulo_atual, "pagina": max(1, wave_manager.pagina_atual),
-		"total_paginas": GameData.PAGINAS.size(), "vidas": player.vidas, "vidas_max": player.vidas_max,
+		"total_paginas": wave_manager.paginas.size(), "vidas": player.vidas, "vidas_max": player.vidas_max,
 		"tinta_partida": tinta_partida, "melhorias": melhorias,
 		"som": SaveManager.dados.get("som_ativo", true), "vibracao": SaveManager.dados.get("vibracao_ativa", true)})
 	get_tree().paused = true
