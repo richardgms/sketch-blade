@@ -592,7 +592,7 @@ func _finalizar_derrota() -> void:
 	fim_de_jogo_declarado = true
 	Musica.parar(0.5)
 	_atualizar_coracao()
-	SaveManager.limpar_run_snapshot() # Run encerrada: nada a retomar
+	_limpar_snapshot() # Run encerrada: nada a retomar
 	boss_hp_bar.visible = false
 	_processar_fim_de_jogo(false)
 	_tocar_som(SONS["derrota"])
@@ -732,7 +732,7 @@ func _on_fase_concluida() -> void:
 	fim_de_jogo_declarado = true
 	Musica.parar(1.0) # desce antes do jingle de vitória
 	_atualizar_coracao()
-	SaveManager.limpar_run_snapshot() # Run vencida: nada a retomar
+	_limpar_snapshot() # Run vencida: nada a retomar
 	jogo_iniciado = false
 	player.attack_timer.stop()
 	
@@ -910,6 +910,12 @@ var paginas_com_upgrade: Array = GameData.PAGINAS_COM_UPGRADE
 var mult_tinta: int = 1
 var _fora_da_roleta: Array = []
 var _timer_chuva: Timer
+
+## A prova do dia não grava snapshot, então também não apaga o da partida
+## normal que o jogador deixou guardada.
+func _limpar_snapshot() -> void:
+	if desafio == "":
+		SaveManager.limpar_run_snapshot()
 
 func _configurar_desafio() -> void:
 	wave_manager.paginas = GameData.DESAFIO_PAGINAS
@@ -1934,7 +1940,7 @@ func _criar_menu_pausa() -> void:
 	menu_pausa.add_child(tela_pausa)
 	tela_pausa.continuar.connect(_on_retomar_pausa_pressed)
 	tela_pausa.abandonar.connect(func():
-		SaveManager.limpar_run_snapshot() # Saída deliberada: abandona a run
+		_limpar_snapshot() # Saída deliberada: abandona a run
 		get_tree().paused = false
 		get_tree().change_scene_to_file("res://hub.tscn"))
 	# Som e vibração: os mesmos ajustes das Configurações do hub

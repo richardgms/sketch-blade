@@ -111,6 +111,9 @@ func _rodar() -> void:
 	clipes0 = _sm().dados["clipes_ouro"]
 	m._processar_fim_de_jogo(true)
 	_confere("refez: sem prêmio", _sm().dados["clipes_ouro"] - clipes0 < 3, true)
+	m._finalizar_derrota()
+	m._on_fase_concluida()
+	_confere("derrota/vitória não apagam a partida guardada", _sm().dados["run_snapshot"].get("marca_teste", 0), 1)
 	await _fechar()
 	# Hub depois de vencer: VISTO no bilhete
 	h = _abrir("res://hub.tscn"); await create_timer(1.5).timeout
