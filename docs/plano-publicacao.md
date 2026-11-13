@@ -308,7 +308,8 @@ Caneta de duas pontas (sugestão de testador; ver `docs/proximas-melhorias.md`):
   Maiores arquivos: motor ARM64, três DEX, ícone e splash.
 - SHA256: `ff686b83e9da2ad96d8829f9e3c05f3dd67743bff0a58752eae084020d1d4850`.
 - `enviar_play.py --validar` na faixa alpha: bundle aceito (código 24), nada publicado.
-- Falta: ok do Richard para o envio de verdade ao teste fechado.
+- Enviado ao teste fechado (alpha) pela API em 12/11/2026 com o ok do Richard: `--listar` mostra 1.8.9 (24) "completed".
+- Falta: testar o Tiro Duplo no celular.
 
 Notas para a Play: "Caneta de duas pontas: com o Tiro Duplo, sua caneta ganha
 duas pontas e cada tiro sai de uma delas. Vale para todas as canetas."
