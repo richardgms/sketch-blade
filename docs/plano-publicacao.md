@@ -298,7 +298,7 @@ Correção de feedback de testador: tiros inimigos continuavam voando na virada
 de página e na roleta de upgrade, dando dano de graça. Agora somem com respingo
 ao concluir a página e ao iniciar a seguinte (`Main._limpar_tiros_inimigos`).
 - `version/code` e `GameData.VERSAO_CODIGO` em 25; nome 1.9.0. MODO_TESTE e anúncios de teste mantidos.
-- AAB: `Documentos\Sketch Bladeuilds\sketchblade-1.9.0-vc25.aab` (70.653.974 bytes).
+- AAB: `Documentos\Sketch Bladebuilds\sketchblade-1.9.0-vc25.aab` (70.653.974 bytes).
 - Validado e enviado ao teste fechado (alpha) pela API em 13/11/2026: código 25 publicado.
 - Falta: confirmar no celular que a virada de página não dá mais hit.
 
