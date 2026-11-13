@@ -72,6 +72,8 @@ var _defaults: Dictionary = {
 	# Configurações
 	"tutorial_visto": false,
 	"novidades_vistas": 0, # VERSAO_CODIGO cujas novidades já apareceram
+	"avaliacao_pedida": 0, # VERSAO_CODIGO em que o pedido de avaliação apareceu
+	"avaliou": false, # tocou em AVALIAR: não pede de novo
 	"dica_gotas_vista": false, # dica da primeira gota de tinta (uma vez por conta)
 	"som_ativo": true,
 	"vibracao_ativa": true,

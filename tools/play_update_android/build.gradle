@@ -12,6 +12,7 @@ android {
 dependencies {
     compileOnly files('../../android/build/libs/release/godot-lib.template_release.aar')
     implementation 'com.google.android.play:app-update:2.1.0'
+    implementation 'com.google.android.play:review:2.0.2'
 }
 tasks.register('installPlugin', Copy) {
     dependsOn 'assembleRelease'

@@ -21,4 +21,4 @@ class Exportador extends EditorExportPlugin:
 		return PackedStringArray(["res://addons/play_update/bin/play-update.aar"])
 
 	func _get_android_dependencies(_platform: EditorExportPlatform, _debug: bool) -> PackedStringArray:
-		return PackedStringArray(["com.google.android.play:app-update:2.1.0"])
+		return PackedStringArray(["com.google.android.play:app-update:2.1.0", "com.google.android.play:review:2.0.2"])

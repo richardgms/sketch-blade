@@ -450,6 +450,9 @@ func _tratar_voltar() -> void:
 		_on_botao_recomecar_pressed()
 		return
 	if menu_vitoria and menu_vitoria.visible:
+		if is_instance_valid(janela_avaliacao):
+			janela_avaliacao.queue_free() # voltar = "Agora não"
+			return
 		if tela_vitoria and tela_vitoria.voltar_do_sistema():
 			return
 		_on_botao_continuar_pressed()
@@ -849,6 +852,7 @@ func _processar_fim_de_jogo(venceu: bool) -> void:
 		dados_tela["arte"] = ficha["arte"]
 		dados_tela["cap_desbloqueado"] = cap_desbloqueado
 		tela_vitoria.mostrar(dados_tela)
+		_talvez_pedir_avaliacao()
 	else:
 		dados_tela["nome"] = ficha["nome"] # com o artigo: "O Compasso venceu desta vez!"
 		dados_tela["arte_chefe"] = ficha["arte"]
@@ -856,6 +860,35 @@ func _processar_fim_de_jogo(venceu: bool) -> void:
 		dados_tela["total_paginas"] = GameData.PAGINAS.size()
 		dados_tela["recorde_antes"] = recorde_antes
 		tela_derrota.mostrar(dados_tela)
+
+## Pedido de avaliação (JanelaAvaliacao): depois de vencer um chefe, quando a
+## animação da vitória termina; no máximo uma vez por versão e nunca mais
+## depois de tocar em AVALIAR. A Play decide se a janela de estrelas aparece.
+var janela_avaliacao: Control
+
+func _talvez_pedir_avaliacao() -> void:
+	if dados_save.get("avaliou", false) or int(dados_save.get("avaliacao_pedida", 0)) >= GameData.VERSAO_CODIGO:
+		return
+	while is_inside_tree() and menu_vitoria.visible and tela_vitoria._animando:
+		await get_tree().create_timer(0.1, true).timeout
+	await get_tree().create_timer(0.6, true).timeout
+	if not is_inside_tree() or not menu_vitoria.visible:
+		return
+	dados_save["avaliacao_pedida"] = GameData.VERSAO_CODIGO
+	SaveManager.salvar()
+	janela_avaliacao = Control.new()
+	janela_avaliacao.process_mode = Node.PROCESS_MODE_ALWAYS
+	janela_avaliacao.set_script(preload("res://JanelaAvaliacao.gd"))
+	menu_vitoria.add_child(janela_avaliacao)
+	_tocar_som(SONS["folha"])
+	janela_avaliacao.atualizar.connect(func():
+		dados_save["avaliou"] = true
+		SaveManager.salvar()
+		if Engine.has_singleton("SketchBladePlayUpdate"):
+			Engine.get_singleton("SketchBladePlayUpdate").request_review()
+		janela_avaliacao.queue_free())
+	janela_avaliacao.fechar.connect(janela_avaliacao.queue_free)
+	janela_avaliacao.mostrar({"nova": true})
 
 const FICHAS_CHEFE: Dictionary = preload("res://Boss.gd").FICHAS
 ## Tela de vitória redesenhada (TelaVitoria.gd). Os nós antigos do .tscn

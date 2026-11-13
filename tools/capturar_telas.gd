@@ -10,7 +10,7 @@ extends SceneTree
 ## (%APPDATA%\Godot\app_userdata\SketchBlade\save_data.json): faça backup antes.
 
 var _sv: SubViewport
-var _saida := "C:/Users/joalh/Documentos/Sketch Blade - loja/revisao-telas"
+var _saida := "C:/Users/joalh/Documentos/Sketch Blade/loja/revisao-telas"
 var _telas: PackedStringArray = []
 
 func _initialize() -> void:
@@ -32,6 +32,7 @@ func _save(cap: int) -> void:
 	d["nivel_dano"] = 4; d["nivel_hp"] = 4; d["nivel_cadencia"] = 4
 	d["canetas_possuidas"] = ["bic_azul", "lapis_hb"]; d["caneta_equipada"] = "bic_azul"; d["tutorial_visto"] = true
 	d["dica_gotas_vista"] = true
+	d["avaliacao_pedida"] = 9999 # sem o pedido de avaliação por cima da vitória
 	var hoje := Time.get_date_string_from_system()
 	d["ultimo_login"] = hoje; d["dia_streak"] = 3; d["recompensa_coletada_hoje"] = true
 	d["run_snapshot"] = {"ativa": false}
