@@ -9,8 +9,10 @@ const DADOS := {"data": "Sexta, 14 de novembro", "regra": "Caneta de vidro",
 
 func _initialize() -> void:
 	var a := OS.get_cmdline_user_args()
-	if a.size() > 0:
+	if a.size() > 0 and a[0] != "v2":
 		_saida = a[0]
+	if a.has("v2"):
+		_saida = _saida.replace("/v1", "/v2")
 	DirAccess.make_dir_recursive_absolute(_saida)
 	_rodar()
 
@@ -78,7 +80,20 @@ func _entrada_b(h: Node) -> void:
 	ponto.draw.connect(func(): ponto.draw_circle(Vector2(84, 8), 13.0, Color("c62828")))
 	c.add_child(ponto)
 
+## v2: bilhete "Prova surpresa" à direita, abaixo da seta do capítulo,
+## balançando de leve.
+func _entrada_prova(h: Node) -> void:
+	var e := TextureRect.new()
+	e.texture = load("res://assets/ui/desafio_icone.png")
+	e.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	e.size = Vector2(170, 170); e.position = Vector2(870, 450)
+	e.pivot_offset = Vector2(85, 10); e.rotation_degrees = 6
+	h.get_node("HUD").add_child(e)
+
 func _rodar() -> void:
+	if OS.get_cmdline_user_args().has("v2"):
+		await _rodar_v2()
+		return
 	await process_frame
 	var h = await _hub(); _entrada_a(h); await _foto("entrada-A"); await _fechar()
 	h = await _hub(); _entrada_b(h); await _foto("entrada-B"); await _fechar()
@@ -88,4 +103,16 @@ func _rodar() -> void:
 		h.get_node("HUD").add_child(j); await process_frame
 		j.mostrar(DADOS)
 		await _foto(par[0]); await _fechar()
+	quit()
+
+func _rodar_v2() -> void:
+	await process_frame
+	var h = await _hub(); _entrada_prova(h); await _foto("entrada-prova"); await _fechar()
+	for c in [0, 2]:
+		h = await _hub()
+		var j: Control = load("res://tools/proto_desafio/FolhaProva.gd").new()
+		h.get_node("HUD").add_child(j); await process_frame
+		var d := DADOS.duplicate(); d["carimbos"] = c
+		j.mostrar(d)
+		await _foto("folha-prova-%d" % c); await _fechar()
 	quit()
