@@ -243,6 +243,7 @@ func _ready() -> void:
 	_criar_botao_config()
 	_verificar_recompensa_diaria()
 	_verificar_atualizacao()
+	_verificar_novidades()
 
 func _process(delta: float) -> void:
 	# Efeito de contagem animada no saldo de tinta
@@ -1638,6 +1639,29 @@ func _tratar_versao(texto: String) -> void:
 		janela.queue_free())
 	janela.fechar.connect(janela.queue_free)
 	janela.mostrar({"versao": info.get("versao", ""), "novidades": novidades, "nova": true})
+
+## Novidades da versão instalada, uma vez, na 1ª abertura depois de atualizar.
+## Conta nova (sem tutorial) só marca como vista: não há "antes" para comparar.
+func _verificar_novidades() -> void:
+	if int(dados_save.get("novidades_vistas", 0)) >= GameData.VERSAO_CODIGO:
+		return
+	dados_save["novidades_vistas"] = GameData.VERSAO_CODIGO
+	_salvar_dados()
+	if not dados_save["tutorial_visto"] or GameData.NOVIDADES.is_empty():
+		return
+	# Não empilha em cima da recompensa diária: espera ela fechar
+	if is_instance_valid(_janela_recompensa):
+		await _janela_recompensa.tree_exited
+	if not is_inside_tree():
+		return
+	var janela := Control.new()
+	janela.set_script(preload("res://JanelaNovidades.gd"))
+	$HUD.add_child(janela)
+	_tocar_som(preload("res://assets/sons/aviso.ogg"))
+	janela.fechar.connect(func():
+		_tocar_som(audio_click_sucesso)
+		janela.queue_free())
+	janela.mostrar({"versao": GameData.VERSAO_NOME, "novidades": GameData.NOVIDADES.slice(0, 3), "nova": true})
 
 func _verificar_missoes_diarias() -> void:
 	var hoje = _data_de_hoje()

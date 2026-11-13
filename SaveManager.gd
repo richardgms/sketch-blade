@@ -71,6 +71,7 @@ var _defaults: Dictionary = {
 	"compras_tokens": [],
 	# Configurações
 	"tutorial_visto": false,
+	"novidades_vistas": 0, # VERSAO_CODIGO cujas novidades já apareceram
 	"dica_gotas_vista": false, # dica da primeira gota de tinta (uma vez por conta)
 	"som_ativo": true,
 	"vibracao_ativa": true,

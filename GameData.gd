@@ -129,6 +129,13 @@ const MODO_TESTE: bool = true
 ## Código desta versão: subir junto com version/code do export_presets.cfg.
 ## O aviso de atualização compara com o codigo de atualizacao/versao.json.
 const VERSAO_CODIGO: int = 25
+## Nome da versão (igual a version/name do export_presets.cfg) e o que ela
+## traz: aparece uma vez, na 1ª abertura depois de atualizar (JanelaNovidades).
+## Até 3 frases curtas; lista vazia não mostra o aviso.
+const VERSAO_NOME: String = "1.9.0"
+const NOVIDADES: Array = [
+	"Tiros dos inimigos somem quando a página termina.",
+]
 
 ## Raio do Borrão Explosivo por nível (índice = nível - 1).
 const RAIOS_EXPLOSAO: Array = [200.0, 240.0, 280.0]
