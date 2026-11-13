@@ -293,6 +293,14 @@ Notas sugeridas para a Play:
 ```
 
 
+## Build 1.9.2 (27) — 13/11/2026
+Desafio do dia "Prova surpresa" (`docs/plano-desafio.md`): bilhete no Hub, prova na prancheta, 4 regras (Caneta de vidro com metade dos corações, Chuva de borrões, Só ricochete, Chefe turbinado), prêmio 1x/dia e cartela de 3 vistos.
+- Revisão antes do envio achou e corrigiu: vencer/perder/abandonar a prova apagava a partida normal guardada (`Main._limpar_snapshot`).
+- Testes: `tools/teste_desafio.gd` (23 de 23), novidades e avaliação sem falhas; partida normal conferida por prints (8 páginas, roleta, desbloqueio).
+- Removida a arte da versão 2 descartada (`desafio_folha.png`). AAB: `Documentos\Sketch Blade\builds\sketchblade-1.9.2-vc27.aab` (75.477.822 bytes; +3,8 MB da prancheta e do papel da prova).
+- Validado e enviado ao teste fechado (alpha) pela API em 13/11/2026: código 27 publicado.
+- Falta: jogar as 4 regras no celular; relógio do celular (ver plano do desafio).
+
 ## Build 1.9.1 (26) — 13/11/2026
 Aviso de novidades e pedido de avaliação (aprovados A e A; ver `docs/proximas-melhorias.md`):
 - `JanelaNovidades.gd`: na 1ª abertura depois de atualizar, lista `GameData.NOVIDADES` (até 3) com a versão `GameData.VERSAO_NOME`; save `novidades_vistas`. Conta nova só marca. **A cada build: atualizar `VERSAO_NOME` e `NOVIDADES`.**

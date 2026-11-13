@@ -9,10 +9,13 @@ const DADOS := {"data": "Sexta, 14 de novembro", "regra": "Caneta de vidro",
 
 func _initialize() -> void:
 	var a := OS.get_cmdline_user_args()
-	if a.size() > 0 and a[0] != "v2":
+	if a.size() > 0 and not a[0] in ["v2", "v3"]:
 		_saida = a[0]
 	if a.has("v2"):
 		_saida = _saida.replace("/v1", "/v2")
+	if a.has("v3"):
+		_saida = _saida.replace("/v1", "/v3")
+		DirAccess.make_dir_recursive_absolute(_saida)
 	DirAccess.make_dir_recursive_absolute(_saida)
 	_rodar()
 
@@ -84,15 +87,15 @@ func _entrada_b(h: Node) -> void:
 ## balançando de leve.
 func _entrada_prova(h: Node) -> void:
 	var e := TextureRect.new()
-	e.texture = load("res://assets/ui/desafio_icone.png")
+	e.texture = load("res://assets/ui/desafio/icone.png")
 	e.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	e.size = Vector2(170, 170); e.position = Vector2(870, 450)
 	e.pivot_offset = Vector2(85, 10); e.rotation_degrees = 6
 	h.get_node("HUD").add_child(e)
 
 func _rodar() -> void:
-	if OS.get_cmdline_user_args().has("v2"):
-		await _rodar_v2()
+	if OS.get_cmdline_user_args().has("v3"):
+		await _rodar_v3()
 		return
 	await process_frame
 	var h = await _hub(); _entrada_a(h); await _foto("entrada-A"); await _fechar()
@@ -105,14 +108,15 @@ func _rodar() -> void:
 		await _foto(par[0]); await _fechar()
 	quit()
 
-func _rodar_v2() -> void:
+func _rodar_v3() -> void:
 	await process_frame
-	var h = await _hub(); _entrada_prova(h); await _foto("entrada-prova"); await _fechar()
-	for c in [0, 2]:
-		h = await _hub()
-		var j: Control = load("res://tools/proto_desafio/FolhaProva.gd").new()
-		h.get_node("HUD").add_child(j); await process_frame
-		var d := DADOS.duplicate(); d["carimbos"] = c
-		j.mostrar(d)
-		await _foto("folha-prova-%d" % c); await _fechar()
+	for estilo in ["prancheta", "fita"]:
+		for c in [0, 2]:
+			var h = await _hub()
+			var j: Control = load("res://tools/proto_desafio/Prova.gd").new()
+			h.get_node("HUD").add_child(j); await process_frame
+			var d := DADOS.duplicate()
+			d["carimbos"] = c; d["estilo"] = estilo; d["nome"] = "Caneta Bic Azul"; d["data"] = "sexta, 14/11"
+			j.mostrar(d)
+			await _foto("prova-%s-%d" % [estilo, c]); await _fechar()
 	quit()
