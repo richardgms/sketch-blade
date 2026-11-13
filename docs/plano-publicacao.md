@@ -293,6 +293,14 @@ Notas sugeridas para a Play:
 ```
 
 
+## Build 1.9.1 (26) — 13/11/2026
+Aviso de novidades e pedido de avaliação (aprovados A e A; ver `docs/proximas-melhorias.md`):
+- `JanelaNovidades.gd`: na 1ª abertura depois de atualizar, lista `GameData.NOVIDADES` (até 3) com a versão `GameData.VERSAO_NOME`; save `novidades_vistas`. Conta nova só marca. **A cada build: atualizar `VERSAO_NOME` e `NOVIDADES`.**
+- `JanelaAvaliacao.gd`: depois da animação da vitória, uma vez por versão (`avaliacao_pedida`), nunca mais depois de AVALIAR (`avaliou`); voltar do Android = "Agora não". AVALIAR chama `request_review()` no plugin `play_update` (AAR recompilado com `com.google.android.play:review:2.0.2`, JBR 21 do Android Studio em `D:\Program Files\Android\Android Studio\jbr`).
+- Testes: `tools/teste_novidades.gd` (7 de 7) e `tools/teste_avaliacao.gd` (8 de 8).
+- AAB: `Documentos\Sketch Blade\builds\sketchblade-1.9.1-vc26.aab` (70.767.993 bytes); `--validar` aceito (código 26).
+- Falta: ver no celular; a janela de estrelas da Play pode não aparecer no teste fechado (limite da própria Play).
+
 ## Build 1.9.0 (25) — 13/11/2026
 Correção de feedback de testador: tiros inimigos continuavam voando na virada
 de página e na roleta de upgrade, dando dano de graça. Agora somem com respingo
