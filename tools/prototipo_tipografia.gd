@@ -2,7 +2,7 @@ extends SceneTree
 ## Teste de legibilidade (13/11/2026): a prova do dia com outras fontes nas
 ## linhas (manuscrita só no título). Fontes fora do projeto, carregadas do disco.
 ## Uso (com janela e backup do save do PC):
-##   Godot --path . -s tools/prototipo_tipografia.gd -- <pasta_das_fontes> <pasta_saida>
+##   Godot --path . -s tools/prototipo_tipografia.gd -- <pasta_das_fontes> <pasta_saida> nome:arquivo.ttf:tamanho ...
 var _sv: SubViewport
 
 func _initialize() -> void:
@@ -17,7 +17,12 @@ func _rodar() -> void:
 	var d: Dictionary = root.get_node("SaveManager").dados
 	d["tutorial_visto"] = true; d["novidades_vistas"] = 9999; d["run_snapshot"] = {"ativa": false}
 	d["ultimo_login"] = Time.get_date_string_from_system()
-	for par in [["atual", ""], ["patrick", fontes + "/PatrickHand-Regular.ttf"], ["atkinson", fontes + "/AtkinsonHyperlegible-Regular.ttf"]]:
+	# [nome, arquivo .ttf ("" = atual), tamanho das linhas]
+	var lista: Array = [["atual", "", 46]]
+	for linha in a.slice(2):
+		var p: PackedStringArray = linha.split(":")
+		lista.append([p[0], fontes + "/" + p[1], int(p[2])])
+	for par in lista:
 		_sv = SubViewport.new(); _sv.size = Vector2i(1080, 1920)
 		_sv.render_target_update_mode = SubViewport.UPDATE_ALWAYS
 		root.add_child(_sv)
@@ -30,6 +35,7 @@ func _rodar() -> void:
 			"desc": ["Metade dos corações,", "mas toda tinta vale o triplo."], "carimbos": 2}
 		if par[1] != "":
 			dd["fonte_corpo"] = par[1]
+		dd["tam_corpo"] = par[2]
 		j.mostrar(dd)
 		await create_timer(0.5).timeout
 		await RenderingServer.frame_post_draw

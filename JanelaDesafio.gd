@@ -55,7 +55,7 @@ func _folha_nova(d: Dictionary) -> void:
 	_txt(_folha, "PROVA SURPRESA", 52, AZUL_ESCURO, 70, 160, FONTE, 100, larg - 215, HORIZONTAL_ALIGNMENT_LEFT)
 	_img(_folha, "carimbo_hoje.png", Rect2(larg - 215, 46, 185, 99), 8)
 	# Linhas (uma por pauta, sem linhas vazias)
-	var tam := 46
+	var tam: int = d.get("tam_corpo", 46)
 	_na_linha(0, "Nome: " + d["nome"], tam, AZUL_ESCURO, 90.0, larg - 280)
 	_na_linha(1, "Data: " + d["data"], tam, AZUL_ESCURO)
 	_na_linha(0, "Nota:", tam, AZUL_ESCURO, larg - 290, larg - 160, HORIZONTAL_ALIGNMENT_RIGHT)
