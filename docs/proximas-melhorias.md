@@ -4,7 +4,10 @@ Fonte única da lista de melhorias depois da 1.5.0. Antes/depois para aprovar: h
 
 **Próximo:** 1.7.0 (código 10) no Teste fechado desde 30/10 (sem o descanso novo). Descanso e pausa novos na 1.7.1 (código 11, gerada em 30/10). Estojo novo no jogo desde 30/10 (sem build). Loja nova no jogo desde 30/10; Missões, Recompensa diária e Configurações novas desde 31/10; tudo isso na 1.7.2 (código 12, gerada em 31/10, falta enviar). Todas as telas de jogador fora da partida estão no estilo caderno (só o painel "Stats de teste", de testador, segue o antigo).
 
-## Aviso de novidades e pedido de avaliação (13/11): APROVADOS (A e A), falta implementar
+## Tipografia: Kalam no jogo todo (14/11): ESCOLHIDA, falta aplicar tela por tela
+Plano, feedback e como testar: `docs/plano-tipografia.md`. Próximo chat começa por Missões, Loja e Estojo.
+
+## Aviso de novidades e pedido de avaliação (13/11): APROVADOS e no jogo (1.9.1)
 - **Novidades (A):** na 1ª abertura depois de atualizar, a folha do aviso de atualização com "NOVIDADES!", "Você está na versão X." e os itens do `versao.json`; um botão só, "BORA JOGAR!". Descartado o bilhete colado no Hub (B).
 - **Avaliação (A):** folha própria por cima da vitória (chefe vencido, no máximo 1 vez por versão): "AVALIE O JOGO", texto neutro (a Play proíbe perguntar se gostou antes), 5 estrelas, AVALIAR (abre a janela de avaliação da Play no jogo) e "Agora não". Descartadas as estrelas dentro da tela de vitória (B).
 - Estrelas à mão em giz de cera: `assets/ui/estrela_giz.png`, gerada por `tools/gerar_estrela_giz.py` (contorno tremido, pontas arredondadas, falhinhas brancas); cada uma levemente girada.

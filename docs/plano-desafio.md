@@ -29,3 +29,4 @@ Depois, uma por atualização: Gigantes, Roleta maluca, Tinta que acaba.
 - Medir: abriu / venceu / voltou no dia seguinte.
 - Desligar regra remotamente (via `atualizacao/versao.json`) se uma regra sair quebrada.
 - Prêmio passar pela simulação da economia (`tools/sim_economia.py`).
+- Próxima versão: levar as letras maiores da prova (feitas depois da 1.9.2) e a fonte nova (`docs/plano-tipografia.md`); atualizar `VERSAO_NOME` e `NOVIDADES`.
