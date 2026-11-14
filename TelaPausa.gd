@@ -214,19 +214,19 @@ func _corpo(d: Dictionary) -> void:
 			continue
 		var m: Dictionary = mel[k]
 		carta.draw.connect(func(): carta.draw_style_box(estilo, Rect2(Vector2.ZERO, carta.size)))
-		var ic := _icone(m["icone"], 150)
-		ic.position = Vector2((larg - 150) / 2.0, 24)
-		ic.size = Vector2(150, 150)
+		var ic := _icone(m["icone"], 130)
+		ic.position = Vector2((larg - 130) / 2.0, 22)
+		ic.size = Vector2(130, 130)
 		carta.add_child(ic)
 		var nome := _txt(carta, String(m["nome"]).replace("\n", " "), 42, AZUL_ESCURO, 200, 300, FONTE, 24, larg - 24)
 		nome.autowrap_mode = TextServer.AUTOWRAP_WORD
-		nome.add_theme_constant_override("line_spacing", -8)
-		# Depois da quebra de linha: o rótulo volta à largura da carta
-		nome.position = Vector2(24, 178)
-		nome.size = Vector2(larg - 48, 100)
+		nome.add_theme_constant_override("line_spacing", -12)
+		# Espaço fixo de 2 linhas, com folga das bordas e das bolinhas
+		nome.position = Vector2(40, 156)
+		nome.size = Vector2(larg - 80, 104)
 		var nv := int(m["nivel"])
 		var bolinhas := Control.new()
-		bolinhas.position = Vector2(0, 284)
+		bolinhas.position = Vector2(0, 272)
 		bolinhas.size = Vector2(larg, 40)
 		bolinhas.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		bolinhas.draw.connect(func():
@@ -238,10 +238,15 @@ func _corpo(d: Dictionary) -> void:
 		carta.add_child(bolinhas)
 		# Efeito em até 2 linhas, dentro da carta
 		var ef := _txt(carta, String(m["efeito"]).replace("\n", " "), 46, AZUL, 326, 420, NUM, 20, larg - 20)
+		# Encolhe até caber numa linha com folga das bordas hachuradas
+		var tam_ef := 42
+		while tam_ef > 32 and NUM.get_string_size(ef.text, HORIZONTAL_ALIGNMENT_LEFT, -1, tam_ef).x > larg - 110:
+			tam_ef -= 2
+		ef.add_theme_font_size_override("font_size", tam_ef)
 		ef.autowrap_mode = TextServer.AUTOWRAP_WORD
 		ef.add_theme_constant_override("line_spacing", -12)
-		ef.position = Vector2(20, 326)
-		ef.size = Vector2(larg - 40, 94)
+		ef.position = Vector2(36, 322)
+		ef.size = Vector2(larg - 72, 84)
 
 
 
